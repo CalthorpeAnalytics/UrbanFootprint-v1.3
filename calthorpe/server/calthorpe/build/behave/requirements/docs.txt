@@ -1,6 +1,0 @@
-# ============================================================================
-# BEHAVE: PYTHON PACKAGE REQUIREMENTS: For documentation generation
-# ============================================================================
-
-sphinx >= 1.1
-sphinxcontrib-cheeseshop >= 0.2
