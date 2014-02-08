@@ -1,0 +1,114 @@
+$theme: '.ace.footprint';
+
+$theme.featurer-bar {
+    margin-left:10px;
+    margin-right:10px;
+}
+
+$theme.theme-button {
+
+    @include border-radius(4px);
+
+    &.theme-button-blue {
+        border: 1px solid #1B5AAA;
+        color: white;
+        @include background-image(linear-gradient(bottom, #4B8ADA 0%, #447EC3 100%));
+        @include box-shadow(inset 0 1px 0 #5B9AEA );
+        background-color: #589AEA;
+
+        &.active, &.sel {
+            @include background-image(linear-gradient(bottom, #3BEEEE 0%, #34CCCC 100%));
+            @include box-shadow(inset 0 1px 0 #4BAAAA);
+            background-color: #559ADA;
+        }
+
+        &.is-full-redevelopment {
+            @include background-image(linear-gradient(bottom, #EE0000 0%, #AA0000 100%));
+            @include box-shadow(inset 0 1px 0 #FF0000 );
+            background-color: #BB0000;
+
+            &.active, &.sel {
+                @include background-image(linear-gradient(bottom, #660000 0%, #880000 100%));
+                @include box-shadow(inset 0 1px 0 #DE0000 );
+                background-color: #BB0000;
+            }
+        }
+    }
+
+    &.theme-button-gold {
+        border: 1px solid #AAAA00;
+        color: white;
+        @include background-image(linear-gradient(bottom, #AAAA00 0%, #FFFF93 100%));
+        @include box-shadow(inset 0 1px 0 #999900 );
+        background-color: #888800;
+
+        &.active, &.sel {
+            @include background-image(linear-gradient(bottom, #EEEE00 0%, #FFFF00 100%));
+            @include box-shadow(inset 0 1px 0 #999900 );
+            background-color: #888800;
+        }
+    }
+
+    &.theme-button-green {
+        border: 1px solid #44AA00;
+        color: black;
+        @include background-image(linear-gradient(bottom, #22AA00 0%, #66EE00 100%));
+        @include box-shadow(inset 0 1px 0 #999999 );
+        background-color: #228800;
+
+        &.active, &.sel {
+            @include background-image(linear-gradient(bottom, #44CCCC 0%, #AAEEEE 100%));
+            @include box-shadow(inset 0 1px 0 #999999 );
+            background-color: #22CC22;
+        }
+    }
+
+    &.theme-button-gray {
+        border: 1px solid #AAAAAA;
+        color: black;
+        @include background-image(linear-gradient(bottom, #AAAAAA 0%, #EEEEEE 100%));
+        @include box-shadow(inset 0 1px 0 #999999 );
+        background-color: #888888;
+
+        &.active, &.sel {
+            @include background-image(linear-gradient(bottom, #CCCCCC 0%, #EEEEEE 100%));
+            @include box-shadow(inset 0 1px 0 #999999 );
+            background-color: #CCCCCC;
+        }        
+    }
+
+    /* Label size. (Specify other button sizes for your app can be specified too, see below.)  */
+    label.sc-button-label {
+        line-height: 18px;
+        padding-left: 0;
+        padding-right: 0;
+        height: auto;
+    }
+    &.theme-button-shorter {
+        label.sc-button-label {
+            line-height: 16px;
+            /* Layout fix for the dropdown arrow button. */
+            margin-top: -1px;
+            img {
+                margin-right: 0;
+                left: 0;
+            }
+        }
+    }
+    &.theme-button-short {
+        label.sc-button-label {
+            line-height: 20px;
+        }
+    }
+    &.theme-button-tall {
+        label.sc-button-label {
+            line-height: 28px;
+        }
+    }
+
+    /* The inner divs should just go away.  */
+    .left, .middle, .right {
+        display: none;
+    }
+}
+

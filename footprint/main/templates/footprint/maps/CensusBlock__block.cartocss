@@ -1,0 +1,22 @@
+.{{ htmlClass }}
+{buffer-size: 50;}
+
+[zoom<14] {
+  outline/line-width: 2;
+  outline/line-color:#000000;
+  outline/line-opacity:0.7;
+  mainline/line-width:1;
+  mainline/line-color:#CCFFFF;
+  mainline/line-opacity:1;
+}
+
+[zoom>=15] {
+  outline/line-width: 5;
+  outline/line-color:#000000;
+  outline/line-opacity:0.7;
+  mainline/line-width:1.6;
+  mainline/line-color:#CCFFFF;
+  mainline/line-opacity:1;
+  mainline/line-dasharray:3,1;
+}
+

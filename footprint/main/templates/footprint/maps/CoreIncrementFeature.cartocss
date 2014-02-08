@@ -1,0 +1,20 @@
+
+
+[ land_development_category = 'urban'] {
+    polygon-fill:#CC00CC;
+    line-color: #909090;
+    line-width:1;
+}
+
+[ land_development_category = 'compact'] {
+    polygon-fill:#33CCFF;
+    line-color: #909090;
+    line-width:1;
+}
+
+[ land_development_category = 'standard'] {
+    polygon-fill:#FFCC66;
+    line-color: #909090;
+    line-width:1;
+}
+

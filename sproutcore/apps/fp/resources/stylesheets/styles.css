@@ -1,0 +1,125 @@
+
+/*
+.sc-button {
+    @include box-shadow(inset 0 1px 0 rgba(255,255,255,0.5));
+}
+*/
+
+body { 
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizelegibility;
+}
+
+/* Fix for Chrome bug on accelerated panes */
+.sc-pane { 
+  -webkit-transform: none;
+}
+
+$theme.sc-text-field-view { 
+  font-size: 14px;
+  .hint {
+    font-size: 14px;
+    line-height: 30px;
+  }
+ 
+  .padding { 
+    left: 14px;
+  }
+}
+
+$theme.toolbar {
+  .checkbox {
+    .button {
+      left: 13px;
+      top: 50%;
+      margin-top: -8px;
+    }
+ 
+    .label {
+      left: 47px;
+      line-height: 36px;
+    }
+  }
+}
+
+.sc-list-insertion-point {
+    overflow: visible;
+    background-color: #C9D3DF;
+    z-index: 1000;
+}
+
+.sc-list-insertion-point > .anchor {
+    position: absolute ;
+    width: 8px;
+    top: -3px;
+    left: -4px;
+    height: 8px;
+    border-radius: 4px;
+    background-color: #C9D3DF;
+}
+
+ .loading-image {
+    -webkit-animation-name: spinner;
+    -webkit-animation-timing-function: linear;
+    -webkit-animation-iteration-count: infinite;
+    -webkit-animation-duration: 6s;
+    -webkit-transform-style: preserve-3d;
+    &.hover {
+        -webkit-animation-play-state: paused;
+    }
+  }
+
+$theme.overlay-view {
+    background-color: #D1DAE4;
+}
+
+$theme.sc-split-divider-view {
+    .line {
+        display: none;
+    }
+}
+
+$theme.clear-icon {
+    height: 24px;
+    width: 24px;
+    @include slice('../images/clear.png');
+}
+$theme.delete-icon {
+    height: 24px;
+    width: 24px;
+    @include slice('../images/delete.png');
+}
+$theme.add-icon {
+    height: 24px;
+    width: 24px;
+    @include slice('../images/add.png');
+}
+$theme.sc-button-view {
+  .icon.add-icon {
+      height: 16px;
+      width: 16px;
+      margin-right: 2px;
+      @include slice('../images/add.png');
+  }
+}
+
+$theme.new-record {
+    font-style:italic;
+}
+
+$theme.dirty-record {
+    font-style:italic;
+}
+
+$theme.error-progress-overlay-view {
+
+    .content {
+        position: absolute;
+        left: 0;
+        top: 0;
+        bottom: 0;
+
+        /* width set in rendering */
+        @include slice("../images/error_progress_view_content.png", $left: 1, $right: 1);
+    }
+}

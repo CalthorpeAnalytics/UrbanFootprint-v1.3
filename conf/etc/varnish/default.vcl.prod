@@ -1,0 +1,124 @@
+#st of upstream proxies we trust to set X-Forwarded-For correctly.
+acl upstream_proxy {
+  "127.0.0.1";
+}
+
+# Content Server 
+backend default {
+    .host = "127.0.0.1";
+    .port = "8082";
+}
+
+sub vcl_recv {
+
+  #strip out any cookies from anything requested from static folder so it becomes
+  #candidate for caching
+
+  if (req.url ~ "/static/" ) {
+        unset req.http.cookie;
+  }
+  
+  # Set the X-Forwarded-For header so the backend can see the original
+  # IP address. If one is already set by an upstream proxy, we'll just re-use that.
+  if (client.ip ~ upstream_proxy && req.http.X-Forwarded-For) {
+    set req.http.X-Forwarded-For = req.http.X-Forwarded-For;
+  } else {
+    set req.http.X-Forwarded-For = regsub(client.ip, ":.*", "");
+  }
+
+  # Do not cache these paths.
+  #if (req.url ~ "^/status\.php$" ||
+  #    req.url ~ "^/update\.php" ||
+  #    req.url ~ "^/install\.php" ||
+  #    req.url ~ "^/piwik\.php" ||
+  #    req.url ~ "^/admin/build/features" ) {
+  #    return (pass);
+  #}
+
+  # Pipe these paths directly to Apache for streaming.
+  #if (req.url ~ "^/admin/content/backup_migrate/export") {
+  #  return (pipe);
+  #}
+
+  # Deal with GET and HEAD  requests only, everything else gets through
+  if (req.request != "GET" &&
+      req.request != "HEAD") {
+    return (pass);
+  }
+
+  # Always cache the following file types for all users.
+  #if (req.url ~ "(?i)\.(png|gif|jpeg|jpg|ico|swf|css|js|html|htm)(\?[a-z0-9]+)?$") {
+  #  unset req.http.Cookie;
+  #}
+
+  # Handle compression correctly. Different browsers send different
+  # "Accept-Encoding" headers, even though they mostly all support the same
+  # compression mechanisms. By consolidating these compression headers into
+  # a consistent format, we can reduce the size of the cache and get more hits.
+  # @see: http://varnish.projects.linpro.no/wiki/FAQ/Compression
+  if (req.http.Accept-Encoding) {
+    if (req.http.Accept-Encoding ~ "gzip") {
+      # If the browser supports it, we'll use gzip.
+      set req.http.Accept-Encoding = "gzip";
+    }
+    else if (req.http.Accept-Encoding ~ "deflate" && req.http.user-agent !~ "MSIE") {
+      # Next, try deflate if it is supported.
+      set req.http.Accept-Encoding = "deflate";
+    }
+    else {
+      # Unknown algorithm. Remove it and send unencoded.
+      unset req.http.Accept-Encoding;
+    }
+  }
+}
+
+# When cached data is delivered to the client, set a bit of cache info.
+sub vcl_deliver {
+  # Add cache hit data
+  if (obj.hits > 0) {
+    # If hit add hit count
+    set resp.http.X-Cache = "HIT";
+    set resp.http.X-Cache-Hits = obj.hits;
+  } else {
+    set resp.http.X-Cache = "MISS";
+  }
+  return (deliver);
+}
+
+sub vcl_fetch {
+
+    if (req.url ~ "/static/" ) {
+        unset beresp.http.set-cookie;
+    }
+
+    # Varnish determined the object was not cacheable
+    if (beresp.ttl <= 0s) {
+        set beresp.http.X-Cacheable = "NO:Not Cacheable";
+    
+    # You don't wish to cache content for logged in users
+    } elsif (req.http.Cookie ~ "(UserID|_session)") {
+        set beresp.http.X-Cacheable = "NO:Got Session";
+        return(hit_for_pass);
+    
+    # You are respecting the Cache-Control=private header from the backend
+    } elsif (beresp.http.Cache-Control ~ "private") {
+        set beresp.http.X-Cacheable = "NO:Cache-Control=private";
+        return(hit_for_pass);
+    
+    # Varnish determined the object was cacheable
+    } else {
+        set beresp.http.X-Cacheable = "YES";
+    }
+
+    #default vcl_fetch logic
+    if (beresp.ttl <= 0s ||
+        beresp.http.Set-Cookie ||
+        beresp.http.Vary == "*") {
+              /*
+               * Mark as "Hit-For-Pass" for the next 2 minutes
+               */
+              set beresp.ttl = 120 s;
+              return (hit_for_pass);
+    }
+    return (deliver);
+}

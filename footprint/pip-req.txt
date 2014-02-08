@@ -1,0 +1,61 @@
+Django==1.4.10
+South==0.8.4
+psycopg2==2.4.5
+django-grappelli==2.4.2
+celery[redis]==3.1.6
+flower>=0.6,<0.7
+django-celery
+
+#https://github.com/muhuk/cuisine-postgresql/issues/1 cuisine-postgresql needs to be before Fabric
+cuisine
+cuisine-postgresql
+Fabric
+newrelic
+ipython==0.13
+django-jsonify==0.2.1
+wadofstuff-django-serializers==1.1.0
+cElementTree
+sphinx-me==0.1.2
+PIL==1.1.7
+ModestMaps==1.4.1
+TileStache==1.49.8
+python-memcached==1.48
+Shapely==1.2.16
+django-reversion==1.7.1
+django-reversion-compare==0.3.5
+django-draft==0.2.2
+django-picklefield==0.2.1
+geojson==1.0.1
+django-model-utils==2.0
+django-csv-importer==0.1.3.5
+#gevent
+#-e git://github.com/abourget/gevent-socketio.git#egg=gevent-socketio
+#-e git+https://github.com/liris/websocket-client.git#egg=websocket
+#django-socketio
+nodeenv==0.6.5
+django-tastypie==0.9.14
+gunicorn==0.17.4
+django-data-tools==0.1
+pytz
+django-sendfile
+uuid
+boto
+inflection==0.2.0
+sarge
+
+# testing packages
+coverage==3.6
+pyflakes==0.7.2
+pep8==1.4.5
+django-jenkins==0.14.0
+behave
+django-extensions==1.1.1
+django-nose==1.1
+pygraphviz==1.2
+# Memory Profiler and reqs
+psutil
+matplotlib
+memory_profiler
+
+# Guppy/Heapy alternative memory profiler
+guppy

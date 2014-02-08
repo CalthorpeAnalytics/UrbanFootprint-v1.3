@@ -1,0 +1,261 @@
+$theme.footprint.sc-view.sc-label-view.footprint-numberrangeitemview-item {
+    background-color: #FFFFFF;
+}
+
+$theme.footprint.footprint-editable-model-string-view {
+    text-align: left;
+}
+
+$theme.footprint.footprint-label-select-view {
+    .footprint-editable-model-string-view {
+        text-align: right;
+    }
+}
+
+$theme.footprint-info-pane {
+    $theme.footprint-editable-model-string-view.is-editable {
+        &.is-editable {
+            background-color: #f0f8ff;
+            border-color: #c3c3c3;
+            border-width: 2px;
+        }
+    }
+}
+
+$theme.footprint.sc-view.sc-pane.sc-panel.sc-palette.footprint-info-pane.opaque.footprint-feature-info-view.panel {
+    background-color: #e1e4e1;
+    border-color: #708090;
+    border-width: 5px;
+}
+
+$theme.sc-split-divider-view {
+    background-color: #B0C4DE;
+}
+
+$theme.footprint-logo-section-view {
+    background-color: #D0D0D0;
+    border-color: #D8D8D8;
+    border-width: 2px;
+}
+
+$theme.footprint-right-logo-title-view {
+    font-size: 14;
+    font-weight: 700;
+    line-height: 24px;
+    text-align: center;
+}
+
+$theme.footprint-left-city-title-view {
+    font-size: 14;
+    font-weight: 700;
+}
+
+$theme.footprint-left-city-content-view {
+    font-size: 14;
+    font-weight: 400;
+}
+
+$theme.footprint-left-county-title-view {
+    font-size: 14;
+    font-weight: 700;
+}
+
+$theme.footprint-left-county-content-view {
+    font-size: 14;
+    font-weight: 400;
+}
+
+$theme.footprint-left-state-title-view {
+    font-size: 14;
+    font-weight: 700;
+}
+
+$theme.footprint-left-state-content-view {
+    font-size: 14;
+    font-weight: 400;
+}
+
+$theme.footprint-copyright-view {
+    background-color: #F0F0F0;
+    border-top-color: #B8B8B8;
+    border-top-width: 2px;
+}
+
+$theme.footprint-feature-edit-view {
+    background-color: #C0C0C0;
+}
+
+$theme.footprint-layer-group-view, $theme.footprint-scenario-group, $theme.footprint-built-form-group-view {
+    top: 0; bottom: 0; left: 0; right: 0;
+    background-color: #E8E8E8;
+    border-top-width: 1px;
+    border-color: #A0A0A0;
+    border-bottom-width: 1px;
+    $theme.footprint-layer-group-label-view {
+        left: 34px;
+    }
+    $theme.footprint-built-form-group-label-view {
+        left: 25px;
+        line-height: 18px;
+    }
+}
+$theme.footprint-built-form-item {
+    $theme.footprint-built-form-item-label-view {
+        left: 25px; 
+        line-height: 20px;
+    }
+    $theme.footprint-medium-color {
+        top: 2px; bottom: 2px; left: 5px; width: 16px;
+    }
+}
+
+$theme.results-chart-example-container {
+    border-right-color: #707070;
+}
+
+$theme.footprint.sc-view.chart-view{
+    background-color: #f2f1ef;
+}
+
+$theme.footprint.results-chart-title {
+    text-align: center;
+    font-weight: bold;
+    line-height: 25px;
+}
+
+$theme.footprint.result-toggle-view {
+    font-size: 9px;
+    font-weight: 700;
+    line-height: 16px;
+}
+
+$theme.footprint.sc-view.footprint-model-management-view {
+   background-color: #f2f1ef;
+}
+
+$theme.footprint-dwelling-unit-summary-view{
+    color: darkgreen;
+    font-size: 24px;
+}
+
+$theme.footprint-employment-summary-view{
+    color: darkgreen;
+    font-size: 24px;
+}
+
+
+$theme.footprint-single-family-small-title-view, $theme.footprint-attached-title-view, $theme.footprint-single-family-large-title-view, $theme.footprint-multifamily-title-view, $theme.footprint-retail-title-view, $theme.footprint-office-title-view, $theme.footprint-public-title-view, $theme.footprint-industrial-title-view{
+    font-size: 11px;
+}
+
+
+$theme.result-legend-view{
+    font-size: 9px;
+
+}
+
+$theme.footprint-add-building-pane{
+    border-width: 3px;
+    border-color: #505050;
+}
+
+$theme.footprint-summary-field-view{
+    border-width: 1px;
+    border-color: #C0C0C0;
+}
+
+
+$theme.footprint-editable-input-view{
+    border-width: 1px;
+    border-color: #C0C0C0;
+}
+
+$theme.footprint-editable-building-use-types-view{
+    border-width: 1px;
+    border-color: #C0C0C0;
+}
+
+$theme.footprint-built-form-percent-list-scroll-view{
+    border-width: 1px;
+    border-top: 1px;
+    border-left:0px;
+    border-color: #B0B0B0 ;
+}
+
+$theme.slider-item-title{
+    font-size: 9px;
+}
+
+$theme.slider-item-symbol-label{
+    font-size: 10px;
+}
+
+$theme.slider-item-value-label{
+    font-size: 11px;
+    background-color: whitesmoke;
+}
+
+$theme.footprint-checkbox-item-title{
+    font-size: 9px;
+}
+
+$theme.footprint-layer-info-create-from-layer-selection-view {
+    $theme.footprint-checkbox-item-title{
+        font-size: 11px;
+    }
+}
+
+$theme.footprint-editable-clone-field-content-view{
+    background-color: #f0f8ff;
+    border-width: 1px;
+    border-color: #B8B8B8 ;
+}
+
+$theme.footprint-scenario-info-view, $theme.footprint-layer-info-view {
+    border-width: 2px;
+    border-color: #505050;
+
+    $theme.footprint-info-title-view {
+        font-size: 1.3em;
+        font-weight: bold;
+    }
+
+    $theme.form-info-overlay {
+        background-color: rgba(0, 0, 0, 0.7);
+        $theme.sc-label-view {
+            color: white;
+            text-align: center;
+        }
+    }
+
+}
+
+$theme.footprint-analytic-module-title-view{
+    font-size: 1.3em;
+    font-weight: bold;
+}
+
+$theme.footprint-manage-module-view{
+    background-color: #f0f8ff;
+    border-bottom: 1px;
+    border-color: black;
+}
+
+$theme.footprint-module-results-view{
+    background-color: #f2f1ef;
+}
+
+$theme.footprint-top-labeled-result-view{
+    font-weight: bold;
+}
+
+$theme.footprint-top-labeled-result-value-view{
+    background-color: whitesmoke;
+}
+
+$theme.footprint-top-labeled-result-title-view{
+    background-color: #C0C0C0;
+}
+$theme.footprint-top-labeled-result-title-space-view{
+    font-size: 10px;
+}

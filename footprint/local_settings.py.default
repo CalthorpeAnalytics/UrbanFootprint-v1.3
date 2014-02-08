@@ -1,0 +1,107 @@
+import os
+
+# Fixtures for the given client will be loaded
+CLIENT = 'sacog'
+
+USE_LOCAL_SAMPLE_DATA_SETS = True
+USE_SAMPLE_DATA_SETS = True
+
+# Run celery as the main process
+CELERY_ALWAYS_EAGER = False
+
+# Indicates that the system should use test data for default data sets
+import warnings
+warnings.filterwarnings(
+        'error', r"DateTimeField received a naive datetime",
+        RuntimeWarning, r'django\.db\.models\.fields')
+
+DEBUG = True
+TASTYPIE_FULL_DEBUG = True
+CONSOLE_DEBUG = DEBUG
+TEMPLATE_DEBUG = DEBUG
+
+REUSE_DB = 1
+
+# Set the source for built form imports, or don't import them at all
+IMPORT_BUILT_FORMS = 'CSV' #  set to 'CSV' to run full import, 'JSON' to use fixtures, or 'FALSE' to skip import
+# Skip slow calculations for testing
+SKIP_ALL_BUILT_FORMS = False
+TEST_SKIP_BUILT_FORM_COMPUTATIONS = False
+
+MEDIA_ROOT = '/srv/calthorpe_media'
+
+DATABASES = {'default': {
+        'ENGINE': 'django.contrib.gis.db.backends.postgis',
+        'OPTIONS': {
+            'autocommit': True,
+        },
+        'NAME': 'urbanfootprint',
+        'USER': 'calthorpe',
+        'PASSWORD': '[PASSWORD]',
+        'HOST': 'localhost',
+        'PORT': '5432'
+    },
+        'sample_data': dict(
+        ENGINE='django.contrib.gis.db.backends.postgis',
+        HOST='localhost',
+        NAME='sample_data',
+        USER='calthorpe',
+        PASSWORD='[PASSWORD]',
+        PORT='5432'
+    )
+    }
+
+
+SQL_PATH = "/srv/calthorpe/urbanfootprint/calthorpe/server/footprint/main/static/sql"
+
+
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': True,
+    'formatters': {
+        'verbose': {
+            'format': '%(levelname)s %(asctime)s %(module)s %(process)d %(thread)d %(message)s'
+        },
+        'simple': {
+            'format': '%(levelname)s %(message)s'
+        },
+    },
+    'filters': {
+    },
+    'handlers': {
+        'null': {
+            'level': 'DEBUG',
+            'class': 'django.utils.log.NullHandler',
+        },
+        'console': {
+            'level': 'DEBUG',
+            #'class': 'logging.StreamHandler',
+            'class': 'footprint.main.color_logger.ColorHandler',
+            'formatter': 'simple'
+        }
+    },
+    'loggers': {
+        'celery': {
+            'handlers': ['console'],
+            'level': 'DEBUG',
+        },
+        'footprint': {
+            'handlers': ['console'],
+            'propagate': True,
+            'level': 'DEBUG',
+        },
+        'django': {
+            'handlers': ['null'],
+            'propagate': False,
+            'level': 'INFO',
+        },
+        'django.db.backends': {
+            'handlers': ['null'],  # Quiet by default!
+            'propagate': False,
+            'level': 'DEBUG',
+        },
+    }
+}
+from logging.config import dictConfig
+dictConfig(LOGGING)
+

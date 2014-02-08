@@ -1,0 +1,59 @@
+[program:calthorpe_www]
+command=/srv/calthorpe_env/bin/python /srv/calthorpe/urbanfootprint/manage.py run_gunicorn -w 13 -b 127.0.0.1:9001 -t 180
+directory=/srv/calthorpe/urbanfootprint
+user=www-data
+autostart=true
+autorestart=true
+stdout_logfile=/var/log/supervisor/gunicorn.log
+stderr_logfile=/var/log/supervisor/gunicorn.log
+redirect_stderr=true
+
+[program:celery_worker]
+environment=PATH="/srv/calthorpe_env/bin:/usr/bin"
+command=/srv/calthorpe_env/bin/celery -A footprint worker -l warn -n footprint1
+directory=/srv/calthorpe/urbanfootprint/
+user=www-data
+stderr_logfile=/var/log/supervisor/celery.log
+stdout_logfile=/var/log/supervisor/celery.log
+redirect_stderr=true
+autostart=true
+autorestart=true
+startsecs=10
+stopwaitsecs=600
+killasgroup=true
+numprocs=1
+
+[program:celerybeat]
+environment=PATH="/srv/calthorpe_env/bin"
+command=/srv/calthorpe_env/bin/celery beat -A footprint --loglevel=info
+directory=/srv/calthorpe/urbanfootprint/
+user=calthorpe
+numprocs=1
+stdout_logfile=/var/log/supervisor/celery.log
+stderr_logfile=/var/log/supervisor/celery.log
+autostart=true
+autorestart=true
+startsecs=10
+
+[program:celery_flower]
+environment=PATH="/srv/calthorpe_env/bin"
+command=/srv/calthorpe_env/bin/celery flower --broker=redis://localhost:6379/0
+user=www-data
+numprocs=1
+stdout_logfile=/var/log/supervisor/celery.log
+stderr_logfile=/var/log/supervisor/celery.log
+autostart=true
+autorestart=true
+startsecs=10
+
+[program:node_socketio]
+command=/usr/bin/nodejs /srv/calthorpe/urbanfootprint/websockets/app.js
+directory=/srv/calthorpe/urbanfootprint/websockets
+user=www-data
+stderr_logfile=/var/log/supervisor/socketio.log
+stdout_logfile=/var/log/supervisor/socketio.log
+redirect_stderr=true
+autostart=true
+autorestart=true
+startsecs=10
+stopwaitsecs=600

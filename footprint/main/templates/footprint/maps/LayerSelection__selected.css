@@ -1,0 +1,6 @@
+.selected {
+        {% if selected.equals.true.fill.color %} fill: {{ selected.equals.true.fill.color }}; {% endif %}
+        {% if selected.equals.true.fill.opacity %} opacity: {{ value.fill.opacity }}; {% endif %}
+        {% if selected.equals.true.outline_color %} stroke: {{ selected.equals.true.outline_color }}; {% endif %}
+        {# TODO: allow options for line styling here #}
+}

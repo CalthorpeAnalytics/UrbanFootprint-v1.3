@@ -1,0 +1,6 @@
+.cloud-upload {
+    @include slice('../images/upload.png');
+    display: inline-block;
+    width: 20px;
+    height: 16px;
+}

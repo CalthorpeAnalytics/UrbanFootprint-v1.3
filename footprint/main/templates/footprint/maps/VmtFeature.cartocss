@@ -1,0 +1,40 @@
+.{{ htmlClass }}
+{buffer-size: 50;}
+
+
+
+[ vmt_daily_per_hh > 60] {
+    polygon-fill:#C80000;
+    line-color: #909090;
+    line-width:.3;
+}
+
+[ vmt_daily_per_hh <= 60] {
+    polygon-fill:#FF9900;
+    line-color: #909090;
+    line-width:.3;
+}
+
+[ vmt_daily_per_hh <= 40] {
+    polygon-fill:#FFFF00;
+    line-color: #909090;
+    line-width:.3;
+}
+
+[ vmt_daily_per_hh <= 30] {
+    polygon-fill:#00CC33;
+    line-color: #909090;
+    line-width:.3;
+}
+
+[ vmt_daily_per_hh <= 20] {
+    polygon-fill:#009933;
+    line-color: #909090;
+    line-width:.3;
+}
+
+[ vmt_daily_per_hh = 0] {
+    polygon-fill:#E8E8E8;
+    line-color: #909090;
+    line-width:.3;
+}

@@ -1,0 +1,61 @@
+
+[program:beta_celeryd]
+command=r/erver_env/bin/python /srv/beta_amigoserver/amigoserver/django/amigoserver/manage.py celeryd --loglevel=INFO -c 1 -B -E
+directory=/srv/calthorpe/urbanfootprint/
+user=calthorpe
+group=www-data
+stdout_logfile=/var/log/supervisor/amigoserver_beta_celeryd.log
+redirect_stderr=true
+autostart=true
+autorestart=true
+startsecs=10
+stopwaitsecs=600
+
+[program:celery_worker]
+environment=PATH="/srv/calthorpe_env/bin"
+command=/srv/calthorpe_env/bin/celery -A footprint worker -l debug -n footprint
+directory=/srv/calthorpe/urbanfootprint/
+user=calthorpe
+group=www-data
+stdout_logfile=/var/log/supervisor/celery.log
+redirect_stderr=true
+autostart=true
+autorestart=true
+startsecs=10
+stopwaitsecs=600
+killasgroup=true
+numprocs=1
+
+[program:celerybeat]
+environment=PATH="/srv/calthorpe_env/bin"
+command=/srv/calthorpe_env/bin/celery beat -A footprint --loglevel=info
+directory=/srv/calthorpe/urbanfootprint/
+user=calthorpe
+numprocs=1
+stdout_logfile=/var/log/supervisor/celery.log
+stderr_logfile=/var/log/supervisor/celery.log
+autostart=true
+autorestart=true
+startsecs=10
+
+[program:celery_flower]
+environment=PATH="/srv/calthorpe_env/bin"
+command=/srv/calthorpe_env/bin/celery flower --broker=redis://localhost:6379/0
+user=www-data
+numprocs=1
+stdout_logfile=/var/log/supervisor/celery.log
+stderr_logfile=/var/log/supervisor/celery.log
+autostart=true
+autorestart=true
+startsecs=10
+
+[program:node_socketio]
+command=/usr/bin/nodejs /srv/calthorpe/urbanfootprint/websockets/app.js
+directory=/srv/calthorpe/urbanfootprint/websockets
+user=www-data
+stdout_logfile=/var/log/supervisor/calthorpe_prod_nodesocketio.log
+redirect_stderr=true
+autostart=true
+autorestart=true
+startsecs=10
+stopwaitsecs=600

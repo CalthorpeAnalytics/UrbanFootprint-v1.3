@@ -1,0 +1,62 @@
+
+{buffer-size: 50;}
+
+@SOIwidth: 2.5;
+@SOIdash: 3;
+@SOIspace: 4;
+
+[zoom<=12] {
+  outline/line-color:#000000;
+  outline/line-opacity: 0.4;
+  outline/line-width: @SOIwidth * 2;
+  outline/line-join: round;
+  outline/line-cap: round;
+  mainline/line-color:#FFCC00;
+  mainline/opacity: 0.8;
+  mainline/line-width: @SOIwidth * 1;
+  mainline/line-dasharray: @SOIdash * 1, @SOIspace * 1;
+  mainline/line-join: round;
+  mainline/line-cap: round;
+}
+
+[zoom=13] {
+  outline/line-color:#000000;
+  outline/line-opacity: 0.4;
+  outline/line-width: @SOIwidth * 4;
+  outline/line-join: round;
+  outline/line-cap: round;
+  mainline/line-color:#FFCC00;
+  mainline/opacity: 0.8;
+  mainline/line-width: @SOIwidth * 1.5;
+  mainline/line-dasharray: @SOIdash * 1.5, @SOIspace * 1.5;
+  mainline/line-join: round;
+  mainline/line-cap: round;
+}
+
+[zoom=14] {
+  outline/line-color:#000000;
+  outline/line-opacity: 0.4;
+  outline/line-width: @SOIwidth * 4.2;
+  outline/line-join: round;
+  outline/line-cap: round;
+  mainline/line-color:#FFCC00;
+  mainline/opacity: 0.8;
+  mainline/line-width: @SOIwidth * 1.8;
+  mainline/line-dasharray: @SOIdash * 1.8, @SOIspace * 1.8;
+  mainline/line-join: round;
+  mainline/line-cap: round;
+}
+
+[zoom>=15] {
+  outline/line-color:#000000;
+  outline/line-opacity: 0.4;
+  outline/line-width: @SOIwidth * 4.5;
+  outline/line-join: round;
+  outline/line-cap: round;
+  mainline/line-color:#FFCC00;
+  mainline/opacity: 0.8;
+  mainline/line-width: @SOIwidth * 2.5;
+  mainline/line-dasharray: @SOIdash * 2.5, @SOIspace * 2.5;
+  mainline/line-join: round;
+  mainline/line-cap: round;
+}

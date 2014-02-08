@@ -1,0 +1,49 @@
+[program:celery_worker]
+environment=PATH="/srv/calthorpe_env/bin:/usr/bin",IS_CELERY="True"
+command=/srv/calthorpe_env/bin/celery -A footprint worker -l debug -n footprint
+directory=/srv/calthorpe/urbanfootprint/
+user=www-data
+stdout_logfile=/var/log/supervisor/celery.log
+stderr_logfile=/var/log/supervisor/celery.log
+redirect_stderr=true
+autostart=true
+autorestart=true
+startsecs=10
+stopwaitsecs=600
+killasgroup=true
+numprocs=1
+
+[program:celerybeat]
+environment=PATH="/srv/calthorpe_env/bin:/usr/bin",IS_CELERY=True
+command=/srv/calthorpe_env/bin/celery beat -A footprint --loglevel=info
+directory=/srv/calthorpe/urbanfootprint/
+user=www-data
+numprocs=1
+stdout_logfile=/var/log/supervisor/celery.log
+stderr_logfile=/var/log/supervisor/celery.log
+autostart=true
+autorestart=true
+startsecs=10
+
+[program:celery_flower]
+environment=PATH="/srv/calthorpe_env/bin:/usr/bin",IS_CELERY=True
+command=/srv/calthorpe_env/bin/celery flower --broker=redis://localhost:6379/0
+user=www-data
+numprocs=1
+stdout_logfile=/var/log/supervisor/celery.log
+stderr_logfile=/var/log/supervisor/celery.log
+autostart=true
+autorestart=true
+startsecs=10
+
+[program:node_socketio]
+command=/usr/bin/nodejs /srv/calthorpe/urbanfootprint/websockets/app.js
+directory=/srv/calthorpe/urbanfootprint/websockets
+user=www-data
+stdout_logfile=/var/log/supervisor/nodesocketio.log
+stderr_logfile=/var/log/supervisor/nodesocketio.log
+redirect_stderr=true
+autostart=true
+autorestart=true
+startsecs=10
+stopwaitsecs=600

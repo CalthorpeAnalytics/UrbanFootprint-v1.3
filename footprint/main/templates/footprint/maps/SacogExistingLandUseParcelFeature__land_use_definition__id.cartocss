@@ -1,0 +1,16 @@
+
+[zoom<=13] {line-width:0;}
+[zoom=14] {line-width:0.2;}
+[zoom=15] {line-width:0.7;}
+[zoom=16] {line-width:1;}
+[zoom=17] {line-width:1.3;}
+[zoom=18] {line-width:2.4;}
+[zoom=19] {line-width:2.4;}
+[zoom>=20] {line-width:3;}
+
+{% for key, value in attributes.land_use_definition__id.equals.items %}
+[land_use_definition__id={{ key }}] {
+{% if value.fill.color %} polygon-fill: {{ value.fill.color }}; {% endif %}
+polygon-opacity: .6;
+}
+{% endfor %}

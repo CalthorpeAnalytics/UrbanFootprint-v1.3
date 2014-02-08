@@ -1,0 +1,16 @@
+
+[ color = 1] {
+    marker-width:10;
+    marker-fill:#FFFF00;
+    marker-line-color:white;
+    marker-line-width:1;
+}
+
+[ color = 0] {
+    marker-width:10;
+    marker-fill:#0000FF;
+    marker-line-color:white;
+    marker-line-width:1;
+}
+
+

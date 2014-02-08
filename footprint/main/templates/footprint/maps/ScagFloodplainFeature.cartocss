@@ -1,0 +1,34 @@
+.{{ htmlClass }}
+{buffer-size: 50;}
+
+[zoom=12] {
+  outline/line-width: 1;
+  outline/line-color:#ffffff;
+  outline/line-opacity: 0.5;
+  line-color:#3399FF;
+  line-width:1;
+}
+
+[zoom=13] {
+  outline/line-width: 2;
+  outline/line-color:#ffffff;
+  outline/line-opacity: 0.5;
+  line-color:#3399FF;
+  line-width:1.5;
+}
+
+[zoom=14] {
+  outline/line-width: 4;
+  outline/line-color:#ffffff;
+  outline/line-opacity: 0.5;
+  line-color:#3399FF;
+  line-width:2;
+}
+
+[zoom>=15] {
+  outline/line-width: 6;
+  outline/line-color:#ffffff;
+  outline/line-opacity: 0.5;
+  line-color:#3399FF;
+  line-width:3;
+}
