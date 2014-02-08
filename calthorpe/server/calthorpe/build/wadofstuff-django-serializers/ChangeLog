@@ -1,0 +1,7 @@
+Version 1.1.0:
+
+- Added support for "natural keys" as implemented in Django.
+
+Version 1.0.0:
+
+- First public release.

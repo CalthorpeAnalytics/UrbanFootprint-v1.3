@@ -1,0 +1,214 @@
+
+<!doctype html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html><head><title>Python: module TileStache.Providers</title>
+</head><body bgcolor="#f0f0f8">
+
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="heading">
+<tr bgcolor="#7799ee">
+<td valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial">&nbsp;<br><big><big><strong><a href="TileStache.html"><font color="#ffffff">TileStache</font></a>.Providers</strong></big></big></font></td
+><td align=right valign=bottom
+><font color="#ffffff" face="helvetica, arial"><a href=".">index</a></font></td></tr></table>
+    <p><tt>The&nbsp;provider&nbsp;bits&nbsp;of&nbsp;TileStache.<br>
+&nbsp;<br>
+A&nbsp;Provider&nbsp;is&nbsp;the&nbsp;part&nbsp;of&nbsp;TileStache&nbsp;that&nbsp;actually&nbsp;renders&nbsp;imagery.&nbsp;A&nbsp;few&nbsp;default<br>
+providers&nbsp;are&nbsp;found&nbsp;here,&nbsp;but&nbsp;it's&nbsp;possible&nbsp;to&nbsp;define&nbsp;your&nbsp;own&nbsp;and&nbsp;pull&nbsp;them&nbsp;into<br>
+TileStache&nbsp;dynamically&nbsp;by&nbsp;class&nbsp;name.<br>
+&nbsp;<br>
+Built-in&nbsp;providers:<br>
+-&nbsp;mapnik&nbsp;(Mapnik.ImageProvider)<br>
+-&nbsp;proxy&nbsp;(<a href="#Proxy">Proxy</a>)<br>
+-&nbsp;vector&nbsp;(TileStache.Vector.Provider)<br>
+-&nbsp;url&nbsp;template&nbsp;(<a href="#UrlTemplate">UrlTemplate</a>)<br>
+-&nbsp;mbtiles&nbsp;(TileStache.MBTiles.Provider)<br>
+-&nbsp;mapnik&nbsp;grid&nbsp;(Mapnik.GridProvider)<br>
+&nbsp;<br>
+Example&nbsp;built-in&nbsp;provider,&nbsp;for&nbsp;JSON&nbsp;configuration&nbsp;file:<br>
+&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;"layer-name":&nbsp;{<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"provider":&nbsp;{"name":&nbsp;"mapnik",&nbsp;"mapfile":&nbsp;"style.xml"},<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;...<br>
+&nbsp;&nbsp;&nbsp;&nbsp;}<br>
+&nbsp;<br>
+Example&nbsp;external&nbsp;provider,&nbsp;for&nbsp;JSON&nbsp;configuration&nbsp;file:<br>
+&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;"layer-name":&nbsp;{<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"provider":&nbsp;{"class":&nbsp;"Module:Classname",&nbsp;"kwargs":&nbsp;{"frob":&nbsp;"yes"}},<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;...<br>
+&nbsp;&nbsp;&nbsp;&nbsp;}<br>
+&nbsp;<br>
+-&nbsp;The&nbsp;"class"&nbsp;value&nbsp;is&nbsp;split&nbsp;up&nbsp;into&nbsp;module&nbsp;and&nbsp;classname,&nbsp;and&nbsp;dynamically<br>
+&nbsp;&nbsp;included.&nbsp;If&nbsp;this&nbsp;doesn't&nbsp;work&nbsp;for&nbsp;some&nbsp;reason,&nbsp;TileStache&nbsp;will&nbsp;fail&nbsp;loudly<br>
+&nbsp;&nbsp;to&nbsp;let&nbsp;you&nbsp;know.<br>
+-&nbsp;The&nbsp;"kwargs"&nbsp;value&nbsp;is&nbsp;fed&nbsp;to&nbsp;the&nbsp;class&nbsp;constructor&nbsp;as&nbsp;a&nbsp;dictionary&nbsp;of&nbsp;keyword<br>
+&nbsp;&nbsp;args.&nbsp;If&nbsp;your&nbsp;defined&nbsp;class&nbsp;doesn't&nbsp;accept&nbsp;any&nbsp;of&nbsp;these&nbsp;keyword&nbsp;arguments,<br>
+&nbsp;&nbsp;TileStache&nbsp;will&nbsp;throw&nbsp;an&nbsp;exception.<br>
+&nbsp;<br>
+A&nbsp;provider&nbsp;must&nbsp;offer&nbsp;one&nbsp;of&nbsp;two&nbsp;methods&nbsp;for&nbsp;rendering&nbsp;map&nbsp;areas.<br>
+&nbsp;<br>
+The&nbsp;renderTile()&nbsp;method&nbsp;draws&nbsp;a&nbsp;single&nbsp;tile&nbsp;at&nbsp;a&nbsp;time,&nbsp;and&nbsp;has&nbsp;these&nbsp;arguments:<br>
+&nbsp;<br>
+-&nbsp;width,&nbsp;height:&nbsp;in&nbsp;pixels<br>
+-&nbsp;srs:&nbsp;projection&nbsp;as&nbsp;Proj4&nbsp;string.<br>
+&nbsp;&nbsp;"+proj=longlat&nbsp;+ellps=WGS84&nbsp;+datum=WGS84"&nbsp;is&nbsp;an&nbsp;example,&nbsp;<br>
+&nbsp;&nbsp;see&nbsp;<a href="http://spatialreference.org">http://spatialreference.org</a>&nbsp;for&nbsp;more.<br>
+-&nbsp;coord:&nbsp;Coordinate&nbsp;object&nbsp;representing&nbsp;a&nbsp;single&nbsp;tile.<br>
+&nbsp;<br>
+The&nbsp;renderArea()&nbsp;method&nbsp;draws&nbsp;a&nbsp;variably-sized&nbsp;area,&nbsp;and&nbsp;is&nbsp;used&nbsp;when&nbsp;drawing<br>
+metatiles.&nbsp;It&nbsp;has&nbsp;these&nbsp;arguments:<br>
+&nbsp;<br>
+-&nbsp;width,&nbsp;height:&nbsp;in&nbsp;pixels<br>
+-&nbsp;srs:&nbsp;projection&nbsp;as&nbsp;Proj4&nbsp;string.<br>
+&nbsp;&nbsp;"+proj=longlat&nbsp;+ellps=WGS84&nbsp;+datum=WGS84"&nbsp;is&nbsp;an&nbsp;example,&nbsp;<br>
+&nbsp;&nbsp;see&nbsp;<a href="http://spatialreference.org">http://spatialreference.org</a>&nbsp;for&nbsp;more.<br>
+-&nbsp;xmin,&nbsp;ymin,&nbsp;xmax,&nbsp;ymax:&nbsp;coordinates&nbsp;of&nbsp;bounding&nbsp;box&nbsp;in&nbsp;projected&nbsp;coordinates.<br>
+-&nbsp;zoom:&nbsp;zoom&nbsp;level&nbsp;of&nbsp;final&nbsp;map.&nbsp;Technically&nbsp;this&nbsp;can&nbsp;be&nbsp;derived&nbsp;from&nbsp;the&nbsp;other<br>
+&nbsp;&nbsp;arguments,&nbsp;but&nbsp;that's&nbsp;a&nbsp;hassle&nbsp;so&nbsp;we'll&nbsp;pass&nbsp;it&nbsp;in&nbsp;explicitly.<br>
+&nbsp;&nbsp;<br>
+A&nbsp;provider&nbsp;may&nbsp;offer&nbsp;a&nbsp;method&nbsp;for&nbsp;custom&nbsp;response&nbsp;type,&nbsp;getTypeByExtension().<br>
+This&nbsp;method&nbsp;accepts&nbsp;a&nbsp;single&nbsp;argument,&nbsp;a&nbsp;filename&nbsp;extension&nbsp;string&nbsp;(e.g.&nbsp;"png",<br>
+"json",&nbsp;etc.)&nbsp;and&nbsp;returns&nbsp;a&nbsp;tuple&nbsp;with&nbsp;twon&nbsp;strings:&nbsp;a&nbsp;mime-type&nbsp;and&nbsp;a&nbsp;format.<br>
+Note&nbsp;that&nbsp;for&nbsp;image&nbsp;and&nbsp;non-image&nbsp;tiles&nbsp;alike,&nbsp;renderArea()&nbsp;and&nbsp;renderTile()<br>
+methods&nbsp;on&nbsp;a&nbsp;provider&nbsp;class&nbsp;must&nbsp;return&nbsp;a&nbsp;object&nbsp;with&nbsp;a&nbsp;save()&nbsp;method&nbsp;that<br>
+can&nbsp;accept&nbsp;a&nbsp;file-like&nbsp;object&nbsp;and&nbsp;a&nbsp;format&nbsp;name,&nbsp;e.g.&nbsp;this&nbsp;should&nbsp;word:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;provder.renderArea(...).save(fp,&nbsp;"TEXT")<br>
+&nbsp;<br>
+...&nbsp;if&nbsp;"TEXT"&nbsp;is&nbsp;a&nbsp;valid&nbsp;response&nbsp;format&nbsp;according&nbsp;to&nbsp;getTypeByExtension().<br>
+&nbsp;<br>
+Non-image&nbsp;providers&nbsp;and&nbsp;metatiles&nbsp;do&nbsp;not&nbsp;mix.<br>
+&nbsp;<br>
+For&nbsp;an&nbsp;example&nbsp;of&nbsp;a&nbsp;non-image&nbsp;provider,&nbsp;see&nbsp;TileStache.Vector.Provider.</tt></p>
+<p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#aa55cc">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial"><big><strong>Modules</strong></big></font></td></tr>
+    
+<tr><td bgcolor="#aa55cc"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%"><table width="100%" summary="list"><tr><td width="25%" valign=top><a href="TileStache.Geography.html">TileStache.Geography</a><br>
+<a href="PIL.Image.html">PIL.Image</a><br>
+</td><td width="25%" valign=top><a href="ModestMaps.html">ModestMaps</a><br>
+<a href="TileStache.Vector.html">TileStache.Vector</a><br>
+</td><td width="25%" valign=top><a href="logging.html">logging</a><br>
+<a href="os.html">os</a><br>
+</td><td width="25%" valign=top><a href="urllib.html">urllib</a><br>
+<a href="urllib2.html">urllib2</a><br>
+</td></tr></table></td></tr></table><p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#ee77aa">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial"><big><strong>Classes</strong></big></font></td></tr>
+    
+<tr><td bgcolor="#ee77aa"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%"><dl>
+<dt><font face="helvetica, arial"><a href="TileStache.Providers.html#Proxy">Proxy</a>
+</font></dt><dt><font face="helvetica, arial"><a href="TileStache.Providers.html#UrlTemplate">UrlTemplate</a>
+</font></dt><dt><font face="helvetica, arial"><a href="TileStache.Providers.html#Verbatim">Verbatim</a>
+</font></dt></dl>
+ <p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#ffc8d8">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#000000" face="helvetica, arial"><a name="Proxy">class <strong>Proxy</strong></a></font></td></tr>
+    
+<tr bgcolor="#ffc8d8"><td rowspan=2><tt>&nbsp;&nbsp;&nbsp;</tt></td>
+<td colspan=2><tt><a href="#Proxy">Proxy</a>&nbsp;provider,&nbsp;to&nbsp;pass&nbsp;through&nbsp;and&nbsp;cache&nbsp;tiles&nbsp;from&nbsp;other&nbsp;places.<br>
+&nbsp;<br>
+This&nbsp;provider&nbsp;is&nbsp;identified&nbsp;by&nbsp;the&nbsp;name&nbsp;"proxy"&nbsp;in&nbsp;the&nbsp;TileStache&nbsp;config.<br>
+&nbsp;<br>
+Additional&nbsp;arguments:<br>
+&nbsp;<br>
+-&nbsp;url&nbsp;(optional)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;URL&nbsp;template&nbsp;for&nbsp;remote&nbsp;tiles,&nbsp;for&nbsp;example:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;"<a href="http://tile.openstreetmap.org/{Z}/{X}/{Y}.png">http://tile.openstreetmap.org/{Z}/{X}/{Y}.png</a>"<br>
+-&nbsp;provider&nbsp;(optional)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;Provider&nbsp;name&nbsp;string&nbsp;from&nbsp;Modest&nbsp;Maps&nbsp;built-ins.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;See&nbsp;ModestMaps.builtinProviders.keys()&nbsp;for&nbsp;a&nbsp;list.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;Example:&nbsp;"OPENSTREETMAP".<br>
+&nbsp;<br>
+One&nbsp;of&nbsp;the&nbsp;above&nbsp;is&nbsp;required.&nbsp;When&nbsp;both&nbsp;are&nbsp;present,&nbsp;url&nbsp;wins.<br>
+&nbsp;<br>
+Example&nbsp;configuration:<br>
+&nbsp;<br>
+{<br>
+&nbsp;&nbsp;&nbsp;&nbsp;"name":&nbsp;"proxy",<br>
+&nbsp;&nbsp;&nbsp;&nbsp;"url":&nbsp;"<a href="http://tile.openstreetmap.org/{Z}/{X}/{Y}.png">http://tile.openstreetmap.org/{Z}/{X}/{Y}.png</a>"<br>
+}<br>&nbsp;</tt></td></tr>
+<tr><td>&nbsp;</td>
+<td width="100%">Methods defined here:<br>
+<dl><dt><a name="Proxy-__init__"><strong>__init__</strong></a>(self, layer, url<font color="#909090">=None</font>, provider_name<font color="#909090">=None</font>)</dt><dd><tt>Initialize&nbsp;<a href="#Proxy">Proxy</a>&nbsp;provider&nbsp;with&nbsp;layer&nbsp;and&nbsp;url.</tt></dd></dl>
+
+<dl><dt><a name="Proxy-renderTile"><strong>renderTile</strong></a>(self, width, height, srs, coord)</dt></dl>
+
+<hr>
+Static methods defined here:<br>
+<dl><dt><a name="Proxy-prepareKeywordArgs"><strong>prepareKeywordArgs</strong></a>(config_dict)</dt><dd><tt>Convert&nbsp;configured&nbsp;parameters&nbsp;to&nbsp;keyword&nbsp;args&nbsp;for&nbsp;<a href="#Proxy-__init__">__init__</a>().</tt></dd></dl>
+
+</td></tr></table> <p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#ffc8d8">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#000000" face="helvetica, arial"><a name="UrlTemplate">class <strong>UrlTemplate</strong></a></font></td></tr>
+    
+<tr bgcolor="#ffc8d8"><td rowspan=2><tt>&nbsp;&nbsp;&nbsp;</tt></td>
+<td colspan=2><tt>Built-in&nbsp;URL&nbsp;Template&nbsp;provider.&nbsp;Proxies&nbsp;map&nbsp;images&nbsp;from&nbsp;WMS&nbsp;servers.<br>
+&nbsp;<br>
+This&nbsp;provider&nbsp;is&nbsp;identified&nbsp;by&nbsp;the&nbsp;name&nbsp;"url&nbsp;template"&nbsp;in&nbsp;the&nbsp;TileStache&nbsp;config.<br>
+&nbsp;<br>
+Additional&nbsp;arguments:<br>
+&nbsp;<br>
+-&nbsp;template&nbsp;(required)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;String&nbsp;with&nbsp;substitutions&nbsp;suitable&nbsp;for&nbsp;use&nbsp;in&nbsp;string.Template.<br>
+&nbsp;<br>
+-&nbsp;referer&nbsp;(optional)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;String&nbsp;to&nbsp;use&nbsp;in&nbsp;the&nbsp;"Referer"&nbsp;header&nbsp;when&nbsp;making&nbsp;HTTP&nbsp;requests.<br>
+&nbsp;<br>
+More&nbsp;on&nbsp;string&nbsp;substitutions:<br>
+-&nbsp;<a href="http://docs.python.org/library/string.html#template-strings">http://docs.python.org/library/string.html#template-strings</a><br>&nbsp;</tt></td></tr>
+<tr><td>&nbsp;</td>
+<td width="100%">Methods defined here:<br>
+<dl><dt><a name="UrlTemplate-__init__"><strong>__init__</strong></a>(self, layer, template, referer<font color="#909090">=None</font>)</dt><dd><tt>Initialize&nbsp;a&nbsp;<a href="#UrlTemplate">UrlTemplate</a>&nbsp;provider&nbsp;with&nbsp;layer&nbsp;and&nbsp;template&nbsp;string.<br>
+&nbsp;<br>
+<a href="http://docs.python.org/library/string.html#template-strings">http://docs.python.org/library/string.html#template-strings</a></tt></dd></dl>
+
+<dl><dt><a name="UrlTemplate-renderArea"><strong>renderArea</strong></a>(self, width, height, srs, xmin, ymin, xmax, ymax, zoom)</dt><dd><tt>Return&nbsp;an&nbsp;image&nbsp;for&nbsp;an&nbsp;area.<br>
+&nbsp;<br>
+Each&nbsp;argument&nbsp;(width,&nbsp;height,&nbsp;etc.)&nbsp;is&nbsp;substituted&nbsp;into&nbsp;the&nbsp;template.</tt></dd></dl>
+
+<hr>
+Static methods defined here:<br>
+<dl><dt><a name="UrlTemplate-prepareKeywordArgs"><strong>prepareKeywordArgs</strong></a>(config_dict)</dt><dd><tt>Convert&nbsp;configured&nbsp;parameters&nbsp;to&nbsp;keyword&nbsp;args&nbsp;for&nbsp;<a href="#UrlTemplate-__init__">__init__</a>().</tt></dd></dl>
+
+</td></tr></table> <p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#ffc8d8">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#000000" face="helvetica, arial"><a name="Verbatim">class <strong>Verbatim</strong></a></font></td></tr>
+    
+<tr bgcolor="#ffc8d8"><td rowspan=2><tt>&nbsp;&nbsp;&nbsp;</tt></td>
+<td colspan=2><tt>Wrapper&nbsp;for&nbsp;PIL.Image&nbsp;that&nbsp;saves&nbsp;raw&nbsp;input&nbsp;bytes&nbsp;if&nbsp;modes&nbsp;and&nbsp;formats&nbsp;match.<br>&nbsp;</tt></td></tr>
+<tr><td>&nbsp;</td>
+<td width="100%">Methods defined here:<br>
+<dl><dt><a name="Verbatim-__init__"><strong>__init__</strong></a>(self, bytes)</dt></dl>
+
+<dl><dt><a name="Verbatim-convert"><strong>convert</strong></a>(self, mode)</dt></dl>
+
+<dl><dt><a name="Verbatim-crop"><strong>crop</strong></a>(self, bbox)</dt></dl>
+
+<dl><dt><a name="Verbatim-image"><strong>image</strong></a>(self)</dt><dd><tt>Return&nbsp;a&nbsp;guaranteed&nbsp;instance&nbsp;of&nbsp;PIL.Image.</tt></dd></dl>
+
+<dl><dt><a name="Verbatim-save"><strong>save</strong></a>(self, output, format)</dt></dl>
+
+</td></tr></table></td></tr></table><p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#eeaa77">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial"><big><strong>Functions</strong></big></font></td></tr>
+    
+<tr><td bgcolor="#eeaa77"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%"><dl><dt><a name="-getProviderByName"><strong>getProviderByName</strong></a>(name)</dt><dd><tt>Retrieve&nbsp;a&nbsp;provider&nbsp;object&nbsp;by&nbsp;name.<br>
+&nbsp;<br>
+Raise&nbsp;an&nbsp;exception&nbsp;if&nbsp;the&nbsp;name&nbsp;doesn't&nbsp;work&nbsp;out.</tt></dd></dl>
+</td></tr></table>
+</body></html>

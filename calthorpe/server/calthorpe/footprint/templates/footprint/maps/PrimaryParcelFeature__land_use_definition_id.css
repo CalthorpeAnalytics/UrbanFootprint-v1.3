@@ -1,0 +1,7 @@
+{% for key, value in land_use_definition.equals.items %}.lu-{{ key }} {
+
+        {% if value.fill.color %} fill: {{ value.fill.color }}; {% endif %}
+        {% if value.fill.opacity %} opacity: {{ value.fill.opacity }}; {% endif %}
+         stroke: {% if value.outline.color %} {{ value.outline.color }};
+                 {% else %} #FFFFFF {% endif %}
+} {% endfor %}

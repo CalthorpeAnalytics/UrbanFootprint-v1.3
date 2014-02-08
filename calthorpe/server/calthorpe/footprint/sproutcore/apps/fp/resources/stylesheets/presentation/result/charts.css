@@ -1,0 +1,50 @@
+.chart-view {
+    font: 11px sans-serif;
+}
+.chart-view results-chart-title {
+    font-weight: bold;
+}
+
+.chart-view .axis path,
+.chart-view .axis line,
+.chart-view .zero-line {
+    fill: none;
+    stroke: black;
+    stroke-width: 1;
+    shape-rendering: crispEdges;
+}
+
+.chart-view .x-axis path {
+    display: none;
+}
+
+.chart-view .legend {
+    float: left;
+    background-color: blue; /*#fff;*/
+    border: 1px solid #bbb;
+    margin: 1px 1px 1px 1px;
+}
+
+.chart-view .text {
+    font: 10px sans-serif;
+    fill: black;
+    stroke: none;
+}
+
+.result-button-view, .result-toggle-view {
+    margin-top: 20px;
+    margin-left: 224px ;
+}
+
+div.tooltip {
+    position: absolute;
+    text-align: center;
+    width: 60px;
+    height: 14px;
+    padding: 2px;
+    font: 12px sans-serif;
+    background: lightyellow;
+    border: 0;
+    border-radius: 8px;
+    pointer-events: none;
+}

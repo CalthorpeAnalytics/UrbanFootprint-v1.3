@@ -1,0 +1,24 @@
+WSGIPythonHome /srv/calthorpe_env
+
+#ExpiresActive on
+#ExpiresDefault "access plus 1 year"
+<VirtualHost *:8181>
+	ServerName 10.0.0.111:8181
+	#ServerAlias www.footprint.calthorpe.com
+
+	WSGIScriptAlias /tiles /srv/calthorpe/urban_footprint/calthorpe/server/conf/tilestache.wsgi
+
+	<Directory /srv/calthorpe/urban_footprint >
+		Order allow,deny
+		Allow from all
+	</Directory>
+
+	ErrorLog /var/log/apache2/tilestache.log
+
+	# Possible values include: debug, info, notice, warn, error, crit,
+	# alert, emerg.
+	LogLevel warn
+
+	CustomLog /var/log/apache2/tilestache_access.log combined
+
+</VirtualHost>

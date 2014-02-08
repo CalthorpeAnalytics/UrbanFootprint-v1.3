@@ -1,0 +1,34 @@
+.{{ htmlClass }}
+{buffer-size: 50;}
+
+@citywidth: 2.5;
+@citydash: 5;
+@cityspace: 4;
+
+[zoom<=9] {
+  outline/line-color:#000000;
+  outline/line-opacity: 0.4;
+  outline/line-width: @citywidth * 0.4;
+  outline/line-join: round;
+  outline/line-cap: round;
+  mainline/line-color:#00FFFF;
+  mainline/line-width: @citywidth * 0.2;
+  mainline/line-dasharray: @citydash * 0.5, @cityspace * 0.5;
+  mainline/line-join: round;
+  mainline/line-cap: round; 
+}
+
+[zoom>9] {
+  outline/line-color:#000000;
+  outline/line-opacity: 0.4;
+  outline/line-width: @citywidth * 1;
+  outline/line-join: round;
+  outline/line-cap: round;
+  mainline/line-color:#00FFFF;
+  mainline/line-width: @citywidth * 0.5;
+  mainline/line-dasharray: @citydash * 0.5, @cityspace * 0.5;
+  mainline/line-join: round;
+  mainline/line-cap: round; 
+}
+
+

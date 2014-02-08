@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>chart sandbox</title>
+</head>
+<style>
+    svg {
+        background-color: black;
+    }
+    body {
+        font: 10px sans-serif;
+        fill: white;
+    }
+    .arc path {
+        stroke: #fff;
+        stroke-width: 0;
+    }
+
+    .light {
+        fill: black;
+    }
+</style>
+<body>
+<script src="http://d3js.org/d3.v3.min.js"></script>
+<script src="{{ STATIC_URL }}js/footprint/d3_charts/donutChart.js">
+</script>
+<div id="ResidentialChart"></div>
+<div id="LandUseChart"></div>
+<script>
+    var data_2 = [
+        { "category" :"Mixed-Use", "percentage" :.21},
+        { "category" :"Residential", "percentage":.79}
+    ];
+    var landUseData = "api/v1/placetype_presentation/402/?format=json&api_key=TEST_API_KEY&username=test&limit=1000";
+
+
+    var chart1DataManager = d3.edge.dataManager();
+    chart1DataManager.loadJSONData(landUseData);
+
+    var cleanData = chart1DataManager.getCleanedData();
+
+
+    var chart2 = d3.edge.donutChart();
+    var fixture2 = d3.select('#ResidentialChart');
+    fixture2.append('div')
+            .datum(data_2)
+            .call(chart2);
+    var chart1 = d3.edge.donutChart();
+    var fixture1 = d3.select('#LandUseChart');
+    fixture1.append('div')
+            .datum(cleanData)
+            .call(chart1);
+
+</script>
+</body>
+</html>

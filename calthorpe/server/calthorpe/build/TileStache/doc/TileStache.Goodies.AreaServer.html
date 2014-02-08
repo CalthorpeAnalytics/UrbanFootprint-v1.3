@@ -1,0 +1,79 @@
+
+<!doctype html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html><head><title>Python: module TileStache.Goodies.AreaServer</title>
+</head><body bgcolor="#f0f0f8">
+
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="heading">
+<tr bgcolor="#7799ee">
+<td valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial">&nbsp;<br><big><big><strong><a href="TileStache.html"><font color="#ffffff">TileStache</font></a>.<a href="TileStache.Goodies.html"><font color="#ffffff">Goodies</font></a>.AreaServer</strong></big></big></font></td
+><td align=right valign=bottom
+><font color="#ffffff" face="helvetica, arial"><a href=".">index</a></font></td></tr></table>
+    <p><tt>AreaServer&nbsp;supplies&nbsp;a&nbsp;tiny&nbsp;image&nbsp;server&nbsp;for&nbsp;use&nbsp;with&nbsp;TileStache&nbsp;providers<br>
+that&nbsp;implement&nbsp;renderArea()&nbsp;(<a href="http://tilestache.org/doc/#custom-providers">http://tilestache.org/doc/#custom-providers</a>).<br>
+The&nbsp;built-in&nbsp;Mapnik&nbsp;provider&nbsp;(<a href="http://tilestache.org/doc/#mapnik-provider">http://tilestache.org/doc/#mapnik-provider</a>)<br>
+is&nbsp;one&nbsp;example.<br>
+&nbsp;<br>
+There&nbsp;are&nbsp;no&nbsp;tiles&nbsp;here,&nbsp;just&nbsp;a&nbsp;quick&nbsp;&amp;&nbsp;dirty&nbsp;way&nbsp;of&nbsp;getting&nbsp;variously-sized<br>
+images&nbsp;out&nbsp;of&nbsp;a&nbsp;codebase&nbsp;that's&nbsp;ordinarily&nbsp;oriented&nbsp;toward&nbsp;tile&nbsp;generation.<br>
+&nbsp;<br>
+Example&nbsp;usage,&nbsp;with&nbsp;gunicorn&nbsp;(<a href="http://gunicorn.org">http://gunicorn.org</a>):<br>
+&nbsp;<br>
+&nbsp;&nbsp;gunicorn&nbsp;--bind&nbsp;localhost:8888&nbsp;"TileStache.Goodies.AreaServer:<a href="#WSGIServer">WSGIServer</a>('tilestache.cfg')"<br>
+&nbsp;<br>
+AreaServer&nbsp;URLs&nbsp;are&nbsp;compatible&nbsp;with&nbsp;the&nbsp;built-in&nbsp;URL&nbsp;Template&nbsp;provider<br>
+(<a href="http://tilestache.org/doc/#url-template-provider">http://tilestache.org/doc/#url-template-provider</a>)&nbsp;and&nbsp;implement&nbsp;a&nbsp;generic<br>
+kind&nbsp;of&nbsp;WMS&nbsp;(<a href="http://en.wikipedia.org/wiki/Web_Map_Service">http://en.wikipedia.org/wiki/Web_Map_Service</a>).<br>
+&nbsp;<br>
+All&nbsp;six&nbsp;URL&nbsp;parameters&nbsp;shown&nbsp;in&nbsp;this&nbsp;example&nbsp;are&nbsp;required;&nbsp;any&nbsp;other<br>
+URL&nbsp;parameter&nbsp;is&nbsp;ignored:<br>
+&nbsp;<br>
+&nbsp;&nbsp;<a href="http://localhost:8888/layer-name?width=600&amp;height=600&amp;xmin=-100&amp;ymin=-100&amp;xmax=100&amp;ymax=100">http://localhost:8888/layer-name?width=600&amp;height=600&amp;xmin=-100&amp;ymin=-100&amp;xmax=100&amp;ymax=100</a></tt></p>
+<p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#ee77aa">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial"><big><strong>Classes</strong></big></font></td></tr>
+    
+<tr><td bgcolor="#ee77aa"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%"><dl>
+<dt><font face="helvetica, arial"><a href="TileStache.html#WSGITileServer">TileStache.WSGITileServer</a>
+</font></dt><dd>
+<dl>
+<dt><font face="helvetica, arial"><a href="TileStache.Goodies.AreaServer.html#WSGIServer">WSGIServer</a>
+</font></dt></dl>
+</dd>
+</dl>
+ <p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#ffc8d8">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#000000" face="helvetica, arial"><a name="WSGIServer">class <strong>WSGIServer</strong></a>(<a href="TileStache.html#WSGITileServer">TileStache.WSGITileServer</a>)</font></td></tr>
+    
+<tr bgcolor="#ffc8d8"><td rowspan=2><tt>&nbsp;&nbsp;&nbsp;</tt></td>
+<td colspan=2><tt>WSGI&nbsp;Application&nbsp;that&nbsp;can&nbsp;handle&nbsp;WMS-style&nbsp;requests&nbsp;for&nbsp;static&nbsp;images.<br>
+&nbsp;<br>
+Inherits&nbsp;the&nbsp;constructor&nbsp;from&nbsp;TileStache&nbsp;WSGI,&nbsp;which&nbsp;just&nbsp;loads<br>
+a&nbsp;TileStache&nbsp;configuration&nbsp;file&nbsp;into&nbsp;self.<strong>config</strong>.<br>
+&nbsp;<br>
+<a href="TileStache.html#WSGITileServer">WSGITileServer</a>&nbsp;autoreload&nbsp;argument&nbsp;is&nbsp;ignored,&nbsp;though.&nbsp;For&nbsp;now.<br>&nbsp;</tt></td></tr>
+<tr><td>&nbsp;</td>
+<td width="100%">Methods defined here:<br>
+<dl><dt><a name="WSGIServer-__call__"><strong>__call__</strong></a>(self, environ, start_response)</dt><dd><tt>Handle&nbsp;a&nbsp;request,&nbsp;using&nbsp;PATH_INFO&nbsp;and&nbsp;QUERY_STRING&nbsp;from&nbsp;environ.<br>
+&nbsp;<br>
+There&nbsp;are&nbsp;six&nbsp;required&nbsp;query&nbsp;string&nbsp;parameters:&nbsp;width,&nbsp;height,<br>
+xmin,&nbsp;ymin,&nbsp;xmax&nbsp;and&nbsp;ymax.&nbsp;Layer&nbsp;name&nbsp;must&nbsp;be&nbsp;supplied&nbsp;in&nbsp;PATH_INFO.</tt></dd></dl>
+
+<hr>
+Methods inherited from <a href="TileStache.html#WSGITileServer">TileStache.WSGITileServer</a>:<br>
+<dl><dt><a name="WSGIServer-__init__"><strong>__init__</strong></a>(self, config, autoreload<font color="#909090">=False</font>)</dt><dd><tt>Initialize&nbsp;a&nbsp;callable&nbsp;WSGI&nbsp;instance.<br>
+&nbsp;<br>
+Config&nbsp;parameter&nbsp;can&nbsp;be&nbsp;a&nbsp;file&nbsp;path&nbsp;string&nbsp;for&nbsp;a&nbsp;JSON&nbsp;configuration<br>
+file&nbsp;or&nbsp;a&nbsp;configuration&nbsp;object&nbsp;with&nbsp;'cache',&nbsp;'layers',&nbsp;and<br>
+'dirpath'&nbsp;properties.<br>
+&nbsp;<br>
+Optional&nbsp;autoreload&nbsp;boolean&nbsp;parameter&nbsp;causes&nbsp;config&nbsp;to&nbsp;be&nbsp;re-read<br>
+on&nbsp;each&nbsp;request,&nbsp;applicable&nbsp;only&nbsp;when&nbsp;config&nbsp;is&nbsp;a&nbsp;JSON&nbsp;file.</tt></dd></dl>
+
+</td></tr></table></td></tr></table>
+</body></html>

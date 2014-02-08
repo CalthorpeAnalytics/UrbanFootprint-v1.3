@@ -1,0 +1,166 @@
+
+<!doctype html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html><head><title>Python: module TileStache.Goodies.VecTiles.server</title>
+</head><body bgcolor="#f0f0f8">
+
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="heading">
+<tr bgcolor="#7799ee">
+<td valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial">&nbsp;<br><big><big><strong><a href="TileStache.html"><font color="#ffffff">TileStache</font></a>.<a href="TileStache.Goodies.html"><font color="#ffffff">Goodies</font></a>.<a href="TileStache.Goodies.VecTiles.html"><font color="#ffffff">VecTiles</font></a>.server</strong></big></big></font></td
+><td align=right valign=bottom
+><font color="#ffffff" face="helvetica, arial"><a href=".">index</a></font></td></tr></table>
+    <p><tt><a href="#Provider">Provider</a>&nbsp;that&nbsp;returns&nbsp;PostGIS&nbsp;vector&nbsp;tiles&nbsp;in&nbsp;GeoJSON&nbsp;or&nbsp;MVT&nbsp;format.<br>
+&nbsp;<br>
+VecTiles&nbsp;is&nbsp;intended&nbsp;for&nbsp;rendering,&nbsp;and&nbsp;returns&nbsp;tiles&nbsp;with&nbsp;contents&nbsp;simplified,<br>
+precision&nbsp;reduced&nbsp;and&nbsp;often&nbsp;clipped.&nbsp;The&nbsp;MVT&nbsp;format&nbsp;in&nbsp;particular&nbsp;is&nbsp;designed<br>
+for&nbsp;use&nbsp;in&nbsp;Mapnik&nbsp;with&nbsp;the&nbsp;VecTiles&nbsp;Datasource,&nbsp;which&nbsp;can&nbsp;read&nbsp;binary&nbsp;MVT&nbsp;tiles.<br>
+&nbsp;<br>
+For&nbsp;a&nbsp;more&nbsp;general&nbsp;implementation,&nbsp;try&nbsp;the&nbsp;Vector&nbsp;provider:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<a href="http://tilestache.org/doc/#vector-provider">http://tilestache.org/doc/#vector-provider</a></tt></p>
+<p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#aa55cc">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial"><big><strong>Modules</strong></big></font></td></tr>
+    
+<tr><td bgcolor="#aa55cc"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%"><table width="100%" summary="list"><tr><td width="25%" valign=top><a href="TileStache.Goodies.VecTiles.geojson.html">TileStache.Goodies.VecTiles.geojson</a><br>
+</td><td width="25%" valign=top><a href="TileStache.Goodies.VecTiles.mvt.html">TileStache.Goodies.VecTiles.mvt</a><br>
+</td><td width="25%" valign=top></td><td width="25%" valign=top></td></tr></table></td></tr></table><p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#ee77aa">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial"><big><strong>Classes</strong></big></font></td></tr>
+    
+<tr><td bgcolor="#ee77aa"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%"><dl>
+<dt><font face="helvetica, arial"><a href="TileStache.Goodies.VecTiles.server.html#EmptyResponse">EmptyResponse</a>
+</font></dt><dt><font face="helvetica, arial"><a href="TileStache.Goodies.VecTiles.server.html#Provider">Provider</a>
+</font></dt><dt><font face="helvetica, arial"><a href="TileStache.Goodies.VecTiles.server.html#Response">Response</a>
+</font></dt></dl>
+ <p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#ffc8d8">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#000000" face="helvetica, arial"><a name="EmptyResponse">class <strong>EmptyResponse</strong></a></font></td></tr>
+    
+<tr bgcolor="#ffc8d8"><td rowspan=2><tt>&nbsp;&nbsp;&nbsp;</tt></td>
+<td colspan=2><tt>Simple&nbsp;empty&nbsp;response&nbsp;renders&nbsp;valid&nbsp;MVT&nbsp;or&nbsp;GeoJSON&nbsp;with&nbsp;no&nbsp;features.<br>&nbsp;</tt></td></tr>
+<tr><td>&nbsp;</td>
+<td width="100%">Methods defined here:<br>
+<dl><dt><a name="EmptyResponse-save"><strong>save</strong></a>(self, out, format)</dt></dl>
+
+</td></tr></table> <p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#ffc8d8">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#000000" face="helvetica, arial"><a name="Provider">class <strong>Provider</strong></a></font></td></tr>
+    
+<tr bgcolor="#ffc8d8"><td rowspan=2><tt>&nbsp;&nbsp;&nbsp;</tt></td>
+<td colspan=2><tt>VecTiles&nbsp;provider&nbsp;for&nbsp;PostGIS&nbsp;data&nbsp;sources.<br>
+&nbsp;<br>
+Parameters:<br>
+&nbsp;<br>
+&nbsp;&nbsp;dbinfo:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;Required&nbsp;dictionary&nbsp;of&nbsp;Postgres&nbsp;connection&nbsp;parameters.&nbsp;Should<br>
+&nbsp;&nbsp;&nbsp;&nbsp;include&nbsp;some&nbsp;combination&nbsp;of&nbsp;'host',&nbsp;'user',&nbsp;'password',&nbsp;and&nbsp;'database'.<br>
+&nbsp;<br>
+&nbsp;&nbsp;queries:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;Required&nbsp;list&nbsp;of&nbsp;Postgres&nbsp;queries,&nbsp;one&nbsp;for&nbsp;each&nbsp;zoom&nbsp;level.&nbsp;The<br>
+&nbsp;&nbsp;&nbsp;&nbsp;last&nbsp;query&nbsp;in&nbsp;the&nbsp;list&nbsp;is&nbsp;repeated&nbsp;for&nbsp;higher&nbsp;zoom&nbsp;levels,&nbsp;and&nbsp;null<br>
+&nbsp;&nbsp;&nbsp;&nbsp;queries&nbsp;indicate&nbsp;an&nbsp;empty&nbsp;response.&nbsp;Query&nbsp;must&nbsp;use&nbsp;"geometry"&nbsp;for&nbsp;a<br>
+&nbsp;&nbsp;&nbsp;&nbsp;column&nbsp;name,&nbsp;and&nbsp;must&nbsp;be&nbsp;in&nbsp;spherical&nbsp;mercator&nbsp;(900913)&nbsp;projection.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;A&nbsp;query&nbsp;can&nbsp;additionally&nbsp;be&nbsp;a&nbsp;file&nbsp;name&nbsp;or&nbsp;URL,&nbsp;interpreted<br>
+&nbsp;&nbsp;&nbsp;&nbsp;relative&nbsp;to&nbsp;the&nbsp;location&nbsp;of&nbsp;the&nbsp;TileStache&nbsp;config&nbsp;file.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;If&nbsp;the&nbsp;query&nbsp;contains&nbsp;the&nbsp;token&nbsp;"!bbox!",&nbsp;it&nbsp;will&nbsp;be&nbsp;replaced&nbsp;with<br>
+&nbsp;&nbsp;&nbsp;&nbsp;a&nbsp;constant&nbsp;bounding&nbsp;box&nbsp;geomtry&nbsp;like&nbsp;this:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;"SetSRID(MakeBox2D(MakePoint(x,&nbsp;y),&nbsp;MakePoint(x,&nbsp;y)),&nbsp;&lt;srid&gt;)"<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;This&nbsp;behavior&nbsp;is&nbsp;modeled&nbsp;on&nbsp;Mapnik's&nbsp;similar&nbsp;bbox&nbsp;token&nbsp;feature:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;https://github.com/mapnik/mapnik/wiki/PostGIS#bbox-token<br>
+&nbsp;&nbsp;<br>
+&nbsp;&nbsp;clip:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;Optional&nbsp;boolean&nbsp;flag&nbsp;determines&nbsp;whether&nbsp;geometries&nbsp;are&nbsp;clipped&nbsp;to<br>
+&nbsp;&nbsp;&nbsp;&nbsp;tile&nbsp;boundaries&nbsp;or&nbsp;returned&nbsp;in&nbsp;full.&nbsp;Default&nbsp;true:&nbsp;clip&nbsp;geometries.<br>
+&nbsp;<br>
+&nbsp;&nbsp;srid:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;Optional&nbsp;numeric&nbsp;SRID&nbsp;used&nbsp;by&nbsp;PostGIS&nbsp;for&nbsp;spherical&nbsp;mercator.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;Default&nbsp;900913.<br>
+&nbsp;<br>
+&nbsp;&nbsp;simplify:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;Optional&nbsp;floating&nbsp;point&nbsp;number&nbsp;of&nbsp;pixels&nbsp;to&nbsp;simplify&nbsp;all&nbsp;geometries.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;Useful&nbsp;for&nbsp;creating&nbsp;double&nbsp;resolution&nbsp;(retina)&nbsp;tiles&nbsp;set&nbsp;to&nbsp;0.5,&nbsp;or<br>
+&nbsp;&nbsp;&nbsp;&nbsp;set&nbsp;to&nbsp;0.0&nbsp;to&nbsp;prevent&nbsp;any&nbsp;simplification.&nbsp;Default&nbsp;1.0.<br>
+&nbsp;<br>
+&nbsp;&nbsp;simplify_until:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;Optional&nbsp;integer&nbsp;specifying&nbsp;a&nbsp;zoom&nbsp;level&nbsp;where&nbsp;no&nbsp;more&nbsp;geometry<br>
+&nbsp;&nbsp;&nbsp;&nbsp;simplification&nbsp;should&nbsp;occur.&nbsp;Default&nbsp;16.<br>
+&nbsp;<br>
+Sample&nbsp;configuration,&nbsp;for&nbsp;a&nbsp;layer&nbsp;with&nbsp;no&nbsp;results&nbsp;at&nbsp;zooms&nbsp;0-9,&nbsp;basic<br>
+selection&nbsp;of&nbsp;lines&nbsp;with&nbsp;names&nbsp;and&nbsp;highway&nbsp;tags&nbsp;for&nbsp;zoom&nbsp;10,&nbsp;a&nbsp;remote<br>
+URL&nbsp;containing&nbsp;a&nbsp;query&nbsp;for&nbsp;zoom&nbsp;11,&nbsp;and&nbsp;a&nbsp;local&nbsp;file&nbsp;for&nbsp;zooms&nbsp;12+:<br>
+&nbsp;<br>
+&nbsp;&nbsp;"provider":<br>
+&nbsp;&nbsp;{<br>
+&nbsp;&nbsp;&nbsp;&nbsp;"class":&nbsp;"TileStache.Goodies.VecTiles:<a href="#Provider">Provider</a>",<br>
+&nbsp;&nbsp;&nbsp;&nbsp;"kwargs":<br>
+&nbsp;&nbsp;&nbsp;&nbsp;{<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"dbinfo":<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"host":&nbsp;"localhost",<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"user":&nbsp;"gis",<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"password":&nbsp;"gis",<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"database":&nbsp;"gis"<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;},<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"queries":<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;null,&nbsp;null,&nbsp;null,&nbsp;null,&nbsp;null,<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;null,&nbsp;null,&nbsp;null,&nbsp;null,&nbsp;null,<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"SELECT&nbsp;way&nbsp;AS&nbsp;geometry,&nbsp;highway,&nbsp;name&nbsp;FROM&nbsp;planet_osm_line&nbsp;--&nbsp;zoom&nbsp;10+&nbsp;",<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"<a href="http://example.com/query-z11.pgsql">http://example.com/query-z11.pgsql</a>",<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"query-z12-plus.pgsql"<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;]<br>
+&nbsp;&nbsp;&nbsp;&nbsp;}<br>
+&nbsp;&nbsp;}<br>&nbsp;</tt></td></tr>
+<tr><td>&nbsp;</td>
+<td width="100%">Methods defined here:<br>
+<dl><dt><a name="Provider-__init__"><strong>__init__</strong></a>(self, layer, dbinfo, queries, clip<font color="#909090">=True</font>, srid<font color="#909090">=900913</font>, simplify<font color="#909090">=1.0</font>, simplify_until<font color="#909090">=16</font>)</dt></dl>
+
+<dl><dt><a name="Provider-getTypeByExtension"><strong>getTypeByExtension</strong></a>(self, extension)</dt><dd><tt>Get&nbsp;mime-type&nbsp;and&nbsp;format&nbsp;by&nbsp;file&nbsp;extension,&nbsp;one&nbsp;of&nbsp;"mvt"&nbsp;or&nbsp;"json".</tt></dd></dl>
+
+<dl><dt><a name="Provider-renderTile"><strong>renderTile</strong></a>(self, width, height, srs, coord)</dt><dd><tt>Render&nbsp;a&nbsp;single&nbsp;tile,&nbsp;return&nbsp;a&nbsp;<a href="#Response">Response</a>&nbsp;instance.</tt></dd></dl>
+
+</td></tr></table> <p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#ffc8d8">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#000000" face="helvetica, arial"><a name="Response">class <strong>Response</strong></a></font></td></tr>
+    
+<tr><td bgcolor="#ffc8d8"><tt>&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%">Methods defined here:<br>
+<dl><dt><a name="Response-__init__"><strong>__init__</strong></a>(self, db, srid, subquery, bbox, tolerance, clip)</dt></dl>
+
+<dl><dt><a name="Response-save"><strong>save</strong></a>(self, out, format)</dt></dl>
+
+</td></tr></table></td></tr></table><p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#eeaa77">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial"><big><strong>Functions</strong></big></font></td></tr>
+    
+<tr><td bgcolor="#eeaa77"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%"><dl><dt><a name="-build_query"><strong>build_query</strong></a>(srid, subquery, bbox, tolerance, is_geo, is_clipped)</dt><dd><tt>Build&nbsp;and&nbsp;return&nbsp;an&nbsp;PostGIS&nbsp;query.</tt></dd></dl>
+ <dl><dt><a name="-connect"><strong>connect</strong></a>(*args, **kwargs)</dt></dl>
+</td></tr></table><p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#55aa55">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial"><big><strong>Data</strong></big></font></td></tr>
+    
+<tr><td bgcolor="#55aa55"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%"><strong>err</strong> = ImportError('No module named psycopg2.extras',)<br>
+<strong>pi</strong> = 3.1415926535897931<br>
+<strong>tolerances</strong> = [156543.03392804097, 78271.516964020484, 39135.758482010242, 19567.879241005121, 9783.9396205025605, 4891.9698102512803, 2445.9849051256401, 1222.9924525628201, 611.49622628141003, 305.74811314070502, 152.87405657035251, 76.437028285176254, 38.218514142588127, 19.109257071294063, 9.5546285356470317, 4.7773142678235159, 2.3886571339117579, 1.194328566955879, 0.59716428347793948, 0.29858214173896974]<br>
+<strong>zoom</strong> = 19</td></tr></table>
+</body></html>

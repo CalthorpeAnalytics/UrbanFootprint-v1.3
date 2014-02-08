@@ -1,0 +1,215 @@
+
+<!doctype html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html><head><title>Python: module TileStache.Config</title>
+</head><body bgcolor="#f0f0f8">
+
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="heading">
+<tr bgcolor="#7799ee">
+<td valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial">&nbsp;<br><big><big><strong><a href="TileStache.html"><font color="#ffffff">TileStache</font></a>.Config</strong></big></big></font></td
+><td align=right valign=bottom
+><font color="#ffffff" face="helvetica, arial"><a href=".">index</a></font></td></tr></table>
+    <p><tt>The&nbsp;configuration&nbsp;bits&nbsp;of&nbsp;TileStache.<br>
+&nbsp;<br>
+TileStache&nbsp;configuration&nbsp;is&nbsp;stored&nbsp;in&nbsp;JSON&nbsp;files,&nbsp;and&nbsp;is&nbsp;composed&nbsp;of&nbsp;two&nbsp;main<br>
+top-level&nbsp;sections:&nbsp;"cache"&nbsp;and&nbsp;"layers".&nbsp;There&nbsp;are&nbsp;examples&nbsp;of&nbsp;both&nbsp;in&nbsp;this<br>
+minimal&nbsp;sample&nbsp;configuration:<br>
+&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;{<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"cache":&nbsp;{"name":&nbsp;"Test"},<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"layers":&nbsp;{<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"example":&nbsp;{<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"provider":&nbsp;{"name":&nbsp;"mapnik",&nbsp;"mapfile":&nbsp;"examples/style.xml"},,<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"projection":&nbsp;"spherical&nbsp;mercator"<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>
+&nbsp;&nbsp;&nbsp;&nbsp;}<br>
+&nbsp;<br>
+The&nbsp;contents&nbsp;of&nbsp;the&nbsp;"cache"&nbsp;section&nbsp;are&nbsp;described&nbsp;in&nbsp;greater&nbsp;detail&nbsp;in&nbsp;the<br>
+TileStache.Caches&nbsp;module&nbsp;documentation.&nbsp;Here&nbsp;is&nbsp;a&nbsp;different&nbsp;sample:<br>
+&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;"cache":&nbsp;{<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"name":&nbsp;"Disk",<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"path":&nbsp;"/tmp/stache",<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"umask":&nbsp;"0000"<br>
+&nbsp;&nbsp;&nbsp;&nbsp;}<br>
+&nbsp;<br>
+The&nbsp;"layers"&nbsp;section&nbsp;is&nbsp;a&nbsp;dictionary&nbsp;of&nbsp;layer&nbsp;names&nbsp;which&nbsp;are&nbsp;specified&nbsp;in&nbsp;the<br>
+URL&nbsp;of&nbsp;an&nbsp;individual&nbsp;tile.&nbsp;More&nbsp;detail&nbsp;on&nbsp;the&nbsp;configuration&nbsp;of&nbsp;individual&nbsp;layers<br>
+can&nbsp;be&nbsp;found&nbsp;in&nbsp;the&nbsp;TileStache.Core&nbsp;module&nbsp;documentation.&nbsp;Another&nbsp;sample:<br>
+&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;{<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"cache":&nbsp;...,<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"layers":&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"example-name":<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"provider":&nbsp;{&nbsp;...&nbsp;},<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"metatile":&nbsp;{&nbsp;...&nbsp;},<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"preview":&nbsp;{&nbsp;...&nbsp;},<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"stale&nbsp;lock&nbsp;timeout":&nbsp;...,<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"projection":&nbsp;...<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>
+&nbsp;&nbsp;&nbsp;&nbsp;}<br>
+&nbsp;<br>
+<a href="#Configuration">Configuration</a>&nbsp;also&nbsp;supports&nbsp;these&nbsp;additional&nbsp;settings:<br>
+&nbsp;<br>
+-&nbsp;"logging":&nbsp;one&nbsp;of&nbsp;"debug",&nbsp;"info",&nbsp;"warning",&nbsp;"error"&nbsp;or&nbsp;"critical",&nbsp;as<br>
+&nbsp;&nbsp;described&nbsp;in&nbsp;Python's&nbsp;logging&nbsp;module:&nbsp;<a href="http://docs.python.org/howto/logging.html">http://docs.python.org/howto/logging.html</a><br>
+&nbsp;<br>
+-&nbsp;"index":&nbsp;configurable&nbsp;index&nbsp;pages&nbsp;for&nbsp;the&nbsp;front&nbsp;page&nbsp;of&nbsp;an&nbsp;instance.<br>
+&nbsp;&nbsp;A&nbsp;custom&nbsp;index&nbsp;can&nbsp;be&nbsp;specified&nbsp;as&nbsp;a&nbsp;filename&nbsp;relative&nbsp;to&nbsp;the&nbsp;configuration<br>
+&nbsp;&nbsp;location.&nbsp;Typically&nbsp;an&nbsp;HTML&nbsp;document&nbsp;would&nbsp;be&nbsp;given&nbsp;here,&nbsp;but&nbsp;other&nbsp;kinds&nbsp;of<br>
+&nbsp;&nbsp;files&nbsp;such&nbsp;as&nbsp;images&nbsp;can&nbsp;be&nbsp;used,&nbsp;with&nbsp;MIME&nbsp;content-type&nbsp;headers&nbsp;determined<br>
+&nbsp;&nbsp;by&nbsp;mimetypes.guess_type.&nbsp;A&nbsp;simple&nbsp;text&nbsp;greeting&nbsp;is&nbsp;displayed&nbsp;if&nbsp;no&nbsp;index<br>
+&nbsp;&nbsp;is&nbsp;provided.<br>
+&nbsp;<br>
+In-depth&nbsp;explanations&nbsp;of&nbsp;the&nbsp;layer&nbsp;components&nbsp;can&nbsp;be&nbsp;found&nbsp;in&nbsp;the&nbsp;module<br>
+documentation&nbsp;for&nbsp;TileStache.Providers,&nbsp;TileStache.Core,&nbsp;and&nbsp;TileStache.Geography.</tt></p>
+<p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#aa55cc">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial"><big><strong>Modules</strong></big></font></td></tr>
+    
+<tr><td bgcolor="#aa55cc"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%"><table width="100%" summary="list"><tr><td width="25%" valign=top><a href="TileStache.Caches.html">TileStache.Caches</a><br>
+<a href="TileStache.Core.html">TileStache.Core</a><br>
+</td><td width="25%" valign=top><a href="TileStache.Geography.html">TileStache.Geography</a><br>
+<a href="TileStache.Providers.html">TileStache.Providers</a><br>
+</td><td width="25%" valign=top><a href="logging.html">logging</a><br>
+<a href="sys.html">sys</a><br>
+</td><td width="25%" valign=top></td></tr></table></td></tr></table><p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#ee77aa">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial"><big><strong>Classes</strong></big></font></td></tr>
+    
+<tr><td bgcolor="#ee77aa"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%"><dl>
+<dt><font face="helvetica, arial"><a href="TileStache.Config.html#Bounds">Bounds</a>
+</font></dt><dt><font face="helvetica, arial"><a href="TileStache.Config.html#BoundsList">BoundsList</a>
+</font></dt><dt><font face="helvetica, arial"><a href="TileStache.Config.html#Configuration">Configuration</a>
+</font></dt></dl>
+ <p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#ffc8d8">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#000000" face="helvetica, arial"><a name="Bounds">class <strong>Bounds</strong></a></font></td></tr>
+    
+<tr bgcolor="#ffc8d8"><td rowspan=2><tt>&nbsp;&nbsp;&nbsp;</tt></td>
+<td colspan=2><tt>Coordinate&nbsp;bounding&nbsp;box&nbsp;for&nbsp;tiles.<br>&nbsp;</tt></td></tr>
+<tr><td>&nbsp;</td>
+<td width="100%">Methods defined here:<br>
+<dl><dt><a name="Bounds-__init__"><strong>__init__</strong></a>(self, upper_left_high, lower_right_low)</dt><dd><tt>Two&nbsp;required&nbsp;Coordinate&nbsp;objects&nbsp;defining&nbsp;tile&nbsp;pyramid&nbsp;bounds.<br>
+&nbsp;<br>
+Boundaries&nbsp;are&nbsp;inclusive:&nbsp;upper_left_high&nbsp;is&nbsp;the&nbsp;left-most&nbsp;column,<br>
+upper-most&nbsp;row,&nbsp;and&nbsp;highest&nbsp;zoom&nbsp;level;&nbsp;lower_right_low&nbsp;is&nbsp;the<br>
+right-most&nbsp;column,&nbsp;furthest-dwn&nbsp;row,&nbsp;and&nbsp;lowest&nbsp;zoom&nbsp;level.</tt></dd></dl>
+
+<dl><dt><a name="Bounds-__str__"><strong>__str__</strong></a>(self)</dt></dl>
+
+<dl><dt><a name="Bounds-excludes"><strong>excludes</strong></a>(self, tile)</dt><dd><tt>Check&nbsp;a&nbsp;tile&nbsp;Coordinate&nbsp;against&nbsp;the&nbsp;bounds,&nbsp;return&nbsp;true/false.</tt></dd></dl>
+
+</td></tr></table> <p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#ffc8d8">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#000000" face="helvetica, arial"><a name="BoundsList">class <strong>BoundsList</strong></a></font></td></tr>
+    
+<tr bgcolor="#ffc8d8"><td rowspan=2><tt>&nbsp;&nbsp;&nbsp;</tt></td>
+<td colspan=2><tt>Multiple&nbsp;coordinate&nbsp;bounding&nbsp;boxes&nbsp;for&nbsp;tiles.<br>&nbsp;</tt></td></tr>
+<tr><td>&nbsp;</td>
+<td width="100%">Methods defined here:<br>
+<dl><dt><a name="BoundsList-__init__"><strong>__init__</strong></a>(self, bounds)</dt><dd><tt>Single&nbsp;argument&nbsp;is&nbsp;a&nbsp;list&nbsp;of&nbsp;<a href="#Bounds">Bounds</a>&nbsp;objects.</tt></dd></dl>
+
+<dl><dt><a name="BoundsList-excludes"><strong>excludes</strong></a>(self, tile)</dt><dd><tt>Check&nbsp;a&nbsp;tile&nbsp;Coordinate&nbsp;against&nbsp;the&nbsp;bounds,&nbsp;return&nbsp;false&nbsp;if&nbsp;none&nbsp;match.</tt></dd></dl>
+
+</td></tr></table> <p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#ffc8d8">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#000000" face="helvetica, arial"><a name="Configuration">class <strong>Configuration</strong></a></font></td></tr>
+    
+<tr bgcolor="#ffc8d8"><td rowspan=2><tt>&nbsp;&nbsp;&nbsp;</tt></td>
+<td colspan=2><tt>A&nbsp;complete&nbsp;site&nbsp;configuration,&nbsp;with&nbsp;a&nbsp;collection&nbsp;of&nbsp;Layer&nbsp;objects.<br>
+&nbsp;<br>
+Attributes:<br>
+&nbsp;<br>
+&nbsp;&nbsp;cache:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;Cache&nbsp;instance,&nbsp;e.g.&nbsp;TileStache.Caches.Disk&nbsp;etc.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;See&nbsp;TileStache.Caches&nbsp;for&nbsp;details&nbsp;on&nbsp;what&nbsp;makes<br>
+&nbsp;&nbsp;&nbsp;&nbsp;a&nbsp;usable&nbsp;cache.<br>
+&nbsp;<br>
+&nbsp;&nbsp;layers:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;Dictionary&nbsp;of&nbsp;layers&nbsp;keyed&nbsp;by&nbsp;name.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;When&nbsp;creating&nbsp;a&nbsp;custom&nbsp;layers&nbsp;dictionary,&nbsp;e.g.&nbsp;for&nbsp;dynamic<br>
+&nbsp;&nbsp;&nbsp;&nbsp;layer&nbsp;collections&nbsp;backed&nbsp;by&nbsp;some&nbsp;external&nbsp;configuration,<br>
+&nbsp;&nbsp;&nbsp;&nbsp;these&nbsp;dictionary&nbsp;methods&nbsp;must&nbsp;be&nbsp;provided&nbsp;for&nbsp;a&nbsp;complete<br>
+&nbsp;&nbsp;&nbsp;&nbsp;collection&nbsp;of&nbsp;layers:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;keys():<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Return&nbsp;list&nbsp;of&nbsp;layer&nbsp;name&nbsp;strings.<br>
+&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;items():<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Return&nbsp;list&nbsp;of&nbsp;(name,&nbsp;layer)&nbsp;pairs.<br>
+&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;__contains__(key):<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Return&nbsp;boolean&nbsp;true&nbsp;if&nbsp;given&nbsp;key&nbsp;is&nbsp;an&nbsp;existing&nbsp;layer.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;__getitem__(key):<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Return&nbsp;existing&nbsp;layer&nbsp;object&nbsp;for&nbsp;given&nbsp;key&nbsp;or&nbsp;raise&nbsp;KeyError.<br>
+&nbsp;<br>
+&nbsp;&nbsp;dirpath:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;Local&nbsp;filesystem&nbsp;path&nbsp;for&nbsp;this&nbsp;configuration,<br>
+&nbsp;&nbsp;&nbsp;&nbsp;useful&nbsp;for&nbsp;expanding&nbsp;relative&nbsp;paths.<br>
+&nbsp;&nbsp;<br>
+Optional&nbsp;attribute:<br>
+&nbsp;<br>
+&nbsp;&nbsp;index:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;Mimetype,&nbsp;content&nbsp;tuple&nbsp;for&nbsp;default&nbsp;index&nbsp;response.<br>&nbsp;</tt></td></tr>
+<tr><td>&nbsp;</td>
+<td width="100%">Methods defined here:<br>
+<dl><dt><a name="Configuration-__init__"><strong>__init__</strong></a>(self, cache, dirpath)</dt></dl>
+
+</td></tr></table></td></tr></table><p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#eeaa77">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial"><big><strong>Functions</strong></big></font></td></tr>
+    
+<tr><td bgcolor="#eeaa77"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%"><dl><dt><a name="-buildConfiguration"><strong>buildConfiguration</strong></a>(config_dict, dirpath<font color="#909090">='.'</font>)</dt><dd><tt>Build&nbsp;a&nbsp;configuration&nbsp;dictionary&nbsp;into&nbsp;a&nbsp;<a href="#Configuration">Configuration</a>&nbsp;object.<br>
+&nbsp;<br>
+The&nbsp;second&nbsp;argument&nbsp;is&nbsp;an&nbsp;optional&nbsp;dirpath&nbsp;that&nbsp;specifies&nbsp;where&nbsp;in&nbsp;the<br>
+local&nbsp;filesystem&nbsp;the&nbsp;parsed&nbsp;dictionary&nbsp;originated,&nbsp;to&nbsp;make&nbsp;it&nbsp;possible<br>
+to&nbsp;resolve&nbsp;relative&nbsp;paths.&nbsp;It&nbsp;might&nbsp;be&nbsp;a&nbsp;path&nbsp;or&nbsp;more&nbsp;likely&nbsp;a&nbsp;full<br>
+URL&nbsp;including&nbsp;the&nbsp;"file://"&nbsp;prefix.</tt></dd></dl>
+ <dl><dt><a name="-enforcedLocalPath"><strong>enforcedLocalPath</strong></a>(relpath, dirpath, context<font color="#909090">='Path'</font>)</dt><dd><tt>Return&nbsp;a&nbsp;forced&nbsp;local&nbsp;path,&nbsp;relative&nbsp;to&nbsp;a&nbsp;directory.<br>
+&nbsp;<br>
+Throw&nbsp;an&nbsp;error&nbsp;if&nbsp;the&nbsp;combination&nbsp;of&nbsp;path&nbsp;and&nbsp;directory&nbsp;seems&nbsp;to<br>
+specify&nbsp;a&nbsp;remote&nbsp;path,&nbsp;e.g.&nbsp;"/path"&nbsp;and&nbsp;"<a href="http://example.com">http://example.com</a>".<br>
+&nbsp;<br>
+Although&nbsp;a&nbsp;configuration&nbsp;file&nbsp;can&nbsp;be&nbsp;parsed&nbsp;from&nbsp;a&nbsp;remote&nbsp;URL,&nbsp;some<br>
+paths&nbsp;(e.g.&nbsp;the&nbsp;location&nbsp;of&nbsp;a&nbsp;disk&nbsp;cache)&nbsp;must&nbsp;be&nbsp;local&nbsp;to&nbsp;the&nbsp;server.<br>
+In&nbsp;cases&nbsp;where&nbsp;we&nbsp;mix&nbsp;a&nbsp;remote&nbsp;configuration&nbsp;location&nbsp;with&nbsp;a&nbsp;local<br>
+cache&nbsp;location,&nbsp;e.g.&nbsp;"<a href="http://example.com/tilestache.cfg">http://example.com/tilestache.cfg</a>",&nbsp;the&nbsp;disk&nbsp;path<br>
+must&nbsp;include&nbsp;the&nbsp;"file://"&nbsp;prefix&nbsp;instead&nbsp;of&nbsp;an&nbsp;ambiguous&nbsp;absolute<br>
+path&nbsp;such&nbsp;as&nbsp;"/tmp/tilestache".</tt></dd></dl>
+ <dl><dt><a name="-loadClassPath"><strong>loadClassPath</strong></a>(classpath)</dt><dd><tt>Load&nbsp;external&nbsp;class&nbsp;based&nbsp;on&nbsp;a&nbsp;path.<br>
+&nbsp;<br>
+Example&nbsp;classpath:&nbsp;"Module.Submodule:Classname".<br>
+&nbsp;<br>
+Equivalent&nbsp;soon-to-be-deprecated&nbsp;classpath:&nbsp;"Module.Submodule.Classname".</tt></dd></dl>
+</td></tr></table><p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#55aa55">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial"><big><strong>Data</strong></big></font></td></tr>
+    
+<tr><td bgcolor="#55aa55"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%"><strong>modules</strong> = {'ConfigParser': &lt;module 'ConfigParser' from '/System/Library/Fra...ork/Versions/2.6/lib/python2.6/ConfigParser.pyc'&gt;, 'FixTk': &lt;module 'FixTk' from '/System/Library/Frameworks...ork/Versions/2.6/lib/python2.6/lib-tk/FixTk.pyc'&gt;, 'Image': &lt;module 'Image' from '/usr/local/lib/python2.6/site-packages/PIL/Image.pyc'&gt;, 'ImageColor': &lt;module 'ImageColor' from '/usr/local/lib/python2.6/site-packages/PIL/ImageColor.pyc'&gt;, 'ImageMode': &lt;module 'ImageMode' from '/usr/local/lib/python2.6/site-packages/PIL/ImageMode.pyc'&gt;, 'ImagePalette': &lt;module 'ImagePalette' from '/usr/local/lib/python2.6/site-packages/PIL/ImagePalette.pyc'&gt;, 'ModestMaps': &lt;module 'ModestMaps' from '/Library/Python/2.6/site-packages/ModestMaps/__init__.pyc'&gt;, 'ModestMaps.BlueMarble': &lt;module 'ModestMaps.BlueMarble' from '/Library/Python/2.6/site-packages/ModestMaps/BlueMarble.pyc'&gt;, 'ModestMaps.CloudMade': &lt;module 'ModestMaps.CloudMade' from '/Library/Python/2.6/site-packages/ModestMaps/CloudMade.pyc'&gt;, 'ModestMaps.Core': &lt;module 'ModestMaps.Core' from '/Library/Python/2.6/site-packages/ModestMaps/Core.pyc'&gt;, ...}<br>
+<strong>stderr</strong> = &lt;open file '&lt;stderr&gt;', mode 'w' at 0x100416140&gt;</td></tr></table>
+</body></html>

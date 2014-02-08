@@ -1,0 +1,60 @@
+
+<!doctype html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html><head><title>Python: module TileStache.Goodies.VecTiles.wkb</title>
+</head><body bgcolor="#f0f0f8">
+
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="heading">
+<tr bgcolor="#7799ee">
+<td valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial">&nbsp;<br><big><big><strong><a href="TileStache.html"><font color="#ffffff">TileStache</font></a>.<a href="TileStache.Goodies.html"><font color="#ffffff">Goodies</font></a>.<a href="TileStache.Goodies.VecTiles.html"><font color="#ffffff">VecTiles</font></a>.wkb</strong></big></big></font></td
+><td align=right valign=bottom
+><font color="#ffffff" face="helvetica, arial"><a href=".">index</a></font></td></tr></table>
+    <p><tt>Shapeless&nbsp;handling&nbsp;of&nbsp;WKB&nbsp;geometries.<br>
+&nbsp;<br>
+Use&nbsp;<a href="#-approximate_wkb">approximate_wkb</a>()&nbsp;to&nbsp;copy&nbsp;an&nbsp;approximate&nbsp;well-known&nbsp;binary&nbsp;representation&nbsp;of<br>
+a&nbsp;geometry.&nbsp;Along&nbsp;the&nbsp;way,&nbsp;reduce&nbsp;precision&nbsp;of&nbsp;double&nbsp;floating&nbsp;point&nbsp;coordinates<br>
+by&nbsp;replacing&nbsp;their&nbsp;three&nbsp;least-significant&nbsp;bytes&nbsp;with&nbsp;nulls.&nbsp;The&nbsp;resulting&nbsp;WKB<br>
+will&nbsp;match&nbsp;the&nbsp;original&nbsp;at&nbsp;up&nbsp;to&nbsp;26&nbsp;bits&nbsp;of&nbsp;precision,&nbsp;close&nbsp;enough&nbsp;for<br>
+spherical&nbsp;mercator&nbsp;zoom&nbsp;18&nbsp;street&nbsp;scale&nbsp;geography.<br>
+&nbsp;<br>
+Reduced-precision&nbsp;WKB&nbsp;geometries&nbsp;will&nbsp;compress&nbsp;as&nbsp;much&nbsp;as&nbsp;50%&nbsp;smaller&nbsp;with&nbsp;zlib.<br>
+&nbsp;<br>
+See&nbsp;also:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<a href="http://edndoc.esri.com/arcsde/9.0/general_topics/wkb_representation.htm">http://edndoc.esri.com/arcsde/9.0/general_topics/wkb_representation.htm</a><br>
+&nbsp;&nbsp;&nbsp;&nbsp;<a href="http://en.wikipedia.org/wiki/Double-precision_floating-point_format">http://en.wikipedia.org/wiki/Double-precision_floating-point_format</a></tt></p>
+<p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#eeaa77">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial"><big><strong>Functions</strong></big></font></td></tr>
+    
+<tr><td bgcolor="#eeaa77"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%"><dl><dt><a name="-approx_geometry"><strong>approx_geometry</strong></a>(src, dest)</dt></dl>
+ <dl><dt><a name="-approx_line"><strong>approx_line</strong></a>(src, dest, copy_int, approx_point)</dt></dl>
+ <dl><dt><a name="-approx_point_big"><strong>approx_point_big</strong></a>(src, dest)</dt><dd><tt>Copy&nbsp;a&nbsp;pair&nbsp;of&nbsp;big-endian&nbsp;doubles&nbsp;between&nbsp;files,&nbsp;truncating&nbsp;significands.</tt></dd></dl>
+ <dl><dt><a name="-approx_point_little"><strong>approx_point_little</strong></a>(src, dest)</dt><dd><tt>Copy&nbsp;a&nbsp;pair&nbsp;of&nbsp;little-endian&nbsp;doubles&nbsp;between&nbsp;files,&nbsp;truncating&nbsp;significands.</tt></dd></dl>
+ <dl><dt><a name="-approx_polygon"><strong>approx_polygon</strong></a>(src, dest, copy_int, approx_point)</dt></dl>
+ <dl><dt><a name="-approximate_wkb"><strong>approximate_wkb</strong></a>(wkb_in)</dt><dd><tt>Return&nbsp;an&nbsp;approximation&nbsp;of&nbsp;the&nbsp;input&nbsp;WKB&nbsp;with&nbsp;lower-precision&nbsp;geometry.</tt></dd></dl>
+ <dl><dt><a name="-copy_byte"><strong>copy_byte</strong></a>(src, dest)</dt><dd><tt>Copy&nbsp;an&nbsp;unsigned&nbsp;byte&nbsp;between&nbsp;files,&nbsp;and&nbsp;return&nbsp;it.</tt></dd></dl>
+ <dl><dt><a name="-copy_int_big"><strong>copy_int_big</strong></a>(src, dest)</dt><dd><tt>Copy&nbsp;a&nbsp;big-endian&nbsp;unsigned&nbsp;4-byte&nbsp;int&nbsp;between&nbsp;files,&nbsp;and&nbsp;return&nbsp;it.</tt></dd></dl>
+ <dl><dt><a name="-copy_int_little"><strong>copy_int_little</strong></a>(src, dest)</dt><dd><tt>Copy&nbsp;a&nbsp;little-endian&nbsp;unsigned&nbsp;4-byte&nbsp;int&nbsp;between&nbsp;files,&nbsp;and&nbsp;return&nbsp;it.</tt></dd></dl>
+ <dl><dt><a name="-unpack"><strong>unpack</strong></a>(...)</dt><dd><tt>Unpack&nbsp;the&nbsp;string&nbsp;containing&nbsp;packed&nbsp;C&nbsp;structure&nbsp;data,&nbsp;according&nbsp;to&nbsp;fmt.<br>
+Requires&nbsp;len(string)&nbsp;==&nbsp;calcsize(fmt).</tt></dd></dl>
+</td></tr></table><p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#55aa55">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial"><big><strong>Data</strong></big></font></td></tr>
+    
+<tr><td bgcolor="#55aa55"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%"><strong>wkbGeometryCollection</strong> = 7<br>
+<strong>wkbLineString</strong> = 2<br>
+<strong>wkbMultiLineString</strong> = 5<br>
+<strong>wkbMultiPoint</strong> = 4<br>
+<strong>wkbMultiPolygon</strong> = 6<br>
+<strong>wkbMultis</strong> = (4, 5, 6, 7)<br>
+<strong>wkbNDR</strong> = 1<br>
+<strong>wkbPoint</strong> = 1<br>
+<strong>wkbPolygon</strong> = 3<br>
+<strong>wkbXDR</strong> = 0</td></tr></table>
+</body></html>

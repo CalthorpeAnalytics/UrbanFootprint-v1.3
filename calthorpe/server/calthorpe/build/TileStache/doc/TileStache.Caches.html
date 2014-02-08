@@ -1,0 +1,243 @@
+
+<!doctype html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html><head><title>Python: module TileStache.Caches</title>
+</head><body bgcolor="#f0f0f8">
+
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="heading">
+<tr bgcolor="#7799ee">
+<td valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial">&nbsp;<br><big><big><strong><a href="TileStache.html"><font color="#ffffff">TileStache</font></a>.Caches</strong></big></big></font></td
+><td align=right valign=bottom
+><font color="#ffffff" face="helvetica, arial"><a href=".">index</a></font></td></tr></table>
+    <p><tt>The&nbsp;cache&nbsp;bits&nbsp;of&nbsp;TileStache.<br>
+&nbsp;<br>
+A&nbsp;Cache&nbsp;is&nbsp;the&nbsp;part&nbsp;of&nbsp;TileStache&nbsp;that&nbsp;stores&nbsp;static&nbsp;files&nbsp;to&nbsp;speed&nbsp;up&nbsp;future<br>
+requests.&nbsp;A&nbsp;few&nbsp;default&nbsp;caches&nbsp;are&nbsp;found&nbsp;here,&nbsp;but&nbsp;it's&nbsp;possible&nbsp;to&nbsp;define&nbsp;your<br>
+own&nbsp;and&nbsp;pull&nbsp;them&nbsp;into&nbsp;TileStache&nbsp;dynamically&nbsp;by&nbsp;class&nbsp;name.<br>
+&nbsp;<br>
+Built-in&nbsp;providers:<br>
+-&nbsp;test<br>
+-&nbsp;disk<br>
+-&nbsp;multi<br>
+-&nbsp;memcache<br>
+-&nbsp;s3<br>
+&nbsp;<br>
+Example&nbsp;built-in&nbsp;cache,&nbsp;for&nbsp;JSON&nbsp;configuration&nbsp;file:<br>
+&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;"cache":&nbsp;{<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"name":&nbsp;"<a href="#Disk">Disk</a>",<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"path":&nbsp;"/tmp/stache",<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"umask":&nbsp;"0000"<br>
+&nbsp;&nbsp;&nbsp;&nbsp;}<br>
+&nbsp;<br>
+Example&nbsp;external&nbsp;cache,&nbsp;for&nbsp;JSON&nbsp;configuration&nbsp;file:<br>
+&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;"cache":&nbsp;{<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"class":&nbsp;"Module:Classname",<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"kwargs":&nbsp;{"frob":&nbsp;"yes"}<br>
+&nbsp;&nbsp;&nbsp;&nbsp;}<br>
+&nbsp;<br>
+-&nbsp;The&nbsp;"class"&nbsp;value&nbsp;is&nbsp;split&nbsp;up&nbsp;into&nbsp;module&nbsp;and&nbsp;classname,&nbsp;and&nbsp;dynamically<br>
+&nbsp;&nbsp;included.&nbsp;If&nbsp;this&nbsp;doesn't&nbsp;work&nbsp;for&nbsp;some&nbsp;reason,&nbsp;TileStache&nbsp;will&nbsp;fail&nbsp;loudly<br>
+&nbsp;&nbsp;to&nbsp;let&nbsp;you&nbsp;know.<br>
+-&nbsp;The&nbsp;"kwargs"&nbsp;value&nbsp;is&nbsp;fed&nbsp;to&nbsp;the&nbsp;class&nbsp;constructor&nbsp;as&nbsp;a&nbsp;dictionary&nbsp;of&nbsp;keyword<br>
+&nbsp;&nbsp;args.&nbsp;If&nbsp;your&nbsp;defined&nbsp;class&nbsp;doesn't&nbsp;accept&nbsp;any&nbsp;of&nbsp;these&nbsp;keyword&nbsp;arguments,<br>
+&nbsp;&nbsp;TileStache&nbsp;will&nbsp;throw&nbsp;an&nbsp;exception.<br>
+&nbsp;<br>
+A&nbsp;cache&nbsp;must&nbsp;provide&nbsp;these&nbsp;methods:&nbsp;lock(),&nbsp;unlock(),&nbsp;read(),&nbsp;and&nbsp;save().<br>
+Each&nbsp;method&nbsp;accepts&nbsp;three&nbsp;arguments:<br>
+&nbsp;<br>
+-&nbsp;layer:&nbsp;instance&nbsp;of&nbsp;a&nbsp;Layer.<br>
+-&nbsp;coord:&nbsp;single&nbsp;Coordinate&nbsp;that&nbsp;represents&nbsp;a&nbsp;tile.<br>
+-&nbsp;format:&nbsp;string&nbsp;like&nbsp;"png"&nbsp;or&nbsp;"jpg"&nbsp;that&nbsp;is&nbsp;used&nbsp;as&nbsp;a&nbsp;filename&nbsp;extension.<br>
+&nbsp;<br>
+The&nbsp;save()&nbsp;method&nbsp;accepts&nbsp;an&nbsp;additional&nbsp;argument&nbsp;before&nbsp;the&nbsp;others:<br>
+&nbsp;<br>
+-&nbsp;body:&nbsp;raw&nbsp;content&nbsp;to&nbsp;save&nbsp;to&nbsp;the&nbsp;cache.<br>
+&nbsp;<br>
+TODO:&nbsp;add&nbsp;stale_lock_timeout&nbsp;and&nbsp;cache_lifespan&nbsp;to&nbsp;cache&nbsp;API&nbsp;in&nbsp;v2.</tt></p>
+<p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#aa55cc">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial"><big><strong>Modules</strong></big></font></td></tr>
+    
+<tr><td bgcolor="#aa55cc"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%"><table width="100%" summary="list"><tr><td width="25%" valign=top><a href="TileStache.Memcache.html">TileStache.Memcache</a><br>
+<a href="TileStache.S3.html">TileStache.S3</a><br>
+</td><td width="25%" valign=top><a href="gzip.html">gzip</a><br>
+<a href="os.html">os</a><br>
+</td><td width="25%" valign=top><a href="sys.html">sys</a><br>
+<a href="time.html">time</a><br>
+</td><td width="25%" valign=top></td></tr></table></td></tr></table><p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#ee77aa">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial"><big><strong>Classes</strong></big></font></td></tr>
+    
+<tr><td bgcolor="#ee77aa"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%"><dl>
+<dt><font face="helvetica, arial"><a href="TileStache.Caches.html#Disk">Disk</a>
+</font></dt><dt><font face="helvetica, arial"><a href="TileStache.Caches.html#Multi">Multi</a>
+</font></dt><dt><font face="helvetica, arial"><a href="TileStache.Caches.html#Test">Test</a>
+</font></dt></dl>
+ <p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#ffc8d8">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#000000" face="helvetica, arial"><a name="Disk">class <strong>Disk</strong></a></font></td></tr>
+    
+<tr bgcolor="#ffc8d8"><td rowspan=2><tt>&nbsp;&nbsp;&nbsp;</tt></td>
+<td colspan=2><tt>Caches&nbsp;files&nbsp;to&nbsp;disk.<br>
+&nbsp;<br>
+Example&nbsp;configuration:<br>
+&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;"cache":&nbsp;{<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"name":&nbsp;"<a href="#Disk">Disk</a>",<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"path":&nbsp;"/tmp/stache",<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"umask":&nbsp;"0000",<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"dirs":&nbsp;"portable"<br>
+&nbsp;&nbsp;&nbsp;&nbsp;}<br>
+&nbsp;<br>
+Extra&nbsp;parameters:<br>
+-&nbsp;path:&nbsp;required&nbsp;local&nbsp;directory&nbsp;path&nbsp;where&nbsp;files&nbsp;should&nbsp;be&nbsp;stored.<br>
+-&nbsp;umask:&nbsp;optional&nbsp;string&nbsp;representation&nbsp;of&nbsp;octal&nbsp;permission&nbsp;mask<br>
+&nbsp;&nbsp;for&nbsp;stored&nbsp;files.&nbsp;Defaults&nbsp;to&nbsp;0022.<br>
+-&nbsp;dirs:&nbsp;optional&nbsp;string&nbsp;saying&nbsp;whether&nbsp;to&nbsp;create&nbsp;cache&nbsp;directories&nbsp;that<br>
+&nbsp;&nbsp;are&nbsp;safe,&nbsp;portable&nbsp;or&nbsp;quadtile.&nbsp;For&nbsp;an&nbsp;example&nbsp;tile&nbsp;12/656/1582.png,<br>
+&nbsp;&nbsp;"portable"&nbsp;creates&nbsp;matching&nbsp;directory&nbsp;trees&nbsp;while&nbsp;"safe"&nbsp;guarantees<br>
+&nbsp;&nbsp;directories&nbsp;with&nbsp;fewer&nbsp;files,&nbsp;e.g.&nbsp;12/000/656/001/582.png.<br>
+&nbsp;&nbsp;Defaults&nbsp;to&nbsp;safe.<br>
+-&nbsp;gzip:&nbsp;optional&nbsp;list&nbsp;of&nbsp;file&nbsp;formats&nbsp;that&nbsp;should&nbsp;be&nbsp;stored&nbsp;in&nbsp;a<br>
+&nbsp;&nbsp;compressed&nbsp;form.&nbsp;Defaults&nbsp;to&nbsp;"txt",&nbsp;"text",&nbsp;"json",&nbsp;and&nbsp;"xml".<br>
+&nbsp;&nbsp;Provide&nbsp;an&nbsp;empty&nbsp;list&nbsp;in&nbsp;the&nbsp;configuration&nbsp;for&nbsp;no&nbsp;compression.<br>
+&nbsp;<br>
+If&nbsp;your&nbsp;configuration&nbsp;file&nbsp;is&nbsp;loaded&nbsp;from&nbsp;a&nbsp;remote&nbsp;location,&nbsp;e.g.<br>
+"<a href="http://example.com/tilestache.cfg">http://example.com/tilestache.cfg</a>",&nbsp;the&nbsp;path&nbsp;*must*&nbsp;be&nbsp;an&nbsp;unambiguous<br>
+filesystem&nbsp;path,&nbsp;e.g.&nbsp;"file:///tmp/cache"<br>&nbsp;</tt></td></tr>
+<tr><td>&nbsp;</td>
+<td width="100%">Methods defined here:<br>
+<dl><dt><a name="Disk-__init__"><strong>__init__</strong></a>(self, path, umask<font color="#909090">=18</font>, dirs<font color="#909090">='safe'</font>, gzip<font color="#909090">=['txt', 'text', 'json', 'xml']</font>)</dt></dl>
+
+<dl><dt><a name="Disk-lock"><strong>lock</strong></a>(self, layer, coord, format)</dt><dd><tt>Acquire&nbsp;a&nbsp;cache&nbsp;lock&nbsp;for&nbsp;this&nbsp;tile.<br>
+&nbsp;<br>
+Returns&nbsp;nothing,&nbsp;but&nbsp;blocks&nbsp;until&nbsp;the&nbsp;lock&nbsp;has&nbsp;been&nbsp;acquired.<br>
+Lock&nbsp;is&nbsp;implemented&nbsp;as&nbsp;an&nbsp;empty&nbsp;directory&nbsp;next&nbsp;to&nbsp;the&nbsp;tile&nbsp;file.</tt></dd></dl>
+
+<dl><dt><a name="Disk-read"><strong>read</strong></a>(self, layer, coord, format)</dt><dd><tt>Read&nbsp;a&nbsp;cached&nbsp;tile.</tt></dd></dl>
+
+<dl><dt><a name="Disk-remove"><strong>remove</strong></a>(self, layer, coord, format)</dt><dd><tt>Remove&nbsp;a&nbsp;cached&nbsp;tile.</tt></dd></dl>
+
+<dl><dt><a name="Disk-save"><strong>save</strong></a>(self, body, layer, coord, format)</dt><dd><tt>Save&nbsp;a&nbsp;cached&nbsp;tile.</tt></dd></dl>
+
+<dl><dt><a name="Disk-unlock"><strong>unlock</strong></a>(self, layer, coord, format)</dt><dd><tt>Release&nbsp;a&nbsp;cache&nbsp;lock&nbsp;for&nbsp;this&nbsp;tile.<br>
+&nbsp;<br>
+Lock&nbsp;is&nbsp;implemented&nbsp;as&nbsp;an&nbsp;empty&nbsp;directory&nbsp;next&nbsp;to&nbsp;the&nbsp;tile&nbsp;file.</tt></dd></dl>
+
+</td></tr></table> <p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#ffc8d8">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#000000" face="helvetica, arial"><a name="Multi">class <strong>Multi</strong></a></font></td></tr>
+    
+<tr bgcolor="#ffc8d8"><td rowspan=2><tt>&nbsp;&nbsp;&nbsp;</tt></td>
+<td colspan=2><tt>Caches&nbsp;tiles&nbsp;to&nbsp;multiple,&nbsp;ordered&nbsp;caches.<br>
+&nbsp;<br>
+<a href="#Multi">Multi</a>&nbsp;cache&nbsp;is&nbsp;well-suited&nbsp;for&nbsp;a&nbsp;speed-to-capacity&nbsp;gradient,&nbsp;for<br>
+example&nbsp;a&nbsp;combination&nbsp;of&nbsp;Memcache&nbsp;and&nbsp;S3&nbsp;to&nbsp;take&nbsp;advantage&nbsp;of&nbsp;the&nbsp;high<br>
+speed&nbsp;of&nbsp;memcache&nbsp;and&nbsp;the&nbsp;high&nbsp;capacity&nbsp;of&nbsp;S3.&nbsp;Each&nbsp;tier&nbsp;of&nbsp;caching&nbsp;is<br>
+checked&nbsp;sequentially&nbsp;when&nbsp;reading&nbsp;from&nbsp;the&nbsp;cache,&nbsp;while&nbsp;all&nbsp;tiers&nbsp;are<br>
+used&nbsp;together&nbsp;for&nbsp;writing.&nbsp;Locks&nbsp;are&nbsp;only&nbsp;used&nbsp;with&nbsp;the&nbsp;first&nbsp;cache.<br>
+&nbsp;<br>
+Example&nbsp;configuration:<br>
+&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;"cache":&nbsp;{<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"name":&nbsp;"<a href="#Multi">Multi</a>",<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"tiers":&nbsp;[<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"name":&nbsp;"Memcache",<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"servers":&nbsp;["127.0.0.1:11211"]<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;},<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"name":&nbsp;"<a href="#Disk">Disk</a>",<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"path":&nbsp;"/tmp/stache"<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;]<br>
+&nbsp;&nbsp;&nbsp;&nbsp;}<br>
+&nbsp;<br>
+<a href="#Multi">Multi</a>&nbsp;cache&nbsp;parameters:<br>
+&nbsp;<br>
+&nbsp;&nbsp;tiers<br>
+&nbsp;&nbsp;&nbsp;&nbsp;Required&nbsp;list&nbsp;of&nbsp;cache&nbsp;configurations.&nbsp;The&nbsp;fastest,&nbsp;most&nbsp;local<br>
+&nbsp;&nbsp;&nbsp;&nbsp;cache&nbsp;should&nbsp;be&nbsp;at&nbsp;the&nbsp;beginning&nbsp;of&nbsp;the&nbsp;list&nbsp;while&nbsp;the&nbsp;slowest&nbsp;or<br>
+&nbsp;&nbsp;&nbsp;&nbsp;most&nbsp;remote&nbsp;cache&nbsp;should&nbsp;be&nbsp;at&nbsp;the&nbsp;end.&nbsp;Memcache&nbsp;and&nbsp;S3&nbsp;together<br>
+&nbsp;&nbsp;&nbsp;&nbsp;make&nbsp;a&nbsp;great&nbsp;pair.<br>&nbsp;</tt></td></tr>
+<tr><td>&nbsp;</td>
+<td width="100%">Methods defined here:<br>
+<dl><dt><a name="Multi-__init__"><strong>__init__</strong></a>(self, tiers)</dt></dl>
+
+<dl><dt><a name="Multi-lock"><strong>lock</strong></a>(self, layer, coord, format)</dt><dd><tt>Acquire&nbsp;a&nbsp;cache&nbsp;lock&nbsp;for&nbsp;this&nbsp;tile&nbsp;in&nbsp;the&nbsp;first&nbsp;tier.<br>
+&nbsp;<br>
+Returns&nbsp;nothing,&nbsp;but&nbsp;blocks&nbsp;until&nbsp;the&nbsp;lock&nbsp;has&nbsp;been&nbsp;acquired.</tt></dd></dl>
+
+<dl><dt><a name="Multi-read"><strong>read</strong></a>(self, layer, coord, format)</dt><dd><tt>Read&nbsp;a&nbsp;cached&nbsp;tile.<br>
+&nbsp;<br>
+Start&nbsp;at&nbsp;the&nbsp;first&nbsp;tier&nbsp;and&nbsp;work&nbsp;forwards&nbsp;until&nbsp;a&nbsp;cached&nbsp;tile<br>
+is&nbsp;found.&nbsp;When&nbsp;found,&nbsp;save&nbsp;it&nbsp;back&nbsp;to&nbsp;the&nbsp;earlier&nbsp;tiers&nbsp;for&nbsp;faster<br>
+access&nbsp;on&nbsp;future&nbsp;requests.</tt></dd></dl>
+
+<dl><dt><a name="Multi-remove"><strong>remove</strong></a>(self, layer, coord, format)</dt><dd><tt>Remove&nbsp;a&nbsp;cached&nbsp;tile&nbsp;from&nbsp;every&nbsp;tier.</tt></dd></dl>
+
+<dl><dt><a name="Multi-save"><strong>save</strong></a>(self, body, layer, coord, format)</dt><dd><tt>Save&nbsp;a&nbsp;cached&nbsp;tile.<br>
+&nbsp;<br>
+Every&nbsp;tier&nbsp;gets&nbsp;a&nbsp;saved&nbsp;copy.</tt></dd></dl>
+
+<dl><dt><a name="Multi-unlock"><strong>unlock</strong></a>(self, layer, coord, format)</dt><dd><tt>Release&nbsp;a&nbsp;cache&nbsp;lock&nbsp;for&nbsp;this&nbsp;tile&nbsp;in&nbsp;the&nbsp;first&nbsp;tier.</tt></dd></dl>
+
+</td></tr></table> <p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#ffc8d8">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#000000" face="helvetica, arial"><a name="Test">class <strong>Test</strong></a></font></td></tr>
+    
+<tr bgcolor="#ffc8d8"><td rowspan=2><tt>&nbsp;&nbsp;&nbsp;</tt></td>
+<td colspan=2><tt>Simple&nbsp;cache&nbsp;that&nbsp;doesn't&nbsp;actually&nbsp;cache&nbsp;anything.<br>
+&nbsp;<br>
+Activity&nbsp;is&nbsp;optionally&nbsp;logged,&nbsp;though.<br>
+&nbsp;<br>
+Example&nbsp;configuration:<br>
+&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;"cache":&nbsp;{<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"name":&nbsp;"<a href="#Test">Test</a>",<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"verbose":&nbsp;True<br>
+&nbsp;&nbsp;&nbsp;&nbsp;}<br>
+&nbsp;<br>
+Extra&nbsp;configuration&nbsp;parameters:<br>
+-&nbsp;verbose:&nbsp;optional&nbsp;boolean&nbsp;flag&nbsp;to&nbsp;write&nbsp;cache&nbsp;activities&nbsp;to&nbsp;a&nbsp;logging<br>
+&nbsp;&nbsp;function,&nbsp;defaults&nbsp;to&nbsp;False&nbsp;if&nbsp;omitted.<br>&nbsp;</tt></td></tr>
+<tr><td>&nbsp;</td>
+<td width="100%">Methods defined here:<br>
+<dl><dt><a name="Test-__init__"><strong>__init__</strong></a>(self, logfunc<font color="#909090">=None</font>)</dt></dl>
+
+<dl><dt><a name="Test-lock"><strong>lock</strong></a>(self, layer, coord, format)</dt><dd><tt>Pretend&nbsp;to&nbsp;acquire&nbsp;a&nbsp;cache&nbsp;lock&nbsp;for&nbsp;this&nbsp;tile.</tt></dd></dl>
+
+<dl><dt><a name="Test-read"><strong>read</strong></a>(self, layer, coord, format)</dt><dd><tt>Pretend&nbsp;to&nbsp;read&nbsp;a&nbsp;cached&nbsp;tile.</tt></dd></dl>
+
+<dl><dt><a name="Test-remove"><strong>remove</strong></a>(self, layer, coord, format)</dt><dd><tt>Pretend&nbsp;to&nbsp;remove&nbsp;a&nbsp;cached&nbsp;tile.</tt></dd></dl>
+
+<dl><dt><a name="Test-save"><strong>save</strong></a>(self, body, layer, coord, format)</dt><dd><tt>Pretend&nbsp;to&nbsp;save&nbsp;a&nbsp;cached&nbsp;tile.</tt></dd></dl>
+
+<dl><dt><a name="Test-unlock"><strong>unlock</strong></a>(self, layer, coord, format)</dt><dd><tt>Pretend&nbsp;to&nbsp;release&nbsp;a&nbsp;cache&nbsp;lock&nbsp;for&nbsp;this&nbsp;tile.</tt></dd></dl>
+
+</td></tr></table></td></tr></table><p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#eeaa77">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial"><big><strong>Functions</strong></big></font></td></tr>
+    
+<tr><td bgcolor="#eeaa77"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%"><dl><dt><a name="-getCacheByName"><strong>getCacheByName</strong></a>(name)</dt><dd><tt>Retrieve&nbsp;a&nbsp;cache&nbsp;object&nbsp;by&nbsp;name.<br>
+&nbsp;<br>
+Raise&nbsp;an&nbsp;exception&nbsp;if&nbsp;the&nbsp;name&nbsp;doesn't&nbsp;work&nbsp;out.</tt></dd></dl>
+</td></tr></table>
+</body></html>

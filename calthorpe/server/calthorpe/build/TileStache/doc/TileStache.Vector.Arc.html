@@ -1,0 +1,38 @@
+
+<!doctype html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html><head><title>Python: module TileStache.Vector.Arc</title>
+</head><body bgcolor="#f0f0f8">
+
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="heading">
+<tr bgcolor="#7799ee">
+<td valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial">&nbsp;<br><big><big><strong><a href="TileStache.html"><font color="#ffffff">TileStache</font></a>.<a href="TileStache.Vector.html"><font color="#ffffff">Vector</font></a>.Arc</strong></big></big></font></td
+><td align=right valign=bottom
+><font color="#ffffff" face="helvetica, arial"><a href=".">index</a></font></td></tr></table>
+    <p><tt>Arc-specific&nbsp;Vector&nbsp;provider&nbsp;helpers.</tt></p>
+<p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#eeaa77">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial"><big><strong>Functions</strong></big></font></td></tr>
+    
+<tr><td bgcolor="#eeaa77"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%"><dl><dt><a name="-add"><strong>add</strong></a>(...)</dt><dd><tt><a href="#-add">add</a>(a,&nbsp;b)&nbsp;--&nbsp;Same&nbsp;as&nbsp;a&nbsp;+&nbsp;b.</tt></dd></dl>
+ <dl><dt><a name="-reserialize_to_arc"><strong>reserialize_to_arc</strong></a>(content, point_objects)</dt><dd><tt>Convert&nbsp;from&nbsp;"geo"&nbsp;(GeoJSON)&nbsp;to&nbsp;ESRI's&nbsp;GeoServices&nbsp;REST&nbsp;serialization.<br>
+&nbsp;<br>
+Second&nbsp;argument&nbsp;is&nbsp;a&nbsp;boolean&nbsp;flag&nbsp;for&nbsp;whether&nbsp;to&nbsp;use&nbsp;the&nbsp;class<br>
+_amfGeometryMapPoint&nbsp;for&nbsp;points&nbsp;in&nbsp;ring&nbsp;and&nbsp;path&nbsp;arrays,&nbsp;or&nbsp;tuples.<br>
+The&nbsp;formal&nbsp;class&nbsp;is&nbsp;needed&nbsp;for&nbsp;AMF&nbsp;responses,&nbsp;plain&nbsp;tuples&nbsp;otherwise.<br>
+&nbsp;<br>
+Much&nbsp;of&nbsp;this&nbsp;cribbed&nbsp;from&nbsp;sample&nbsp;server&nbsp;queries&nbsp;and&nbsp;page&nbsp;191+&nbsp;of:<br>
+&nbsp;&nbsp;<a href="http://www.esri.com/library/whitepapers/pdfs/geoservices-rest-spec.pdf">http://www.esri.com/library/whitepapers/pdfs/geoservices-rest-spec.pdf</a></tt></dd></dl>
+</td></tr></table><p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#55aa55">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial"><big><strong>Data</strong></big></font></td></tr>
+    
+<tr><td bgcolor="#55aa55"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%"><strong>geometry_types</strong> = {'LineString': 'esriGeometryPolyline', 'MultiLineString': 'esriGeometryPolyline', 'MultiPoint': 'esriGeometryMultipoint', 'MultiPolygon': 'esriGeometryPolygon', 'Point': 'esriGeometryPoint', 'Polygon': 'esriGeometryPolygon'}<br>
+<strong>pyamf_classes</strong> = {&lt;class 'TileStache.Vector.Arc._amfFeatureSet'&gt;: 'com.esri.ags.tasks.FeatureSet', &lt;class 'TileStache.Vector.Arc._amfSpatialReference'&gt;: 'com.esri.ags.SpatialReference', &lt;class 'TileStache.Vector.Arc._amfFeature'&gt;: 'com.esri.ags.Feature', &lt;class 'TileStache.Vector.Arc._amfGeometryMapPoint'&gt;: 'com.esri.ags.geometry.MapPoint', &lt;class 'TileStache.Vector.Arc._amfGeometryPolyline'&gt;: 'com.esri.ags.geometry.Polyline', &lt;class 'TileStache.Vector.Arc._amfGeometryPolygon'&gt;: 'com.esri.ags.geometry.Polygon'}</td></tr></table>
+</body></html>

@@ -1,0 +1,96 @@
+
+<!doctype html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html><head><title>Python: module TileStache.Goodies.Providers.MapnikGrid</title>
+</head><body bgcolor="#f0f0f8">
+
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="heading">
+<tr bgcolor="#7799ee">
+<td valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial">&nbsp;<br><big><big><strong><a href="TileStache.html"><font color="#ffffff">TileStache</font></a>.<a href="TileStache.Goodies.html"><font color="#ffffff">Goodies</font></a>.<a href="TileStache.Goodies.Providers.html"><font color="#ffffff">Providers</font></a>.MapnikGrid</strong></big></big></font></td
+><td align=right valign=bottom
+><font color="#ffffff" face="helvetica, arial"><a href=".">index</a></font></td></tr></table>
+    <p><tt>Mapnik&nbsp;UTFGrid&nbsp;<a href="#Provider">Provider</a>.<br>
+&nbsp;<br>
+Takes&nbsp;the&nbsp;first&nbsp;layer&nbsp;from&nbsp;the&nbsp;given&nbsp;mapnik&nbsp;xml&nbsp;file&nbsp;and&nbsp;renders&nbsp;it&nbsp;as&nbsp;UTFGrid<br>
+https://github.com/mapbox/utfgrid-spec/blob/master/1.2/utfgrid.md<br>
+It&nbsp;can&nbsp;then&nbsp;be&nbsp;used&nbsp;for&nbsp;this:<br>
+<a href="http://mapbox.github.com/wax/interaction-leaf.html">http://mapbox.github.com/wax/interaction-leaf.html</a><br>
+Only&nbsp;works&nbsp;with&nbsp;mapnik&gt;=2.0&nbsp;(Where&nbsp;the&nbsp;Grid&nbsp;functionality&nbsp;was&nbsp;introduced)<br>
+&nbsp;<br>
+Use&nbsp;Sperical&nbsp;Mercator&nbsp;projection&nbsp;and&nbsp;the&nbsp;extension&nbsp;"json"<br>
+&nbsp;<br>
+Sample&nbsp;configuration:<br>
+&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;"provider":<br>
+&nbsp;&nbsp;&nbsp;&nbsp;{<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"class":&nbsp;"TileStache.Goodies.Providers.MapnikGrid:<a href="#Provider">Provider</a>",<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"kwargs":<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"mapfile":&nbsp;"mymap.xml",&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"fields":["name",&nbsp;"address"],<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"layer_index":&nbsp;0,<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"wrapper":&nbsp;"grid",<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"scale":&nbsp;4<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>
+&nbsp;&nbsp;&nbsp;&nbsp;}<br>
+&nbsp;<br>
+mapfile:&nbsp;the&nbsp;mapnik&nbsp;xml&nbsp;file&nbsp;to&nbsp;load&nbsp;the&nbsp;map&nbsp;from<br>
+fields:&nbsp;The&nbsp;fields&nbsp;that&nbsp;should&nbsp;be&nbsp;added&nbsp;to&nbsp;the&nbsp;resulting&nbsp;grid&nbsp;json.<br>
+layer_index:&nbsp;The&nbsp;index&nbsp;of&nbsp;the&nbsp;layer&nbsp;you&nbsp;want&nbsp;from&nbsp;your&nbsp;map&nbsp;xml&nbsp;to&nbsp;be&nbsp;rendered<br>
+wrapper:&nbsp;If&nbsp;not&nbsp;included&nbsp;the&nbsp;json&nbsp;will&nbsp;be&nbsp;output&nbsp;raw,&nbsp;if&nbsp;included&nbsp;the&nbsp;json&nbsp;will&nbsp;be&nbsp;wrapped&nbsp;in&nbsp;"wrapper(JSON)"&nbsp;(for&nbsp;use&nbsp;with&nbsp;wax)<br>
+scale:&nbsp;What&nbsp;to&nbsp;divide&nbsp;the&nbsp;tile&nbsp;pixel&nbsp;size&nbsp;by&nbsp;to&nbsp;get&nbsp;the&nbsp;resulting&nbsp;grid&nbsp;size.&nbsp;Usually&nbsp;this&nbsp;is&nbsp;4.<br>
+buffer:&nbsp;buffer&nbsp;around&nbsp;the&nbsp;queried&nbsp;features,&nbsp;in&nbsp;px,&nbsp;default&nbsp;0.&nbsp;Use&nbsp;this&nbsp;to&nbsp;prevent&nbsp;problems&nbsp;on&nbsp;tile&nbsp;boundaries.</tt></p>
+<p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#aa55cc">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial"><big><strong>Modules</strong></big></font></td></tr>
+    
+<tr><td bgcolor="#aa55cc"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%"><table width="100%" summary="list"><tr><td width="25%" valign=top><a href="json.html">json</a><br>
+</td><td width="25%" valign=top><a href="mapnik.html">mapnik</a><br>
+</td><td width="25%" valign=top></td><td width="25%" valign=top></td></tr></table></td></tr></table><p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#ee77aa">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial"><big><strong>Classes</strong></big></font></td></tr>
+    
+<tr><td bgcolor="#ee77aa"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%"><dl>
+<dt><font face="helvetica, arial"><a href="TileStache.Goodies.Providers.MapnikGrid.html#Provider">Provider</a>
+</font></dt><dt><font face="helvetica, arial"><a href="TileStache.Goodies.Providers.MapnikGrid.html#SaveableResponse">SaveableResponse</a>
+</font></dt></dl>
+ <p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#ffc8d8">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#000000" face="helvetica, arial"><a name="Provider">class <strong>Provider</strong></a></font></td></tr>
+    
+<tr><td bgcolor="#ffc8d8"><tt>&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%">Methods defined here:<br>
+<dl><dt><a name="Provider-__init__"><strong>__init__</strong></a>(self, layer, mapfile, fields, layer_index<font color="#909090">=0</font>, wrapper<font color="#909090">=None</font>, scale<font color="#909090">=4</font>, buffer<font color="#909090">=0</font>)</dt></dl>
+
+<dl><dt><a name="Provider-getTypeByExtension"><strong>getTypeByExtension</strong></a>(self, extension)</dt><dd><tt>Get&nbsp;mime-type&nbsp;and&nbsp;format&nbsp;by&nbsp;file&nbsp;extension.<br>
+&nbsp;<br>
+This&nbsp;only&nbsp;accepts&nbsp;"json".</tt></dd></dl>
+
+<dl><dt><a name="Provider-renderTile"><strong>renderTile</strong></a>(self, width, height, srs, coord)</dt></dl>
+
+</td></tr></table> <p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#ffc8d8">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#000000" face="helvetica, arial"><a name="SaveableResponse">class <strong>SaveableResponse</strong></a></font></td></tr>
+    
+<tr bgcolor="#ffc8d8"><td rowspan=2><tt>&nbsp;&nbsp;&nbsp;</tt></td>
+<td colspan=2><tt>Wrapper&nbsp;class&nbsp;for&nbsp;JSON&nbsp;response&nbsp;that&nbsp;makes&nbsp;it&nbsp;behave&nbsp;like&nbsp;a&nbsp;PIL.Image&nbsp;object.<br>
+&nbsp;<br>
+TileStache.getTile()&nbsp;expects&nbsp;to&nbsp;be&nbsp;able&nbsp;to&nbsp;save&nbsp;one&nbsp;of&nbsp;these&nbsp;to&nbsp;a&nbsp;buffer.<br>&nbsp;</tt></td></tr>
+<tr><td>&nbsp;</td>
+<td width="100%">Methods defined here:<br>
+<dl><dt><a name="SaveableResponse-__init__"><strong>__init__</strong></a>(self, content)</dt></dl>
+
+<dl><dt><a name="SaveableResponse-save"><strong>save</strong></a>(self, out, format)</dt></dl>
+
+</td></tr></table></td></tr></table>
+</body></html>

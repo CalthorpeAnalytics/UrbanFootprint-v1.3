@@ -1,0 +1,99 @@
+
+<!doctype html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html><head><title>Python: module TileStache.Goodies.Caches.GoogleCloud</title>
+</head><body bgcolor="#f0f0f8">
+
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="heading">
+<tr bgcolor="#7799ee">
+<td valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial">&nbsp;<br><big><big><strong><a href="TileStache.html"><font color="#ffffff">TileStache</font></a>.<a href="TileStache.Goodies.html"><font color="#ffffff">Goodies</font></a>.<a href="TileStache.Goodies.Caches.html"><font color="#ffffff">Caches</font></a>.GoogleCloud</strong></big></big></font></td
+><td align=right valign=bottom
+><font color="#ffffff" face="helvetica, arial"><a href=".">index</a></font></td></tr></table>
+    <p><tt>Caches&nbsp;tiles&nbsp;to&nbsp;Google&nbsp;Cloud&nbsp;Storage.<br>
+&nbsp;<br>
+Requires&nbsp;boto&nbsp;(2.0+):<br>
+&nbsp;&nbsp;<a href="http://pypi.python.org/pypi/boto">http://pypi.python.org/pypi/boto</a><br>
+&nbsp;<br>
+Example&nbsp;configuration:<br>
+&nbsp;<br>
+&nbsp;&nbsp;"cache":&nbsp;{<br>
+&nbsp;&nbsp;&nbsp;&nbsp;"name":&nbsp;"TileStache.Goodies.Caches.GoogleCloud:<a href="#Cache">Cache</a>",<br>
+&nbsp;&nbsp;&nbsp;&nbsp;"kwargs":&nbsp;{<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"bucket":&nbsp;"&lt;bucket&nbsp;name&gt;",<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"access":&nbsp;"&lt;access&nbsp;key&gt;",<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"secret":&nbsp;"&lt;secret&nbsp;key&gt;"<br>
+&nbsp;&nbsp;&nbsp;&nbsp;}<br>
+&nbsp;&nbsp;}<br>
+&nbsp;<br>
+cache&nbsp;parameters:<br>
+&nbsp;<br>
+&nbsp;&nbsp;bucket<br>
+&nbsp;&nbsp;&nbsp;&nbsp;Required&nbsp;bucket&nbsp;name&nbsp;for&nbsp;GS.&nbsp;If&nbsp;it&nbsp;doesn't&nbsp;exist,&nbsp;it&nbsp;will&nbsp;be&nbsp;created.<br>
+&nbsp;<br>
+&nbsp;&nbsp;access<br>
+&nbsp;&nbsp;&nbsp;&nbsp;Required&nbsp;access&nbsp;key&nbsp;ID&nbsp;for&nbsp;your&nbsp;GS&nbsp;account.<br>
+&nbsp;<br>
+&nbsp;&nbsp;secret<br>
+&nbsp;&nbsp;&nbsp;&nbsp;Required&nbsp;secret&nbsp;access&nbsp;key&nbsp;for&nbsp;your&nbsp;GS&nbsp;account.</tt></p>
+<p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#aa55cc">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial"><big><strong>Modules</strong></big></font></td></tr>
+    
+<tr><td bgcolor="#aa55cc"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%"><table width="100%" summary="list"><tr><td width="25%" valign=top><a href="boto.html">boto</a><br>
+</td><td width="25%" valign=top></td><td width="25%" valign=top></td><td width="25%" valign=top></td></tr></table></td></tr></table><p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#ee77aa">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial"><big><strong>Classes</strong></big></font></td></tr>
+    
+<tr><td bgcolor="#ee77aa"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%"><dl>
+<dt><font face="helvetica, arial"><a href="TileStache.Goodies.Caches.GoogleCloud.html#Cache">Cache</a>
+</font></dt></dl>
+ <p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#ffc8d8">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#000000" face="helvetica, arial"><a name="Cache">class <strong>Cache</strong></a></font></td></tr>
+    
+<tr><td bgcolor="#ffc8d8"><tt>&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%">Methods defined here:<br>
+<dl><dt><a name="Cache-__init__"><strong>__init__</strong></a>(self, bucket, access, secret)</dt></dl>
+
+<dl><dt><a name="Cache-lock"><strong>lock</strong></a>(self, layer, coord, format)</dt><dd><tt>Acquire&nbsp;a&nbsp;cache&nbsp;lock&nbsp;for&nbsp;this&nbsp;tile.<br>
+&nbsp;<br>
+Returns&nbsp;nothing,&nbsp;but&nbsp;blocks&nbsp;until&nbsp;the&nbsp;lock&nbsp;has&nbsp;been&nbsp;acquired.</tt></dd></dl>
+
+<dl><dt><a name="Cache-read"><strong>read</strong></a>(self, layer, coord, format)</dt><dd><tt>Read&nbsp;a&nbsp;cached&nbsp;tile.</tt></dd></dl>
+
+<dl><dt><a name="Cache-remove"><strong>remove</strong></a>(self, layer, coord, format)</dt><dd><tt>Remove&nbsp;a&nbsp;cached&nbsp;tile.</tt></dd></dl>
+
+<dl><dt><a name="Cache-save"><strong>save</strong></a>(self, body, layer, coord, format)</dt><dd><tt>Save&nbsp;a&nbsp;cached&nbsp;tile.</tt></dd></dl>
+
+<dl><dt><a name="Cache-unlock"><strong>unlock</strong></a>(self, layer, coord, format)</dt><dd><tt>Release&nbsp;a&nbsp;cache&nbsp;lock&nbsp;for&nbsp;this&nbsp;tile.</tt></dd></dl>
+
+</td></tr></table></td></tr></table><p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#eeaa77">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial"><big><strong>Functions</strong></big></font></td></tr>
+    
+<tr><td bgcolor="#eeaa77"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%"><dl><dt><a name="-tile_key"><strong>tile_key</strong></a>(layer, coord, format)</dt><dd><tt>Return&nbsp;a&nbsp;tile&nbsp;key&nbsp;string.</tt></dd></dl>
+ <dl><dt><a name="-time"><strong>time</strong></a>(...)</dt><dd><tt><a href="#-time">time</a>()&nbsp;-&gt;&nbsp;floating&nbsp;point&nbsp;number<br>
+&nbsp;<br>
+Return&nbsp;the&nbsp;current&nbsp;time&nbsp;in&nbsp;seconds&nbsp;since&nbsp;the&nbsp;Epoch.<br>
+Fractions&nbsp;of&nbsp;a&nbsp;second&nbsp;may&nbsp;be&nbsp;present&nbsp;if&nbsp;the&nbsp;system&nbsp;clock&nbsp;provides&nbsp;them.</tt></dd></dl>
+</td></tr></table><p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#55aa55">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial"><big><strong>Data</strong></big></font></td></tr>
+    
+<tr><td bgcolor="#55aa55"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%"><strong>GOOGLE_STORAGE</strong> = 'gs'<br>
+<strong>LOCAL_FILE</strong> = 'file'</td></tr></table>
+</body></html>

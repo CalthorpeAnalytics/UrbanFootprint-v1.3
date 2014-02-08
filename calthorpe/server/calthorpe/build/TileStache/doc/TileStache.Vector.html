@@ -1,0 +1,236 @@
+
+<!doctype html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html><head><title>Python: package TileStache.Vector</title>
+</head><body bgcolor="#f0f0f8">
+
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="heading">
+<tr bgcolor="#7799ee">
+<td valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial">&nbsp;<br><big><big><strong><a href="TileStache.html"><font color="#ffffff">TileStache</font></a>.Vector</strong></big></big></font></td
+><td align=right valign=bottom
+><font color="#ffffff" face="helvetica, arial"><a href=".">index</a></font></td></tr></table>
+    <p><tt><a href="#Provider">Provider</a>&nbsp;that&nbsp;returns&nbsp;vector&nbsp;representation&nbsp;of&nbsp;features&nbsp;in&nbsp;a&nbsp;data&nbsp;source.<br>
+&nbsp;<br>
+This&nbsp;is&nbsp;a&nbsp;provider&nbsp;that&nbsp;does&nbsp;not&nbsp;return&nbsp;an&nbsp;image,&nbsp;but&nbsp;rather&nbsp;queries<br>
+a&nbsp;data&nbsp;source&nbsp;for&nbsp;raw&nbsp;features&nbsp;and&nbsp;replies&nbsp;with&nbsp;a&nbsp;vector&nbsp;representation<br>
+such&nbsp;as&nbsp;GeoJSON.&nbsp;For&nbsp;example,&nbsp;it's&nbsp;possible&nbsp;to&nbsp;retrieve&nbsp;data&nbsp;for<br>
+locations&nbsp;of&nbsp;OpenStreetMap&nbsp;points&nbsp;of&nbsp;interest&nbsp;or&nbsp;street&nbsp;centerlines<br>
+contained&nbsp;within&nbsp;a&nbsp;tile's&nbsp;boundary.<br>
+&nbsp;<br>
+Many&nbsp;Polymaps&nbsp;(<a href="http://polymaps.org">http://polymaps.org</a>)&nbsp;examples&nbsp;use&nbsp;GeoJSON&nbsp;vector&nbsp;data&nbsp;tiles,<br>
+which&nbsp;can&nbsp;be&nbsp;effectively&nbsp;created&nbsp;using&nbsp;this&nbsp;provider.<br>
+&nbsp;<br>
+Vector&nbsp;functionality&nbsp;is&nbsp;provided&nbsp;by&nbsp;OGR&nbsp;(<a href="http://www.gdal.org/ogr/">http://www.gdal.org/ogr/</a>).<br>
+Thank&nbsp;you,&nbsp;Frank&nbsp;Warmerdam.<br>
+&nbsp;<br>
+Currently&nbsp;two&nbsp;serializations&nbsp;and&nbsp;three&nbsp;encodings&nbsp;are&nbsp;supported&nbsp;for&nbsp;a&nbsp;total<br>
+of&nbsp;six&nbsp;possible&nbsp;kinds&nbsp;of&nbsp;output&nbsp;with&nbsp;these&nbsp;tile&nbsp;name&nbsp;extensions:<br>
+&nbsp;<br>
+&nbsp;&nbsp;GeoJSON&nbsp;(.geojson):<br>
+&nbsp;&nbsp;&nbsp;&nbsp;See&nbsp;<a href="http://geojson.org/geojson-spec.html">http://geojson.org/geojson-spec.html</a><br>
+&nbsp;<br>
+&nbsp;&nbsp;Arc&nbsp;GeoServices&nbsp;JSON&nbsp;(.arcjson):<br>
+&nbsp;&nbsp;&nbsp;&nbsp;See&nbsp;<a href="http://www.esri.com/library/whitepapers/pdfs/geoservices-rest-spec.pdf">http://www.esri.com/library/whitepapers/pdfs/geoservices-rest-spec.pdf</a><br>
+&nbsp;&nbsp;<br>
+&nbsp;&nbsp;GeoBSON&nbsp;(.geobson)&nbsp;and&nbsp;Arc&nbsp;GeoServices&nbsp;BSON&nbsp;(.arcbson):<br>
+&nbsp;&nbsp;&nbsp;&nbsp;BSON-encoded&nbsp;GeoJSON&nbsp;and&nbsp;Arc&nbsp;JSON,&nbsp;see&nbsp;<a href="http://bsonspec.org/#/specification">http://bsonspec.org/#/specification</a><br>
+&nbsp;&nbsp;<br>
+&nbsp;&nbsp;GeoAMF&nbsp;(.geoamf)&nbsp;and&nbsp;Arc&nbsp;GeoServices&nbsp;AMF&nbsp;(.arcamf):<br>
+&nbsp;&nbsp;&nbsp;&nbsp;AMF0-encoded&nbsp;GeoJSON&nbsp;and&nbsp;Arc&nbsp;JSON,&nbsp;see:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<a href="http://opensource.adobe.com/wiki/download/attachments/1114283/amf0_spec_121207.pdf">http://opensource.adobe.com/wiki/download/attachments/1114283/amf0_spec_121207.pdf</a><br>
+&nbsp;<br>
+Possible&nbsp;future&nbsp;supported&nbsp;formats&nbsp;might&nbsp;include&nbsp;KML&nbsp;and&nbsp;others.&nbsp;Get&nbsp;in&nbsp;touch<br>
+via&nbsp;Github&nbsp;to&nbsp;suggest&nbsp;other&nbsp;formats:&nbsp;<a href="http://github.com/migurski/TileStache">http://github.com/migurski/TileStache</a>.<br>
+&nbsp;<br>
+Common&nbsp;parameters:<br>
+&nbsp;<br>
+&nbsp;&nbsp;driver:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;String&nbsp;used&nbsp;to&nbsp;identify&nbsp;an&nbsp;OGR&nbsp;driver.&nbsp;Currently,&nbsp;"ESRI&nbsp;Shapefile",<br>
+&nbsp;&nbsp;&nbsp;&nbsp;"PostgreSQL",&nbsp;"MySQL",&nbsp;Oracle,&nbsp;Spatialite&nbsp;and&nbsp;"GeoJSON"&nbsp;are&nbsp;supported&nbsp;as&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;data&nbsp;source&nbsp;drivers,&nbsp;with&nbsp;"postgis"&nbsp;and&nbsp;"shapefile"&nbsp;accepted&nbsp;as&nbsp;synonyms.&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Not&nbsp;case-sensitive.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;OGR's&nbsp;complete&nbsp;list&nbsp;of&nbsp;potential&nbsp;formats&nbsp;can&nbsp;be&nbsp;found&nbsp;here:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<a href="http://www.gdal.org/ogr/ogr_formats.html">http://www.gdal.org/ogr/ogr_formats.html</a>.&nbsp;Feel&nbsp;free&nbsp;to&nbsp;get&nbsp;in&nbsp;touch&nbsp;via<br>
+&nbsp;&nbsp;&nbsp;&nbsp;Github&nbsp;to&nbsp;suggest&nbsp;new&nbsp;formats:&nbsp;<a href="http://github.com/migurski/TileStache">http://github.com/migurski/TileStache</a>.<br>
+&nbsp;&nbsp;<br>
+&nbsp;&nbsp;parameters:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;Dictionary&nbsp;of&nbsp;parameters&nbsp;for&nbsp;each&nbsp;driver.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;PostgreSQL:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;"dbname"&nbsp;parameter&nbsp;is&nbsp;required,&nbsp;with&nbsp;name&nbsp;of&nbsp;database.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;"host",&nbsp;"user",&nbsp;and&nbsp;"password"&nbsp;are&nbsp;optional&nbsp;connection&nbsp;parameters.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;One&nbsp;of&nbsp;"table"&nbsp;or&nbsp;"query"&nbsp;is&nbsp;required,&nbsp;with&nbsp;a&nbsp;table&nbsp;name&nbsp;in&nbsp;the&nbsp;first<br>
+&nbsp;&nbsp;&nbsp;&nbsp;case&nbsp;and&nbsp;a&nbsp;complete&nbsp;SQL&nbsp;query&nbsp;in&nbsp;the&nbsp;second.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;Shapefile&nbsp;and&nbsp;GeoJSON:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;"file"&nbsp;parameter&nbsp;is&nbsp;required,&nbsp;with&nbsp;filesystem&nbsp;path&nbsp;to&nbsp;data&nbsp;file.<br>
+&nbsp;&nbsp;<br>
+&nbsp;&nbsp;properties:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;Optional&nbsp;list&nbsp;or&nbsp;dictionary&nbsp;of&nbsp;case-sensitive&nbsp;output&nbsp;property&nbsp;names.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;If&nbsp;omitted,&nbsp;all&nbsp;fields&nbsp;from&nbsp;the&nbsp;data&nbsp;source&nbsp;will&nbsp;be&nbsp;included&nbsp;in&nbsp;response.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;If&nbsp;a&nbsp;list,&nbsp;treated&nbsp;as&nbsp;a&nbsp;whitelist&nbsp;of&nbsp;field&nbsp;names&nbsp;to&nbsp;include&nbsp;in&nbsp;response.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;If&nbsp;a&nbsp;dictionary,&nbsp;treated&nbsp;as&nbsp;a&nbsp;whitelist&nbsp;and&nbsp;re-mapping&nbsp;of&nbsp;field&nbsp;names.<br>
+&nbsp;&nbsp;<br>
+&nbsp;&nbsp;clipped:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;Default&nbsp;is&nbsp;true.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;Boolean&nbsp;flag&nbsp;for&nbsp;optionally&nbsp;clipping&nbsp;the&nbsp;output&nbsp;geometries&nbsp;to&nbsp;the<br>
+&nbsp;&nbsp;&nbsp;&nbsp;bounds&nbsp;of&nbsp;the&nbsp;enclosing&nbsp;tile,&nbsp;or&nbsp;the&nbsp;string&nbsp;value&nbsp;"padded"&nbsp;for&nbsp;clipping<br>
+&nbsp;&nbsp;&nbsp;&nbsp;to&nbsp;the&nbsp;bounds&nbsp;of&nbsp;the&nbsp;tile&nbsp;plus&nbsp;5%.&nbsp;This&nbsp;results&nbsp;in&nbsp;incomplete&nbsp;geometries,<br>
+&nbsp;&nbsp;&nbsp;&nbsp;dramatically&nbsp;smaller&nbsp;file&nbsp;sizes,&nbsp;and&nbsp;improves&nbsp;performance&nbsp;and<br>
+&nbsp;&nbsp;&nbsp;&nbsp;compatibility&nbsp;with&nbsp;Polymaps&nbsp;(<a href="http://polymaps.org">http://polymaps.org</a>).<br>
+&nbsp;&nbsp;<br>
+&nbsp;&nbsp;projected:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;Default&nbsp;is&nbsp;false.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;Boolean&nbsp;flag&nbsp;for&nbsp;optionally&nbsp;returning&nbsp;geometries&nbsp;in&nbsp;projected&nbsp;rather&nbsp;than<br>
+&nbsp;&nbsp;&nbsp;&nbsp;geographic&nbsp;coordinates.&nbsp;Typically&nbsp;this&nbsp;means&nbsp;EPSG:900913&nbsp;a.k.a.&nbsp;spherical<br>
+&nbsp;&nbsp;&nbsp;&nbsp;mercator&nbsp;projection.&nbsp;Stylistically&nbsp;a&nbsp;poor&nbsp;fit&nbsp;for&nbsp;GeoJSON,&nbsp;but&nbsp;useful<br>
+&nbsp;&nbsp;&nbsp;&nbsp;when&nbsp;returning&nbsp;Arc&nbsp;GeoServices&nbsp;responses.<br>
+&nbsp;&nbsp;<br>
+&nbsp;&nbsp;precision:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;Default&nbsp;is&nbsp;6.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;Optional&nbsp;number&nbsp;of&nbsp;decimal&nbsp;places&nbsp;to&nbsp;use&nbsp;for&nbsp;floating&nbsp;point&nbsp;values.<br>
+&nbsp;&nbsp;<br>
+&nbsp;&nbsp;spacing:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;Optional&nbsp;number&nbsp;of&nbsp;tile&nbsp;pixels&nbsp;for&nbsp;spacing&nbsp;geometries&nbsp;in&nbsp;responses.&nbsp;Used<br>
+&nbsp;&nbsp;&nbsp;&nbsp;to&nbsp;cut&nbsp;down&nbsp;on&nbsp;the&nbsp;number&nbsp;of&nbsp;returned&nbsp;features&nbsp;by&nbsp;ensuring&nbsp;that&nbsp;only&nbsp;those<br>
+&nbsp;&nbsp;&nbsp;&nbsp;features&nbsp;at&nbsp;least&nbsp;this&nbsp;many&nbsp;pixels&nbsp;apart&nbsp;are&nbsp;returned.&nbsp;Order&nbsp;of&nbsp;features<br>
+&nbsp;&nbsp;&nbsp;&nbsp;in&nbsp;the&nbsp;data&nbsp;source&nbsp;matters:&nbsp;early&nbsp;features&nbsp;beat&nbsp;out&nbsp;later&nbsp;features.<br>
+&nbsp;&nbsp;<br>
+&nbsp;&nbsp;verbose:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;Default&nbsp;is&nbsp;false.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;Boolean&nbsp;flag&nbsp;for&nbsp;optionally&nbsp;expanding&nbsp;output&nbsp;with&nbsp;additional&nbsp;whitespace<br>
+&nbsp;&nbsp;&nbsp;&nbsp;for&nbsp;readability.&nbsp;Results&nbsp;in&nbsp;larger&nbsp;but&nbsp;more&nbsp;readable&nbsp;GeoJSON&nbsp;responses.<br>
+&nbsp;<br>
+&nbsp;&nbsp;id_property:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;Default&nbsp;is&nbsp;None.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;Sets&nbsp;the&nbsp;id&nbsp;of&nbsp;the&nbsp;geojson&nbsp;feature&nbsp;to&nbsp;the&nbsp;specified&nbsp;field&nbsp;of&nbsp;the&nbsp;data&nbsp;source.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;This&nbsp;can&nbsp;be&nbsp;used,&nbsp;for&nbsp;example,&nbsp;to&nbsp;identify&nbsp;a&nbsp;unique&nbsp;key&nbsp;field&nbsp;for&nbsp;the&nbsp;feature.<br>
+&nbsp;<br>
+Example&nbsp;TileStache&nbsp;provider&nbsp;configuration:<br>
+&nbsp;<br>
+&nbsp;&nbsp;"vector-postgis-points":<br>
+&nbsp;&nbsp;{<br>
+&nbsp;&nbsp;&nbsp;&nbsp;"provider":&nbsp;{"name":&nbsp;"vector",&nbsp;"driver":&nbsp;"PostgreSQL",<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"parameters":&nbsp;{"dbname":&nbsp;"geodata",&nbsp;"user":&nbsp;"geodata",<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"table":&nbsp;"planet_osm_point"}}<br>
+&nbsp;&nbsp;}<br>
+&nbsp;&nbsp;<br>
+&nbsp;&nbsp;"vector-postgis-lines":<br>
+&nbsp;&nbsp;{<br>
+&nbsp;&nbsp;&nbsp;&nbsp;"provider":&nbsp;{"name":&nbsp;"vector",&nbsp;"driver":&nbsp;"postgis",<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"parameters":&nbsp;{"dbname":&nbsp;"geodata",&nbsp;"user":&nbsp;"geodata",<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"table":&nbsp;"planet_osm_line"}}<br>
+&nbsp;&nbsp;}<br>
+&nbsp;&nbsp;<br>
+&nbsp;&nbsp;"vector-shapefile-points":<br>
+&nbsp;&nbsp;{<br>
+&nbsp;&nbsp;&nbsp;&nbsp;"provider":&nbsp;{"name":&nbsp;"vector",&nbsp;"driver":&nbsp;"ESRI&nbsp;Shapefile",<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"parameters":&nbsp;{"file":&nbsp;"oakland-uptown-point.shp"},<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"properties":&nbsp;["NAME",&nbsp;"HIGHWAY"]}<br>
+&nbsp;&nbsp;}<br>
+&nbsp;&nbsp;<br>
+&nbsp;&nbsp;"vector-shapefile-lines":<br>
+&nbsp;&nbsp;{<br>
+&nbsp;&nbsp;&nbsp;&nbsp;"provider":&nbsp;{"name":&nbsp;"vector",&nbsp;"driver":&nbsp;"shapefile",<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"parameters":&nbsp;{"file":&nbsp;"oakland-uptown-line.shp"},<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"properties":&nbsp;{"NAME":&nbsp;"name",&nbsp;"HIGHWAY":&nbsp;"highway"}}<br>
+&nbsp;&nbsp;}<br>
+&nbsp;&nbsp;<br>
+&nbsp;&nbsp;"vector-postgis-query":<br>
+&nbsp;&nbsp;{<br>
+&nbsp;&nbsp;&nbsp;&nbsp;"provider":&nbsp;{"name":&nbsp;"vector",&nbsp;"driver":&nbsp;"PostgreSQL",<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"parameters":&nbsp;{"dbname":&nbsp;"geodata",&nbsp;"user":&nbsp;"geodata",<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"query":&nbsp;"SELECT&nbsp;osm_id,&nbsp;name,&nbsp;highway,&nbsp;way&nbsp;FROM&nbsp;planet_osm_line&nbsp;WHERE&nbsp;SUBSTR(name,&nbsp;1,&nbsp;1)&nbsp;=&nbsp;'1'"}}<br>
+&nbsp;&nbsp;}<br>
+&nbsp;&nbsp;<br>
+&nbsp;&nbsp;"vector-sf-streets":<br>
+&nbsp;&nbsp;{<br>
+&nbsp;&nbsp;&nbsp;&nbsp;"provider":&nbsp;{"name":&nbsp;"vector",&nbsp;"driver":&nbsp;"GeoJSON",<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"parameters":&nbsp;{"file":&nbsp;"stclines.json"},<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"properties":&nbsp;["STREETNAME"]}<br>
+&nbsp;&nbsp;}<br>
+&nbsp;<br>
+Caveats:<br>
+&nbsp;<br>
+Your&nbsp;data&nbsp;source&nbsp;must&nbsp;have&nbsp;a&nbsp;valid&nbsp;defined&nbsp;projection,&nbsp;or&nbsp;OGR&nbsp;will&nbsp;not&nbsp;know<br>
+how&nbsp;to&nbsp;correctly&nbsp;filter&nbsp;and&nbsp;reproject&nbsp;it.&nbsp;Although&nbsp;response&nbsp;tiles&nbsp;are&nbsp;typically<br>
+in&nbsp;web&nbsp;(spherical)&nbsp;mercator&nbsp;projection,&nbsp;the&nbsp;actual&nbsp;vector&nbsp;content&nbsp;of&nbsp;responses<br>
+is&nbsp;unprojected&nbsp;back&nbsp;to&nbsp;plain&nbsp;WGS84&nbsp;latitude&nbsp;and&nbsp;longitude.<br>
+&nbsp;<br>
+If&nbsp;you&nbsp;are&nbsp;using&nbsp;PostGIS&nbsp;and&nbsp;spherical&nbsp;mercator&nbsp;a.k.a.&nbsp;SRID&nbsp;900913,<br>
+you&nbsp;can&nbsp;save&nbsp;yourself&nbsp;a&nbsp;world&nbsp;of&nbsp;trouble&nbsp;by&nbsp;using&nbsp;this&nbsp;definition:<br>
+&nbsp;&nbsp;<a href="http://github.com/straup/postgis-tools/raw/master/spatial_ref_900913-8.3.sql">http://github.com/straup/postgis-tools/raw/master/spatial_ref_900913-8.3.sql</a></tt></p>
+<p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#aa55cc">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial"><big><strong>Package Contents</strong></big></font></td></tr>
+    
+<tr><td bgcolor="#aa55cc"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%"><table width="100%" summary="list"><tr><td width="25%" valign=top><a href="TileStache.Vector.Arc.html">Arc</a><br>
+</td><td width="25%" valign=top></td><td width="25%" valign=top></td><td width="25%" valign=top></td></tr></table></td></tr></table><p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#ee77aa">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial"><big><strong>Classes</strong></big></font></td></tr>
+    
+<tr><td bgcolor="#ee77aa"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%"><dl>
+<dt><font face="helvetica, arial"><a href="TileStache.Vector.html#Provider">Provider</a>
+</font></dt><dt><font face="helvetica, arial"><a href="TileStache.Vector.html#VectorResponse">VectorResponse</a>
+</font></dt></dl>
+ <p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#ffc8d8">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#000000" face="helvetica, arial"><a name="Provider">class <strong>Provider</strong></a></font></td></tr>
+    
+<tr bgcolor="#ffc8d8"><td rowspan=2><tt>&nbsp;&nbsp;&nbsp;</tt></td>
+<td colspan=2><tt>Vector&nbsp;<a href="#Provider">Provider</a>&nbsp;for&nbsp;OGR&nbsp;datasources.<br>
+&nbsp;<br>
+See&nbsp;module&nbsp;documentation&nbsp;for&nbsp;explanation&nbsp;of&nbsp;constructor&nbsp;arguments.<br>&nbsp;</tt></td></tr>
+<tr><td>&nbsp;</td>
+<td width="100%">Methods defined here:<br>
+<dl><dt><a name="Provider-__init__"><strong>__init__</strong></a>(self, layer, driver, parameters, clipped, verbose, projected, spacing, properties, precision, id_property)</dt></dl>
+
+<dl><dt><a name="Provider-getTypeByExtension"><strong>getTypeByExtension</strong></a>(self, extension)</dt><dd><tt>Get&nbsp;mime-type&nbsp;and&nbsp;format&nbsp;by&nbsp;file&nbsp;extension.<br>
+&nbsp;<br>
+This&nbsp;only&nbsp;accepts&nbsp;"geojson"&nbsp;for&nbsp;the&nbsp;time&nbsp;being.</tt></dd></dl>
+
+<dl><dt><a name="Provider-renderTile"><strong>renderTile</strong></a>(self, width, height, srs, coord)</dt><dd><tt>Render&nbsp;a&nbsp;single&nbsp;tile,&nbsp;return&nbsp;a&nbsp;<a href="#VectorResponse">VectorResponse</a>&nbsp;instance.</tt></dd></dl>
+
+<hr>
+Static methods defined here:<br>
+<dl><dt><a name="Provider-prepareKeywordArgs"><strong>prepareKeywordArgs</strong></a>(config_dict)</dt><dd><tt>Convert&nbsp;configured&nbsp;parameters&nbsp;to&nbsp;keyword&nbsp;args&nbsp;for&nbsp;<a href="#Provider-__init__">__init__</a>().</tt></dd></dl>
+
+</td></tr></table> <p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#ffc8d8">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#000000" face="helvetica, arial"><a name="VectorResponse">class <strong>VectorResponse</strong></a></font></td></tr>
+    
+<tr bgcolor="#ffc8d8"><td rowspan=2><tt>&nbsp;&nbsp;&nbsp;</tt></td>
+<td colspan=2><tt>Wrapper&nbsp;class&nbsp;for&nbsp;Vector&nbsp;response&nbsp;that&nbsp;makes&nbsp;it&nbsp;behave&nbsp;like&nbsp;a&nbsp;PIL.Image&nbsp;object.<br>
+&nbsp;<br>
+TileStache.getTile()&nbsp;expects&nbsp;to&nbsp;be&nbsp;able&nbsp;to&nbsp;save&nbsp;one&nbsp;of&nbsp;these&nbsp;to&nbsp;a&nbsp;buffer.<br>
+&nbsp;<br>
+Constructor&nbsp;arguments:<br>
+-&nbsp;content:&nbsp;Vector&nbsp;data&nbsp;to&nbsp;be&nbsp;serialized,&nbsp;typically&nbsp;a&nbsp;dictionary.<br>
+-&nbsp;verbose:&nbsp;Boolean&nbsp;flag&nbsp;to&nbsp;expand&nbsp;response&nbsp;for&nbsp;better&nbsp;legibility.<br>&nbsp;</tt></td></tr>
+<tr><td>&nbsp;</td>
+<td width="100%">Methods defined here:<br>
+<dl><dt><a name="VectorResponse-__init__"><strong>__init__</strong></a>(self, content, verbose, precision<font color="#909090">=6</font>)</dt></dl>
+
+<dl><dt><a name="VectorResponse-save"><strong>save</strong></a>(self, out, format)</dt></dl>
+
+</td></tr></table></td></tr></table><p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#55aa55">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial"><big><strong>Data</strong></big></font></td></tr>
+    
+<tr><td bgcolor="#55aa55"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%"><strong>pyamf_classes</strong> = {&lt;class 'TileStache.Vector.Arc._amfFeatureSet'&gt;: 'com.esri.ags.tasks.FeatureSet', &lt;class 'TileStache.Vector.Arc._amfSpatialReference'&gt;: 'com.esri.ags.SpatialReference', &lt;class 'TileStache.Vector.Arc._amfFeature'&gt;: 'com.esri.ags.Feature', &lt;class 'TileStache.Vector.Arc._amfGeometryMapPoint'&gt;: 'com.esri.ags.geometry.MapPoint', &lt;class 'TileStache.Vector.Arc._amfGeometryPolyline'&gt;: 'com.esri.ags.geometry.Polyline', &lt;class 'TileStache.Vector.Arc._amfGeometryPolygon'&gt;: 'com.esri.ags.geometry.Polygon'}</td></tr></table>
+</body></html>

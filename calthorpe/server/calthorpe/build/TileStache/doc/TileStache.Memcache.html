@@ -1,0 +1,83 @@
+
+<!doctype html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html><head><title>Python: module TileStache.Memcache</title>
+</head><body bgcolor="#f0f0f8">
+
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="heading">
+<tr bgcolor="#7799ee">
+<td valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial">&nbsp;<br><big><big><strong><a href="TileStache.html"><font color="#ffffff">TileStache</font></a>.Memcache</strong></big></big></font></td
+><td align=right valign=bottom
+><font color="#ffffff" face="helvetica, arial"><a href=".">index</a></font></td></tr></table>
+    <p><tt>Caches&nbsp;tiles&nbsp;to&nbsp;Memcache.<br>
+&nbsp;<br>
+Requires&nbsp;python-memcached:<br>
+&nbsp;&nbsp;<a href="http://pypi.python.org/pypi/python-memcached">http://pypi.python.org/pypi/python-memcached</a><br>
+&nbsp;<br>
+Example&nbsp;configuration:<br>
+&nbsp;<br>
+&nbsp;&nbsp;"cache":&nbsp;{<br>
+&nbsp;&nbsp;&nbsp;&nbsp;"name":&nbsp;"Memcache",<br>
+&nbsp;&nbsp;&nbsp;&nbsp;"servers":&nbsp;["127.0.0.1:11211"],<br>
+&nbsp;&nbsp;&nbsp;&nbsp;"revision":&nbsp;0,<br>
+&nbsp;&nbsp;&nbsp;&nbsp;"key&nbsp;prefix":&nbsp;"unique-id"<br>
+&nbsp;&nbsp;}<br>
+&nbsp;<br>
+Memcache&nbsp;cache&nbsp;parameters:<br>
+&nbsp;<br>
+&nbsp;&nbsp;servers<br>
+&nbsp;&nbsp;&nbsp;&nbsp;Optional&nbsp;array&nbsp;of&nbsp;servers,&nbsp;list&nbsp;of&nbsp;"{host}:{port}"&nbsp;pairs.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;Defaults&nbsp;to&nbsp;["127.0.0.1:11211"]&nbsp;if&nbsp;omitted.<br>
+&nbsp;<br>
+&nbsp;&nbsp;revision<br>
+&nbsp;&nbsp;&nbsp;&nbsp;Optional&nbsp;revision&nbsp;number&nbsp;for&nbsp;mass-expiry&nbsp;of&nbsp;cached&nbsp;tiles<br>
+&nbsp;&nbsp;&nbsp;&nbsp;regardless&nbsp;of&nbsp;lifespan.&nbsp;Defaults&nbsp;to&nbsp;0.<br>
+&nbsp;<br>
+&nbsp;&nbsp;key&nbsp;prefix<br>
+&nbsp;&nbsp;&nbsp;&nbsp;Optional&nbsp;string&nbsp;to&nbsp;prepend&nbsp;to&nbsp;Memcache&nbsp;generated&nbsp;key.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;Useful&nbsp;when&nbsp;running&nbsp;multiple&nbsp;instances&nbsp;of&nbsp;TileStache<br>
+&nbsp;&nbsp;&nbsp;&nbsp;that&nbsp;share&nbsp;the&nbsp;same&nbsp;Memcache&nbsp;instance&nbsp;to&nbsp;avoid&nbsp;key<br>
+&nbsp;&nbsp;&nbsp;&nbsp;collisions.&nbsp;The&nbsp;key&nbsp;prefix&nbsp;will&nbsp;be&nbsp;prepended&nbsp;to&nbsp;the<br>
+&nbsp;&nbsp;&nbsp;&nbsp;key&nbsp;name.&nbsp;Defaults&nbsp;to&nbsp;"".</tt></p>
+<p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#ee77aa">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial"><big><strong>Classes</strong></big></font></td></tr>
+    
+<tr><td bgcolor="#ee77aa"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%"><dl>
+<dt><font face="helvetica, arial"><a href="TileStache.Memcache.html#Cache">Cache</a>
+</font></dt></dl>
+ <p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#ffc8d8">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#000000" face="helvetica, arial"><a name="Cache">class <strong>Cache</strong></a></font></td></tr>
+    
+<tr><td bgcolor="#ffc8d8"><tt>&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%">Methods defined here:<br>
+<dl><dt><a name="Cache-__init__"><strong>__init__</strong></a>(self, servers<font color="#909090">=['127.0.0.1:11211']</font>, revision<font color="#909090">=0</font>, key_prefix<font color="#909090">=''</font>)</dt></dl>
+
+<dl><dt><a name="Cache-lock"><strong>lock</strong></a>(self, layer, coord, format)</dt><dd><tt>Acquire&nbsp;a&nbsp;cache&nbsp;lock&nbsp;for&nbsp;this&nbsp;tile.<br>
+&nbsp;<br>
+Returns&nbsp;nothing,&nbsp;but&nbsp;blocks&nbsp;until&nbsp;the&nbsp;lock&nbsp;has&nbsp;been&nbsp;acquired.</tt></dd></dl>
+
+<dl><dt><a name="Cache-read"><strong>read</strong></a>(self, layer, coord, format)</dt><dd><tt>Read&nbsp;a&nbsp;cached&nbsp;tile.</tt></dd></dl>
+
+<dl><dt><a name="Cache-remove"><strong>remove</strong></a>(self, layer, coord, format)</dt><dd><tt>Remove&nbsp;a&nbsp;cached&nbsp;tile.</tt></dd></dl>
+
+<dl><dt><a name="Cache-save"><strong>save</strong></a>(self, body, layer, coord, format)</dt><dd><tt>Save&nbsp;a&nbsp;cached&nbsp;tile.</tt></dd></dl>
+
+<dl><dt><a name="Cache-unlock"><strong>unlock</strong></a>(self, layer, coord, format)</dt><dd><tt>Release&nbsp;a&nbsp;cache&nbsp;lock&nbsp;for&nbsp;this&nbsp;tile.</tt></dd></dl>
+
+</td></tr></table></td></tr></table><p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#eeaa77">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial"><big><strong>Functions</strong></big></font></td></tr>
+    
+<tr><td bgcolor="#eeaa77"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%"><dl><dt><a name="-tile_key"><strong>tile_key</strong></a>(layer, coord, format, rev, key_prefix)</dt><dd><tt>Return&nbsp;a&nbsp;tile&nbsp;key&nbsp;string.</tt></dd></dl>
+</td></tr></table>
+</body></html>

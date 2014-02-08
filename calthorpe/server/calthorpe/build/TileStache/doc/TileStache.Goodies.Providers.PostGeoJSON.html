@@ -1,0 +1,166 @@
+
+<!doctype html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html><head><title>Python: module TileStache.Goodies.Providers.PostGeoJSON</title>
+</head><body bgcolor="#f0f0f8">
+
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="heading">
+<tr bgcolor="#7799ee">
+<td valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial">&nbsp;<br><big><big><strong><a href="TileStache.html"><font color="#ffffff">TileStache</font></a>.<a href="TileStache.Goodies.html"><font color="#ffffff">Goodies</font></a>.<a href="TileStache.Goodies.Providers.html"><font color="#ffffff">Providers</font></a>.PostGeoJSON</strong></big></big></font></td
+><td align=right valign=bottom
+><font color="#ffffff" face="helvetica, arial"><a href=".">index</a></font></td></tr></table>
+    <p><tt><a href="#Provider">Provider</a>&nbsp;that&nbsp;returns&nbsp;GeoJSON&nbsp;data&nbsp;responses&nbsp;from&nbsp;PostGIS&nbsp;queries.<br>
+&nbsp;<br>
+Note:<br>
+&nbsp;<br>
+The&nbsp;built-in&nbsp;TileStache&nbsp;Vector&nbsp;provider&nbsp;(new&nbsp;in&nbsp;version&nbsp;1.9.0)&nbsp;offers&nbsp;a&nbsp;more<br>
+complete&nbsp;method&nbsp;of&nbsp;generating&nbsp;vector&nbsp;tiles,&nbsp;and&nbsp;supports&nbsp;many&nbsp;kinds&nbsp;of&nbsp;data<br>
+sources&nbsp;not&nbsp;avilable&nbsp;in&nbsp;PostGeoJSON&nbsp;such&nbsp;as&nbsp;shapefiles.&nbsp;PostGeoJSON&nbsp;will<br>
+continue&nbsp;to&nbsp;be&nbsp;provided&nbsp;and&nbsp;supported&nbsp;in&nbsp;TileStache,&nbsp;but&nbsp;future&nbsp;development<br>
+of&nbsp;vector&nbsp;support&nbsp;will&nbsp;be&nbsp;contentrated&nbsp;on&nbsp;the&nbsp;mainline&nbsp;Vector&nbsp;provider,&nbsp;not<br>
+this&nbsp;one.<br>
+&nbsp;<br>
+More&nbsp;information:<br>
+&nbsp;&nbsp;<a href="http://tilestache.org/doc/TileStache.Vector.html">http://tilestache.org/doc/TileStache.Vector.html</a><br>
+&nbsp;<br>
+Anyway.<br>
+&nbsp;<br>
+This&nbsp;is&nbsp;an&nbsp;example&nbsp;of&nbsp;a&nbsp;provider&nbsp;that&nbsp;does&nbsp;not&nbsp;return&nbsp;an&nbsp;image,&nbsp;but&nbsp;rather<br>
+queries&nbsp;a&nbsp;database&nbsp;for&nbsp;raw&nbsp;data&nbsp;and&nbsp;replies&nbsp;with&nbsp;a&nbsp;string&nbsp;of&nbsp;GeoJSON.&nbsp;For<br>
+example,&nbsp;it's&nbsp;possible&nbsp;to&nbsp;retrieve&nbsp;data&nbsp;for&nbsp;locations&nbsp;of&nbsp;OpenStreetMap&nbsp;points<br>
+of&nbsp;interest&nbsp;based&nbsp;on&nbsp;a&nbsp;query&nbsp;with&nbsp;a&nbsp;bounding&nbsp;box&nbsp;intersection.<br>
+&nbsp;<br>
+Read&nbsp;more&nbsp;about&nbsp;the&nbsp;GeoJSON&nbsp;spec&nbsp;at:&nbsp;<a href="http://geojson.org/geojson-spec.html">http://geojson.org/geojson-spec.html</a><br>
+&nbsp;<br>
+Many&nbsp;Polymaps&nbsp;(<a href="http://polymaps.org">http://polymaps.org</a>)&nbsp;examples&nbsp;use&nbsp;GeoJSON&nbsp;vector&nbsp;data&nbsp;tiles,<br>
+which&nbsp;can&nbsp;be&nbsp;effectively&nbsp;created&nbsp;using&nbsp;this&nbsp;provider.<br>
+&nbsp;<br>
+Keyword&nbsp;arguments:<br>
+&nbsp;<br>
+&nbsp;&nbsp;dsn:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;Database&nbsp;connection&nbsp;string&nbsp;suitable&nbsp;for&nbsp;use&nbsp;in&nbsp;psycopg2.connect().<br>
+&nbsp;&nbsp;&nbsp;&nbsp;See&nbsp;<a href="http://initd.org/psycopg/docs/module.html#psycopg2.connect">http://initd.org/psycopg/docs/module.html#psycopg2.connect</a>&nbsp;for&nbsp;more.<br>
+&nbsp;&nbsp;<br>
+&nbsp;&nbsp;query:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;PostGIS&nbsp;query&nbsp;with&nbsp;a&nbsp;"!bbox!"&nbsp;placeholder&nbsp;for&nbsp;the&nbsp;tile&nbsp;bounding&nbsp;box.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;Note&nbsp;that&nbsp;the&nbsp;table&nbsp;*must*&nbsp;use&nbsp;the&nbsp;web&nbsp;spherical&nbsp;mercaotr&nbsp;projection<br>
+&nbsp;&nbsp;&nbsp;&nbsp;900913.&nbsp;Query&nbsp;should&nbsp;return&nbsp;an&nbsp;id&nbsp;column,&nbsp;a&nbsp;geometry&nbsp;column,&nbsp;and&nbsp;other<br>
+&nbsp;&nbsp;&nbsp;&nbsp;columns&nbsp;to&nbsp;be&nbsp;placed&nbsp;in&nbsp;the&nbsp;GeoJSON&nbsp;"properties"&nbsp;dictionary.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;See&nbsp;below&nbsp;for&nbsp;more&nbsp;on&nbsp;900913.<br>
+&nbsp;&nbsp;<br>
+&nbsp;&nbsp;clipping:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;Boolean&nbsp;flag&nbsp;for&nbsp;optionally&nbsp;clipping&nbsp;the&nbsp;output&nbsp;geometries&nbsp;to&nbsp;the&nbsp;bounds<br>
+&nbsp;&nbsp;&nbsp;&nbsp;of&nbsp;the&nbsp;enclosing&nbsp;tile.&nbsp;Defaults&nbsp;to&nbsp;fales.&nbsp;This&nbsp;results&nbsp;in&nbsp;incomplete<br>
+&nbsp;&nbsp;&nbsp;&nbsp;geometries,&nbsp;dramatically&nbsp;smaller&nbsp;file&nbsp;sizes,&nbsp;and&nbsp;improves&nbsp;performance<br>
+&nbsp;&nbsp;&nbsp;&nbsp;and&nbsp;compatibility&nbsp;with&nbsp;Polymaps&nbsp;(<a href="http://polymaps.org">http://polymaps.org</a>).<br>
+&nbsp;&nbsp;<br>
+&nbsp;&nbsp;id_column:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;Name&nbsp;of&nbsp;id&nbsp;column&nbsp;in&nbsp;output,&nbsp;detaults&nbsp;to&nbsp;"id".&nbsp;This&nbsp;determines&nbsp;which&nbsp;query<br>
+&nbsp;&nbsp;&nbsp;&nbsp;result&nbsp;column&nbsp;is&nbsp;placed&nbsp;in&nbsp;the&nbsp;GeoJSON&nbsp;"id"&nbsp;field.<br>
+&nbsp;&nbsp;<br>
+&nbsp;&nbsp;geometry_column:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;Name&nbsp;of&nbsp;geometry&nbsp;column&nbsp;in&nbsp;output,&nbsp;defaults&nbsp;to&nbsp;"geometry".&nbsp;This&nbsp;determines<br>
+&nbsp;&nbsp;&nbsp;&nbsp;which&nbsp;query&nbsp;result&nbsp;column&nbsp;is&nbsp;reprojected&nbsp;to&nbsp;lat/lon&nbsp;and&nbsp;output&nbsp;as&nbsp;a&nbsp;list<br>
+&nbsp;&nbsp;&nbsp;&nbsp;of&nbsp;geographic&nbsp;coordinates.<br>
+&nbsp;&nbsp;<br>
+&nbsp;&nbsp;indent:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;Number&nbsp;of&nbsp;spaces&nbsp;to&nbsp;indent&nbsp;output&nbsp;GeoJSON&nbsp;response.&nbsp;Defaults&nbsp;to&nbsp;2.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;Skip&nbsp;all&nbsp;indenting&nbsp;with&nbsp;a&nbsp;value&nbsp;of&nbsp;zero.<br>
+&nbsp;&nbsp;<br>
+&nbsp;&nbsp;precision:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;Number&nbsp;of&nbsp;decimal&nbsp;places&nbsp;of&nbsp;precision&nbsp;for&nbsp;output&nbsp;geometry.&nbsp;Defaults&nbsp;to&nbsp;6.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;Default&nbsp;should&nbsp;be&nbsp;appropriate&nbsp;for&nbsp;almost&nbsp;all&nbsp;street-mapping&nbsp;situations.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;A&nbsp;smaller&nbsp;value&nbsp;can&nbsp;help&nbsp;cut&nbsp;down&nbsp;on&nbsp;output&nbsp;file&nbsp;size&nbsp;for&nbsp;lower-zoom&nbsp;maps.<br>
+&nbsp;<br>
+Example&nbsp;TileStache&nbsp;provider&nbsp;configuration:<br>
+&nbsp;<br>
+&nbsp;&nbsp;"points-of-interest":<br>
+&nbsp;&nbsp;{<br>
+&nbsp;&nbsp;&nbsp;&nbsp;"provider":<br>
+&nbsp;&nbsp;&nbsp;&nbsp;{<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"class":&nbsp;"TileStache.Goodies.Providers.PostGeoJSON.<a href="#Provider">Provider</a>",<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"kwargs":<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"dsn":&nbsp;"dbname=geodata&nbsp;user=postgres",<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"query":&nbsp;"SELECT&nbsp;osm_id,&nbsp;name,&nbsp;way&nbsp;FROM&nbsp;planet_osm_point&nbsp;WHERE&nbsp;way&nbsp;&amp;&amp;&nbsp;!bbox!&nbsp;AND&nbsp;name&nbsp;IS&nbsp;NOT&nbsp;NULL",<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"id_column":&nbsp;"osm_id",&nbsp;"geometry_column":&nbsp;"way",<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"indent":&nbsp;2<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>
+&nbsp;&nbsp;&nbsp;&nbsp;}<br>
+&nbsp;&nbsp;}<br>
+&nbsp;<br>
+Caveats:<br>
+&nbsp;<br>
+Currently&nbsp;only&nbsp;databases&nbsp;in&nbsp;the&nbsp;900913&nbsp;(google)&nbsp;projection&nbsp;are&nbsp;usable,<br>
+though&nbsp;this&nbsp;is&nbsp;the&nbsp;default&nbsp;setting&nbsp;for&nbsp;OpenStreetMap&nbsp;imports&nbsp;from&nbsp;osm2pgsql.<br>
+The&nbsp;"!bbox!"&nbsp;query&nbsp;placeholder&nbsp;(see&nbsp;example&nbsp;below)&nbsp;must&nbsp;be&nbsp;lowercase,&nbsp;and<br>
+expands&nbsp;to:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;ST_SetSRID(ST_MakeBox2D(ST_MakePoint(ulx,&nbsp;uly),&nbsp;ST_MakePoint(lrx,&nbsp;lry)),&nbsp;900913)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<br>
+You&nbsp;must&nbsp;support&nbsp;the&nbsp;"900913"&nbsp;SRID&nbsp;in&nbsp;your&nbsp;PostGIS&nbsp;database&nbsp;for&nbsp;now.<br>
+For&nbsp;populating&nbsp;the&nbsp;internal&nbsp;PostGIS&nbsp;spatial_ref_sys&nbsp;table&nbsp;of&nbsp;projections,<br>
+this&nbsp;seems&nbsp;to&nbsp;work:<br>
+&nbsp;<br>
+&nbsp;&nbsp;INSERT&nbsp;INTO&nbsp;spatial_ref_sys<br>
+&nbsp;&nbsp;&nbsp;&nbsp;(srid,&nbsp;auth_name,&nbsp;auth_srid,&nbsp;srtext,&nbsp;proj4text)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;VALUES<br>
+&nbsp;&nbsp;&nbsp;&nbsp;(<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;900913,&nbsp;'spatialreference.org',&nbsp;900913,<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'PROJCS["Popular&nbsp;Visualisation&nbsp;CRS&nbsp;/&nbsp;Mercator",GEOGCS["Popular&nbsp;Visualisation&nbsp;CRS",DATUM["Popular_Visualisation_Datum",SPHEROID["Popular&nbsp;Visualisation&nbsp;Sphere",6378137,0,AUTHORITY["EPSG","7059"]],TOWGS84[0,0,0,0,0,0,0],AUTHORITY["EPSG","6055"]],PRIMEM["Greenwich",0,AUTHORITY["EPSG","8901"]],UNIT["degree",0.01745329251994328,AUTHORITY["EPSG","9122"]],AUTHORITY["EPSG","4055"]],UNIT["metre",1,AUTHORITY["EPSG","9001"]],PROJECTION["Mercator_1SP"],PARAMETER["central_meridian",0],PARAMETER["scale_factor",1],PARAMETER["false_easting",0],PARAMETER["false_northing",0],AUTHORITY["EPSG","3785"],AXIS["X",EAST],AXIS["Y",NORTH]]',<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'+proj=merc&nbsp;+a=6378137&nbsp;+b=6378137&nbsp;+lat_ts=0.0&nbsp;+lon_0=0.0&nbsp;+x_0=0.0&nbsp;+y_0=0&nbsp;+k=1.0&nbsp;+units=m&nbsp;+nadgrids=@null&nbsp;+wktext&nbsp;+no_defs&nbsp;+over'<br>
+&nbsp;&nbsp;&nbsp;&nbsp;);</tt></p>
+<p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#ee77aa">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial"><big><strong>Classes</strong></big></font></td></tr>
+    
+<tr><td bgcolor="#ee77aa"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%"><dl>
+<dt><font face="helvetica, arial"><a href="TileStache.Goodies.Providers.PostGeoJSON.html#Provider">Provider</a>
+</font></dt><dt><font face="helvetica, arial"><a href="TileStache.Goodies.Providers.PostGeoJSON.html#SaveableResponse">SaveableResponse</a>
+</font></dt></dl>
+ <p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#ffc8d8">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#000000" face="helvetica, arial"><a name="Provider">class <strong>Provider</strong></a></font></td></tr>
+    
+<tr><td bgcolor="#ffc8d8"><tt>&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%">Methods defined here:<br>
+<dl><dt><a name="Provider-__init__"><strong>__init__</strong></a>(self, layer, dsn, query, clipping<font color="#909090">=False</font>, id_column<font color="#909090">='id'</font>, geometry_column<font color="#909090">='geometry'</font>, indent<font color="#909090">=2</font>, precision<font color="#909090">=6</font>)</dt></dl>
+
+<dl><dt><a name="Provider-getTypeByExtension"><strong>getTypeByExtension</strong></a>(self, extension)</dt><dd><tt>Get&nbsp;mime-type&nbsp;and&nbsp;format&nbsp;by&nbsp;file&nbsp;extension.<br>
+&nbsp;<br>
+This&nbsp;only&nbsp;accepts&nbsp;"json".</tt></dd></dl>
+
+<dl><dt><a name="Provider-renderTile"><strong>renderTile</strong></a>(self, width, height, srs, coord)</dt><dd><tt>Render&nbsp;a&nbsp;single&nbsp;tile,&nbsp;return&nbsp;a&nbsp;<a href="#SaveableResponse">SaveableResponse</a>&nbsp;instance.</tt></dd></dl>
+
+</td></tr></table> <p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#ffc8d8">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#000000" face="helvetica, arial"><a name="SaveableResponse">class <strong>SaveableResponse</strong></a></font></td></tr>
+    
+<tr bgcolor="#ffc8d8"><td rowspan=2><tt>&nbsp;&nbsp;&nbsp;</tt></td>
+<td colspan=2><tt>Wrapper&nbsp;class&nbsp;for&nbsp;JSON&nbsp;response&nbsp;that&nbsp;makes&nbsp;it&nbsp;behave&nbsp;like&nbsp;a&nbsp;PIL.Image&nbsp;object.<br>
+&nbsp;<br>
+TileStache.getTile()&nbsp;expects&nbsp;to&nbsp;be&nbsp;able&nbsp;to&nbsp;save&nbsp;one&nbsp;of&nbsp;these&nbsp;to&nbsp;a&nbsp;buffer.<br>&nbsp;</tt></td></tr>
+<tr><td>&nbsp;</td>
+<td width="100%">Methods defined here:<br>
+<dl><dt><a name="SaveableResponse-__init__"><strong>__init__</strong></a>(self, content, indent<font color="#909090">=2</font>, precision<font color="#909090">=2</font>)</dt></dl>
+
+<dl><dt><a name="SaveableResponse-save"><strong>save</strong></a>(self, out, format)</dt></dl>
+
+</td></tr></table></td></tr></table><p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#eeaa77">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial"><big><strong>Functions</strong></big></font></td></tr>
+    
+<tr><td bgcolor="#eeaa77"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%"><dl><dt><a name="-row2feature"><strong>row2feature</strong></a>(row, id_field, geometry_field)</dt><dd><tt>Convert&nbsp;a&nbsp;database&nbsp;row&nbsp;dict&nbsp;to&nbsp;a&nbsp;feature&nbsp;dict.</tt></dd></dl>
+ <dl><dt><a name="-shape2geometry"><strong>shape2geometry</strong></a>(shape, projection, clip)</dt><dd><tt>Convert&nbsp;a&nbsp;Shapely&nbsp;geometry&nbsp;object&nbsp;to&nbsp;a&nbsp;GeoJSON-suitable&nbsp;geometry&nbsp;dict.</tt></dd></dl>
+</td></tr></table>
+</body></html>

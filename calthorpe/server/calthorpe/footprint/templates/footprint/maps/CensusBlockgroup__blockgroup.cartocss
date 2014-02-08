@@ -1,0 +1,63 @@
+.{{ htmlClass }}
+{buffer-size: 50;}
+
+[zoom=11] {
+    outline/line-width: 1.2;
+    outline/line-color:#000000;
+    outline/line-opacity:0.8;
+	outline/line-join: round;
+	outline/line-cap: round;
+    mainline/line-width: 0.5;
+    mainline/line-color:#ffaa00;
+    mainline/line-opacity:1;
+	mainline/line-join: round;
+	mainline/line-cap: round;
+}
+
+[zoom=12] {
+    outline/line-width: 2.2;
+    outline/line-color:#000000;
+    outline/line-opacity:0.8;
+	outline/line-join: round;
+	outline/line-cap: round;
+    mainline/line-width: 0.7;
+    mainline/line-color:#ffaa00;
+    mainline/line-opacity:1;
+	mainline/line-join: round;
+	mainline/line-cap: round;}
+
+[zoom=13] {
+    outline/line-width: 4;
+    outline/line-color:#000000;
+    outline/line-opacity:0.8;
+	outline/line-join: round;
+	outline/line-cap: round;
+    mainline/line-width: 1.4;
+    mainline/line-color:#ffaa00;
+    mainline/line-opacity:1;
+	mainline/line-join: round;
+	mainline/line-cap: round;}
+
+[zoom=14] {
+    outline/line-width: 5;
+    outline/line-color:#000000;
+    outline/line-opacity:0.8;
+	outline/line-join: round;
+	outline/line-cap: round;
+    mainline/line-width: 2;
+    mainline/line-color:#ffaa00;
+    mainline/line-opacity:1;
+	mainline/line-join: round;
+	mainline/line-cap: round;}
+
+[zoom>=15] {
+    outline/line-width: 8;
+    outline/line-color:#000000;
+    outline/line-opacity:0.8;
+	outline/line-join: round;
+	outline/line-cap: round;
+    mainline/line-width: 4;
+    mainline/line-color:#ffaa00;
+    mainline/line-opacity:1;
+	mainline/line-join: round;
+	mainline/line-cap: round;}

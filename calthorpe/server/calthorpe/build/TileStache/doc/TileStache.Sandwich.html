@@ -1,0 +1,210 @@
+
+<!doctype html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html><head><title>Python: module TileStache.Sandwich</title>
+</head><body bgcolor="#f0f0f8">
+
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="heading">
+<tr bgcolor="#7799ee">
+<td valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial">&nbsp;<br><big><big><strong><a href="TileStache.html"><font color="#ffffff">TileStache</font></a>.Sandwich</strong></big></big></font></td
+><td align=right valign=bottom
+><font color="#ffffff" face="helvetica, arial"><a href=".">index</a></font></td></tr></table>
+    <p><tt>Layered,&nbsp;composite&nbsp;rendering&nbsp;for&nbsp;TileStache.<br>
+&nbsp;<br>
+The&nbsp;Sandwich&nbsp;<a href="#Provider">Provider</a>&nbsp;supplies&nbsp;a&nbsp;Photoshop-like&nbsp;rendering&nbsp;pipeline,&nbsp;making&nbsp;it<br>
+possible&nbsp;to&nbsp;use&nbsp;the&nbsp;output&nbsp;of&nbsp;other&nbsp;configured&nbsp;tile&nbsp;layers&nbsp;as&nbsp;layers&nbsp;or&nbsp;masks<br>
+to&nbsp;create&nbsp;a&nbsp;combined&nbsp;output.&nbsp;Sandwich&nbsp;is&nbsp;modeled&nbsp;on&nbsp;Lars&nbsp;Ahlzen's&nbsp;TopOSM.<br>
+&nbsp;<br>
+The&nbsp;external&nbsp;"Blit"&nbsp;library&nbsp;is&nbsp;required&nbsp;by&nbsp;Sandwich,&nbsp;and&nbsp;can&nbsp;be&nbsp;installed<br>
+via&nbsp;Pip,&nbsp;easy_install,&nbsp;or&nbsp;directly&nbsp;from&nbsp;Github:<br>
+&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;https://github.com/migurski/Blit<br>
+&nbsp;<br>
+The&nbsp;"stack"&nbsp;configuration&nbsp;parameter&nbsp;describes&nbsp;a&nbsp;layer&nbsp;or&nbsp;stack&nbsp;of&nbsp;layers&nbsp;that<br>
+can&nbsp;be&nbsp;combined&nbsp;to&nbsp;create&nbsp;output.&nbsp;A&nbsp;simple&nbsp;stack&nbsp;that&nbsp;merely&nbsp;outputs&nbsp;a&nbsp;single<br>
+color&nbsp;orange&nbsp;tile&nbsp;looks&nbsp;like&nbsp;this:<br>
+&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;{"color"&nbsp;"#ff9900"}<br>
+&nbsp;<br>
+Other&nbsp;layers&nbsp;in&nbsp;the&nbsp;current&nbsp;TileStache&nbsp;configuration&nbsp;can&nbsp;be&nbsp;reference&nbsp;by&nbsp;name,<br>
+as&nbsp;in&nbsp;this&nbsp;example&nbsp;stack&nbsp;that&nbsp;simply&nbsp;echoes&nbsp;another&nbsp;layer:<br>
+&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;{"src":&nbsp;"layer-name"}<br>
+&nbsp;<br>
+Bitmap&nbsp;images&nbsp;can&nbsp;also&nbsp;be&nbsp;referenced&nbsp;by&nbsp;local&nbsp;filename&nbsp;or&nbsp;URL,&nbsp;and&nbsp;will&nbsp;be<br>
+tiled&nbsp;seamlessly,&nbsp;assuming&nbsp;256x256&nbsp;parent&nbsp;tiles:<br>
+&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;{"src":&nbsp;"image.png"}<br>
+&nbsp;&nbsp;&nbsp;&nbsp;{"src":&nbsp;"<a href="http://example.com/image.png">http://example.com/image.png</a>"}<br>
+&nbsp;<br>
+Layers&nbsp;can&nbsp;be&nbsp;limited&nbsp;to&nbsp;appear&nbsp;at&nbsp;certain&nbsp;zoom&nbsp;levels,&nbsp;given&nbsp;either&nbsp;as&nbsp;a&nbsp;range<br>
+or&nbsp;as&nbsp;a&nbsp;single&nbsp;number:<br>
+&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;{"src":&nbsp;"layer-name",&nbsp;"zoom":&nbsp;"12"}<br>
+&nbsp;&nbsp;&nbsp;&nbsp;{"src":&nbsp;"layer-name",&nbsp;"zoom":&nbsp;"12-18"}<br>
+&nbsp;<br>
+Layers&nbsp;can&nbsp;also&nbsp;be&nbsp;used&nbsp;as&nbsp;masks,&nbsp;as&nbsp;in&nbsp;this&nbsp;example&nbsp;that&nbsp;uses&nbsp;one&nbsp;layer<br>
+to&nbsp;mask&nbsp;another&nbsp;layer:<br>
+&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;{"mask":&nbsp;"layer-name",&nbsp;"src":&nbsp;"other-layer"}<br>
+&nbsp;<br>
+Many&nbsp;combinations&nbsp;of&nbsp;"src",&nbsp;"mask",&nbsp;and&nbsp;"color"&nbsp;can&nbsp;be&nbsp;used&nbsp;together,&nbsp;but&nbsp;it's<br>
+an&nbsp;error&nbsp;to&nbsp;provide&nbsp;all&nbsp;three.<br>
+&nbsp;<br>
+Layers&nbsp;can&nbsp;be&nbsp;combined&nbsp;through&nbsp;the&nbsp;use&nbsp;of&nbsp;opacity&nbsp;and&nbsp;blend&nbsp;modes.&nbsp;Opacity&nbsp;is<br>
+specified&nbsp;as&nbsp;a&nbsp;value&nbsp;from&nbsp;0.0-1.0,&nbsp;and&nbsp;blend&nbsp;mode&nbsp;is&nbsp;specified&nbsp;as&nbsp;a&nbsp;string.<br>
+This&nbsp;example&nbsp;layer&nbsp;is&nbsp;blended&nbsp;using&nbsp;the&nbsp;"hard&nbsp;light"&nbsp;mode&nbsp;at&nbsp;50%&nbsp;opacity:<br>
+&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;{"src":&nbsp;"hillshading",&nbsp;"mode":&nbsp;"hard&nbsp;light",&nbsp;"opacity":&nbsp;0.5}<br>
+&nbsp;<br>
+Currently-supported&nbsp;blend&nbsp;modes&nbsp;include&nbsp;"screen",&nbsp;"add",&nbsp;"multiply",&nbsp;"subtract",<br>
+"linear&nbsp;light",&nbsp;and&nbsp;"hard&nbsp;light".<br>
+&nbsp;<br>
+Layers&nbsp;can&nbsp;also&nbsp;be&nbsp;affected&nbsp;by&nbsp;adjustments.&nbsp;Adjustments&nbsp;are&nbsp;specified&nbsp;as&nbsp;an<br>
+array&nbsp;of&nbsp;names&nbsp;and&nbsp;parameters.&nbsp;This&nbsp;example&nbsp;layer&nbsp;has&nbsp;been&nbsp;slightly&nbsp;darkened<br>
+using&nbsp;the&nbsp;"curves"&nbsp;adjustment,&nbsp;moving&nbsp;the&nbsp;input&nbsp;value&nbsp;of&nbsp;181&nbsp;(light&nbsp;gray)<br>
+to&nbsp;50%&nbsp;gray&nbsp;while&nbsp;leaving&nbsp;black&nbsp;and&nbsp;white&nbsp;alone:<br>
+&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;{"src":&nbsp;"hillshading",&nbsp;"adjustments":&nbsp;[&nbsp;["curves",&nbsp;[0,&nbsp;181,&nbsp;255]]&nbsp;]}<br>
+&nbsp;<br>
+Available&nbsp;adjustments:<br>
+&nbsp;&nbsp;"threshold"&nbsp;-&nbsp;Blit.adjustments.threshold()<br>
+&nbsp;&nbsp;"curves"&nbsp;-&nbsp;Blit.adjustments.curves()<br>
+&nbsp;&nbsp;"curves2"&nbsp;-&nbsp;Blit.adjustments.curves2()<br>
+&nbsp;<br>
+See&nbsp;detailed&nbsp;information&nbsp;about&nbsp;adjustments&nbsp;in&nbsp;Blit&nbsp;documentation:<br>
+&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;https://github.com/migurski/Blit#readme<br>
+&nbsp;<br>
+Finally,&nbsp;the&nbsp;stacking&nbsp;feature&nbsp;allows&nbsp;layers&nbsp;to&nbsp;combined&nbsp;in&nbsp;more&nbsp;complex&nbsp;ways.<br>
+This&nbsp;example&nbsp;stack&nbsp;combines&nbsp;a&nbsp;background&nbsp;color&nbsp;and&nbsp;foreground&nbsp;layer:<br>
+&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;[<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{"color":&nbsp;"#ff9900"},<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{"src":&nbsp;"layer-name"}<br>
+&nbsp;&nbsp;&nbsp;&nbsp;]<br>
+&nbsp;<br>
+A&nbsp;complete&nbsp;example&nbsp;configuration&nbsp;might&nbsp;look&nbsp;like&nbsp;this:<br>
+&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;{<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"cache":<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"name":&nbsp;"Test"<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;},<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"layers":&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"base":<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"provider":&nbsp;{"name":&nbsp;"mapnik",&nbsp;"mapfile":&nbsp;"mapnik-base.xml"}<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;},<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"halos":<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"provider":&nbsp;{"name":&nbsp;"mapnik",&nbsp;"mapfile":&nbsp;"mapnik-halos.xml"},<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"metatile":&nbsp;{"buffer":&nbsp;128}<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;},<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"outlines":<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"provider":&nbsp;{"name":&nbsp;"mapnik",&nbsp;"mapfile":&nbsp;"mapnik-outlines.xml"},<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"metatile":&nbsp;{"buffer":&nbsp;16}<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;},<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"streets":<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"provider":&nbsp;{"name":&nbsp;"mapnik",&nbsp;"mapfile":&nbsp;"mapnik-streets.xml"},<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"metatile":&nbsp;{"buffer":&nbsp;128}<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;},<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"sandwiches":<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"provider":<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"name":&nbsp;"Sandwich",<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"stack":<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{"src":&nbsp;"base"},<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{"src":&nbsp;"outlines",&nbsp;"mask":&nbsp;"halos"},<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{"src":&nbsp;"streets"}<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;]<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>
+&nbsp;&nbsp;&nbsp;&nbsp;}</tt></p>
+<p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#aa55cc">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial"><big><strong>Modules</strong></big></font></td></tr>
+    
+<tr><td bgcolor="#aa55cc"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%"><table width="100%" summary="list"><tr><td width="25%" valign=top><a href="Blit.html">Blit</a><br>
+</td><td width="25%" valign=top><a href="TileStache.Core.html">TileStache.Core</a><br>
+</td><td width="25%" valign=top><a href="Image.html">Image</a><br>
+</td><td width="25%" valign=top></td></tr></table></td></tr></table><p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#ee77aa">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial"><big><strong>Classes</strong></big></font></td></tr>
+    
+<tr><td bgcolor="#ee77aa"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%"><dl>
+<dt><font face="helvetica, arial"><a href="TileStache.Sandwich.html#Provider">Provider</a>
+</font></dt></dl>
+ <p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#ffc8d8">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#000000" face="helvetica, arial"><a name="Provider">class <strong>Provider</strong></a></font></td></tr>
+    
+<tr bgcolor="#ffc8d8"><td rowspan=2><tt>&nbsp;&nbsp;&nbsp;</tt></td>
+<td colspan=2><tt>Sandwich&nbsp;<a href="#Provider">Provider</a>.<br>
+&nbsp;<br>
+Stack&nbsp;argument&nbsp;is&nbsp;a&nbsp;list&nbsp;of&nbsp;layer&nbsp;dictionaries&nbsp;described&nbsp;in&nbsp;module&nbsp;docs.<br>&nbsp;</tt></td></tr>
+<tr><td>&nbsp;</td>
+<td width="100%">Methods defined here:<br>
+<dl><dt><a name="Provider-__init__"><strong>__init__</strong></a>(self, layer, stack)</dt></dl>
+
+<dl><dt><a name="Provider-draw_stack"><strong>draw_stack</strong></a>(self, coord, tiles)</dt><dd><tt>Render&nbsp;this&nbsp;image&nbsp;stack.<br>
+&nbsp;<br>
+Given&nbsp;a&nbsp;coordinate,&nbsp;return&nbsp;an&nbsp;output&nbsp;image&nbsp;with&nbsp;the&nbsp;results&nbsp;of&nbsp;all&nbsp;the<br>
+layers&nbsp;in&nbsp;this&nbsp;stack&nbsp;pasted&nbsp;on&nbsp;in&nbsp;turn.<br>
+&nbsp;<br>
+Final&nbsp;argument&nbsp;is&nbsp;a&nbsp;dictionary&nbsp;used&nbsp;to&nbsp;temporarily&nbsp;cache&nbsp;results<br>
+of&nbsp;layers&nbsp;retrieved&nbsp;from&nbsp;<a href="#-layer_bitmap">layer_bitmap</a>(),&nbsp;to&nbsp;speed&nbsp;things&nbsp;up&nbsp;in&nbsp;case<br>
+of&nbsp;repeatedly-used&nbsp;identical&nbsp;images.</tt></dd></dl>
+
+<dl><dt><a name="Provider-renderTile"><strong>renderTile</strong></a>(self, width, height, srs, coord)</dt></dl>
+
+<hr>
+Static methods defined here:<br>
+<dl><dt><a name="Provider-prepareKeywordArgs"><strong>prepareKeywordArgs</strong></a>(config_dict)</dt><dd><tt>Convert&nbsp;configured&nbsp;parameters&nbsp;to&nbsp;keyword&nbsp;args&nbsp;for&nbsp;<a href="#Provider-__init__">__init__</a>().</tt></dd></dl>
+
+</td></tr></table></td></tr></table><p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#eeaa77">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial"><big><strong>Functions</strong></big></font></td></tr>
+    
+<tr><td bgcolor="#eeaa77"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%"><dl><dt><a name="-in_zoom"><strong>in_zoom</strong></a>(coord, range)</dt><dd><tt>Return&nbsp;True&nbsp;if&nbsp;the&nbsp;coordinate&nbsp;zoom&nbsp;is&nbsp;within&nbsp;the&nbsp;textual&nbsp;range.<br>
+&nbsp;<br>
+Range&nbsp;might&nbsp;look&nbsp;like&nbsp;"1-10"&nbsp;or&nbsp;just&nbsp;"5".</tt></dd></dl>
+ <dl><dt><a name="-layer_bitmap"><strong>layer_bitmap</strong></a>(layer, coord)</dt><dd><tt>Return&nbsp;Blit.Bitmap&nbsp;representation&nbsp;of&nbsp;tile&nbsp;from&nbsp;a&nbsp;given&nbsp;layer.<br>
+&nbsp;<br>
+Uses&nbsp;TileStache.getTile(),&nbsp;so&nbsp;caches&nbsp;are&nbsp;read&nbsp;and&nbsp;written&nbsp;as&nbsp;normal.</tt></dd></dl>
+ <dl><dt><a name="-local_bitmap"><strong>local_bitmap</strong></a>(source, config, coord, dim)</dt><dd><tt>Return&nbsp;Blit.Bitmap&nbsp;representation&nbsp;of&nbsp;a&nbsp;raw&nbsp;image.</tt></dd></dl>
+ <dl><dt><a name="-make_color"><strong>make_color</strong></a>(color)</dt><dd><tt>Convert&nbsp;colors&nbsp;expressed&nbsp;as&nbsp;HTML-style&nbsp;RGB(A)&nbsp;strings&nbsp;to&nbsp;Blit.Color.<br>
+&nbsp;<br>
+Examples:<br>
+&nbsp;&nbsp;white:&nbsp;"#ffffff",&nbsp;"#fff",&nbsp;"#ffff",&nbsp;"#ffffffff"<br>
+&nbsp;&nbsp;black:&nbsp;"#000000",&nbsp;"#000",&nbsp;"#000f",&nbsp;"#000000ff"<br>
+&nbsp;&nbsp;null:&nbsp;"#0000",&nbsp;"#00000000"<br>
+&nbsp;&nbsp;orange:&nbsp;"#f90",&nbsp;"#ff9900",&nbsp;"#ff9900ff"<br>
+&nbsp;&nbsp;transparent&nbsp;orange:&nbsp;"#f908",&nbsp;"#ff990088"</tt></dd></dl>
+</td></tr></table><p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#55aa55">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial"><big><strong>Data</strong></big></font></td></tr>
+    
+<tr><td bgcolor="#55aa55"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%"><strong>adjustment_names</strong> = {'curves': &lt;function curves at 0x108045de8&gt;, 'curves2': &lt;function curves2 at 0x108045e60&gt;, 'threshold': &lt;function threshold at 0x1070bd9b0&gt;}<br>
+<strong>blend_modes</strong> = {'add': &lt;function add at 0x1070bbf50&gt;, 'hard light': &lt;function hard_light at 0x1070bd1b8&gt;, 'linear light': &lt;function linear_light at 0x1070bd140&gt;, 'multiply': &lt;function multiply at 0x1070bd050&gt;, 'screen': &lt;function screen at 0x1070bbed8&gt;, 'subtract': &lt;function subtract at 0x1070bd0c8&gt;}</td></tr></table>
+</body></html>

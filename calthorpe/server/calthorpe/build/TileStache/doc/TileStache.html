@@ -1,0 +1,173 @@
+
+<!doctype html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html><head><title>Python: package TileStache</title>
+</head><body bgcolor="#f0f0f8">
+
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="heading">
+<tr bgcolor="#7799ee">
+<td valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial">&nbsp;<br><big><big><strong>TileStache</strong></big></big> (version N.N.N)</font></td
+><td align=right valign=bottom
+><font color="#ffffff" face="helvetica, arial"><a href=".">index</a></font></td></tr></table>
+    <p><tt>A&nbsp;stylish&nbsp;alternative&nbsp;for&nbsp;caching&nbsp;your&nbsp;map&nbsp;tiles.<br>
+&nbsp;<br>
+TileStache&nbsp;is&nbsp;a&nbsp;Python-based&nbsp;server&nbsp;application&nbsp;that&nbsp;can&nbsp;serve&nbsp;up&nbsp;map&nbsp;tiles<br>
+based&nbsp;on&nbsp;rendered&nbsp;geographic&nbsp;data.&nbsp;You&nbsp;might&nbsp;be&nbsp;familiar&nbsp;with&nbsp;TileCache<br>
+(<a href="http://tilecache.org">http://tilecache.org</a>),&nbsp;the&nbsp;venerable&nbsp;open&nbsp;source&nbsp;WMS&nbsp;server&nbsp;from&nbsp;MetaCarta.<br>
+TileStache&nbsp;is&nbsp;similar,&nbsp;but&nbsp;we&nbsp;hope&nbsp;simpler&nbsp;and&nbsp;better-suited&nbsp;to&nbsp;the&nbsp;needs&nbsp;of<br>
+designers&nbsp;and&nbsp;cartographers.<br>
+&nbsp;<br>
+Documentation&nbsp;available&nbsp;at&nbsp;<a href="http://tilestache.org/doc/">http://tilestache.org/doc/</a></tt></p>
+<p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#aa55cc">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial"><big><strong>Package Contents</strong></big></font></td></tr>
+    
+<tr><td bgcolor="#aa55cc"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%"><table width="100%" summary="list"><tr><td width="25%" valign=top><a href="TileStache.Caches.html">Caches</a><br>
+<a href="TileStache.Config.html">Config</a><br>
+<a href="TileStache.Core.html">Core</a><br>
+<a href="TileStache.Geography.html">Geography</a><br>
+</td><td width="25%" valign=top><a href="TileStache.Goodies.html"><strong>Goodies</strong>&nbsp;(package)</a><br>
+<a href="TileStache.MBTiles.html">MBTiles</a><br>
+<a href="TileStache.Mapnik.html">Mapnik</a><br>
+<a href="TileStache.Memcache.html">Memcache</a><br>
+</td><td width="25%" valign=top><a href="TileStache.Pixels.html">Pixels</a><br>
+<a href="TileStache.Providers.html">Providers</a><br>
+<a href="TileStache.S3.html">S3</a><br>
+<a href="TileStache.Sandwich.html">Sandwich</a><br>
+</td><td width="25%" valign=top><a href="TileStache.Vector.html"><strong>Vector</strong>&nbsp;(package)</a><br>
+</td></tr></table></td></tr></table><p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#ee77aa">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial"><big><strong>Classes</strong></big></font></td></tr>
+    
+<tr><td bgcolor="#ee77aa"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%"><dl>
+<dt><font face="helvetica, arial"><a href="TileStache.html#WSGITileServer">WSGITileServer</a>
+</font></dt></dl>
+ <p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#ffc8d8">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#000000" face="helvetica, arial"><a name="WSGITileServer">class <strong>WSGITileServer</strong></a></font></td></tr>
+    
+<tr bgcolor="#ffc8d8"><td rowspan=2><tt>&nbsp;&nbsp;&nbsp;</tt></td>
+<td colspan=2><tt>Create&nbsp;a&nbsp;WSGI&nbsp;application&nbsp;that&nbsp;can&nbsp;handle&nbsp;requests&nbsp;from&nbsp;any&nbsp;server&nbsp;that&nbsp;talks&nbsp;WSGI.<br>
+&nbsp;<br>
+The&nbsp;WSGI&nbsp;application&nbsp;is&nbsp;an&nbsp;instance&nbsp;of&nbsp;this&nbsp;class.&nbsp;Example:<br>
+&nbsp;<br>
+&nbsp;&nbsp;app&nbsp;=&nbsp;<a href="#WSGITileServer">WSGITileServer</a>('/path/to/tilestache.cfg')<br>
+&nbsp;&nbsp;werkzeug.serving.run_simple('localhost',&nbsp;8080,&nbsp;app)<br>&nbsp;</tt></td></tr>
+<tr><td>&nbsp;</td>
+<td width="100%">Methods defined here:<br>
+<dl><dt><a name="WSGITileServer-__call__"><strong>__call__</strong></a>(self, environ, start_response)</dt></dl>
+
+<dl><dt><a name="WSGITileServer-__init__"><strong>__init__</strong></a>(self, config, autoreload<font color="#909090">=False</font>)</dt><dd><tt>Initialize&nbsp;a&nbsp;callable&nbsp;WSGI&nbsp;instance.<br>
+&nbsp;<br>
+Config&nbsp;parameter&nbsp;can&nbsp;be&nbsp;a&nbsp;file&nbsp;path&nbsp;string&nbsp;for&nbsp;a&nbsp;JSON&nbsp;configuration<br>
+file&nbsp;or&nbsp;a&nbsp;configuration&nbsp;object&nbsp;with&nbsp;'cache',&nbsp;'layers',&nbsp;and<br>
+'dirpath'&nbsp;properties.<br>
+&nbsp;<br>
+Optional&nbsp;autoreload&nbsp;boolean&nbsp;parameter&nbsp;causes&nbsp;config&nbsp;to&nbsp;be&nbsp;re-read<br>
+on&nbsp;each&nbsp;request,&nbsp;applicable&nbsp;only&nbsp;when&nbsp;config&nbsp;is&nbsp;a&nbsp;JSON&nbsp;file.</tt></dd></dl>
+
+</td></tr></table></td></tr></table><p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#eeaa77">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial"><big><strong>Functions</strong></big></font></td></tr>
+    
+<tr><td bgcolor="#eeaa77"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%"><dl><dt><a name="-cgiHandler"><strong>cgiHandler</strong></a>(environ, config<font color="#909090">='./tilestache.cfg'</font>, debug<font color="#909090">=False</font>)</dt><dd><tt>Read&nbsp;environment&nbsp;PATH_INFO,&nbsp;load&nbsp;up&nbsp;configuration,&nbsp;talk&nbsp;to&nbsp;stdout&nbsp;by&nbsp;CGI.<br>
+&nbsp;<br>
+Calls&nbsp;<a href="#-requestHandler">requestHandler</a>().<br>
+&nbsp;<br>
+Config&nbsp;parameter&nbsp;can&nbsp;be&nbsp;a&nbsp;file&nbsp;path&nbsp;string&nbsp;for&nbsp;a&nbsp;JSON&nbsp;configuration&nbsp;file<br>
+or&nbsp;a&nbsp;configuration&nbsp;object&nbsp;with&nbsp;'cache',&nbsp;'layers',&nbsp;and&nbsp;'dirpath'&nbsp;properties.</tt></dd></dl>
+ <dl><dt><a name="-getPreview"><strong>getPreview</strong></a>(layer)</dt><dd><tt>Get&nbsp;a&nbsp;type&nbsp;string&nbsp;and&nbsp;dynamic&nbsp;map&nbsp;viewer&nbsp;HTML&nbsp;for&nbsp;a&nbsp;given&nbsp;layer.</tt></dd></dl>
+ <dl><dt><a name="-getTile"><strong>getTile</strong></a>(layer, coord, extension, ignore_cached<font color="#909090">=False</font>)</dt><dd><tt>Get&nbsp;a&nbsp;type&nbsp;string&nbsp;and&nbsp;tile&nbsp;binary&nbsp;for&nbsp;a&nbsp;given&nbsp;request&nbsp;layer&nbsp;tile.<br>
+&nbsp;<br>
+Arguments:<br>
+-&nbsp;layer:&nbsp;instance&nbsp;of&nbsp;Core.Layer&nbsp;to&nbsp;render.<br>
+-&nbsp;coord:&nbsp;one&nbsp;ModestMaps.Core.Coordinate&nbsp;corresponding&nbsp;to&nbsp;a&nbsp;single&nbsp;tile.<br>
+-&nbsp;extension:&nbsp;filename&nbsp;extension&nbsp;to&nbsp;choose&nbsp;response&nbsp;type,&nbsp;e.g.&nbsp;"png"&nbsp;or&nbsp;"jpg".<br>
+-&nbsp;ignore_cached:&nbsp;always&nbsp;re-render&nbsp;the&nbsp;tile,&nbsp;whether&nbsp;it's&nbsp;in&nbsp;the&nbsp;cache&nbsp;or&nbsp;not.<br>
+&nbsp;<br>
+This&nbsp;is&nbsp;the&nbsp;main&nbsp;entry&nbsp;point,&nbsp;after&nbsp;site&nbsp;configuration&nbsp;has&nbsp;been&nbsp;loaded<br>
+and&nbsp;individual&nbsp;tiles&nbsp;need&nbsp;to&nbsp;be&nbsp;rendered.</tt></dd></dl>
+ <dl><dt><a name="-getcwd"><strong>getcwd</strong></a>(...)</dt><dd><tt><a href="#-getcwd">getcwd</a>()&nbsp;-&gt;&nbsp;path<br>
+&nbsp;<br>
+Return&nbsp;a&nbsp;string&nbsp;representing&nbsp;the&nbsp;current&nbsp;working&nbsp;directory.</tt></dd></dl>
+ <dl><dt><a name="-mergePathInfo"><strong>mergePathInfo</strong></a>(layer, coord, extension)</dt><dd><tt>Converts&nbsp;layer&nbsp;name,&nbsp;coordinate&nbsp;and&nbsp;extension&nbsp;back&nbsp;to&nbsp;a&nbsp;PATH_INFO&nbsp;string.<br>
+&nbsp;<br>
+See&nbsp;also&nbsp;<a href="#-splitPathInfo">splitPathInfo</a>().</tt></dd></dl>
+ <dl><dt><a name="-modpythonHandler"><strong>modpythonHandler</strong></a>(request)</dt><dd><tt>Handle&nbsp;a&nbsp;mod_python&nbsp;request.<br>
+&nbsp;<br>
+Calls&nbsp;<a href="#-requestHandler">requestHandler</a>().<br>
+&nbsp;<br>
+Example&nbsp;Apache&nbsp;configuration&nbsp;for&nbsp;TileStache:<br>
+&nbsp;<br>
+&lt;Directory&nbsp;/home/migurski/public_html/TileStache&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;AddHandler&nbsp;mod_python&nbsp;.py<br>
+&nbsp;&nbsp;&nbsp;&nbsp;PythonHandler&nbsp;TileStache::modpythonHandler<br>
+&nbsp;&nbsp;&nbsp;&nbsp;PythonOption&nbsp;config&nbsp;/etc/tilestache.cfg<br>
+&lt;/Directory&gt;<br>
+&nbsp;<br>
+Configuration&nbsp;options,&nbsp;using&nbsp;PythonOption&nbsp;directive:<br>
+-&nbsp;config:&nbsp;path&nbsp;to&nbsp;configuration&nbsp;file,&nbsp;defaults&nbsp;to&nbsp;"tilestache.cfg",<br>
+&nbsp;&nbsp;&nbsp;&nbsp;using&nbsp;request.filename&nbsp;as&nbsp;the&nbsp;current&nbsp;working&nbsp;directory.</tt></dd></dl>
+ <dl><dt><a name="-parseConfigfile"><strong>parseConfigfile</strong></a>(configpath)</dt><dd><tt>Parse&nbsp;a&nbsp;configuration&nbsp;file&nbsp;and&nbsp;return&nbsp;a&nbsp;Configuration&nbsp;object.<br>
+&nbsp;<br>
+Configuration&nbsp;file&nbsp;is&nbsp;formatted&nbsp;as&nbsp;JSON&nbsp;with&nbsp;two&nbsp;sections,&nbsp;"cache"&nbsp;and&nbsp;"layers":<br>
+&nbsp;<br>
+&nbsp;&nbsp;{<br>
+&nbsp;&nbsp;&nbsp;&nbsp;"cache":&nbsp;{&nbsp;...&nbsp;},<br>
+&nbsp;&nbsp;&nbsp;&nbsp;"layers":&nbsp;{<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"layer-1":&nbsp;{&nbsp;...&nbsp;},<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"layer-2":&nbsp;{&nbsp;...&nbsp;},<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;...<br>
+&nbsp;&nbsp;&nbsp;&nbsp;}<br>
+&nbsp;&nbsp;}<br>
+&nbsp;<br>
+The&nbsp;full&nbsp;path&nbsp;to&nbsp;the&nbsp;file&nbsp;is&nbsp;significant,&nbsp;used&nbsp;to<br>
+resolve&nbsp;any&nbsp;relative&nbsp;paths&nbsp;found&nbsp;in&nbsp;the&nbsp;configuration.<br>
+&nbsp;<br>
+See&nbsp;the&nbsp;Caches&nbsp;module&nbsp;for&nbsp;more&nbsp;information&nbsp;on&nbsp;the&nbsp;"caches"&nbsp;section,<br>
+and&nbsp;the&nbsp;Core&nbsp;and&nbsp;Providers&nbsp;modules&nbsp;for&nbsp;more&nbsp;information&nbsp;on&nbsp;the<br>
+"layers"&nbsp;section.</tt></dd></dl>
+ <dl><dt><a name="-requestHandler"><strong>requestHandler</strong></a>(config_hint, path_info, query_string)</dt><dd><tt>Generate&nbsp;a&nbsp;mime-type&nbsp;and&nbsp;response&nbsp;body&nbsp;for&nbsp;a&nbsp;given&nbsp;request.<br>
+&nbsp;<br>
+Requires&nbsp;a&nbsp;configuration&nbsp;and&nbsp;PATH_INFO&nbsp;(e.g.&nbsp;"/example/0/0/0.png").<br>
+&nbsp;<br>
+Config_hint&nbsp;parameter&nbsp;can&nbsp;be&nbsp;a&nbsp;path&nbsp;string&nbsp;for&nbsp;a&nbsp;JSON&nbsp;configuration&nbsp;file<br>
+or&nbsp;a&nbsp;configuration&nbsp;object&nbsp;with&nbsp;'cache',&nbsp;'layers',&nbsp;and&nbsp;'dirpath'&nbsp;properties.<br>
+&nbsp;<br>
+Query&nbsp;string&nbsp;is&nbsp;optional,&nbsp;currently&nbsp;used&nbsp;for&nbsp;JSON&nbsp;callbacks.<br>
+&nbsp;<br>
+Calls&nbsp;<a href="#-getTile">getTile</a>()&nbsp;to&nbsp;render&nbsp;actual&nbsp;tiles,&nbsp;and&nbsp;<a href="#-getPreview">getPreview</a>()&nbsp;to&nbsp;render&nbsp;preview.html.</tt></dd></dl>
+ <dl><dt><a name="-requestLayer"><strong>requestLayer</strong></a>(config, path_info)</dt><dd><tt>Return&nbsp;a&nbsp;Layer.<br>
+&nbsp;<br>
+Requires&nbsp;a&nbsp;configuration&nbsp;and&nbsp;PATH_INFO&nbsp;(e.g.&nbsp;"/example/0/0/0.png").<br>
+&nbsp;<br>
+Config&nbsp;parameter&nbsp;can&nbsp;be&nbsp;a&nbsp;file&nbsp;path&nbsp;string&nbsp;for&nbsp;a&nbsp;JSON&nbsp;configuration&nbsp;file<br>
+or&nbsp;a&nbsp;configuration&nbsp;object&nbsp;with&nbsp;'cache',&nbsp;'layers',&nbsp;and&nbsp;'dirpath'&nbsp;properties.</tt></dd></dl>
+ <dl><dt><a name="-splitPathInfo"><strong>splitPathInfo</strong></a>(pathinfo)</dt><dd><tt>Converts&nbsp;a&nbsp;PATH_INFO&nbsp;string&nbsp;to&nbsp;layer&nbsp;name,&nbsp;coordinate,&nbsp;and&nbsp;extension&nbsp;parts.<br>
+&nbsp;<br>
+Example:&nbsp;"/layer/0/0/0.png",&nbsp;leading&nbsp;"/"&nbsp;optional.</tt></dd></dl>
+ <dl><dt><a name="-time"><strong>time</strong></a>(...)</dt><dd><tt><a href="#-time">time</a>()&nbsp;-&gt;&nbsp;floating&nbsp;point&nbsp;number<br>
+&nbsp;<br>
+Return&nbsp;the&nbsp;current&nbsp;time&nbsp;in&nbsp;seconds&nbsp;since&nbsp;the&nbsp;Epoch.<br>
+Fractions&nbsp;of&nbsp;a&nbsp;second&nbsp;may&nbsp;be&nbsp;present&nbsp;if&nbsp;the&nbsp;system&nbsp;clock&nbsp;provides&nbsp;them.</tt></dd></dl>
+</td></tr></table><p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#55aa55">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial"><big><strong>Data</strong></big></font></td></tr>
+    
+<tr><td bgcolor="#55aa55"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%"><strong>__version__</strong> = 'N.N.N'<br>
+<strong>stdout</strong> = &lt;open file '&lt;stdout&gt;', mode 'w' at 0x1004160b8&gt;</td></tr></table>
+</body></html>

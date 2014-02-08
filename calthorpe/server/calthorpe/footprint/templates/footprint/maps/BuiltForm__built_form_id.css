@@ -1,0 +1,6 @@
+{% for key, value in builtform_id.equals.items %}.builtform_id-{{ key }} {
+        {% if value.fill.color %} fill: {{ value.fill.color }}; {% endif %}
+        {% if value.fill.opacity %} opacity: {{ value.fill.opacity }}; {% endif %}
+         stroke: {% if value.outline.color %} {{ value.outline.color }}
+                 {% else %} #FFFFFF {% endif %};
+} {% endfor %}

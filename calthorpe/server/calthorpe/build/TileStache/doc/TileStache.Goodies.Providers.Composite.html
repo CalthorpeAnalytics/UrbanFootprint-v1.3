@@ -1,0 +1,397 @@
+
+<!doctype html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html><head><title>Python: module TileStache.Goodies.Providers.Composite</title>
+</head><body bgcolor="#f0f0f8">
+
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="heading">
+<tr bgcolor="#7799ee">
+<td valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial">&nbsp;<br><big><big><strong><a href="TileStache.html"><font color="#ffffff">TileStache</font></a>.<a href="TileStache.Goodies.html"><font color="#ffffff">Goodies</font></a>.<a href="TileStache.Goodies.Providers.html"><font color="#ffffff">Providers</font></a>.Composite</strong></big></big></font></td
+><td align=right valign=bottom
+><font color="#ffffff" face="helvetica, arial"><a href=".">index</a></font></td></tr></table>
+    <p><tt>Layered,&nbsp;composite&nbsp;rendering&nbsp;for&nbsp;TileStache.<br>
+&nbsp;<br>
+NOTE:&nbsp;This&nbsp;code&nbsp;is&nbsp;currently&nbsp;in&nbsp;heavy&nbsp;progress.&nbsp;I'm&nbsp;finishing&nbsp;the&nbsp;addition<br>
+of&nbsp;the&nbsp;new&nbsp;JSON&nbsp;style&nbsp;of&nbsp;layer&nbsp;configuration,&nbsp;while&nbsp;the&nbsp;original&nbsp;XML&nbsp;form<br>
+is&nbsp;*deprecated*&nbsp;and&nbsp;will&nbsp;be&nbsp;removed&nbsp;in&nbsp;the&nbsp;future&nbsp;TileStache&nbsp;2.0.<br>
+&nbsp;<br>
+The&nbsp;<a href="#Composite">Composite</a>&nbsp;<a href="#Provider">Provider</a>&nbsp;provides&nbsp;a&nbsp;Photoshop-like&nbsp;rendering&nbsp;pipeline,&nbsp;making&nbsp;it<br>
+possible&nbsp;to&nbsp;use&nbsp;the&nbsp;output&nbsp;of&nbsp;other&nbsp;configured&nbsp;tile&nbsp;layers&nbsp;as&nbsp;layers&nbsp;or&nbsp;masks<br>
+to&nbsp;create&nbsp;a&nbsp;combined&nbsp;output.&nbsp;<a href="#Composite">Composite</a>&nbsp;is&nbsp;modeled&nbsp;on&nbsp;Lars&nbsp;Ahlzen's&nbsp;TopOSM.<br>
+&nbsp;<br>
+The&nbsp;"stack"&nbsp;configuration&nbsp;parameter&nbsp;describes&nbsp;a&nbsp;layer&nbsp;or&nbsp;stack&nbsp;of&nbsp;layers&nbsp;that<br>
+can&nbsp;be&nbsp;combined&nbsp;to&nbsp;create&nbsp;output.&nbsp;A&nbsp;simple&nbsp;stack&nbsp;that&nbsp;merely&nbsp;outputs&nbsp;a&nbsp;single<br>
+color&nbsp;orange&nbsp;tile&nbsp;looks&nbsp;like&nbsp;this:<br>
+&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;{"color"&nbsp;"#ff9900"}<br>
+&nbsp;<br>
+Other&nbsp;layers&nbsp;in&nbsp;the&nbsp;current&nbsp;TileStache&nbsp;configuration&nbsp;can&nbsp;be&nbsp;reference&nbsp;by&nbsp;name,<br>
+as&nbsp;in&nbsp;this&nbsp;example&nbsp;stack&nbsp;that&nbsp;simply&nbsp;echoes&nbsp;another&nbsp;layer:<br>
+&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;{"src":&nbsp;"layer-name"}<br>
+&nbsp;<br>
+Layers&nbsp;can&nbsp;be&nbsp;limited&nbsp;to&nbsp;appear&nbsp;at&nbsp;certain&nbsp;zoom&nbsp;levels,&nbsp;given&nbsp;either&nbsp;as&nbsp;a&nbsp;range<br>
+or&nbsp;as&nbsp;a&nbsp;single&nbsp;number:<br>
+&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;{"src":&nbsp;"layer-name",&nbsp;"zoom":&nbsp;"12"}<br>
+&nbsp;&nbsp;&nbsp;&nbsp;{"src":&nbsp;"layer-name",&nbsp;"zoom":&nbsp;"12-18"}<br>
+&nbsp;<br>
+Layers&nbsp;can&nbsp;also&nbsp;be&nbsp;used&nbsp;as&nbsp;masks,&nbsp;as&nbsp;in&nbsp;this&nbsp;example&nbsp;that&nbsp;uses&nbsp;one&nbsp;layer<br>
+to&nbsp;mask&nbsp;another&nbsp;layer:<br>
+&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;{"mask":&nbsp;"layer-name",&nbsp;"src":&nbsp;"other-layer"}<br>
+&nbsp;<br>
+Many&nbsp;combinations&nbsp;of&nbsp;"src",&nbsp;"mask",&nbsp;and&nbsp;"color"&nbsp;can&nbsp;be&nbsp;used&nbsp;together,&nbsp;but&nbsp;it's<br>
+an&nbsp;error&nbsp;to&nbsp;provide&nbsp;all&nbsp;three.<br>
+&nbsp;<br>
+Layers&nbsp;can&nbsp;be&nbsp;combined&nbsp;through&nbsp;the&nbsp;use&nbsp;of&nbsp;opacity&nbsp;and&nbsp;blend&nbsp;modes.&nbsp;Opacity&nbsp;is<br>
+specified&nbsp;as&nbsp;a&nbsp;value&nbsp;from&nbsp;0.0-1.0,&nbsp;and&nbsp;blend&nbsp;mode&nbsp;is&nbsp;specified&nbsp;as&nbsp;a&nbsp;string.<br>
+This&nbsp;example&nbsp;layer&nbsp;is&nbsp;blended&nbsp;using&nbsp;the&nbsp;"hard&nbsp;light"&nbsp;mode&nbsp;at&nbsp;50%&nbsp;opacity:<br>
+&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;{"src":&nbsp;"hillshading",&nbsp;"mode":&nbsp;"hard&nbsp;light",&nbsp;"opacity":&nbsp;0.5}<br>
+&nbsp;<br>
+Currently-supported&nbsp;blend&nbsp;modes&nbsp;include&nbsp;"screen",&nbsp;"multiply",&nbsp;"linear&nbsp;light",<br>
+and&nbsp;"hard&nbsp;light".<br>
+&nbsp;<br>
+Layers&nbsp;can&nbsp;also&nbsp;be&nbsp;affected&nbsp;by&nbsp;adjustments.&nbsp;Adjustments&nbsp;are&nbsp;specified&nbsp;as&nbsp;an<br>
+array&nbsp;of&nbsp;names&nbsp;and&nbsp;parameters.&nbsp;This&nbsp;example&nbsp;layer&nbsp;has&nbsp;been&nbsp;slightly&nbsp;darkened<br>
+using&nbsp;the&nbsp;"curves"&nbsp;adjustment,&nbsp;moving&nbsp;the&nbsp;input&nbsp;value&nbsp;of&nbsp;181&nbsp;(light&nbsp;gray)<br>
+to&nbsp;50%&nbsp;gray&nbsp;while&nbsp;leaving&nbsp;black&nbsp;and&nbsp;white&nbsp;alone:<br>
+&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;{"src":&nbsp;"hillshading",&nbsp;"adjustments":&nbsp;[&nbsp;["curves",&nbsp;[0,&nbsp;181,&nbsp;255]]&nbsp;]}<br>
+&nbsp;<br>
+Available&nbsp;adjustments:<br>
+&nbsp;&nbsp;"threshold"&nbsp;-&nbsp;<a href="#-apply_threshold_adjustment">apply_threshold_adjustment</a>()<br>
+&nbsp;&nbsp;"curves"&nbsp;-&nbsp;<a href="#-apply_curves_adjustment">apply_curves_adjustment</a>()<br>
+&nbsp;&nbsp;"curves2"&nbsp;-&nbsp;<a href="#-apply_curves2_adjustment">apply_curves2_adjustment</a>()<br>
+&nbsp;<br>
+Finally,&nbsp;the&nbsp;stacking&nbsp;feature&nbsp;allows&nbsp;layers&nbsp;to&nbsp;combined&nbsp;in&nbsp;more&nbsp;complex&nbsp;ways.<br>
+This&nbsp;example&nbsp;stack&nbsp;combines&nbsp;a&nbsp;background&nbsp;color&nbsp;and&nbsp;foreground&nbsp;layer:<br>
+&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;[<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{"color":&nbsp;"#ff9900"},<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{"src":&nbsp;"layer-name"}<br>
+&nbsp;&nbsp;&nbsp;&nbsp;]<br>
+&nbsp;<br>
+Stacks&nbsp;can&nbsp;be&nbsp;nested&nbsp;as&nbsp;well,&nbsp;such&nbsp;as&nbsp;this&nbsp;combination&nbsp;of&nbsp;two&nbsp;background&nbsp;layers<br>
+and&nbsp;two&nbsp;foreground&nbsp;layers:<br>
+&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;[<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{"color""&nbsp;"#0066ff"},<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{"src":&nbsp;"continents"}<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;],<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{"src":&nbsp;"streets"},<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{"src":&nbsp;"labels"}<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;]<br>
+&nbsp;&nbsp;&nbsp;&nbsp;]<br>
+&nbsp;<br>
+A&nbsp;complete&nbsp;example&nbsp;configuration&nbsp;might&nbsp;look&nbsp;like&nbsp;this:<br>
+&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;{<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"cache":<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"name":&nbsp;"Test"<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;},<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"layers":&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"base":<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"provider":&nbsp;{"name":&nbsp;"mapnik",&nbsp;"mapfile":&nbsp;"mapnik-base.xml"}<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;},<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"halos":<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"provider":&nbsp;{"name":&nbsp;"mapnik",&nbsp;"mapfile":&nbsp;"mapnik-halos.xml"},<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"metatile":&nbsp;{"buffer":&nbsp;128}<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;},<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"outlines":<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"provider":&nbsp;{"name":&nbsp;"mapnik",&nbsp;"mapfile":&nbsp;"mapnik-outlines.xml"},<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"metatile":&nbsp;{"buffer":&nbsp;16}<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;},<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"streets":<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"provider":&nbsp;{"name":&nbsp;"mapnik",&nbsp;"mapfile":&nbsp;"mapnik-streets.xml"},<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"metatile":&nbsp;{"buffer":&nbsp;128}<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;},<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"composite":<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"provider":<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"class":&nbsp;"TileStache.Goodies.Providers.<a href="#Composite">Composite</a>:<a href="#Provider">Provider</a>",<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"kwargs":<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"stack":<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{"src":&nbsp;"base"},<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{"src":&nbsp;"outlines",&nbsp;"mask":&nbsp;"halos"},<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{"src":&nbsp;"streets"}<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;]<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;]<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>
+&nbsp;&nbsp;&nbsp;&nbsp;}<br>
+&nbsp;<br>
+It's&nbsp;also&nbsp;possible&nbsp;to&nbsp;provide&nbsp;an&nbsp;equivalent&nbsp;"stackfile"&nbsp;argument&nbsp;that&nbsp;refers&nbsp;to<br>
+an&nbsp;XML&nbsp;file,&nbsp;but&nbsp;this&nbsp;feature&nbsp;is&nbsp;*deprecated*&nbsp;and&nbsp;will&nbsp;be&nbsp;removed&nbsp;in&nbsp;the&nbsp;future<br>
+release&nbsp;of&nbsp;TileStache&nbsp;2.0.<br>
+&nbsp;<br>
+Corresponding&nbsp;example&nbsp;stackfile&nbsp;XML:<br>
+&nbsp;<br>
+&nbsp;&nbsp;&lt;?xml&nbsp;version="1.0"?&gt;<br>
+&nbsp;&nbsp;&lt;stack&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;layer&nbsp;src="base"&nbsp;/&gt;<br>
+&nbsp;&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;stack&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;layer&nbsp;src="outlines"&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;mask&nbsp;src="halos"&nbsp;/&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;/layer&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;layer&nbsp;src="streets"&nbsp;/&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;/stack&gt;<br>
+&nbsp;&nbsp;&lt;/stack&gt;<br>
+&nbsp;<br>
+Note&nbsp;that&nbsp;each&nbsp;layer&nbsp;in&nbsp;this&nbsp;file&nbsp;refers&nbsp;to&nbsp;a&nbsp;TileStache&nbsp;layer&nbsp;by&nbsp;name.<br>
+This&nbsp;complete&nbsp;example&nbsp;can&nbsp;be&nbsp;found&nbsp;in&nbsp;the&nbsp;included&nbsp;examples&nbsp;directory.</tt></p>
+<p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#aa55cc">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial"><big><strong>Modules</strong></big></font></td></tr>
+    
+<tr><td bgcolor="#aa55cc"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%"><table width="100%" summary="list"><tr><td width="25%" valign=top><a href="PIL.Image.html">PIL.Image</a><br>
+<a href="TileStache.html">TileStache</a><br>
+</td><td width="25%" valign=top><a href="numpy.html">numpy</a><br>
+<a href="re.html">re</a><br>
+</td><td width="25%" valign=top><a href="sympy.html">sympy</a><br>
+<a href="sys.html">sys</a><br>
+</td><td width="25%" valign=top></td></tr></table></td></tr></table><p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#ee77aa">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial"><big><strong>Classes</strong></big></font></td></tr>
+    
+<tr><td bgcolor="#ee77aa"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%"><dl>
+<dt><font face="helvetica, arial"><a href="TileStache.Goodies.Providers.Composite.html#Layer">Layer</a>
+</font></dt><dt><font face="helvetica, arial"><a href="TileStache.Goodies.Providers.Composite.html#Provider">Provider</a>
+</font></dt><dd>
+<dl>
+<dt><font face="helvetica, arial"><a href="TileStache.Goodies.Providers.Composite.html#Composite">Composite</a>
+</font></dt></dl>
+</dd>
+<dt><font face="helvetica, arial"><a href="TileStache.Goodies.Providers.Composite.html#Stack">Stack</a>
+</font></dt></dl>
+ <p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#ffc8d8">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#000000" face="helvetica, arial"><a name="Composite">class <strong>Composite</strong></a>(<a href="TileStache.Goodies.Providers.Composite.html#Provider">Provider</a>)</font></td></tr>
+    
+<tr bgcolor="#ffc8d8"><td rowspan=2><tt>&nbsp;&nbsp;&nbsp;</tt></td>
+<td colspan=2><tt>An&nbsp;old&nbsp;name&nbsp;for&nbsp;the&nbsp;<a href="#Provider">Provider</a>&nbsp;class,&nbsp;deprecated&nbsp;for&nbsp;the&nbsp;next&nbsp;version.<br>&nbsp;</tt></td></tr>
+<tr><td>&nbsp;</td>
+<td width="100%">Methods inherited from <a href="TileStache.Goodies.Providers.Composite.html#Provider">Provider</a>:<br>
+<dl><dt><a name="Composite-__init__"><strong>__init__</strong></a>(self, layer, stack<font color="#909090">=None</font>, stackfile<font color="#909090">=None</font>)</dt><dd><tt>Make&nbsp;a&nbsp;new&nbsp;<a href="#Composite">Composite</a>.<a href="#Provider">Provider</a>.<br>
+&nbsp;<br>
+Arguments:<br>
+&nbsp;<br>
+&nbsp;&nbsp;layer:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;The&nbsp;current&nbsp;TileStache.Core.<a href="#Layer">Layer</a><br>
+&nbsp;&nbsp;&nbsp;&nbsp;<br>
+&nbsp;&nbsp;stack:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;A&nbsp;list&nbsp;or&nbsp;dictionary&nbsp;with&nbsp;configuration&nbsp;for&nbsp;the&nbsp;image&nbsp;stack,&nbsp;parsed<br>
+&nbsp;&nbsp;&nbsp;&nbsp;by&nbsp;<a href="#-build_stack">build_stack</a>().&nbsp;Also&nbsp;acceptable&nbsp;is&nbsp;a&nbsp;URL&nbsp;to&nbsp;a&nbsp;JSON&nbsp;file.<br>
+&nbsp;&nbsp;<br>
+&nbsp;&nbsp;stackfile:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;*Deprecated*&nbsp;filename&nbsp;for&nbsp;an&nbsp;XML&nbsp;representation&nbsp;of&nbsp;the&nbsp;image&nbsp;stack.</tt></dd></dl>
+
+<dl><dt><a name="Composite-renderTile"><strong>renderTile</strong></a>(self, width, height, srs, coord)</dt></dl>
+
+</td></tr></table> <p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#ffc8d8">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#000000" face="helvetica, arial"><a name="Layer">class <strong>Layer</strong></a></font></td></tr>
+    
+<tr bgcolor="#ffc8d8"><td rowspan=2><tt>&nbsp;&nbsp;&nbsp;</tt></td>
+<td colspan=2><tt>A&nbsp;single&nbsp;image&nbsp;layer&nbsp;in&nbsp;a&nbsp;stack.<br>
+&nbsp;<br>
+Can&nbsp;include&nbsp;a&nbsp;reference&nbsp;to&nbsp;another&nbsp;layer&nbsp;for&nbsp;the&nbsp;source&nbsp;image,&nbsp;a&nbsp;second<br>
+reference&nbsp;to&nbsp;another&nbsp;layer&nbsp;for&nbsp;the&nbsp;mask,&nbsp;and&nbsp;a&nbsp;color&nbsp;name&nbsp;for&nbsp;the&nbsp;fill.<br>&nbsp;</tt></td></tr>
+<tr><td>&nbsp;</td>
+<td width="100%">Methods defined here:<br>
+<dl><dt><a name="Layer-__init__"><strong>__init__</strong></a>(self, layername<font color="#909090">=None</font>, colorname<font color="#909090">=None</font>, maskname<font color="#909090">=None</font>, opacity<font color="#909090">=1.0</font>, blendmode<font color="#909090">=None</font>, adjustments<font color="#909090">=None</font>, zoom<font color="#909090">=''</font>)</dt><dd><tt>A&nbsp;new&nbsp;image&nbsp;layer.<br>
+&nbsp;<br>
+Arguments:<br>
+&nbsp;<br>
+&nbsp;&nbsp;layername:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;Name&nbsp;of&nbsp;the&nbsp;primary&nbsp;source&nbsp;image&nbsp;layer.<br>
+&nbsp;&nbsp;<br>
+&nbsp;&nbsp;colorname:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;Fill&nbsp;color,&nbsp;passed&nbsp;to&nbsp;<a href="#-make_color">make_color</a>().<br>
+&nbsp;&nbsp;<br>
+&nbsp;&nbsp;maskname:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;Name&nbsp;of&nbsp;the&nbsp;mask&nbsp;image&nbsp;layer.</tt></dd></dl>
+
+<dl><dt><a name="Layer-__str__"><strong>__str__</strong></a>(self)</dt></dl>
+
+<dl><dt><a name="Layer-in_zoom"><strong>in_zoom</strong></a>(self, zoom)</dt><dd><tt>Return&nbsp;true&nbsp;if&nbsp;the&nbsp;requested&nbsp;zoom&nbsp;level&nbsp;is&nbsp;valid&nbsp;for&nbsp;this&nbsp;layer.</tt></dd></dl>
+
+<dl><dt><a name="Layer-render"><strong>render</strong></a>(self, config, input_rgba, coord)</dt><dd><tt>Render&nbsp;this&nbsp;image&nbsp;layer.<br>
+&nbsp;<br>
+Given&nbsp;a&nbsp;configuration&nbsp;object,&nbsp;starting&nbsp;image,&nbsp;and&nbsp;coordinate,<br>
+return&nbsp;an&nbsp;output&nbsp;image&nbsp;with&nbsp;the&nbsp;contents&nbsp;of&nbsp;this&nbsp;image&nbsp;layer.</tt></dd></dl>
+
+</td></tr></table> <p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#ffc8d8">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#000000" face="helvetica, arial"><a name="Provider">class <strong>Provider</strong></a></font></td></tr>
+    
+<tr bgcolor="#ffc8d8"><td rowspan=2><tt>&nbsp;&nbsp;&nbsp;</tt></td>
+<td colspan=2><tt>Provides&nbsp;a&nbsp;Photoshop-like&nbsp;rendering&nbsp;pipeline,&nbsp;making&nbsp;it&nbsp;possible&nbsp;to&nbsp;use<br>
+the&nbsp;output&nbsp;of&nbsp;other&nbsp;configured&nbsp;tile&nbsp;layers&nbsp;as&nbsp;layers&nbsp;or&nbsp;masks&nbsp;to&nbsp;create<br>
+a&nbsp;combined&nbsp;output.<br>&nbsp;</tt></td></tr>
+<tr><td>&nbsp;</td>
+<td width="100%">Methods defined here:<br>
+<dl><dt><a name="Provider-__init__"><strong>__init__</strong></a>(self, layer, stack<font color="#909090">=None</font>, stackfile<font color="#909090">=None</font>)</dt><dd><tt>Make&nbsp;a&nbsp;new&nbsp;<a href="#Composite">Composite</a>.<a href="#Provider">Provider</a>.<br>
+&nbsp;<br>
+Arguments:<br>
+&nbsp;<br>
+&nbsp;&nbsp;layer:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;The&nbsp;current&nbsp;TileStache.Core.<a href="#Layer">Layer</a><br>
+&nbsp;&nbsp;&nbsp;&nbsp;<br>
+&nbsp;&nbsp;stack:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;A&nbsp;list&nbsp;or&nbsp;dictionary&nbsp;with&nbsp;configuration&nbsp;for&nbsp;the&nbsp;image&nbsp;stack,&nbsp;parsed<br>
+&nbsp;&nbsp;&nbsp;&nbsp;by&nbsp;<a href="#-build_stack">build_stack</a>().&nbsp;Also&nbsp;acceptable&nbsp;is&nbsp;a&nbsp;URL&nbsp;to&nbsp;a&nbsp;JSON&nbsp;file.<br>
+&nbsp;&nbsp;<br>
+&nbsp;&nbsp;stackfile:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;*Deprecated*&nbsp;filename&nbsp;for&nbsp;an&nbsp;XML&nbsp;representation&nbsp;of&nbsp;the&nbsp;image&nbsp;stack.</tt></dd></dl>
+
+<dl><dt><a name="Provider-renderTile"><strong>renderTile</strong></a>(self, width, height, srs, coord)</dt></dl>
+
+</td></tr></table> <p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#ffc8d8">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#000000" face="helvetica, arial"><a name="Stack">class <strong>Stack</strong></a></font></td></tr>
+    
+<tr bgcolor="#ffc8d8"><td rowspan=2><tt>&nbsp;&nbsp;&nbsp;</tt></td>
+<td colspan=2><tt>A&nbsp;stack&nbsp;of&nbsp;image&nbsp;layers.<br>&nbsp;</tt></td></tr>
+<tr><td>&nbsp;</td>
+<td width="100%">Methods defined here:<br>
+<dl><dt><a name="Stack-__init__"><strong>__init__</strong></a>(self, layers)</dt><dd><tt>A&nbsp;new&nbsp;image&nbsp;stack.<br>
+&nbsp;<br>
+Argument:<br>
+&nbsp;<br>
+&nbsp;&nbsp;layers:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;List&nbsp;of&nbsp;<a href="#Layer">Layer</a>&nbsp;instances.</tt></dd></dl>
+
+<dl><dt><a name="Stack-in_zoom"><strong>in_zoom</strong></a>(self, level)</dt></dl>
+
+<dl><dt><a name="Stack-render"><strong>render</strong></a>(self, config, input_rgba, coord)</dt><dd><tt>Render&nbsp;this&nbsp;image&nbsp;stack.<br>
+&nbsp;<br>
+Given&nbsp;a&nbsp;configuration&nbsp;object,&nbsp;starting&nbsp;image,&nbsp;and&nbsp;coordinate,<br>
+return&nbsp;an&nbsp;output&nbsp;image&nbsp;with&nbsp;the&nbsp;results&nbsp;of&nbsp;all&nbsp;the&nbsp;layers&nbsp;in<br>
+this&nbsp;stack&nbsp;pasted&nbsp;on&nbsp;in&nbsp;turn.</tt></dd></dl>
+
+</td></tr></table></td></tr></table><p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#eeaa77">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial"><big><strong>Functions</strong></big></font></td></tr>
+    
+<tr><td bgcolor="#eeaa77"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%"><dl><dt><a name="-apply_adjustments"><strong>apply_adjustments</strong></a>(rgba, adjustments)</dt><dd><tt>Apply&nbsp;image&nbsp;adjustments&nbsp;one&nbsp;by&nbsp;one&nbsp;and&nbsp;return&nbsp;a&nbsp;modified&nbsp;image.<br>
+&nbsp;<br>
+Working&nbsp;adjustments:<br>
+&nbsp;<br>
+&nbsp;&nbsp;threshold:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;Calls&nbsp;<a href="#-apply_threshold_adjustment">apply_threshold_adjustment</a>()<br>
+&nbsp;<br>
+&nbsp;&nbsp;curves:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;Calls&nbsp;<a href="#-apply_curves_adjustment">apply_curves_adjustment</a>()<br>
+&nbsp;<br>
+&nbsp;&nbsp;curves2:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;Calls&nbsp;<a href="#-apply_curves2_adjustment">apply_curves2_adjustment</a>()</tt></dd></dl>
+ <dl><dt><a name="-apply_curves2_adjustment"><strong>apply_curves2_adjustment</strong></a>(rgba, map_red, map_green<font color="#909090">=None</font>, map_blue<font color="#909090">=None</font>)</dt><dd><tt>Adjustment&nbsp;inspired&nbsp;by&nbsp;Photoshop&nbsp;"Curves"&nbsp;feature.<br>
+&nbsp;<br>
+Arguments&nbsp;are&nbsp;given&nbsp;in&nbsp;the&nbsp;form&nbsp;of&nbsp;three&nbsp;value&nbsp;mappings,&nbsp;typically<br>
+mapping&nbsp;black,&nbsp;grey&nbsp;and&nbsp;white&nbsp;input&nbsp;and&nbsp;output&nbsp;values.&nbsp;One&nbsp;argument<br>
+indicates&nbsp;an&nbsp;effect&nbsp;applicable&nbsp;to&nbsp;all&nbsp;channels,&nbsp;three&nbsp;arguments&nbsp;apply<br>
+effects&nbsp;to&nbsp;each&nbsp;channel&nbsp;separately.<br>
+&nbsp;<br>
+Simple&nbsp;monochrome&nbsp;inversion:<br>
+&nbsp;<br>
+&nbsp;&nbsp;[<br>
+&nbsp;&nbsp;&nbsp;&nbsp;"curves2",<br>
+&nbsp;&nbsp;&nbsp;&nbsp;[[0,&nbsp;255],&nbsp;[128,&nbsp;128],&nbsp;[255,&nbsp;0]]<br>
+&nbsp;&nbsp;]<br>
+&nbsp;<br>
+Darken&nbsp;a&nbsp;light&nbsp;image&nbsp;by&nbsp;pushing&nbsp;light&nbsp;grey&nbsp;down&nbsp;by&nbsp;50%,&nbsp;0x99&nbsp;to&nbsp;0x66:<br>
+&nbsp;<br>
+&nbsp;&nbsp;[<br>
+&nbsp;&nbsp;&nbsp;&nbsp;"curves2",<br>
+&nbsp;&nbsp;&nbsp;&nbsp;[[0,&nbsp;255],&nbsp;[153,&nbsp;102],&nbsp;[255,&nbsp;0]]<br>
+&nbsp;&nbsp;]<br>
+&nbsp;<br>
+Shaded&nbsp;hills,&nbsp;with&nbsp;Imhof-style&nbsp;purple-blue&nbsp;shadows&nbsp;and&nbsp;warm&nbsp;highlights:&nbsp;<br>
+&nbsp;<br>
+&nbsp;&nbsp;[<br>
+&nbsp;&nbsp;&nbsp;&nbsp;"curves2",<br>
+&nbsp;&nbsp;&nbsp;&nbsp;[[0,&nbsp;22],&nbsp;[128,&nbsp;128],&nbsp;[255,&nbsp;255]],<br>
+&nbsp;&nbsp;&nbsp;&nbsp;[[0,&nbsp;29],&nbsp;[128,&nbsp;128],&nbsp;[255,&nbsp;255]],<br>
+&nbsp;&nbsp;&nbsp;&nbsp;[[0,&nbsp;65],&nbsp;[128,&nbsp;128],&nbsp;[255,&nbsp;228]]<br>
+&nbsp;&nbsp;]</tt></dd></dl>
+ <dl><dt><a name="-apply_curves_adjustment"><strong>apply_curves_adjustment</strong></a>(rgba, black_grey_white)</dt><dd><tt>Adjustment&nbsp;inspired&nbsp;by&nbsp;Photoshop&nbsp;"Curves"&nbsp;feature.<br>
+&nbsp;<br>
+Arguments&nbsp;are&nbsp;three&nbsp;integers&nbsp;that&nbsp;are&nbsp;intended&nbsp;to&nbsp;be&nbsp;mapped&nbsp;to&nbsp;black,<br>
+grey,&nbsp;and&nbsp;white&nbsp;outputs.&nbsp;Curves2&nbsp;offers&nbsp;more&nbsp;flexibility,&nbsp;see<br>
+<a href="#-apply_curves2_adjustment">apply_curves2_adjustment</a>().<br>
+&nbsp;<br>
+Darken&nbsp;a&nbsp;light&nbsp;image&nbsp;by&nbsp;pushing&nbsp;light&nbsp;grey&nbsp;to&nbsp;50%&nbsp;grey,&nbsp;0xCC&nbsp;to&nbsp;0x80:<br>
+&nbsp;<br>
+&nbsp;&nbsp;[<br>
+&nbsp;&nbsp;&nbsp;&nbsp;"curves",<br>
+&nbsp;&nbsp;&nbsp;&nbsp;[0,&nbsp;204,&nbsp;255]<br>
+&nbsp;&nbsp;]</tt></dd></dl>
+ <dl><dt><a name="-apply_threshold_adjustment"><strong>apply_threshold_adjustment</strong></a>(rgba, red_value, green_value<font color="#909090">=None</font>, blue_value<font color="#909090">=None</font>)</dt></dl>
+ <dl><dt><a name="-blend_channels_hard_light"><strong>blend_channels_hard_light</strong></a>(bottom_chan, top_chan)</dt><dd><tt>Return&nbsp;combination&nbsp;of&nbsp;bottom&nbsp;and&nbsp;top&nbsp;channels.<br>
+&nbsp;<br>
+Math&nbsp;from&nbsp;<a href="http://illusions.hu/effectwiki/doku.php?id=hard_light_blending">http://illusions.hu/effectwiki/doku.php?id=hard_light_blending</a></tt></dd></dl>
+ <dl><dt><a name="-blend_channels_linear_light"><strong>blend_channels_linear_light</strong></a>(bottom_chan, top_chan)</dt><dd><tt>Return&nbsp;combination&nbsp;of&nbsp;bottom&nbsp;and&nbsp;top&nbsp;channels.<br>
+&nbsp;<br>
+Math&nbsp;from&nbsp;<a href="http://illusions.hu/effectwiki/doku.php?id=linear_light_blending">http://illusions.hu/effectwiki/doku.php?id=linear_light_blending</a></tt></dd></dl>
+ <dl><dt><a name="-blend_channels_multiply"><strong>blend_channels_multiply</strong></a>(bottom_chan, top_chan)</dt><dd><tt>Return&nbsp;combination&nbsp;of&nbsp;bottom&nbsp;and&nbsp;top&nbsp;channels.<br>
+&nbsp;<br>
+Math&nbsp;from&nbsp;<a href="http://illusions.hu/effectwiki/doku.php?id=multiply_blending">http://illusions.hu/effectwiki/doku.php?id=multiply_blending</a></tt></dd></dl>
+ <dl><dt><a name="-blend_channels_screen"><strong>blend_channels_screen</strong></a>(bottom_chan, top_chan)</dt><dd><tt>Return&nbsp;combination&nbsp;of&nbsp;bottom&nbsp;and&nbsp;top&nbsp;channels.<br>
+&nbsp;<br>
+Math&nbsp;from&nbsp;<a href="http://illusions.hu/effectwiki/doku.php?id=screen_blending">http://illusions.hu/effectwiki/doku.php?id=screen_blending</a></tt></dd></dl>
+ <dl><dt><a name="-blend_images"><strong>blend_images</strong></a>(bottom_rgba, top_rgb, mask_chan, opacity, blendmode)</dt><dd><tt>Blend&nbsp;images&nbsp;using&nbsp;a&nbsp;given&nbsp;mask,&nbsp;opacity,&nbsp;and&nbsp;blend&nbsp;mode.<br>
+&nbsp;<br>
+Working&nbsp;blend&nbsp;modes:<br>
+None&nbsp;for&nbsp;plain&nbsp;pass-through,&nbsp;"screen",&nbsp;"multiply",&nbsp;"linear&nbsp;light",&nbsp;and&nbsp;"hard&nbsp;light".</tt></dd></dl>
+ <dl><dt><a name="-build_stack"><strong>build_stack</strong></a>(obj)</dt><dd><tt>Build&nbsp;up&nbsp;a&nbsp;data&nbsp;structure&nbsp;of&nbsp;<a href="#Stack">Stack</a>&nbsp;and&nbsp;<a href="#Layer">Layer</a>&nbsp;objects&nbsp;from&nbsp;lists&nbsp;of&nbsp;dictionaries.<br>
+&nbsp;<br>
+Normally,&nbsp;this&nbsp;is&nbsp;applied&nbsp;to&nbsp;the&nbsp;"stack"&nbsp;parameter&nbsp;to&nbsp;<a href="#Composite">Composite</a>.<a href="#Provider">Provider</a>.</tt></dd></dl>
+ <dl><dt><a name="-makeColor"><strong>makeColor</strong></a>(color)</dt><dd><tt>An&nbsp;old&nbsp;name&nbsp;for&nbsp;the&nbsp;make_color&nbsp;function,&nbsp;deprecated&nbsp;for&nbsp;the&nbsp;next&nbsp;version.</tt></dd></dl>
+ <dl><dt><a name="-makeLayer"><strong>makeLayer</strong></a>(element)</dt><dd><tt>Build&nbsp;a&nbsp;<a href="#Layer">Layer</a>&nbsp;object&nbsp;from&nbsp;an&nbsp;XML&nbsp;element,&nbsp;deprecated&nbsp;for&nbsp;the&nbsp;next&nbsp;version.</tt></dd></dl>
+ <dl><dt><a name="-makeStack"><strong>makeStack</strong></a>(element)</dt><dd><tt>Build&nbsp;a&nbsp;<a href="#Stack">Stack</a>&nbsp;object&nbsp;from&nbsp;an&nbsp;XML&nbsp;element,&nbsp;deprecated&nbsp;for&nbsp;the&nbsp;next&nbsp;version.</tt></dd></dl>
+ <dl><dt><a name="-make_color"><strong>make_color</strong></a>(color)</dt><dd><tt>Convert&nbsp;colors&nbsp;expressed&nbsp;as&nbsp;HTML-style&nbsp;RGB(A)&nbsp;strings&nbsp;to&nbsp;tuples.<br>
+&nbsp;<br>
+Returns&nbsp;four-element&nbsp;RGBA&nbsp;tuple,&nbsp;e.g.&nbsp;(0xFF,&nbsp;0x99,&nbsp;0x00,&nbsp;0xFF).<br>
+&nbsp;<br>
+Examples:<br>
+&nbsp;&nbsp;white:&nbsp;"#ffffff",&nbsp;"#fff",&nbsp;"#ffff",&nbsp;"#ffffffff"<br>
+&nbsp;&nbsp;black:&nbsp;"#000000",&nbsp;"#000",&nbsp;"#000f",&nbsp;"#000000ff"<br>
+&nbsp;&nbsp;null:&nbsp;"#0000",&nbsp;"#00000000"<br>
+&nbsp;&nbsp;orange:&nbsp;"#f90",&nbsp;"#ff9900",&nbsp;"#ff9900ff"<br>
+&nbsp;&nbsp;transparent&nbsp;orange:&nbsp;"#f908",&nbsp;"#ff990088"</tt></dd></dl>
+</td></tr></table>
+</body></html>

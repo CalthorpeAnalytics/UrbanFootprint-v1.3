@@ -1,0 +1,1 @@
+Search.setIndex({objects:{},terms:{urban:0,search:0,welcom:0,index:0,modul:0,indic:0,content:0,tabl:0,footprint:0,model:0,document:0,page:0},objtypes:{},titles:["Welcome to Urban Footprint&#8217;s Models documentation"],objnames:{},filenames:["index"]})

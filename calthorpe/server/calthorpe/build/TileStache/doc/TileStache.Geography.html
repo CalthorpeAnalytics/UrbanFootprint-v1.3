@@ -1,0 +1,183 @@
+
+<!doctype html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html><head><title>Python: module TileStache.Geography</title>
+</head><body bgcolor="#f0f0f8">
+
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="heading">
+<tr bgcolor="#7799ee">
+<td valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial">&nbsp;<br><big><big><strong><a href="TileStache.html"><font color="#ffffff">TileStache</font></a>.Geography</strong></big></big></font></td
+><td align=right valign=bottom
+><font color="#ffffff" face="helvetica, arial"><a href=".">index</a></font></td></tr></table>
+    <p><tt>The&nbsp;geography&nbsp;bits&nbsp;of&nbsp;TileStache.<br>
+&nbsp;<br>
+A&nbsp;Projection&nbsp;defines&nbsp;the&nbsp;relationship&nbsp;between&nbsp;the&nbsp;rendered&nbsp;tiles&nbsp;and&nbsp;the<br>
+underlying&nbsp;geographic&nbsp;data.&nbsp;Generally,&nbsp;just&nbsp;one&nbsp;popular&nbsp;projection&nbsp;is&nbsp;used<br>
+for&nbsp;most&nbsp;web&nbsp;maps,&nbsp;"spherical&nbsp;mercator".<br>
+&nbsp;<br>
+Built-in&nbsp;projections:<br>
+-&nbsp;spherical&nbsp;mercator<br>
+-&nbsp;<a href="#WGS84">WGS84</a><br>
+&nbsp;<br>
+Example&nbsp;use&nbsp;projection&nbsp;in&nbsp;a&nbsp;layer&nbsp;definition:<br>
+&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;"layer-name":&nbsp;{<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"projection":&nbsp;"spherical&nbsp;mercator",<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;...<br>
+&nbsp;&nbsp;&nbsp;&nbsp;}<br>
+&nbsp;<br>
+You&nbsp;can&nbsp;define&nbsp;your&nbsp;own&nbsp;projection,&nbsp;with&nbsp;a&nbsp;module&nbsp;and&nbsp;object&nbsp;name&nbsp;as&nbsp;arguments:<br>
+&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;"layer-name":&nbsp;{<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;...<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"projection":&nbsp;"Module:Object"<br>
+&nbsp;&nbsp;&nbsp;&nbsp;}<br>
+&nbsp;<br>
+The&nbsp;object&nbsp;must&nbsp;include&nbsp;methods&nbsp;that&nbsp;convert&nbsp;between&nbsp;coordinates,&nbsp;points,&nbsp;and<br>
+locations.&nbsp;See&nbsp;the&nbsp;included&nbsp;mercator&nbsp;and&nbsp;<a href="#WGS84">WGS84</a>&nbsp;implementations&nbsp;for&nbsp;example.<br>
+You&nbsp;can&nbsp;also&nbsp;instantiate&nbsp;a&nbsp;projection&nbsp;class&nbsp;using&nbsp;this&nbsp;syntax:<br>
+&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;"layer-name":&nbsp;{<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;...<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"projection":&nbsp;"Module:Object()"<br>
+&nbsp;&nbsp;&nbsp;&nbsp;}</tt></p>
+<p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#aa55cc">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial"><big><strong>Modules</strong></big></font></td></tr>
+    
+<tr><td bgcolor="#aa55cc"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%"><table width="100%" summary="list"><tr><td width="25%" valign=top><a href="TileStache.Config.html">TileStache.Config</a><br>
+</td><td width="25%" valign=top><a href="TileStache.Core.html">TileStache.Core</a><br>
+</td><td width="25%" valign=top></td><td width="25%" valign=top></td></tr></table></td></tr></table><p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#ee77aa">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial"><big><strong>Classes</strong></big></font></td></tr>
+    
+<tr><td bgcolor="#ee77aa"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%"><dl>
+<dt><font face="helvetica, arial"><a href="ModestMaps.Geo.html#LinearProjection">ModestMaps.Geo.LinearProjection</a>(<a href="ModestMaps.Geo.html#IProjection">ModestMaps.Geo.IProjection</a>)
+</font></dt><dd>
+<dl>
+<dt><font face="helvetica, arial"><a href="TileStache.Geography.html#WGS84">WGS84</a>
+</font></dt></dl>
+</dd>
+<dt><font face="helvetica, arial"><a href="ModestMaps.Geo.html#MercatorProjection">ModestMaps.Geo.MercatorProjection</a>(<a href="ModestMaps.Geo.html#IProjection">ModestMaps.Geo.IProjection</a>)
+</font></dt><dd>
+<dl>
+<dt><font face="helvetica, arial"><a href="TileStache.Geography.html#SphericalMercator">SphericalMercator</a>
+</font></dt></dl>
+</dd>
+</dl>
+ <p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#ffc8d8">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#000000" face="helvetica, arial"><a name="SphericalMercator">class <strong>SphericalMercator</strong></a>(<a href="ModestMaps.Geo.html#MercatorProjection">ModestMaps.Geo.MercatorProjection</a>)</font></td></tr>
+    
+<tr bgcolor="#ffc8d8"><td rowspan=2><tt>&nbsp;&nbsp;&nbsp;</tt></td>
+<td colspan=2><tt>Spherical&nbsp;mercator&nbsp;projection&nbsp;for&nbsp;most&nbsp;commonly-used&nbsp;web&nbsp;map&nbsp;tile&nbsp;scheme.<br>
+&nbsp;<br>
+This&nbsp;projection&nbsp;is&nbsp;identified&nbsp;by&nbsp;the&nbsp;name&nbsp;"spherical&nbsp;mercator"&nbsp;in&nbsp;the<br>
+TileStache&nbsp;config.&nbsp;The&nbsp;simplified&nbsp;projection&nbsp;used&nbsp;here&nbsp;is&nbsp;described&nbsp;in<br>
+greater&nbsp;detail&nbsp;at:&nbsp;<a href="http://trac.openlayers.org/wiki/SphericalMercator">http://trac.openlayers.org/wiki/SphericalMercator</a><br>&nbsp;</tt></td></tr>
+<tr><td>&nbsp;</td>
+<td width="100%"><dl><dt>Method resolution order:</dt>
+<dd><a href="TileStache.Geography.html#SphericalMercator">SphericalMercator</a></dd>
+<dd><a href="ModestMaps.Geo.html#MercatorProjection">ModestMaps.Geo.MercatorProjection</a></dd>
+<dd><a href="ModestMaps.Geo.html#IProjection">ModestMaps.Geo.IProjection</a></dd>
+</dl>
+<hr>
+Methods defined here:<br>
+<dl><dt><a name="SphericalMercator-__init__"><strong>__init__</strong></a>(self)</dt></dl>
+
+<dl><dt><a name="SphericalMercator-coordinateProj"><strong>coordinateProj</strong></a>(self, coord)</dt><dd><tt>Convert&nbsp;from&nbsp;Coordinate&nbsp;object&nbsp;to&nbsp;a&nbsp;Point&nbsp;object&nbsp;in&nbsp;EPSG:900913</tt></dd></dl>
+
+<dl><dt><a name="SphericalMercator-locationProj"><strong>locationProj</strong></a>(self, location)</dt><dd><tt>Convert&nbsp;from&nbsp;Location&nbsp;object&nbsp;to&nbsp;a&nbsp;Point&nbsp;object&nbsp;in&nbsp;EPSG:900913</tt></dd></dl>
+
+<dl><dt><a name="SphericalMercator-projCoordinate"><strong>projCoordinate</strong></a>(self, point)</dt><dd><tt>Convert&nbsp;from&nbsp;Point&nbsp;object&nbsp;in&nbsp;EPSG:900913&nbsp;to&nbsp;a&nbsp;Coordinate&nbsp;object</tt></dd></dl>
+
+<dl><dt><a name="SphericalMercator-projLocation"><strong>projLocation</strong></a>(self, point)</dt><dd><tt>Convert&nbsp;from&nbsp;Point&nbsp;object&nbsp;in&nbsp;EPSG:900913&nbsp;to&nbsp;a&nbsp;Location&nbsp;object</tt></dd></dl>
+
+<hr>
+Data and other attributes defined here:<br>
+<dl><dt><strong>srs</strong> = '+proj=merc +a=6378137 +b=6378137 +lat_ts=0.0 +lo...0 +units=m +nadgrids=@null +wktext +no_defs +over'</dl>
+
+<hr>
+Methods inherited from <a href="ModestMaps.Geo.html#MercatorProjection">ModestMaps.Geo.MercatorProjection</a>:<br>
+<dl><dt><a name="SphericalMercator-rawProject"><strong>rawProject</strong></a>(self, point)</dt></dl>
+
+<dl><dt><a name="SphericalMercator-rawUnproject"><strong>rawUnproject</strong></a>(self, point)</dt></dl>
+
+<hr>
+Methods inherited from <a href="ModestMaps.Geo.html#IProjection">ModestMaps.Geo.IProjection</a>:<br>
+<dl><dt><a name="SphericalMercator-coordinateLocation"><strong>coordinateLocation</strong></a>(self, coordinate)</dt></dl>
+
+<dl><dt><a name="SphericalMercator-locationCoordinate"><strong>locationCoordinate</strong></a>(self, location)</dt></dl>
+
+<dl><dt><a name="SphericalMercator-project"><strong>project</strong></a>(self, point)</dt></dl>
+
+<dl><dt><a name="SphericalMercator-unproject"><strong>unproject</strong></a>(self, point)</dt></dl>
+
+</td></tr></table> <p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#ffc8d8">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#000000" face="helvetica, arial"><a name="WGS84">class <strong>WGS84</strong></a>(<a href="ModestMaps.Geo.html#LinearProjection">ModestMaps.Geo.LinearProjection</a>)</font></td></tr>
+    
+<tr bgcolor="#ffc8d8"><td rowspan=2><tt>&nbsp;&nbsp;&nbsp;</tt></td>
+<td colspan=2><tt>Unprojected&nbsp;projection&nbsp;for&nbsp;the&nbsp;other&nbsp;commonly-used&nbsp;web&nbsp;map&nbsp;tile&nbsp;scheme.<br>
+&nbsp;<br>
+This&nbsp;projection&nbsp;is&nbsp;identified&nbsp;by&nbsp;the&nbsp;name&nbsp;"<a href="#WGS84">WGS84</a>"&nbsp;in&nbsp;the&nbsp;TileStache&nbsp;config.<br>&nbsp;</tt></td></tr>
+<tr><td>&nbsp;</td>
+<td width="100%"><dl><dt>Method resolution order:</dt>
+<dd><a href="TileStache.Geography.html#WGS84">WGS84</a></dd>
+<dd><a href="ModestMaps.Geo.html#LinearProjection">ModestMaps.Geo.LinearProjection</a></dd>
+<dd><a href="ModestMaps.Geo.html#IProjection">ModestMaps.Geo.IProjection</a></dd>
+</dl>
+<hr>
+Methods defined here:<br>
+<dl><dt><a name="WGS84-__init__"><strong>__init__</strong></a>(self)</dt></dl>
+
+<dl><dt><a name="WGS84-coordinateProj"><strong>coordinateProj</strong></a>(self, coord)</dt><dd><tt>Convert&nbsp;from&nbsp;Coordinate&nbsp;object&nbsp;to&nbsp;a&nbsp;Point&nbsp;object&nbsp;in&nbsp;EPSG:4326</tt></dd></dl>
+
+<dl><dt><a name="WGS84-locationProj"><strong>locationProj</strong></a>(self, location)</dt><dd><tt>Convert&nbsp;from&nbsp;Location&nbsp;object&nbsp;to&nbsp;a&nbsp;Point&nbsp;object&nbsp;in&nbsp;EPSG:4326</tt></dd></dl>
+
+<dl><dt><a name="WGS84-projCoordinate"><strong>projCoordinate</strong></a>(self, point)</dt><dd><tt>Convert&nbsp;from&nbsp;Point&nbsp;object&nbsp;in&nbsp;EPSG:4326&nbsp;to&nbsp;a&nbsp;Coordinate&nbsp;object</tt></dd></dl>
+
+<dl><dt><a name="WGS84-projLocation"><strong>projLocation</strong></a>(self, point)</dt><dd><tt>Convert&nbsp;from&nbsp;Point&nbsp;object&nbsp;in&nbsp;EPSG:4326&nbsp;to&nbsp;a&nbsp;Location&nbsp;object</tt></dd></dl>
+
+<hr>
+Data and other attributes defined here:<br>
+<dl><dt><strong>srs</strong> = '+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs'</dl>
+
+<hr>
+Methods inherited from <a href="ModestMaps.Geo.html#LinearProjection">ModestMaps.Geo.LinearProjection</a>:<br>
+<dl><dt><a name="WGS84-rawProject"><strong>rawProject</strong></a>(self, point)</dt></dl>
+
+<dl><dt><a name="WGS84-rawUnproject"><strong>rawUnproject</strong></a>(self, point)</dt></dl>
+
+<hr>
+Methods inherited from <a href="ModestMaps.Geo.html#IProjection">ModestMaps.Geo.IProjection</a>:<br>
+<dl><dt><a name="WGS84-coordinateLocation"><strong>coordinateLocation</strong></a>(self, coordinate)</dt></dl>
+
+<dl><dt><a name="WGS84-locationCoordinate"><strong>locationCoordinate</strong></a>(self, location)</dt></dl>
+
+<dl><dt><a name="WGS84-project"><strong>project</strong></a>(self, point)</dt></dl>
+
+<dl><dt><a name="WGS84-unproject"><strong>unproject</strong></a>(self, point)</dt></dl>
+
+</td></tr></table></td></tr></table><p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#eeaa77">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial"><big><strong>Functions</strong></big></font></td></tr>
+    
+<tr><td bgcolor="#eeaa77"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%"><dl><dt><a name="-getProjectionByName"><strong>getProjectionByName</strong></a>(name)</dt><dd><tt>Retrieve&nbsp;a&nbsp;projection&nbsp;object&nbsp;by&nbsp;name.<br>
+&nbsp;<br>
+Raise&nbsp;an&nbsp;exception&nbsp;if&nbsp;the&nbsp;name&nbsp;doesn't&nbsp;work&nbsp;out.</tt></dd></dl>
+</td></tr></table>
+</body></html>

@@ -1,0 +1,17 @@
+.{{ htmlClass }}
+{buffer-size: 50;}
+
+[zoom=10] {
+  line-color:#E68A00;
+  line-width:3;
+}
+
+[zoom=11] {
+  line-color:#E68A00;
+  line-width:3.6;
+}
+
+[zoom>=12] {
+  line-color:#E68A00;
+  line-width:4;
+}

@@ -1,0 +1,73 @@
+
+Tests of the Feature collections protocol
+-----------------------------------------
+
+A dictionary can satisfy the protocol
+-------------------------------------
+
+  >>> fc = {"type": "FeatureCollection",
+  ...       "features": [{"type": "Feature",
+  ...                      "id": "1",
+  ...                      "geometry": {"type": "Point",
+  ...                                   "coordinates": [44.556, 67.192]}}]}
+
+
+  Encoding
+
+  >>> import geojson
+  >>> json = geojson.dumps(fc)
+  >>> json  # doctest: +ELLIPSIS
+  '{"type": "FeatureCollection", "features": [{"geometry": {"type": "Point", "coordinates": [44..., 67...]}, "type": "Feature", "id": "1"}]}'
+
+  Decoding
+  
+  >>> fcb = geojson.loads(json)
+  >>> fcb  # doctest: +ELLIPSIS
+  {u'type': u'FeatureCollection', u'features': [{u'geometry': {u'type': u'Point', u'coordinates': [44..., 67...]}, u'type': u'Feature', u'id': u'1'}]}
+
+
+GeoJSON types thmeselves satisfy the protocol (of course!)
+-----------------------------------------------------------
+  
+  >>> features = [geojson.Feature(id=1, geometry=geojson.Point(coordinates=(53.04781795911469, -4.10888671875)))]
+  >>> fco = geojson.FeatureCollection(features=features)
+  >>> fco.features  # doctest: +ELLIPSIS
+  [Feature(geometry={'type': 'Point', 'coordinates': (53..., -4...)}, properties={}, id=1)]
+
+
+  Encoding
+
+  >>> json = geojson.dumps(fco)
+  >>> json  # doctest: +ELLIPSIS
+  '{"type": "FeatureCollection", "features": [{"geometry": {"type": "Point", "coordinates": [53..., -4...]}, "type": "Feature", "properties": {}, "id": 1}]}'
+
+  
+   and can encode back into a instnace of the same kind, or supply your own hook:
+
+  >>> hook = lambda ob: geojson.GeoJSON.to_instance(ob, geojson.feature)
+  >>> fc = geojson.loads(json, object_hook=hook)
+  >>> fc.features  # doctest: +ELLIPSIS
+  [Feature(geometry={'type': 'Point', 'coordinates': [53..., -4...]}, properties={}, id=1)]
+  
+  >>> fc.features[0].geometry  # doctest: +ELLIPSIS
+  Point(coordinates=[53..., -4...])
+
+  >>> geometry = fc.features[0].geometry
+  >>> geometry.coordinates  # doctest: +ELLIPSIS
+  [53..., -4...]
+ 
+
+- It may be used from any object, consider:
+
+  >>> class Point(object):
+  ...     """Mock shapely point."""
+  ...     def __init__(self, x, y):
+  ...         self.x = x
+  ...         self.y = y
+  ...     @property
+  ...     def __geo_interface__(self):
+  ...         return geojson.Point(coordinates=[self.x, self.y])
+
+  >>> p = Point(53.04781795911469, -4.10888671875)
+  >>> geojson.dumps(p)  # doctest: +ELLIPSIS
+  '{"type": "Point", "coordinates": [53..., -4...]}'

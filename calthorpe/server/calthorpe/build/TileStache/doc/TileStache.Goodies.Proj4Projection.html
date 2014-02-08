@@ -1,0 +1,134 @@
+
+<!doctype html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html><head><title>Python: module TileStache.Goodies.Proj4Projection</title>
+</head><body bgcolor="#f0f0f8">
+
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="heading">
+<tr bgcolor="#7799ee">
+<td valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial">&nbsp;<br><big><big><strong><a href="TileStache.html"><font color="#ffffff">TileStache</font></a>.<a href="TileStache.Goodies.html"><font color="#ffffff">Goodies</font></a>.Proj4Projection</strong></big></big></font></td
+><td align=right valign=bottom
+><font color="#ffffff" face="helvetica, arial"><a href=".">index</a></font></td></tr></table>
+    <p><tt>Projection&nbsp;that&nbsp;supports&nbsp;any&nbsp;projection&nbsp;that&nbsp;can&nbsp;be&nbsp;expressed&nbsp;in&nbsp;Proj.4&nbsp;format.<br>
+&nbsp;<br>
+The&nbsp;projection&nbsp;is&nbsp;configured&nbsp;by&nbsp;a&nbsp;projection&nbsp;definition&nbsp;in&nbsp;the&nbsp;Proj.4<br>
+format,&nbsp;the&nbsp;resolution&nbsp;of&nbsp;the&nbsp;zoom&nbsp;levels&nbsp;that&nbsp;the&nbsp;projection&nbsp;should<br>
+support,&nbsp;the&nbsp;tile&nbsp;size,&nbsp;and&nbsp;a&nbsp;transformation&nbsp;that&nbsp;defines&nbsp;how&nbsp;to&nbsp;tile<br>
+coordinates&nbsp;are&nbsp;calculated.<br>
+&nbsp;<br>
+An&nbsp;example,&nbsp;instantiating&nbsp;a&nbsp;projection&nbsp;for&nbsp;EPSG:2400&nbsp;(RT90&nbsp;2.5&nbsp;gon&nbsp;W):<br>
+&nbsp;<br>
+&nbsp;&nbsp;<a href="#Proj4Projection">Proj4Projection</a>('+proj=tmerc&nbsp;+lat_0=0&nbsp;+lon_0=15.80827777777778&nbsp;+k=1'<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+'&nbsp;+x_0=1500000&nbsp;+y_0=0&nbsp;+ellps=bessel&nbsp;+units=m&nbsp;+no_defs',<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[8192,&nbsp;4096,&nbsp;2048,&nbsp;1024,&nbsp;512,&nbsp;256,&nbsp;128,&nbsp;64,&nbsp;32,&nbsp;16,&nbsp;8,&nbsp;4,&nbsp;2,&nbsp;1],<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;transformation=Transformation(1,&nbsp;0,&nbsp;0,&nbsp;0,&nbsp;-1,&nbsp;0))<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>
+This&nbsp;example&nbsp;defines&nbsp;14&nbsp;zoom&nbsp;levels,&nbsp;where&nbsp;each&nbsp;level&nbsp;doubles&nbsp;the<br>
+resolution,&nbsp;where&nbsp;the&nbsp;most&nbsp;zoomed&nbsp;out&nbsp;level&nbsp;uses&nbsp;8192&nbsp;projected&nbsp;units<br>
+(meters,&nbsp;in&nbsp;this&nbsp;case)&nbsp;per&nbsp;pixel.&nbsp;The&nbsp;tiles&nbsp;are&nbsp;adressed&nbsp;using&nbsp;XYZ&nbsp;scheme,<br>
+with&nbsp;the&nbsp;origin&nbsp;at&nbsp;(0,&nbsp;0):&nbsp;the&nbsp;x&nbsp;component&nbsp;of&nbsp;the&nbsp;transformation&nbsp;is&nbsp;1,&nbsp;the<br>
+y&nbsp;component&nbsp;is&nbsp;-1&nbsp;(tile&nbsp;rows&nbsp;increase&nbsp;from&nbsp;north&nbsp;to&nbsp;south).&nbsp;Tile&nbsp;size<br>
+defaults&nbsp;to&nbsp;256x256&nbsp;pixels.<br>
+&nbsp;<br>
+The&nbsp;same&nbsp;projection,&nbsp;included&nbsp;in&nbsp;a&nbsp;TileStache&nbsp;configuration&nbsp;file:<br>
+&nbsp;<br>
+&nbsp;&nbsp;"example":<br>
+&nbsp;&nbsp;{<br>
+&nbsp;&nbsp;&nbsp;&nbsp;"provider":&nbsp;{"name":&nbsp;"mapnik",&nbsp;"mapfile":&nbsp;"examples/style.xml"},<br>
+&nbsp;&nbsp;&nbsp;&nbsp;"projection":&nbsp;"TileStache.Goodies.<a href="#Proj4Projection">Proj4Projection</a>:<a href="#Proj4Projection">Proj4Projection</a>('+proj=tmerc&nbsp;+lat_0=0&nbsp;+lon_0=15.80827777777778&nbsp;+k=1&nbsp;+x_0=1500000&nbsp;+y_0=0&nbsp;+ellps=bessel&nbsp;+units=m&nbsp;+no_defs',&nbsp;[8192,&nbsp;4096,&nbsp;2048,&nbsp;1024,&nbsp;512,&nbsp;256,&nbsp;128,&nbsp;64,&nbsp;32,&nbsp;16,&nbsp;8,&nbsp;4,&nbsp;2,&nbsp;1],&nbsp;transformation=Transformation(1,&nbsp;0,&nbsp;0,&nbsp;0,&nbsp;-1,&nbsp;0))"<br>
+&nbsp;&nbsp;}<br>
+&nbsp;<br>
+"Module:Class()"&nbsp;syntax&nbsp;described&nbsp;in&nbsp;<a href="http://tilestache.org/doc/#projections">http://tilestache.org/doc/#projections</a>.<br>
+&nbsp;<br>
+For&nbsp;more&nbsp;details&nbsp;about&nbsp;tiling,&nbsp;projections,&nbsp;zoom&nbsp;levels&nbsp;and&nbsp;transformations,<br>
+see&nbsp;<a href="http://blog.kartena.se/local-projections-in-a-world-of-spherical-mercator/">http://blog.kartena.se/local-projections-in-a-world-of-spherical-mercator/</a></tt></p>
+<p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#aa55cc">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial"><big><strong>Modules</strong></big></font></td></tr>
+    
+<tr><td bgcolor="#aa55cc"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%"><table width="100%" summary="list"><tr><td width="25%" valign=top><a href="TileStache.html">TileStache</a><br>
+</td><td width="25%" valign=top></td><td width="25%" valign=top></td><td width="25%" valign=top></td></tr></table></td></tr></table><p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#ee77aa">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial"><big><strong>Classes</strong></big></font></td></tr>
+    
+<tr><td bgcolor="#ee77aa"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%"><dl>
+<dt><font face="helvetica, arial"><a href="ModestMaps.Geo.html#LinearProjection">ModestMaps.Geo.LinearProjection</a>(<a href="ModestMaps.Geo.html#IProjection">ModestMaps.Geo.IProjection</a>)
+</font></dt><dd>
+<dl>
+<dt><font face="helvetica, arial"><a href="TileStache.Goodies.Proj4Projection.html#Proj4Projection">Proj4Projection</a>
+</font></dt></dl>
+</dd>
+</dl>
+ <p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#ffc8d8">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#000000" face="helvetica, arial"><a name="Proj4Projection">class <strong>Proj4Projection</strong></a>(<a href="ModestMaps.Geo.html#LinearProjection">ModestMaps.Geo.LinearProjection</a>)</font></td></tr>
+    
+<tr bgcolor="#ffc8d8"><td rowspan=2><tt>&nbsp;&nbsp;&nbsp;</tt></td>
+<td colspan=2><tt>Projection&nbsp;that&nbsp;supports&nbsp;any&nbsp;projection&nbsp;that&nbsp;can&nbsp;be&nbsp;expressed&nbsp;in&nbsp;Proj.4&nbsp;format.<br>
+&nbsp;<br>
+Required&nbsp;attributes:<br>
+&nbsp;&nbsp;<br>
+&nbsp;&nbsp;srs:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;The&nbsp;Proj.4&nbsp;definition&nbsp;of&nbsp;the&nbsp;projection&nbsp;to&nbsp;use,&nbsp;as&nbsp;a&nbsp;string<br>
+&nbsp;&nbsp;<br>
+&nbsp;&nbsp;resolutions:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;An&nbsp;array&nbsp;of&nbsp;the&nbsp;zoom&nbsp;levels'&nbsp;resolutions,&nbsp;expressed&nbsp;as&nbsp;the&nbsp;number<br>
+&nbsp;&nbsp;&nbsp;&nbsp;of&nbsp;projected&nbsp;units&nbsp;per&nbsp;pixel&nbsp;on&nbsp;each&nbsp;zoom&nbsp;level.&nbsp;The&nbsp;array&nbsp;is&nbsp;ordered<br>
+&nbsp;&nbsp;&nbsp;&nbsp;with&nbsp;outermost&nbsp;zoom&nbsp;level&nbsp;first&nbsp;(0&nbsp;is&nbsp;most&nbsp;zoomed&nbsp;out).<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<br>
+Optional&nbsp;attributes:<br>
+&nbsp;&nbsp;<br>
+&nbsp;&nbsp;tile_size:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;The&nbsp;size&nbsp;of&nbsp;a&nbsp;tile&nbsp;in&nbsp;pixels,&nbsp;default&nbsp;is&nbsp;256.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<br>
+&nbsp;&nbsp;transformation:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;Transformation&nbsp;to&nbsp;apply&nbsp;to&nbsp;the&nbsp;projected&nbsp;coordinates&nbsp;to&nbsp;convert&nbsp;them<br>
+&nbsp;&nbsp;&nbsp;&nbsp;to&nbsp;tile&nbsp;coordinates.&nbsp;Defaults&nbsp;to&nbsp;Transformation(1,&nbsp;0,&nbsp;0,&nbsp;1,&nbsp;0),&nbsp;which<br>
+&nbsp;&nbsp;&nbsp;&nbsp;gives&nbsp;row&nbsp;=&nbsp;projected_y&nbsp;*&nbsp;scale,&nbsp;column&nbsp;=&nbsp;projected_x&nbsp;*&nbsp;scale<br>&nbsp;</tt></td></tr>
+<tr><td>&nbsp;</td>
+<td width="100%"><dl><dt>Method resolution order:</dt>
+<dd><a href="TileStache.Goodies.Proj4Projection.html#Proj4Projection">Proj4Projection</a></dd>
+<dd><a href="ModestMaps.Geo.html#LinearProjection">ModestMaps.Geo.LinearProjection</a></dd>
+<dd><a href="ModestMaps.Geo.html#IProjection">ModestMaps.Geo.IProjection</a></dd>
+</dl>
+<hr>
+Methods defined here:<br>
+<dl><dt><a name="Proj4Projection-__init__"><strong>__init__</strong></a>(self, srs, resolutions, tile_size<font color="#909090">=256</font>, transformation<font color="#909090">=&lt;ModestMaps.Geo.Transformation instance at 0x10614ddd0&gt;</font>)</dt><dd><tt>Creates&nbsp;a&nbsp;new&nbsp;instance&nbsp;with&nbsp;the&nbsp;projection&nbsp;specified&nbsp;in&nbsp;srs,&nbsp;which&nbsp;is&nbsp;in&nbsp;Proj4<br>
+format.</tt></dd></dl>
+
+<dl><dt><a name="Proj4Projection-coordinateProj"><strong>coordinateProj</strong></a>(self, coord)</dt><dd><tt>Convert&nbsp;from&nbsp;Coordinate&nbsp;object&nbsp;to&nbsp;a&nbsp;Point&nbsp;object&nbsp;in&nbsp;the&nbsp;defined&nbsp;projection</tt></dd></dl>
+
+<dl><dt><a name="Proj4Projection-findZoom"><strong>findZoom</strong></a>(self, resolution)</dt></dl>
+
+<dl><dt><a name="Proj4Projection-locationProj"><strong>locationProj</strong></a>(self, location)</dt><dd><tt>Convert&nbsp;from&nbsp;Location&nbsp;object&nbsp;to&nbsp;a&nbsp;Point&nbsp;object&nbsp;in&nbsp;the&nbsp;defined&nbsp;projection</tt></dd></dl>
+
+<dl><dt><a name="Proj4Projection-projCoordinate"><strong>projCoordinate</strong></a>(self, point, zoom<font color="#909090">=None</font>)</dt><dd><tt>Convert&nbsp;from&nbsp;Point&nbsp;object&nbsp;in&nbsp;the&nbsp;defined&nbsp;projection&nbsp;to&nbsp;a&nbsp;Coordinate&nbsp;object</tt></dd></dl>
+
+<dl><dt><a name="Proj4Projection-projLocation"><strong>projLocation</strong></a>(self, point)</dt><dd><tt>Convert&nbsp;from&nbsp;Point&nbsp;object&nbsp;in&nbsp;the&nbsp;defined&nbsp;projection&nbsp;to&nbsp;a&nbsp;Location&nbsp;object</tt></dd></dl>
+
+<dl><dt><a name="Proj4Projection-project"><strong>project</strong></a>(self, point, scale)</dt></dl>
+
+<dl><dt><a name="Proj4Projection-unproject"><strong>unproject</strong></a>(self, point, scale)</dt></dl>
+
+<hr>
+Methods inherited from <a href="ModestMaps.Geo.html#LinearProjection">ModestMaps.Geo.LinearProjection</a>:<br>
+<dl><dt><a name="Proj4Projection-rawProject"><strong>rawProject</strong></a>(self, point)</dt></dl>
+
+<dl><dt><a name="Proj4Projection-rawUnproject"><strong>rawUnproject</strong></a>(self, point)</dt></dl>
+
+<hr>
+Methods inherited from <a href="ModestMaps.Geo.html#IProjection">ModestMaps.Geo.IProjection</a>:<br>
+<dl><dt><a name="Proj4Projection-coordinateLocation"><strong>coordinateLocation</strong></a>(self, coordinate)</dt></dl>
+
+<dl><dt><a name="Proj4Projection-locationCoordinate"><strong>locationCoordinate</strong></a>(self, location)</dt></dl>
+
+</td></tr></table></td></tr></table>
+</body></html>

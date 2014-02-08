@@ -1,0 +1,88 @@
+
+<!doctype html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html><head><title>Python: module TileStache.Goodies.Caches.LimitedDisk</title>
+</head><body bgcolor="#f0f0f8">
+
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="heading">
+<tr bgcolor="#7799ee">
+<td valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial">&nbsp;<br><big><big><strong><a href="TileStache.html"><font color="#ffffff">TileStache</font></a>.<a href="TileStache.Goodies.html"><font color="#ffffff">Goodies</font></a>.<a href="TileStache.Goodies.Caches.html"><font color="#ffffff">Caches</font></a>.LimitedDisk</strong></big></big></font></td
+><td align=right valign=bottom
+><font color="#ffffff" face="helvetica, arial"><a href=".">index</a></font></td></tr></table>
+    <p><tt><a href="#Cache">Cache</a>&nbsp;that&nbsp;stores&nbsp;a&nbsp;limited&nbsp;amount&nbsp;of&nbsp;data.<br>
+&nbsp;<br>
+This&nbsp;is&nbsp;an&nbsp;example&nbsp;cache&nbsp;that&nbsp;uses&nbsp;a&nbsp;SQLite&nbsp;database&nbsp;to&nbsp;track&nbsp;sizes&nbsp;and&nbsp;last-read<br>
+times&nbsp;for&nbsp;cached&nbsp;tiles,&nbsp;and&nbsp;removes&nbsp;least-recently-used&nbsp;tiles&nbsp;whenever&nbsp;the&nbsp;total<br>
+size&nbsp;of&nbsp;the&nbsp;cache&nbsp;exceeds&nbsp;a&nbsp;set&nbsp;limit.<br>
+&nbsp;<br>
+Example&nbsp;TileStache&nbsp;cache&nbsp;configuration,&nbsp;with&nbsp;a&nbsp;16MB&nbsp;limit:<br>
+&nbsp;<br>
+"cache":<br>
+{<br>
+&nbsp;&nbsp;&nbsp;&nbsp;"class":&nbsp;"TileStache.Goodies.Caches.LimitedDisk.<a href="#Cache">Cache</a>",<br>
+&nbsp;&nbsp;&nbsp;&nbsp;"kwargs":&nbsp;{<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"path":&nbsp;"/tmp/limited-cache",<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"limit":&nbsp;16777216<br>
+&nbsp;&nbsp;&nbsp;&nbsp;}<br>
+}</tt></p>
+<p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#aa55cc">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial"><big><strong>Modules</strong></big></font></td></tr>
+    
+<tr><td bgcolor="#aa55cc"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%"><table width="100%" summary="list"><tr><td width="25%" valign=top><a href="os.html">os</a><br>
+</td><td width="25%" valign=top><a href="sys.html">sys</a><br>
+</td><td width="25%" valign=top><a href="time.html">time</a><br>
+</td><td width="25%" valign=top></td></tr></table></td></tr></table><p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#ee77aa">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial"><big><strong>Classes</strong></big></font></td></tr>
+    
+<tr><td bgcolor="#ee77aa"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%"><dl>
+<dt><font face="helvetica, arial"><a href="TileStache.Goodies.Caches.LimitedDisk.html#Cache">Cache</a>
+</font></dt></dl>
+ <p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#ffc8d8">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#000000" face="helvetica, arial"><a name="Cache">class <strong>Cache</strong></a></font></td></tr>
+    
+<tr><td bgcolor="#ffc8d8"><tt>&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%">Methods defined here:<br>
+<dl><dt><a name="Cache-__init__"><strong>__init__</strong></a>(self, path, limit, umask<font color="#909090">=18</font>)</dt></dl>
+
+<dl><dt><a name="Cache-lock"><strong>lock</strong></a>(self, layer, coord, format)</dt><dd><tt>Acquire&nbsp;a&nbsp;cache&nbsp;lock&nbsp;for&nbsp;this&nbsp;tile.<br>
+&nbsp;<br>
+Returns&nbsp;nothing,&nbsp;but&nbsp;(TODO)&nbsp;blocks&nbsp;until&nbsp;the&nbsp;lock&nbsp;has&nbsp;been&nbsp;acquired.<br>
+Lock&nbsp;is&nbsp;implemented&nbsp;as&nbsp;a&nbsp;row&nbsp;in&nbsp;the&nbsp;"locks"&nbsp;table.</tt></dd></dl>
+
+<dl><dt><a name="Cache-read"><strong>read</strong></a>(self, layer, coord, format)</dt><dd><tt>Read&nbsp;a&nbsp;cached&nbsp;tile.<br>
+&nbsp;<br>
+If&nbsp;found,&nbsp;update&nbsp;the&nbsp;used&nbsp;column&nbsp;in&nbsp;the&nbsp;tiles&nbsp;table&nbsp;with&nbsp;current&nbsp;time.</tt></dd></dl>
+
+<dl><dt><a name="Cache-remove"><strong>remove</strong></a>(self, layer, coord, format)</dt><dd><tt>Remove&nbsp;a&nbsp;cached&nbsp;tile.</tt></dd></dl>
+
+<dl><dt><a name="Cache-save"><strong>save</strong></a>(self, body, layer, coord, format)</dt></dl>
+
+<dl><dt><a name="Cache-unlock"><strong>unlock</strong></a>(self, layer, coord, format)</dt><dd><tt>Release&nbsp;a&nbsp;cache&nbsp;lock&nbsp;for&nbsp;this&nbsp;tile.<br>
+&nbsp;<br>
+Lock&nbsp;is&nbsp;implemented&nbsp;as&nbsp;a&nbsp;row&nbsp;in&nbsp;the&nbsp;"locks"&nbsp;table.</tt></dd></dl>
+
+</td></tr></table></td></tr></table><p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#eeaa77">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial"><big><strong>Functions</strong></big></font></td></tr>
+    
+<tr><td bgcolor="#eeaa77"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%"><dl><dt><a name="-connect"><strong>connect</strong></a>(...)</dt><dd><tt><a href="#-connect">connect</a>(database[,&nbsp;timeout,&nbsp;isolation_level,&nbsp;detect_types,&nbsp;factory])<br>
+&nbsp;<br>
+Opens&nbsp;a&nbsp;connection&nbsp;to&nbsp;the&nbsp;SQLite&nbsp;database&nbsp;file&nbsp;*database*.&nbsp;You&nbsp;can&nbsp;use<br>
+":memory:"&nbsp;to&nbsp;open&nbsp;a&nbsp;database&nbsp;connection&nbsp;to&nbsp;a&nbsp;database&nbsp;that&nbsp;resides&nbsp;in<br>
+RAM&nbsp;instead&nbsp;of&nbsp;on&nbsp;disk.</tt></dd></dl>
+</td></tr></table>
+</body></html>

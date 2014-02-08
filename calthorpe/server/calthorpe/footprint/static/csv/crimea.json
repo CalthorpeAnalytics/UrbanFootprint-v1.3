@@ -1,0 +1,50 @@
+[
+    {
+        "scenario": "base",
+        "single family": "0",
+        "attached single family": "95",
+        "multi-family": "105"
+    },
+    {
+        "scenario": "scenario 1",
+        "single family": "0",
+        "attached single family": "40",
+        "multi-family": "95"
+    },
+    {
+        "scenario": "scenario 2",
+        "single family": "0",
+        "attached single family": "140",
+        "multi-family": "520"
+    },
+    {
+        "scenario": "scenario 3",
+        "single family": "20",
+        "attached single family": "150",
+        "multi-family": "800"
+    },
+    {
+        "scenario": "scenario 4",
+        "single family": "220",
+        "attached single family": "230",
+        "multi-family": "740"
+    },
+    {
+        "scenario": "scenario 5",
+        "single family": "305",
+        "attached single family": "310",
+        "multi-family": "600"
+    },
+    {
+        "scenario": "scenario 6",
+        "single family": "480",
+        "attached single family": "290",
+        "multi-family": "820"
+    },
+    {
+        "scenario": "scenario 7",
+        "single family": "295",
+        "attached single family": "310",
+        "multi-family": "1100"
+    }
+]

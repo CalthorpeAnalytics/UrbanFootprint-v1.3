@@ -1,0 +1,40 @@
+/****************
+ * 
+ * Base global calthorpe css declarations
+ * 
+ */
+
+div.jGrowl div.calthorpe_good {
+	/*background-color: #0d5416;*/
+	/*color: #e9ffd7;*/
+    /*font-size: 18px;*/
+}
+
+div.jGrowl div.calthorpe_bad {
+	background-color: #880000;
+	color: white;
+}
+
+div.jGrowl div.increases {
+    background-color: #0d5416;
+    color: #e9ffd7;
+    font-size: 16px;
+}
+
+div.jGrowl div.decreases {
+    background-color: #880000;
+    color: white;
+    font-size: 16px;
+}
+
+div.formdiv {
+    border: solid;
+    background-color: #2F72A6;
+    color: white;
+    width: 40%;
+    /*-moz-border-radius: 1em;*/
+    /*border-radius: 1em;*/
+    padding: 1.1em;
+    /*margin: 1em;*/
+    text-align: right;
+}

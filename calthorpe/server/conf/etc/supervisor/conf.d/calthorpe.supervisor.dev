@@ -1,0 +1,21 @@
+[program:celeryd]
+command=/srv/calthorpe_env/bin/python /srv/calthorpe/urbanfootprint/calthorpe/server/calthorpe/manage.py celeryd --loglevel=INFO -c 3 -B -E
+directory=/srv/calthorpe/urbanfootprint/calthorpe/server/calthorpe
+user=www-data
+stdout_logfile=/var/log/supervisor/calthorpe_dev_celeryd.log
+redirect_stderr=true
+autostart=true
+autorestart=true
+startsecs=10
+stopwaitsecs=600
+
+[program:node_socketio]
+command=/usr/bin/nodejs /srv/calthorpe/urbanfootprint/calthorpe/server/calthorpe_websockets/app.js
+directory=/srv/calthorpe/urbanfootprint/calthorpe/server/calthorpe_websockets
+user=www-data
+stdout_logfile=/var/log/supervisor/calthorpe_prod_nodesocketio.log
+redirect_stderr=true
+autostart=true
+autorestart=true
+startsecs=10
+stopwaitsecs=600

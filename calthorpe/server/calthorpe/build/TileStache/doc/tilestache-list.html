@@ -1,0 +1,52 @@
+
+<!doctype html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html><head><title>Python: module tilestache-list</title>
+</head><body bgcolor="#f0f0f8">
+
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="heading">
+<tr bgcolor="#7799ee">
+<td valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial">&nbsp;<br><big><big><strong>tilestache-list</strong></big></big></font></td
+><td align=right valign=bottom
+><font color="#ffffff" face="helvetica, arial"><a href=".">index</a></font></td></tr></table>
+    <p><tt>tilestache-list.py&nbsp;will&nbsp;list&nbsp;your&nbsp;tiles.<br>
+&nbsp;<br>
+This&nbsp;script&nbsp;is&nbsp;intended&nbsp;to&nbsp;be&nbsp;run&nbsp;directly.&nbsp;This&nbsp;example&nbsp;lists&nbsp;tiles&nbsp;in&nbsp;the&nbsp;area<br>
+around&nbsp;West&nbsp;Oakland&nbsp;(<a href="http://sta.mn/ck">http://sta.mn/ck</a>)&nbsp;in&nbsp;the&nbsp;"osm"&nbsp;layer,&nbsp;for&nbsp;zoom&nbsp;levels&nbsp;12-15:<br>
+&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;tilestache-list.py&nbsp;-b&nbsp;37.79&nbsp;-122.35&nbsp;37.83&nbsp;-122.25&nbsp;12&nbsp;13&nbsp;14&nbsp;15<br>
+&nbsp;<br>
+See&nbsp;`tilestache-list.py&nbsp;--help`&nbsp;for&nbsp;more&nbsp;information.</tt></p>
+<p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#aa55cc">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial"><big><strong>Modules</strong></big></font></td></tr>
+    
+<tr><td bgcolor="#aa55cc"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%"><table width="100%" summary="list"><tr><td width="25%" valign=top><a href="TileStache.MBTiles.html">TileStache.MBTiles</a><br>
+</td><td width="25%" valign=top></td><td width="25%" valign=top></td><td width="25%" valign=top></td></tr></table></td></tr></table><p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#eeaa77">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial"><big><strong>Functions</strong></big></font></td></tr>
+    
+<tr><td bgcolor="#eeaa77"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%"><dl><dt><a name="-generateCoordinates"><strong>generateCoordinates</strong></a>(ul, lr, zooms, padding)</dt><dd><tt>Generate&nbsp;a&nbsp;stream&nbsp;of&nbsp;coordinates&nbsp;for&nbsp;seeding.<br>
+&nbsp;<br>
+Flood-fill&nbsp;coordinates&nbsp;based&nbsp;on&nbsp;two&nbsp;corners,&nbsp;a&nbsp;list&nbsp;of&nbsp;zooms&nbsp;and&nbsp;padding.</tt></dd></dl>
+ <dl><dt><a name="-tilesetCoordinates"><strong>tilesetCoordinates</strong></a>(filename)</dt><dd><tt>Generate&nbsp;a&nbsp;stream&nbsp;of&nbsp;(offset,&nbsp;count,&nbsp;coordinate)&nbsp;tuples&nbsp;for&nbsp;seeding.<br>
+&nbsp;<br>
+Read&nbsp;coordinates&nbsp;from&nbsp;an&nbsp;MBTiles&nbsp;tileset&nbsp;filename.</tt></dd></dl>
+</td></tr></table><p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#55aa55">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial"><big><strong>Data</strong></big></font></td></tr>
+    
+<tr><td bgcolor="#55aa55"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%"><strong>defaults</strong> = {'bbox': (37.777000000000001, -122.352, 37.838999999999999, -122.226), 'padding': 0}<br>
+<strong>parser</strong> = &lt;optparse.OptionParser instance at 0x10108a710&gt;<br>
+<strong>path</strong> = ['.', '/System/Library/Frameworks/Python.framework/Versions/2.6/bin', '/Library/Frameworks/SQLite3.framework/Versions/3/Python/2.6', '/Library/Frameworks/GDAL.framework/Versions/1.8/Python/2.6/site-packages', '/Library/Python/2.6/site-packages/ModestMaps', '/Library/Python/2.6/site-packages/numpy-1.5.1-py2.6-macosx-10.6-universal.egg', '/Library/Python/2.6/site-packages/BlobDetector-1.0.0-py2.6-macosx-10.6-universal.egg', '/Library/Python/2.6/site-packages/bson-0.3.2-py2.6.egg', '/Library/Python/2.6/site-packages/pytz-2011d-py2.6.egg', '/Library/Python/2.6/site-packages/PyAMF-0.6.1-py2.6-macosx-10.6-universal.egg', '/Library/Python/2.6/site-packages/pystache-0.3.1-py2.6.egg', '/Library/Python/2.6/site-packages/chardet-1.0.1-py2.6.egg', '/Library/Python/2.6/site-packages/pyproj-1.8.9-py2.6-macosx-10.6-universal.egg', '/Library/Python/2.6/site-packages/OAM-0.1-py2.6.egg', '/Library/Python/2.6/site-packages/encutils-0.9-py2.6.egg', '/Library/Python/2.6/site-packages/cssutils-0.9.8a1-py2.6.egg', '/Library/Python/2.6/site-packages/Shapely-1.2.10-py2.6.egg', '/Library/Python/2.6/site-packages/python_twitter-0.8.2-py2.6.egg', '/Library/Python/2.6/site-packages/oauth2-1.5.170-py2.6.egg', '/Library/Python/2.6/site-packages/simplejson-2.1.6-py2.6.egg', ...]<br>
+<strong>stderr</strong> = &lt;open file '&lt;stderr&gt;', mode 'w' at 0x100416140&gt;</td></tr></table>
+</body></html>

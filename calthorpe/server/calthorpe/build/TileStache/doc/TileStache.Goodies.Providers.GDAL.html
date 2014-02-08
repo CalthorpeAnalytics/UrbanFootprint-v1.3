@@ -1,0 +1,73 @@
+
+<!doctype html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html><head><title>Python: module TileStache.Goodies.Providers.GDAL</title>
+</head><body bgcolor="#f0f0f8">
+
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="heading">
+<tr bgcolor="#7799ee">
+<td valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial">&nbsp;<br><big><big><strong><a href="TileStache.html"><font color="#ffffff">TileStache</font></a>.<a href="TileStache.Goodies.html"><font color="#ffffff">Goodies</font></a>.<a href="TileStache.Goodies.Providers.html"><font color="#ffffff">Providers</font></a>.GDAL</strong></big></big></font></td
+><td align=right valign=bottom
+><font color="#ffffff" face="helvetica, arial"><a href=".">index</a></font></td></tr></table>
+    <p><tt>Minimally-tested&nbsp;GDAL&nbsp;image&nbsp;provider.<br>
+&nbsp;<br>
+Based&nbsp;on&nbsp;existing&nbsp;work&nbsp;in&nbsp;OAM&nbsp;(https://github.com/oam/oam),&nbsp;this&nbsp;GDAL&nbsp;provider<br>
+is&nbsp;the&nbsp;bare&nbsp;minimum&nbsp;necessary&nbsp;to&nbsp;do&nbsp;simple&nbsp;output&nbsp;of&nbsp;GDAL&nbsp;data&nbsp;sources.<br>
+&nbsp;<br>
+Sample&nbsp;configuration:<br>
+&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;"provider":<br>
+&nbsp;&nbsp;&nbsp;&nbsp;{<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"class":&nbsp;"TileStache.Goodies.Providers.GDAL:<a href="#Provider">Provider</a>",<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"kwargs":&nbsp;{&nbsp;"filename":&nbsp;"landcover-1km.tif",&nbsp;"resample":&nbsp;"linear",&nbsp;"maskband":&nbsp;2&nbsp;}<br>
+&nbsp;&nbsp;&nbsp;&nbsp;}<br>
+&nbsp;<br>
+Valid&nbsp;values&nbsp;for&nbsp;resample&nbsp;are&nbsp;"cubic",&nbsp;"cubicspline",&nbsp;"linear",&nbsp;and&nbsp;"nearest".<br>
+&nbsp;<br>
+The&nbsp;maskband&nbsp;argument&nbsp;is&nbsp;optional.&nbsp;If&nbsp;present&nbsp;and&nbsp;greater&nbsp;than&nbsp;0,&nbsp;it&nbsp;specifies<br>
+the&nbsp;GDAL&nbsp;dataset&nbsp;band&nbsp;whose&nbsp;mask&nbsp;should&nbsp;be&nbsp;used&nbsp;as&nbsp;an&nbsp;alpha&nbsp;channel.&nbsp;If&nbsp;maskband<br>
+is&nbsp;0&nbsp;(the&nbsp;default),&nbsp;do&nbsp;not&nbsp;create&nbsp;an&nbsp;alpha&nbsp;channel.<br>
+&nbsp;<br>
+With&nbsp;a&nbsp;bit&nbsp;more&nbsp;work,&nbsp;this&nbsp;provider&nbsp;will&nbsp;be&nbsp;ready&nbsp;for&nbsp;fully-supported&nbsp;inclusion<br>
+in&nbsp;TileStache&nbsp;proper.&nbsp;Until&nbsp;then,&nbsp;it&nbsp;will&nbsp;remain&nbsp;here&nbsp;in&nbsp;the&nbsp;Goodies&nbsp;package.</tt></p>
+<p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#aa55cc">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial"><big><strong>Modules</strong></big></font></td></tr>
+    
+<tr><td bgcolor="#aa55cc"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%"><table width="100%" summary="list"><tr><td width="25%" valign=top><a href="PIL.Image.html">PIL.Image</a><br>
+</td><td width="25%" valign=top><a href="osgeo.gdal.html">osgeo.gdal</a><br>
+</td><td width="25%" valign=top><a href="osgeo.osr.html">osgeo.osr</a><br>
+</td><td width="25%" valign=top></td></tr></table></td></tr></table><p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#ee77aa">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial"><big><strong>Classes</strong></big></font></td></tr>
+    
+<tr><td bgcolor="#ee77aa"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%"><dl>
+<dt><font face="helvetica, arial"><a href="TileStache.Goodies.Providers.GDAL.html#Provider">Provider</a>
+</font></dt></dl>
+ <p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#ffc8d8">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#000000" face="helvetica, arial"><a name="Provider">class <strong>Provider</strong></a></font></td></tr>
+    
+<tr><td bgcolor="#ffc8d8"><tt>&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%">Methods defined here:<br>
+<dl><dt><a name="Provider-__init__"><strong>__init__</strong></a>(self, layer, filename, resample<font color="#909090">='cubic'</font>, maskband<font color="#909090">=0</font>)</dt></dl>
+
+<dl><dt><a name="Provider-renderArea"><strong>renderArea</strong></a>(self, width, height, srs, xmin, ymin, xmax, ymax, zoom)</dt></dl>
+
+</td></tr></table></td></tr></table><p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#55aa55">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial"><big><strong>Data</strong></big></font></td></tr>
+    
+<tr><td bgcolor="#55aa55"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%"><strong>resamplings</strong> = {'cubic': 2, 'cubicspline': 3, 'linear': 1, 'nearest': 0}</td></tr></table>
+</body></html>

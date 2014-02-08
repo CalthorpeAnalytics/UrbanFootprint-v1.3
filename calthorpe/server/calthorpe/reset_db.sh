@@ -1,0 +1,1 @@
+sudo service postgresql restart && psql -c 'drop database urbanfootprint' && createdb urbanfootprint --template template_postgis && yes no | ./manage.py syncdb && ./manage.py migrate && ./manage.py loaddata footprint/initialization/fixtures/client/sacog/built_form/placetype_attribute_sets.json && yes yes | ./manage.py collectstatic && ./manage.py footprint_init

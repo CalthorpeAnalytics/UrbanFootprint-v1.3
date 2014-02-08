@@ -1,0 +1,146 @@
+
+<!doctype html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html><head><title>Python: module TileStache.Goodies.StatusServer</title>
+</head><body bgcolor="#f0f0f8">
+
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="heading">
+<tr bgcolor="#7799ee">
+<td valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial">&nbsp;<br><big><big><strong><a href="TileStache.html"><font color="#ffffff">TileStache</font></a>.<a href="TileStache.Goodies.html"><font color="#ffffff">Goodies</font></a>.StatusServer</strong></big></big></font></td
+><td align=right valign=bottom
+><font color="#ffffff" face="helvetica, arial"><a href=".">index</a></font></td></tr></table>
+    <p><tt>StatusServer&nbsp;is&nbsp;a&nbsp;replacement&nbsp;for&nbsp;<a href="TileStache.html#WSGITileServer">WSGITileServer</a>&nbsp;that&nbsp;saves&nbsp;per-process<br>
+events&nbsp;to&nbsp;Redis&nbsp;and&nbsp;displays&nbsp;them&nbsp;in&nbsp;a&nbsp;chronological&nbsp;stream&nbsp;at&nbsp;/status.<br>
+&nbsp;<br>
+The&nbsp;internal&nbsp;behaviors&nbsp;of&nbsp;a&nbsp;running&nbsp;WSGI&nbsp;server&nbsp;can&nbsp;be&nbsp;hard&nbsp;to&nbsp;inspect,<br>
+and&nbsp;StatusServer&nbsp;is&nbsp;designed&nbsp;to&nbsp;output&nbsp;data&nbsp;relevant&nbsp;to&nbsp;tile&nbsp;serving&nbsp;out<br>
+to&nbsp;Redis&nbsp;where&nbsp;it&nbsp;can&nbsp;be&nbsp;gathered&nbsp;and&nbsp;inspected.<br>
+&nbsp;<br>
+Example&nbsp;usage,&nbsp;with&nbsp;gunicorn&nbsp;(<a href="http://gunicorn.org">http://gunicorn.org</a>):<br>
+&nbsp;<br>
+&nbsp;&nbsp;gunicorn&nbsp;--bind&nbsp;localhost:8888&nbsp;"TileStache.Goodies.StatusServer:<a href="#WSGIServer">WSGIServer</a>('tilestache.cfg')"<br>
+&nbsp;<br>
+Example&nbsp;output,&nbsp;showing&nbsp;vertical&nbsp;alignment&nbsp;based&nbsp;on&nbsp;process&nbsp;ID:<br>
+&nbsp;<br>
+&nbsp;&nbsp;13235&nbsp;Attempted&nbsp;cache&nbsp;lock,&nbsp;2&nbsp;minutes&nbsp;ago<br>
+&nbsp;&nbsp;13235&nbsp;Got&nbsp;cache&nbsp;lock&nbsp;in&nbsp;0.001&nbsp;seconds,&nbsp;2&nbsp;minutes&nbsp;ago<br>
+&nbsp;&nbsp;13235&nbsp;Started&nbsp;/osm/15/5255/12664.png,&nbsp;2&nbsp;minutes&nbsp;ago<br>
+&nbsp;&nbsp;13235&nbsp;Finished&nbsp;/osm/15/5255/12663.png&nbsp;in&nbsp;0.724&nbsp;seconds,&nbsp;2&nbsp;minutes&nbsp;ago<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;13233&nbsp;Got&nbsp;cache&nbsp;lock&nbsp;in&nbsp;0.001&nbsp;seconds,&nbsp;2&nbsp;minutes&nbsp;ago<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;13233&nbsp;Attempted&nbsp;cache&nbsp;lock,&nbsp;2&nbsp;minutes&nbsp;ago<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;13233&nbsp;Started&nbsp;/osm/15/5249/12664.png,&nbsp;2&nbsp;minutes&nbsp;ago<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;13233&nbsp;Finished&nbsp;/osm/15/5255/12661.png&nbsp;in&nbsp;0.776&nbsp;seconds,&nbsp;2&nbsp;minutes&nbsp;ago<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;13234&nbsp;Got&nbsp;cache&nbsp;lock&nbsp;in&nbsp;0.001&nbsp;seconds,&nbsp;2&nbsp;minutes&nbsp;ago<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;13234&nbsp;Attempted&nbsp;cache&nbsp;lock,&nbsp;2&nbsp;minutes&nbsp;ago<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;13234&nbsp;Started&nbsp;/osm/15/5254/12664.png,&nbsp;2&nbsp;minutes&nbsp;ago<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;13234&nbsp;Finished&nbsp;/osm/15/5249/12663.png&nbsp;in&nbsp;0.466&nbsp;seconds,&nbsp;2&nbsp;minutes&nbsp;ago<br>
+&nbsp;&nbsp;13235&nbsp;Attempted&nbsp;cache&nbsp;lock,&nbsp;2&nbsp;minutes&nbsp;ago<br>
+&nbsp;&nbsp;13235&nbsp;Got&nbsp;cache&nbsp;lock&nbsp;in&nbsp;0.001&nbsp;seconds,&nbsp;2&nbsp;minutes&nbsp;ago<br>
+&nbsp;&nbsp;13235&nbsp;Started&nbsp;/osm/15/5255/12663.png,&nbsp;2&nbsp;minutes&nbsp;ago<br>
+&nbsp;&nbsp;13235&nbsp;Finished&nbsp;/osm/15/5250/12664.png&nbsp;in&nbsp;0.502&nbsp;seconds,&nbsp;2&nbsp;minutes&nbsp;ago<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;13233&nbsp;Got&nbsp;cache&nbsp;lock&nbsp;in&nbsp;0.001&nbsp;seconds,&nbsp;2&nbsp;minutes&nbsp;ago<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;13233&nbsp;Attempted&nbsp;cache&nbsp;lock,&nbsp;2&nbsp;minutes&nbsp;ago<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;13233&nbsp;Started&nbsp;/osm/15/5255/12661.png,&nbsp;2&nbsp;minutes&nbsp;ago</tt></p>
+<p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#aa55cc">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial"><big><strong>Modules</strong></big></font></td></tr>
+    
+<tr><td bgcolor="#aa55cc"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%"><table width="100%" summary="list"><tr><td width="25%" valign=top><a href="TileStache.html">TileStache</a><br>
+</td><td width="25%" valign=top></td><td width="25%" valign=top></td><td width="25%" valign=top></td></tr></table></td></tr></table><p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#ee77aa">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial"><big><strong>Classes</strong></big></font></td></tr>
+    
+<tr><td bgcolor="#ee77aa"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%"><dl>
+<dt><font face="helvetica, arial"><a href="TileStache.html#WSGITileServer">TileStache.WSGITileServer</a>
+</font></dt><dd>
+<dl>
+<dt><font face="helvetica, arial"><a href="TileStache.Goodies.StatusServer.html#WSGIServer">WSGIServer</a>
+</font></dt></dl>
+</dd>
+<dt><font face="helvetica, arial"><a href="TileStache.Goodies.StatusServer.html#CacheWrap">CacheWrap</a>
+</font></dt></dl>
+ <p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#ffc8d8">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#000000" face="helvetica, arial"><a name="CacheWrap">class <strong>CacheWrap</strong></a></font></td></tr>
+    
+<tr bgcolor="#ffc8d8"><td rowspan=2><tt>&nbsp;&nbsp;&nbsp;</tt></td>
+<td colspan=2><tt>Wraps&nbsp;up&nbsp;a&nbsp;TileStache&nbsp;cache&nbsp;object&nbsp;and&nbsp;reports&nbsp;events&nbsp;to&nbsp;Redis.<br>
+&nbsp;<br>
+Implements&nbsp;a&nbsp;cache&nbsp;provider:&nbsp;<a href="http://tilestache.org/doc/#custom-caches">http://tilestache.org/doc/#custom-caches</a>.<br>&nbsp;</tt></td></tr>
+<tr><td>&nbsp;</td>
+<td width="100%">Methods defined here:<br>
+<dl><dt><a name="CacheWrap-__init__"><strong>__init__</strong></a>(self, cache, redis_kwargs)</dt></dl>
+
+<dl><dt><a name="CacheWrap-lock"><strong>lock</strong></a>(self, layer, coord, format)</dt></dl>
+
+<dl><dt><a name="CacheWrap-read"><strong>read</strong></a>(self, layer, coord, format)</dt></dl>
+
+<dl><dt><a name="CacheWrap-remove"><strong>remove</strong></a>(self, layer, coord, format)</dt></dl>
+
+<dl><dt><a name="CacheWrap-save"><strong>save</strong></a>(self, body, layer, coord, format)</dt></dl>
+
+<dl><dt><a name="CacheWrap-unlock"><strong>unlock</strong></a>(self, layer, coord, format)</dt></dl>
+
+</td></tr></table> <p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#ffc8d8">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#000000" face="helvetica, arial"><a name="WSGIServer">class <strong>WSGIServer</strong></a>(<a href="TileStache.html#WSGITileServer">TileStache.WSGITileServer</a>)</font></td></tr>
+    
+<tr bgcolor="#ffc8d8"><td rowspan=2><tt>&nbsp;&nbsp;&nbsp;</tt></td>
+<td colspan=2><tt>Create&nbsp;a&nbsp;WSGI&nbsp;application&nbsp;that&nbsp;can&nbsp;handle&nbsp;requests&nbsp;from&nbsp;any&nbsp;server&nbsp;that&nbsp;talks&nbsp;WSGI.<br>
+&nbsp;<br>
+Notable&nbsp;moments&nbsp;in&nbsp;the&nbsp;tile-making&nbsp;process&nbsp;such&nbsp;as&nbsp;time&nbsp;elapsed<br>
+or&nbsp;cache&nbsp;lock&nbsp;events&nbsp;are&nbsp;sent&nbsp;as&nbsp;messages&nbsp;to&nbsp;Redis.&nbsp;Inherits&nbsp;the<br>
+constructor&nbsp;from&nbsp;TileStache&nbsp;WSGI,&nbsp;which&nbsp;just&nbsp;loads&nbsp;a&nbsp;TileStache<br>
+configuration&nbsp;file&nbsp;into&nbsp;self.<strong>config</strong>.<br>&nbsp;</tt></td></tr>
+<tr><td>&nbsp;</td>
+<td width="100%">Methods defined here:<br>
+<dl><dt><a name="WSGIServer-__call__"><strong>__call__</strong></a>(self, environ, start_response)</dt></dl>
+
+<dl><dt><a name="WSGIServer-__del__"><strong>__del__</strong></a>(self)</dt></dl>
+
+<dl><dt><a name="WSGIServer-__init__"><strong>__init__</strong></a>(self, config, redis_host<font color="#909090">='localhost'</font>, redis_port<font color="#909090">=6379</font>)</dt></dl>
+
+</td></tr></table></td></tr></table><p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#eeaa77">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial"><big><strong>Functions</strong></big></font></td></tr>
+    
+<tr><td bgcolor="#eeaa77"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%"><dl><dt><a name="-delete_statuses"><strong>delete_statuses</strong></a>(pid, **redis_kwargs)</dt></dl>
+ <dl><dt><a name="-get_recent"><strong>get_recent</strong></a>(**redis_kwargs)</dt><dd><tt>Retrieve&nbsp;recent&nbsp;messages&nbsp;from&nbsp;Redis,&nbsp;in&nbsp;reverse&nbsp;chronological&nbsp;order.<br>
+&nbsp;<br>
+Two&nbsp;lists&nbsp;are&nbsp;returned:&nbsp;one&nbsp;a&nbsp;single&nbsp;most-recent&nbsp;status&nbsp;message&nbsp;from<br>
+each&nbsp;process,&nbsp;the&nbsp;other&nbsp;a&nbsp;list&nbsp;of&nbsp;numerous&nbsp;messages&nbsp;from&nbsp;each&nbsp;process.<br>
+&nbsp;<br>
+Each&nbsp;message&nbsp;is&nbsp;a&nbsp;tuple&nbsp;with&nbsp;floating&nbsp;point&nbsp;seconds&nbsp;elapsed,&nbsp;integer<br>
+process&nbsp;ID&nbsp;that&nbsp;created&nbsp;it,&nbsp;and&nbsp;an&nbsp;associated&nbsp;text&nbsp;message&nbsp;such&nbsp;as<br>
+"Got&nbsp;cache&nbsp;lock&nbsp;in&nbsp;0.001&nbsp;seconds"&nbsp;or&nbsp;"Started&nbsp;/osm/12/656/1582.png".<br>
+&nbsp;<br>
+Keyword&nbsp;args&nbsp;are&nbsp;passed&nbsp;directly&nbsp;to&nbsp;redis.StrictRedis().</tt></dd></dl>
+ <dl><dt><a name="-getpid"><strong>getpid</strong></a>(...)</dt><dd><tt><a href="#-getpid">getpid</a>()&nbsp;-&gt;&nbsp;pid<br>
+&nbsp;<br>
+Return&nbsp;the&nbsp;current&nbsp;process&nbsp;id</tt></dd></dl>
+ <dl><dt><a name="-md5"><strong>md5</strong></a> = openssl_md5(...)</dt><dd><tt>Returns&nbsp;a&nbsp;md5&nbsp;hash&nbsp;object;&nbsp;optionally&nbsp;initialized&nbsp;with&nbsp;a&nbsp;string</tt></dd></dl>
+ <dl><dt><a name="-nice_time"><strong>nice_time</strong></a>(time)</dt><dd><tt>Format&nbsp;a&nbsp;time&nbsp;in&nbsp;seconds&nbsp;to&nbsp;a&nbsp;string&nbsp;like&nbsp;"5&nbsp;minutes".</tt></dd></dl>
+ <dl><dt><a name="-pid_indent"><strong>pid_indent</strong></a>(pid)</dt><dd><tt>Get&nbsp;an&nbsp;MD5-based&nbsp;indentation&nbsp;for&nbsp;a&nbsp;process&nbsp;ID.</tt></dd></dl>
+ <dl><dt><a name="-status_response"><strong>status_response</strong></a>(**redis_kwargs)</dt><dd><tt>Retrieve&nbsp;recent&nbsp;messages&nbsp;from&nbsp;Redis&nbsp;and</tt></dd></dl>
+ <dl><dt><a name="-time"><strong>time</strong></a>(...)</dt><dd><tt><a href="#-time">time</a>()&nbsp;-&gt;&nbsp;floating&nbsp;point&nbsp;number<br>
+&nbsp;<br>
+Return&nbsp;the&nbsp;current&nbsp;time&nbsp;in&nbsp;seconds&nbsp;since&nbsp;the&nbsp;Epoch.<br>
+Fractions&nbsp;of&nbsp;a&nbsp;second&nbsp;may&nbsp;be&nbsp;present&nbsp;if&nbsp;the&nbsp;system&nbsp;clock&nbsp;provides&nbsp;them.</tt></dd></dl>
+ <dl><dt><a name="-update_status"><strong>update_status</strong></a>(msg, **redis_kwargs)</dt><dd><tt>Updated&nbsp;Redis&nbsp;with&nbsp;a&nbsp;message,&nbsp;prefix&nbsp;it&nbsp;with&nbsp;the&nbsp;current&nbsp;timestamp.<br>
+&nbsp;<br>
+Keyword&nbsp;args&nbsp;are&nbsp;passed&nbsp;directly&nbsp;to&nbsp;redis.StrictRedis().</tt></dd></dl>
+</td></tr></table>
+</body></html>

@@ -1,0 +1,17 @@
+.{{ htmlClass }}
+{buffer-size: 50;}
+
+[zoom<=10] {
+  line-color:#408080;
+  line-width:0.2;
+  polygon-opacity:0.95;
+  polygon-fill:#80FFFF;
+}
+
+[zoom>10] {
+  line-color:#408080;
+  line-width:.2;
+  polygon-opacity:0.95;
+  polygon-fill:#80FFFF;
+}
+

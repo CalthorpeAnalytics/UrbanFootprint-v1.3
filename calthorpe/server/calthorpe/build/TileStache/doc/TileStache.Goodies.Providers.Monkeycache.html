@@ -1,0 +1,120 @@
+
+<!doctype html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html><head><title>Python: module TileStache.Goodies.Providers.Monkeycache</title>
+</head><body bgcolor="#f0f0f8">
+
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="heading">
+<tr bgcolor="#7799ee">
+<td valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial">&nbsp;<br><big><big><strong><a href="TileStache.html"><font color="#ffffff">TileStache</font></a>.<a href="TileStache.Goodies.html"><font color="#ffffff">Goodies</font></a>.<a href="TileStache.Goodies.Providers.html"><font color="#ffffff">Providers</font></a>.Monkeycache</strong></big></big></font></td
+><td align=right valign=bottom
+><font color="#ffffff" face="helvetica, arial"><a href=".">index</a></font></td></tr></table>
+    <p><tt>Monkeycache&nbsp;is&nbsp;a&nbsp;tile&nbsp;provider&nbsp;that&nbsp;reads&nbsp;data&nbsp;from&nbsp;an&nbsp;existing&nbsp;cache.<br>
+&nbsp;<br>
+Normally,&nbsp;TileStache&nbsp;creates&nbsp;new&nbsp;tiles&nbsp;at&nbsp;request-time&nbsp;and&nbsp;saves&nbsp;them&nbsp;to&nbsp;a<br>
+cache&nbsp;for&nbsp;later&nbsp;visitors.&nbsp;Monkeycache&nbsp;supports&nbsp;a&nbsp;different&nbsp;workflow,&nbsp;where<br>
+a&nbsp;cache&nbsp;is&nbsp;seeded&nbsp;ahead&nbsp;of&nbsp;time,&nbsp;and&nbsp;then&nbsp;only&nbsp;existing&nbsp;tiles&nbsp;are&nbsp;served<br>
+from&nbsp;this&nbsp;cache.<br>
+&nbsp;<br>
+For&nbsp;example,&nbsp;you&nbsp;might&nbsp;have&nbsp;a&nbsp;TileStache&nbsp;configuration&nbsp;with&nbsp;a&nbsp;Mapnik<br>
+provider,&nbsp;which&nbsp;requires&nbsp;PostGIS&nbsp;and&nbsp;other&nbsp;software&nbsp;to&nbsp;be&nbsp;installed&nbsp;on&nbsp;your<br>
+system.&nbsp;Monkeycache&nbsp;would&nbsp;allow&nbsp;you&nbsp;to&nbsp;seed&nbsp;that&nbsp;cache&nbsp;into&nbsp;a&nbsp;directory&nbsp;of<br>
+files&nbsp;or&nbsp;an&nbsp;MBTiles&nbsp;file&nbsp;on&nbsp;a&nbsp;system&nbsp;with&nbsp;a&nbsp;fast&nbsp;processor&nbsp;and&nbsp;I/O,&nbsp;and&nbsp;then<br>
+serve&nbsp;the&nbsp;contents&nbsp;of&nbsp;the&nbsp;cache&nbsp;from&nbsp;another&nbsp;system&nbsp;with&nbsp;a&nbsp;faster&nbsp;network<br>
+connection&nbsp;but&nbsp;no&nbsp;Mapnik&nbsp;or&nbsp;PostGIS.<br>
+&nbsp;<br>
+Two&nbsp;sample&nbsp;configurations:<br>
+&nbsp;<br>
+{<br>
+&nbsp;&nbsp;"cache":&nbsp;{"name":&nbsp;"Disk",&nbsp;"path":&nbsp;"/var/cache"},<br>
+&nbsp;&nbsp;"layers":&nbsp;<br>
+&nbsp;&nbsp;{<br>
+&nbsp;&nbsp;&nbsp;&nbsp;"expensive-layer":<br>
+&nbsp;&nbsp;&nbsp;&nbsp;{<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"provider":&nbsp;{"name":&nbsp;"Mapnik",&nbsp;"mapfile":&nbsp;"style.xml"}<br>
+&nbsp;&nbsp;&nbsp;&nbsp;}<br>
+&nbsp;&nbsp;}<br>
+}<br>
+&nbsp;<br>
+{<br>
+&nbsp;&nbsp;"cache":&nbsp;{"name":&nbsp;"Test"},<br>
+&nbsp;&nbsp;"layers":&nbsp;<br>
+&nbsp;&nbsp;{<br>
+&nbsp;&nbsp;&nbsp;&nbsp;"cheap-layer":<br>
+&nbsp;&nbsp;&nbsp;&nbsp;{<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"provider":<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"class":&nbsp;"TileStache.Goodies.Providers.Monkeycache:<a href="#Provider">Provider</a>",<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"kwargs":<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"layer_name":&nbsp;"expensive-layer",<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"cache_config":&nbsp;{"name":&nbsp;"Disk",&nbsp;"path":&nbsp;"/var/cache"},<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"format":&nbsp;"PNG"<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>
+&nbsp;&nbsp;&nbsp;&nbsp;}<br>
+&nbsp;&nbsp;}<br>
+}</tt></p>
+<p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#ee77aa">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial"><big><strong>Classes</strong></big></font></td></tr>
+    
+<tr><td bgcolor="#ee77aa"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%"><dl>
+<dt><font face="helvetica, arial"><a href="TileStache.Goodies.Providers.Monkeycache.html#CacheResponse">CacheResponse</a>
+</font></dt><dt><font face="helvetica, arial"><a href="TileStache.Goodies.Providers.Monkeycache.html#Provider">Provider</a>
+</font></dt></dl>
+ <p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#ffc8d8">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#000000" face="helvetica, arial"><a name="CacheResponse">class <strong>CacheResponse</strong></a></font></td></tr>
+    
+<tr bgcolor="#ffc8d8"><td rowspan=2><tt>&nbsp;&nbsp;&nbsp;</tt></td>
+<td colspan=2><tt>Wrapper&nbsp;class&nbsp;for&nbsp;Cache&nbsp;response&nbsp;that&nbsp;makes&nbsp;it&nbsp;behave&nbsp;like&nbsp;a&nbsp;PIL.Image&nbsp;object.<br>
+&nbsp;<br>
+TileStache.getTile()&nbsp;expects&nbsp;to&nbsp;be&nbsp;able&nbsp;to&nbsp;save&nbsp;one&nbsp;of&nbsp;these&nbsp;to&nbsp;a&nbsp;buffer.<br>
+&nbsp;<br>
+Constructor&nbsp;arguments:<br>
+-&nbsp;body:&nbsp;Raw&nbsp;data&nbsp;pulled&nbsp;from&nbsp;cache.<br>
+-&nbsp;format:&nbsp;File&nbsp;format&nbsp;to&nbsp;check&nbsp;against.<br>&nbsp;</tt></td></tr>
+<tr><td>&nbsp;</td>
+<td width="100%">Methods defined here:<br>
+<dl><dt><a name="CacheResponse-__init__"><strong>__init__</strong></a>(self, body, format)</dt></dl>
+
+<dl><dt><a name="CacheResponse-save"><strong>save</strong></a>(self, out, format)</dt></dl>
+
+</td></tr></table> <p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#ffc8d8">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#000000" face="helvetica, arial"><a name="Provider">class <strong>Provider</strong></a></font></td></tr>
+    
+<tr bgcolor="#ffc8d8"><td rowspan=2><tt>&nbsp;&nbsp;&nbsp;</tt></td>
+<td colspan=2><tt>Monkeycache&nbsp;<a href="#Provider">Provider</a>&nbsp;with&nbsp;source_layer,&nbsp;source_cache&nbsp;and&nbsp;tile_format&nbsp;attributes.<br>
+&nbsp;<br>
+Source_layer&nbsp;is&nbsp;an&nbsp;instance&nbsp;of&nbsp;TileStache.Core.Layer.<br>
+Source_cache&nbsp;is&nbsp;a&nbsp;valid&nbsp;TileStache&nbsp;Cache&nbsp;provider.<br>
+Tile_format&nbsp;is&nbsp;a&nbsp;string.<br>&nbsp;</tt></td></tr>
+<tr><td>&nbsp;</td>
+<td width="100%">Methods defined here:<br>
+<dl><dt><a name="Provider-__init__"><strong>__init__</strong></a>(self, layer, cache_config, layer_name, format<font color="#909090">='PNG'</font>)</dt><dd><tt>Initialize&nbsp;the&nbsp;Monkeycache&nbsp;<a href="#Provider">Provider</a>.<br>
+&nbsp;<br>
+Cache_config&nbsp;is&nbsp;a&nbsp;complete&nbsp;cache&nbsp;configuration&nbsp;dictionary&nbsp;that&nbsp;you<br>
+might&nbsp;use&nbsp;in&nbsp;a&nbsp;TileStache&nbsp;setup&nbsp;(<a href="http://tilestache.org/doc/#caches">http://tilestache.org/doc/#caches</a>).<br>
+This&nbsp;is&nbsp;where&nbsp;Monkeycache&nbsp;will&nbsp;look&nbsp;for&nbsp;already-rendered&nbsp;tiles.<br>
+&nbsp;<br>
+Layer_name&nbsp;is&nbsp;the&nbsp;name&nbsp;of&nbsp;a&nbsp;layer&nbsp;saved&nbsp;in&nbsp;that&nbsp;cache.<br>
+&nbsp;<br>
+Format&nbsp;should&nbsp;match&nbsp;the&nbsp;second&nbsp;return&nbsp;value&nbsp;of&nbsp;your&nbsp;original<br>
+layer's&nbsp;getTypeByExtention()&nbsp;method,&nbsp;e.g.&nbsp;"PNG",&nbsp;"JPEG",&nbsp;or&nbsp;for<br>
+the&nbsp;Vector&nbsp;provider&nbsp;"GeoJSON"&nbsp;and&nbsp;others.&nbsp;This&nbsp;might&nbsp;not&nbsp;necessarily<br>
+match&nbsp;the&nbsp;file&nbsp;name&nbsp;extension,&nbsp;though&nbsp;common&nbsp;cases&nbsp;like&nbsp;"jpg"/"JPEG"<br>
+are&nbsp;accounted&nbsp;for.</tt></dd></dl>
+
+<dl><dt><a name="Provider-renderTile"><strong>renderTile</strong></a>(self, width, height, srs, coord)</dt><dd><tt>Pull&nbsp;a&nbsp;single&nbsp;tile&nbsp;from&nbsp;self.<strong>source_cache</strong>.</tt></dd></dl>
+
+</td></tr></table></td></tr></table>
+</body></html>

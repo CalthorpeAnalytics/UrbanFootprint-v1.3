@@ -1,0 +1,172 @@
+Nodeenv changelog
+=================
+
+Version 0.6.5
+-------------
+- Node's source not loaded if it already exists in FS.
+
+Version 0.6.4
+-------------
+- Added python3 compatibility. See `# 32`_
+
+.. _# 32: https://github.com/ekalinin/nodeenv/pull/32
+
+Version 0.6.3
+-------------
+- Fixed ``nodeenv -p``. See `issue # 31`_
+
+.. _issue # 31: https://github.com/ekalinin/nodeenv/issues/31
+
+
+Version 0.6.2
+-------------
+- Skipped stand-alone npm installation by default. See `pull # 30`_
+- ``--without-npm`` has been changed to ``--with-npm``. See `pull # 30`_
+- Fixed options for running Make instances in parallel. See `pull # 30`_
+
+.. _pull # 30: https://github.com/ekalinin/nodeenv/pull/30
+
+
+Version 0.6.1
+-------------
+- Used pkg_resources.parse_version to compare versions. See `pull # 29`_
+- Fixed doubling prompt inside a virtualenv. See `issues # 26`_
+
+.. _pull # 29: https://github.com/ekalinin/nodeenv/pull/29
+.. _issues # 26: https://github.com/ekalinin/nodeenv/issues/26
+
+
+Version 0.6.0
+-------------
+- Fixed typo in deactive command. See `pull # 20`_
+- Not used "--insecure" to download npm. See `pull # 21`_
+- Removed "src" directory after installation. See `pull # 22`_
+- Added option "--clean-src"
+- Added integration with python's virtualenv. See `pull # 23`_
+
+.. _pull # 20: https://github.com/ekalinin/nodeenv/pull/20
+.. _pull # 21: https://github.com/ekalinin/nodeenv/pull/21
+.. _pull # 22: https://github.com/ekalinin/nodeenv/pull/22
+.. _pull # 23: https://github.com/ekalinin/nodeenv/pull/23
+
+Version 0.5.3
+-------------
+- Bug fix. Used https, /dist/latest/. See `pull # 16`_
+
+.. _pull # 16: https://github.com/ekalinin/nodeenv/pull/16
+
+Version 0.5.2
+-------------
+- Improved installation logic for release candidate versions. See `pull # 10`_
+
+.. _pull # 10: https://github.com/ekalinin/nodeenv/pull/10
+
+Version 0.5.1
+-------------
+- Improved logic for the option '--without-npm'. See `issue # 14`_, `pull # 15`_
+
+.. _issue # 14: https://github.com/ekalinin/nodeenv/issues/14
+.. _pull # 15: https://github.com/ekalinin/nodeenv/pull/15
+
+Version 0.5.0
+-------------
+- The virtual environment's path is no longer hardcoded into the
+  activation script. See `pull # 13`_
+
+.. _pull # 13: https://github.com/ekalinin/nodeenv/pull/13
+
+Version 0.4.3
+-------------
+- Fixed metavar for ``--npm``
+- ``npm install -g`` used for npm >=1.0, not noly for `latest`
+
+Version 0.4.2
+-------------
+- Added README.ru.rst
+
+Version 0.4.1
+-------------
+- Fixed bug in print_node_versions. See `pull # 11`_
+- Added deps in README
+
+.. _pull # 11: https://github.com/ekalinin/nodeenv/pull/11
+
+Version 0.4.0
+-------------
+- Compatibility with virtualenv (renamed deactivate to deactivate_node).
+  See `pull # 9`_, `issue # 6`_
+
+.. _pull # 9: https://github.com/ekalinin/nodeenv/pull/9
+.. _issue # 6: https://github.com/ekalinin/nodeenv/issues/6
+
+Version 0.3.10
+--------------
+- Fixed bug in url detection for node.js download
+
+Version 0.3.9
+-------------
+- Deleted notify method calls. See `pull # 7`_
+- Updated tar url for node.js > 0.5.0. See `pull # 8`_
+
+.. _pull # 7: https://github.com/ekalinin/nodeenv/pull/7
+.. _pull # 8: https://github.com/ekalinin/nodeenv/pull/8
+
+Version 0.3.8
+-------------
+- Added `NODE_PATH` variable export (for correct module
+  search after installation via npm)
+
+Version 0.3.7
+-------------
+- Shows command output when error occurs
+- Excluded 'npm' from `freeze` list
+- Fixed bug with 'not only letter' names in `freeze` list
+- Added global installation for npm >= 1.0 (when install
+  soft from requirement file)
+
+Version 0.3.6
+-------------
+- Fixed ``freeze`` output command. See `request # 5`_
+- Diagnostic message fixed. See `pull # 4`_
+
+.. _request # 5 : https://github.com/ekalinin/nodeenv/issues/5
+.. _pull # 4 : https://github.com/ekalinin/nodeenv/pull/4
+
+Version 0.3.5
+-------------
+- Added option ``--npm`` to install certain npm.js version. Request_ .
+- Fixed ``freeze`` command for npm >= 1.0.x.
+
+.. _Request: https://github.com/ekalinin/nodeenv/issues/3
+
+Version 0.3.4
+-------------
+
+- Fixed `problem #2`_ with new npm installation script. Added
+  ``--no-npm-clean`` option. The default to the npm 0.x cleanup.
+
+.. _problem #2: https://github.com/ekalinin/nodeenv/issues/2
+
+Version 0.3.3
+-------------
+
+- Fixed `problem #1`_ with installation from PyPI via easy_install.
+  Added ``MANIFEST.in`` file.
+
+.. _problem #1: https://github.com/ekalinin/nodeenv/issues/1
+
+Version 0.3.2
+-------------
+
+- Internal improvements
+- Logging refactoring
+
+Version 0.3.1
+-------------
+
+- Default environment promt is folder name
+
+Version 0.3.0
+--------------
+
+- Renamed nve to nodeenv

@@ -1,0 +1,181 @@
+
+<!doctype html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html><head><title>Python: module TileStache.MBTiles</title>
+</head><body bgcolor="#f0f0f8">
+
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="heading">
+<tr bgcolor="#7799ee">
+<td valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial">&nbsp;<br><big><big><strong><a href="TileStache.html"><font color="#ffffff">TileStache</font></a>.MBTiles</strong></big></big></font></td
+><td align=right valign=bottom
+><font color="#ffffff" face="helvetica, arial"><a href=".">index</a></font></td></tr></table>
+    <p><tt>Support&nbsp;for&nbsp;MBTiles&nbsp;file&nbsp;format,&nbsp;version&nbsp;1.1.<br>
+&nbsp;<br>
+MBTiles&nbsp;(<a href="http://mbtiles.org">http://mbtiles.org</a>)&nbsp;is&nbsp;a&nbsp;specification&nbsp;for&nbsp;storing&nbsp;tiled&nbsp;map&nbsp;data&nbsp;in<br>
+SQLite&nbsp;databases&nbsp;for&nbsp;immediate&nbsp;use&nbsp;and&nbsp;for&nbsp;transfer.&nbsp;The&nbsp;files&nbsp;are&nbsp;designed&nbsp;for<br>
+portability&nbsp;of&nbsp;thousands,&nbsp;hundreds&nbsp;of&nbsp;thousands,&nbsp;or&nbsp;even&nbsp;millions&nbsp;of&nbsp;standard<br>
+map&nbsp;tile&nbsp;images&nbsp;in&nbsp;a&nbsp;single&nbsp;file.<br>
+&nbsp;<br>
+This&nbsp;makes&nbsp;it&nbsp;easy&nbsp;to&nbsp;manage&nbsp;and&nbsp;share&nbsp;map&nbsp;tiles.<br>
+&nbsp;<br>
+Read&nbsp;the&nbsp;spec:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;https://github.com/mapbox/mbtiles-spec/blob/master/1.1/spec.md<br>
+&nbsp;<br>
+MBTiles&nbsp;files&nbsp;generated&nbsp;by&nbsp;other&nbsp;applications&nbsp;such&nbsp;as&nbsp;Tilemill&nbsp;or&nbsp;Arc2Earth<br>
+can&nbsp;be&nbsp;used&nbsp;as&nbsp;data&nbsp;sources&nbsp;for&nbsp;the&nbsp;MBTiles&nbsp;<a href="#Provider">Provider</a>.<br>
+&nbsp;<br>
+Example&nbsp;configuration:<br>
+&nbsp;<br>
+&nbsp;&nbsp;{<br>
+&nbsp;&nbsp;&nbsp;&nbsp;"cache":&nbsp;{&nbsp;...&nbsp;}.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;"layers":<br>
+&nbsp;&nbsp;&nbsp;&nbsp;{<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"roads":<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"provider":<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"name":&nbsp;"mbtiles",<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"tileset":&nbsp;"collection.mbtiles"<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>
+&nbsp;&nbsp;&nbsp;&nbsp;}<br>
+&nbsp;&nbsp;}<br>
+&nbsp;<br>
+MBTiles&nbsp;provider&nbsp;parameters:<br>
+&nbsp;<br>
+&nbsp;&nbsp;tileset:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;Required&nbsp;local&nbsp;file&nbsp;path&nbsp;to&nbsp;MBTiles&nbsp;tileset&nbsp;file,&nbsp;a&nbsp;SQLite&nbsp;3&nbsp;database&nbsp;file.</tt></p>
+<p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#ee77aa">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial"><big><strong>Classes</strong></big></font></td></tr>
+    
+<tr><td bgcolor="#ee77aa"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%"><dl>
+<dt><font face="helvetica, arial"><a href="TileStache.MBTiles.html#Cache">Cache</a>
+</font></dt><dt><font face="helvetica, arial"><a href="TileStache.MBTiles.html#Provider">Provider</a>
+</font></dt><dt><font face="helvetica, arial"><a href="TileStache.MBTiles.html#TileResponse">TileResponse</a>
+</font></dt></dl>
+ <p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#ffc8d8">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#000000" face="helvetica, arial"><a name="Cache">class <strong>Cache</strong></a></font></td></tr>
+    
+<tr bgcolor="#ffc8d8"><td rowspan=2><tt>&nbsp;&nbsp;&nbsp;</tt></td>
+<td colspan=2><tt><a href="#Cache">Cache</a>&nbsp;provider&nbsp;for&nbsp;writing&nbsp;to&nbsp;MBTiles&nbsp;files.<br>
+&nbsp;<br>
+This&nbsp;class&nbsp;is&nbsp;not&nbsp;exposed&nbsp;as&nbsp;a&nbsp;normal&nbsp;cache&nbsp;provider&nbsp;for&nbsp;TileStache,<br>
+because&nbsp;MBTiles&nbsp;has&nbsp;restrictions&nbsp;on&nbsp;file&nbsp;formats&nbsp;that&nbsp;aren't&nbsp;quite<br>
+compatible&nbsp;with&nbsp;some&nbsp;of&nbsp;the&nbsp;looser&nbsp;assumptions&nbsp;made&nbsp;by&nbsp;TileStache.<br>
+Instead,&nbsp;this&nbsp;cache&nbsp;provider&nbsp;is&nbsp;provided&nbsp;for&nbsp;use&nbsp;with&nbsp;the&nbsp;script<br>
+tilestache-seed.py,&nbsp;which&nbsp;can&nbsp;be&nbsp;called&nbsp;with&nbsp;--to-mbtiles&nbsp;option<br>
+to&nbsp;write&nbsp;cached&nbsp;tiles&nbsp;to&nbsp;a&nbsp;new&nbsp;tileset.<br>&nbsp;</tt></td></tr>
+<tr><td>&nbsp;</td>
+<td width="100%">Methods defined here:<br>
+<dl><dt><a name="Cache-__init__"><strong>__init__</strong></a>(self, filename, format, name)</dt></dl>
+
+<dl><dt><a name="Cache-lock"><strong>lock</strong></a>(self, layer, coord, format)</dt></dl>
+
+<dl><dt><a name="Cache-read"><strong>read</strong></a>(self, layer, coord, format)</dt><dd><tt>Return&nbsp;raw&nbsp;tile&nbsp;content&nbsp;from&nbsp;tileset.</tt></dd></dl>
+
+<dl><dt><a name="Cache-remove"><strong>remove</strong></a>(self, layer, coord, format)</dt><dd><tt>Remove&nbsp;a&nbsp;cached&nbsp;tile.</tt></dd></dl>
+
+<dl><dt><a name="Cache-save"><strong>save</strong></a>(self, body, layer, coord, format)</dt><dd><tt>Write&nbsp;raw&nbsp;tile&nbsp;content&nbsp;to&nbsp;tileset.</tt></dd></dl>
+
+<dl><dt><a name="Cache-unlock"><strong>unlock</strong></a>(self, layer, coord, format)</dt></dl>
+
+</td></tr></table> <p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#ffc8d8">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#000000" face="helvetica, arial"><a name="Provider">class <strong>Provider</strong></a></font></td></tr>
+    
+<tr bgcolor="#ffc8d8"><td rowspan=2><tt>&nbsp;&nbsp;&nbsp;</tt></td>
+<td colspan=2><tt>MBTiles&nbsp;provider.<br>
+&nbsp;<br>
+See&nbsp;module&nbsp;documentation&nbsp;for&nbsp;explanation&nbsp;of&nbsp;constructor&nbsp;arguments.<br>&nbsp;</tt></td></tr>
+<tr><td>&nbsp;</td>
+<td width="100%">Methods defined here:<br>
+<dl><dt><a name="Provider-__init__"><strong>__init__</strong></a>(self, layer, tileset)</dt></dl>
+
+<dl><dt><a name="Provider-getTypeByExtension"><strong>getTypeByExtension</strong></a>(self, extension)</dt><dd><tt>Get&nbsp;mime-type&nbsp;and&nbsp;format&nbsp;by&nbsp;file&nbsp;extension.<br>
+&nbsp;<br>
+This&nbsp;only&nbsp;accepts&nbsp;"png"&nbsp;or&nbsp;"jpg"&nbsp;or&nbsp;"json".</tt></dd></dl>
+
+<dl><dt><a name="Provider-renderTile"><strong>renderTile</strong></a>(self, width, height, srs, coord)</dt><dd><tt>Retrieve&nbsp;a&nbsp;single&nbsp;tile,&nbsp;return&nbsp;a&nbsp;<a href="#TileResponse">TileResponse</a>&nbsp;instance.</tt></dd></dl>
+
+<hr>
+Static methods defined here:<br>
+<dl><dt><a name="Provider-prepareKeywordArgs"><strong>prepareKeywordArgs</strong></a>(config_dict)</dt><dd><tt>Convert&nbsp;configured&nbsp;parameters&nbsp;to&nbsp;keyword&nbsp;args&nbsp;for&nbsp;<a href="#Provider-__init__">__init__</a>().</tt></dd></dl>
+
+</td></tr></table> <p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#ffc8d8">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#000000" face="helvetica, arial"><a name="TileResponse">class <strong>TileResponse</strong></a></font></td></tr>
+    
+<tr bgcolor="#ffc8d8"><td rowspan=2><tt>&nbsp;&nbsp;&nbsp;</tt></td>
+<td colspan=2><tt>Wrapper&nbsp;class&nbsp;for&nbsp;tile&nbsp;response&nbsp;that&nbsp;makes&nbsp;it&nbsp;behave&nbsp;like&nbsp;a&nbsp;PIL.Image&nbsp;object.<br>
+&nbsp;<br>
+TileStache.getTile()&nbsp;expects&nbsp;to&nbsp;be&nbsp;able&nbsp;to&nbsp;save&nbsp;one&nbsp;of&nbsp;these&nbsp;to&nbsp;a&nbsp;buffer.<br>
+&nbsp;<br>
+Constructor&nbsp;arguments:<br>
+-&nbsp;format:&nbsp;'PNG'&nbsp;or&nbsp;'JPEG'.<br>
+-&nbsp;content:&nbsp;Raw&nbsp;response&nbsp;bytes.<br>&nbsp;</tt></td></tr>
+<tr><td>&nbsp;</td>
+<td width="100%">Methods defined here:<br>
+<dl><dt><a name="TileResponse-__init__"><strong>__init__</strong></a>(self, format, content)</dt></dl>
+
+<dl><dt><a name="TileResponse-save"><strong>save</strong></a>(self, out, format)</dt></dl>
+
+</td></tr></table></td></tr></table><p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#eeaa77">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial"><big><strong>Functions</strong></big></font></td></tr>
+    
+<tr><td bgcolor="#eeaa77"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%"><dl><dt><a name="-create_tileset"><strong>create_tileset</strong></a>(filename, name, type, version, description, format, bounds<font color="#909090">=None</font>)</dt><dd><tt>Create&nbsp;a&nbsp;tileset&nbsp;1.1&nbsp;with&nbsp;the&nbsp;given&nbsp;filename&nbsp;and&nbsp;metadata.<br>
+&nbsp;<br>
+From&nbsp;the&nbsp;specification:<br>
+&nbsp;<br>
+The&nbsp;metadata&nbsp;table&nbsp;is&nbsp;used&nbsp;as&nbsp;a&nbsp;key/value&nbsp;store&nbsp;for&nbsp;settings.<br>
+Five&nbsp;keys&nbsp;are&nbsp;required:<br>
+&nbsp;<br>
+&nbsp;&nbsp;name:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;The&nbsp;plain-english&nbsp;name&nbsp;of&nbsp;the&nbsp;tileset.<br>
+&nbsp;<br>
+&nbsp;&nbsp;type:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;overlay&nbsp;or&nbsp;baselayer<br>
+&nbsp;&nbsp;<br>
+&nbsp;&nbsp;version:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;The&nbsp;version&nbsp;of&nbsp;the&nbsp;tileset,&nbsp;as&nbsp;a&nbsp;plain&nbsp;number.<br>
+&nbsp;<br>
+&nbsp;&nbsp;description:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;A&nbsp;description&nbsp;of&nbsp;the&nbsp;layer&nbsp;as&nbsp;plain&nbsp;text.<br>
+&nbsp;&nbsp;<br>
+&nbsp;&nbsp;format:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;The&nbsp;image&nbsp;file&nbsp;format&nbsp;of&nbsp;the&nbsp;tile&nbsp;data:&nbsp;png&nbsp;or&nbsp;jpg&nbsp;or&nbsp;json<br>
+&nbsp;<br>
+One&nbsp;row&nbsp;in&nbsp;metadata&nbsp;is&nbsp;suggested&nbsp;and,&nbsp;if&nbsp;provided,&nbsp;may&nbsp;enhance&nbsp;performance:<br>
+&nbsp;<br>
+&nbsp;&nbsp;bounds:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;The&nbsp;maximum&nbsp;extent&nbsp;of&nbsp;the&nbsp;rendered&nbsp;map&nbsp;area.&nbsp;Bounds&nbsp;must&nbsp;define<br>
+&nbsp;&nbsp;&nbsp;&nbsp;an&nbsp;area&nbsp;covered&nbsp;by&nbsp;all&nbsp;zoom&nbsp;levels.&nbsp;The&nbsp;bounds&nbsp;are&nbsp;represented&nbsp;in<br>
+&nbsp;&nbsp;&nbsp;&nbsp;WGS:84&nbsp;-&nbsp;latitude&nbsp;and&nbsp;longitude&nbsp;values,&nbsp;in&nbsp;the&nbsp;OpenLayers&nbsp;Bounds<br>
+&nbsp;&nbsp;&nbsp;&nbsp;format&nbsp;-&nbsp;left,&nbsp;bottom,&nbsp;right,&nbsp;top.&nbsp;Example&nbsp;of&nbsp;the&nbsp;full&nbsp;earth:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;-180.0,-85,180,85.</tt></dd></dl>
+ <dl><dt><a name="-delete_tile"><strong>delete_tile</strong></a>(filename, coord)</dt><dd><tt>Delete&nbsp;a&nbsp;tile&nbsp;by&nbsp;coordinate.</tt></dd></dl>
+ <dl><dt><a name="-get_tile"><strong>get_tile</strong></a>(filename, coord)</dt><dd><tt>Retrieve&nbsp;the&nbsp;mime-type&nbsp;and&nbsp;raw&nbsp;content&nbsp;of&nbsp;a&nbsp;tile&nbsp;by&nbsp;coordinate.<br>
+&nbsp;<br>
+If&nbsp;the&nbsp;tile&nbsp;does&nbsp;not&nbsp;exist,&nbsp;None&nbsp;is&nbsp;returned&nbsp;for&nbsp;the&nbsp;content.</tt></dd></dl>
+ <dl><dt><a name="-list_tiles"><strong>list_tiles</strong></a>(filename)</dt><dd><tt>Get&nbsp;a&nbsp;list&nbsp;of&nbsp;tile&nbsp;coordinates.</tt></dd></dl>
+ <dl><dt><a name="-put_tile"><strong>put_tile</strong></a>(filename, coord, content)</dt></dl>
+ <dl><dt><a name="-tileset_exists"><strong>tileset_exists</strong></a>(filename)</dt><dd><tt>Return&nbsp;true&nbsp;if&nbsp;the&nbsp;tileset&nbsp;exists&nbsp;and&nbsp;appears&nbsp;to&nbsp;have&nbsp;the&nbsp;right&nbsp;tables.</tt></dd></dl>
+ <dl><dt><a name="-tileset_info"><strong>tileset_info</strong></a>(filename)</dt><dd><tt>Return&nbsp;name,&nbsp;type,&nbsp;version,&nbsp;description,&nbsp;format,&nbsp;and&nbsp;bounds&nbsp;for&nbsp;a&nbsp;tileset.<br>
+&nbsp;<br>
+Returns&nbsp;None&nbsp;if&nbsp;tileset&nbsp;does&nbsp;not&nbsp;exist.</tt></dd></dl>
+</td></tr></table>
+</body></html>

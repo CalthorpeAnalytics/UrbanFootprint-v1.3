@@ -1,0 +1,15 @@
+include CONTRIBUTORS.txt
+include Changelog
+include LICENSE
+include README.rst
+include MANIFEST.in
+include TODO
+include setup.cfg
+include setup.py
+recursive-include celery *.py
+recursive-include funtests *.py
+recursive-include docs *
+recursive-include extra *
+recursive-include examples *
+recursive-include requirements *.txt
+prune *.pyc

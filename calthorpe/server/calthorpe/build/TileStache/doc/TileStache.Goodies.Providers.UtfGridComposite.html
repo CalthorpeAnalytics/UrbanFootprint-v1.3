@@ -1,0 +1,102 @@
+
+<!doctype html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html><head><title>Python: module TileStache.Goodies.Providers.UtfGridComposite</title>
+</head><body bgcolor="#f0f0f8">
+
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="heading">
+<tr bgcolor="#7799ee">
+<td valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial">&nbsp;<br><big><big><strong><a href="TileStache.html"><font color="#ffffff">TileStache</font></a>.<a href="TileStache.Goodies.html"><font color="#ffffff">Goodies</font></a>.<a href="TileStache.Goodies.Providers.html"><font color="#ffffff">Providers</font></a>.UtfGridComposite</strong></big></big></font></td
+><td align=right valign=bottom
+><font color="#ffffff" face="helvetica, arial"><a href=".">index</a></font></td></tr></table>
+    <p><tt>Composite&nbsp;<a href="#Provider">Provider</a>&nbsp;for&nbsp;UTFGrid&nbsp;layers<br>
+https://github.com/mapbox/utfgrid-spec/blob/master/1.2/utfgrid.md<br>
+&nbsp;<br>
+Combines&nbsp;multiple&nbsp;UTFGrid&nbsp;layers&nbsp;to&nbsp;create&nbsp;a&nbsp;single&nbsp;result.<br>
+The&nbsp;given&nbsp;layers&nbsp;will&nbsp;be&nbsp;added&nbsp;to&nbsp;the&nbsp;result&nbsp;in&nbsp;the&nbsp;order&nbsp;they&nbsp;are&nbsp;given.<br>
+Therefore&nbsp;the&nbsp;last&nbsp;one&nbsp;will&nbsp;have&nbsp;the&nbsp;highest&nbsp;priority.<br>
+&nbsp;<br>
+Sample&nbsp;configuration:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"provider":<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"class":&nbsp;"TileStache.Goodies.Providers.UtfGridComposite:<a href="#Provider">Provider</a>",<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"kwargs":<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"stack":<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{&nbsp;"layer_id":&nbsp;"layer1",&nbsp;"src":&nbsp;"my_utf_layer1",&nbsp;"wrapper":&nbsp;"grid"&nbsp;},<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{&nbsp;"layer_id":&nbsp;"layer2",&nbsp;"src":&nbsp;"my_utf_layer2",&nbsp;"wrapper":&nbsp;"grid"&nbsp;}<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;],<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"layer_id":&nbsp;"l",<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"wrapper":&nbsp;"grid"<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>
+&nbsp;<br>
+stack:&nbsp;list&nbsp;of&nbsp;layers&nbsp;(and&nbsp;properties)&nbsp;to&nbsp;composite&nbsp;together<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;layer_id:&nbsp;an&nbsp;id&nbsp;attribute&nbsp;that&nbsp;will&nbsp;be&nbsp;added&nbsp;to&nbsp;each&nbsp;json&nbsp;data&nbsp;object&nbsp;for&nbsp;this&nbsp;layer:&nbsp;{&nbsp;"layer_id":&nbsp;"layer1",&nbsp;"name":&nbsp;"blah",&nbsp;"address":&nbsp;"something"}<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;src:&nbsp;layer&nbsp;name&nbsp;of&nbsp;the&nbsp;layer&nbsp;to&nbsp;composite<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;wrapper:&nbsp;the&nbsp;wrapper&nbsp;definition&nbsp;of&nbsp;this&nbsp;layer&nbsp;if&nbsp;there&nbsp;is&nbsp;one&nbsp;(so&nbsp;we&nbsp;can&nbsp;remove&nbsp;it)<br>
+layer_id:&nbsp;the&nbsp;key&nbsp;for&nbsp;the&nbsp;layer_id&nbsp;attribute&nbsp;that&nbsp;is&nbsp;added&nbsp;to&nbsp;each&nbsp;data&nbsp;object:&nbsp;{&nbsp;"l":&nbsp;"layer1",&nbsp;...}<br>
+wrapper:&nbsp;wrapper&nbsp;to&nbsp;add&nbsp;to&nbsp;the&nbsp;resulting&nbsp;utfgrid&nbsp;"WRAPPER({...})".&nbsp;Usually&nbsp;"grid"<br>
+&nbsp;<br>
+if&nbsp;layer_id&nbsp;is&nbsp;not&nbsp;set&nbsp;in&nbsp;the&nbsp;layer&nbsp;or&nbsp;the&nbsp;provider&nbsp;config&nbsp;then&nbsp;it&nbsp;will&nbsp;not&nbsp;be&nbsp;set&nbsp;on&nbsp;data&nbsp;objects</tt></p>
+<p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#aa55cc">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial"><big><strong>Modules</strong></big></font></td></tr>
+    
+<tr><td bgcolor="#aa55cc"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%"><table width="100%" summary="list"><tr><td width="25%" valign=top><a href="TileStache.html">TileStache</a><br>
+</td><td width="25%" valign=top><a href="json.html">json</a><br>
+</td><td width="25%" valign=top></td><td width="25%" valign=top></td></tr></table></td></tr></table><p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#ee77aa">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial"><big><strong>Classes</strong></big></font></td></tr>
+    
+<tr><td bgcolor="#ee77aa"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%"><dl>
+<dt><font face="helvetica, arial"><a href="TileStache.Goodies.Providers.UtfGridComposite.html#Provider">Provider</a>
+</font></dt><dt><font face="helvetica, arial"><a href="TileStache.Goodies.Providers.UtfGridComposite.html#SaveableResponse">SaveableResponse</a>
+</font></dt></dl>
+ <p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#ffc8d8">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#000000" face="helvetica, arial"><a name="Provider">class <strong>Provider</strong></a></font></td></tr>
+    
+<tr><td bgcolor="#ffc8d8"><tt>&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%">Methods defined here:<br>
+<dl><dt><a name="Provider-__init__"><strong>__init__</strong></a>(self, layer, stack, layer_id<font color="#909090">=None</font>, wrapper<font color="#909090">=None</font>)</dt></dl>
+
+<dl><dt><a name="Provider-addLayer"><strong>addLayer</strong></a>(self, layerDef, coord)</dt></dl>
+
+<dl><dt><a name="Provider-decodeId"><strong>decodeId</strong></a>(self, id)</dt></dl>
+
+<dl><dt><a name="Provider-encodeId"><strong>encodeId</strong></a>(self, id)</dt></dl>
+
+<dl><dt><a name="Provider-getTypeByExtension"><strong>getTypeByExtension</strong></a>(self, extension)</dt><dd><tt>Get&nbsp;mime-type&nbsp;and&nbsp;format&nbsp;by&nbsp;file&nbsp;extension.<br>
+This&nbsp;only&nbsp;accepts&nbsp;"json".</tt></dd></dl>
+
+<dl><dt><a name="Provider-renderTile"><strong>renderTile</strong></a>(self, width, height, srs, coord)</dt></dl>
+
+<dl><dt><a name="Provider-writeResult"><strong>writeResult</strong></a>(self)</dt></dl>
+
+</td></tr></table> <p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#ffc8d8">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#000000" face="helvetica, arial"><a name="SaveableResponse">class <strong>SaveableResponse</strong></a></font></td></tr>
+    
+<tr bgcolor="#ffc8d8"><td rowspan=2><tt>&nbsp;&nbsp;&nbsp;</tt></td>
+<td colspan=2><tt>Wrapper&nbsp;class&nbsp;for&nbsp;JSON&nbsp;response&nbsp;that&nbsp;makes&nbsp;it&nbsp;behave&nbsp;like&nbsp;a&nbsp;PIL.Image&nbsp;object.<br>
+TileStache.getTile()&nbsp;expects&nbsp;to&nbsp;be&nbsp;able&nbsp;to&nbsp;save&nbsp;one&nbsp;of&nbsp;these&nbsp;to&nbsp;a&nbsp;buffer.<br>&nbsp;</tt></td></tr>
+<tr><td>&nbsp;</td>
+<td width="100%">Methods defined here:<br>
+<dl><dt><a name="SaveableResponse-__init__"><strong>__init__</strong></a>(self, content)</dt></dl>
+
+<dl><dt><a name="SaveableResponse-save"><strong>save</strong></a>(self, out, format)</dt></dl>
+
+</td></tr></table></td></tr></table>
+</body></html>

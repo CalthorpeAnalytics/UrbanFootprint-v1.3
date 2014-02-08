@@ -1,0 +1,73 @@
+
+<!doctype html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html><head><title>Python: module TileStache.Pixels</title>
+</head><body bgcolor="#f0f0f8">
+
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="heading">
+<tr bgcolor="#7799ee">
+<td valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial">&nbsp;<br><big><big><strong><a href="TileStache.html"><font color="#ffffff">TileStache</font></a>.Pixels</strong></big></big></font></td
+><td align=right valign=bottom
+><font color="#ffffff" face="helvetica, arial"><a href=".">index</a></font></td></tr></table>
+    <p><tt>Support&nbsp;for&nbsp;8-bit&nbsp;image&nbsp;palettes&nbsp;in&nbsp;PNG&nbsp;output.<br>
+&nbsp;<br>
+PNG&nbsp;images&nbsp;can&nbsp;be&nbsp;significantly&nbsp;cut&nbsp;down&nbsp;in&nbsp;size&nbsp;by&nbsp;using&nbsp;a&nbsp;color&nbsp;look-up&nbsp;table.<br>
+TileStache&nbsp;layers&nbsp;support&nbsp;Adobe&nbsp;Photoshop's&nbsp;.act&nbsp;file&nbsp;format&nbsp;for&nbsp;PNG&nbsp;output,<br>
+and&nbsp;can&nbsp;be&nbsp;referenced&nbsp;in&nbsp;a&nbsp;layer&nbsp;configuration&nbsp;file&nbsp;like&nbsp;this:<br>
+&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;"osm":<br>
+&nbsp;&nbsp;&nbsp;&nbsp;{<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"provider":&nbsp;{"name":&nbsp;"proxy",&nbsp;"provider":&nbsp;"OPENSTREETMAP"},<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"png&nbsp;options":&nbsp;{"palette":&nbsp;"<a href="http://tilestache.org/example-palette-openstreetmap-mapnik.act">http://tilestache.org/example-palette-openstreetmap-mapnik.act</a>"}<br>
+&nbsp;&nbsp;&nbsp;&nbsp;}<br>
+&nbsp;<br>
+The&nbsp;example&nbsp;OSM&nbsp;palette&nbsp;above&nbsp;is&nbsp;a&nbsp;real&nbsp;file&nbsp;with&nbsp;a&nbsp;32&nbsp;color&nbsp;(5&nbsp;bit)&nbsp;selection<br>
+of&nbsp;colors&nbsp;appropriate&nbsp;for&nbsp;use&nbsp;with&nbsp;OpenStreetMap's&nbsp;default&nbsp;Mapnik&nbsp;cartography.<br>
+&nbsp;<br>
+To&nbsp;generate&nbsp;an&nbsp;.act&nbsp;file,&nbsp;convert&nbsp;an&nbsp;existing&nbsp;image&nbsp;in&nbsp;Photoshop&nbsp;to&nbsp;indexed<br>
+color,&nbsp;and&nbsp;access&nbsp;the&nbsp;color&nbsp;table&nbsp;under&nbsp;Image&nbsp;-&gt;&nbsp;Mode&nbsp;-&gt;&nbsp;Color&nbsp;Table.&nbsp;Saving<br>
+the&nbsp;color&nbsp;table&nbsp;results&nbsp;in&nbsp;a&nbsp;usable&nbsp;.act&nbsp;file,&nbsp;internally&nbsp;structured&nbsp;as&nbsp;a<br>
+fixed-size&nbsp;772-byte&nbsp;table&nbsp;with&nbsp;256&nbsp;3-byte&nbsp;RGB&nbsp;triplets,&nbsp;followed&nbsp;by&nbsp;a&nbsp;two-byte<br>
+unsigned&nbsp;int&nbsp;with&nbsp;the&nbsp;number&nbsp;of&nbsp;defined&nbsp;colors&nbsp;(may&nbsp;be&nbsp;less&nbsp;than&nbsp;256)&nbsp;and&nbsp;a<br>
+finaly&nbsp;two-byte&nbsp;unsigned&nbsp;int&nbsp;with&nbsp;the&nbsp;optional&nbsp;index&nbsp;of&nbsp;a&nbsp;transparent&nbsp;color<br>
+in&nbsp;the&nbsp;lookup&nbsp;table.&nbsp;If&nbsp;the&nbsp;final&nbsp;byte&nbsp;is&nbsp;0xFFFF,&nbsp;there&nbsp;is&nbsp;no&nbsp;transparency.</tt></p>
+<p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#aa55cc">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial"><big><strong>Modules</strong></big></font></td></tr>
+    
+<tr><td bgcolor="#aa55cc"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%"><table width="100%" summary="list"><tr><td width="25%" valign=top><a href="PIL.Image.html">PIL.Image</a><br>
+</td><td width="25%" valign=top></td><td width="25%" valign=top></td><td width="25%" valign=top></td></tr></table></td></tr></table><p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#eeaa77">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial"><big><strong>Functions</strong></big></font></td></tr>
+    
+<tr><td bgcolor="#eeaa77"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%"><dl><dt><a name="-add"><strong>add</strong></a>(...)</dt><dd><tt><a href="#-add">add</a>(a,&nbsp;b)&nbsp;--&nbsp;Same&nbsp;as&nbsp;a&nbsp;+&nbsp;b.</tt></dd></dl>
+ <dl><dt><a name="-apply_palette"><strong>apply_palette</strong></a>(image, palette, t_index)</dt><dd><tt>Apply&nbsp;a&nbsp;palette&nbsp;array&nbsp;to&nbsp;an&nbsp;image,&nbsp;return&nbsp;a&nbsp;new&nbsp;image.</tt></dd></dl>
+ <dl><dt><a name="-ceil"><strong>ceil</strong></a>(...)</dt><dd><tt><a href="#-ceil">ceil</a>(x)<br>
+&nbsp;<br>
+Return&nbsp;the&nbsp;ceiling&nbsp;of&nbsp;x&nbsp;as&nbsp;a&nbsp;float.<br>
+This&nbsp;is&nbsp;the&nbsp;smallest&nbsp;integral&nbsp;value&nbsp;&gt;=&nbsp;x.</tt></dd></dl>
+ <dl><dt><a name="-load_palette"><strong>load_palette</strong></a>(file_href)</dt><dd><tt>Load&nbsp;colors&nbsp;from&nbsp;a&nbsp;Photoshop&nbsp;.act&nbsp;file,&nbsp;return&nbsp;palette&nbsp;info.<br>
+&nbsp;<br>
+Return&nbsp;tuple&nbsp;is&nbsp;an&nbsp;array&nbsp;of&nbsp;[&nbsp;(r,&nbsp;g,&nbsp;b),&nbsp;(r,&nbsp;g,&nbsp;b),&nbsp;...&nbsp;],<br>
+bit&nbsp;depth&nbsp;of&nbsp;the&nbsp;palette,&nbsp;and&nbsp;a&nbsp;numeric&nbsp;transparency&nbsp;index<br>
+or&nbsp;None&nbsp;if&nbsp;not&nbsp;defined.</tt></dd></dl>
+ <dl><dt><a name="-log"><strong>log</strong></a>(...)</dt><dd><tt><a href="#-log">log</a>(x[,&nbsp;base])&nbsp;-&gt;&nbsp;the&nbsp;logarithm&nbsp;of&nbsp;x&nbsp;to&nbsp;the&nbsp;given&nbsp;base.<br>
+If&nbsp;the&nbsp;base&nbsp;not&nbsp;specified,&nbsp;returns&nbsp;the&nbsp;natural&nbsp;logarithm&nbsp;(base&nbsp;e)&nbsp;of&nbsp;x.</tt></dd></dl>
+ <dl><dt><a name="-pack"><strong>pack</strong></a>(...)</dt><dd><tt>Return&nbsp;string&nbsp;containing&nbsp;values&nbsp;v1,&nbsp;v2,&nbsp;...&nbsp;packed&nbsp;according&nbsp;to&nbsp;fmt.</tt></dd></dl>
+ <dl><dt><a name="-palette_color"><strong>palette_color</strong></a>(r, g, b, palette, t_index)</dt><dd><tt>Return&nbsp;best&nbsp;palette&nbsp;match&nbsp;index.<br>
+&nbsp;<br>
+Find&nbsp;the&nbsp;closest&nbsp;color&nbsp;in&nbsp;the&nbsp;palette&nbsp;based&nbsp;on&nbsp;dumb&nbsp;euclidian&nbsp;distance,<br>
+assign&nbsp;its&nbsp;index&nbsp;in&nbsp;the&nbsp;palette&nbsp;to&nbsp;a&nbsp;mapping&nbsp;from&nbsp;24-bit&nbsp;color&nbsp;tuples.</tt></dd></dl>
+ <dl><dt><a name="-sqrt"><strong>sqrt</strong></a>(...)</dt><dd><tt><a href="#-sqrt">sqrt</a>(x)<br>
+&nbsp;<br>
+Return&nbsp;the&nbsp;square&nbsp;root&nbsp;of&nbsp;x.</tt></dd></dl>
+ <dl><dt><a name="-unpack"><strong>unpack</strong></a>(...)</dt><dd><tt>Unpack&nbsp;the&nbsp;string&nbsp;containing&nbsp;packed&nbsp;C&nbsp;structure&nbsp;data,&nbsp;according&nbsp;to&nbsp;fmt.<br>
+Requires&nbsp;len(string)&nbsp;==&nbsp;calcsize(fmt).</tt></dd></dl>
+</td></tr></table>
+</body></html>

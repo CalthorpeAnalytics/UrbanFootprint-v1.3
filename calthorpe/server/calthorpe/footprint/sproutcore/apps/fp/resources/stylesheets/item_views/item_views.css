@@ -1,0 +1,104 @@
+$theme.footprint.sc-view.sc-label-view.footprint-numberrangeitemview-item {
+    background-color: #FFFFFF;
+}
+
+$theme.footprint.footprint-editable-model-string-view {
+    text-align: left;
+}
+
+$theme.footprint.footprint-label-select-view {
+    .footprint-editable-model-string-view {
+        text-align: right;
+    }
+}
+
+$theme.footprint-info-pane {
+    $theme.footprint-editable-model-string-view.is-editable {
+        &.is-editable {
+            background-color: #f0f8ff;
+            border-color: #c3c3c3;
+            border-width: 2px;
+        }
+    }
+}
+
+$theme.footprint.sc-view.sc-pane.sc-panel.sc-palette.footprint-info-pane.opaque.footprint-feature-info-view.panel {
+    background-color: #e1e4e1;
+    border-color: #708090;
+    border-width: 5px;
+}
+
+$theme.sc-split-divider-view {
+    background-color: #B0C4DE;
+}
+
+$theme.footprint-map-section-view {
+    border-left-color: #B0C4DE;
+    border-left-width: 5px;
+}
+
+$theme.footprint-logo-section-view {
+    background-color: #D0D0D0;
+    border-color: #D8D8D8;
+    border-width: 2px;
+}
+
+$theme.footprint-right-logo-title-view {
+    font-size: 14;
+    font-weight: 700;
+}
+
+$theme.footprint-left-city-title-view {
+    font-size: 14;
+    font-weight: 700;
+}
+
+$theme.footprint-left-city-content-view {
+    font-size: 14;
+    font-weight: 400;
+}
+
+$theme.footprint-left-county-title-view {
+    font-size: 14;
+    font-weight: 700;
+}
+
+$theme.footprint-left-county-content-view {
+    font-size: 14;
+    font-weight: 400;
+}
+
+$theme.footprint-left-state-title-view {
+    font-size: 14;
+    font-weight: 700;
+}
+
+$theme.footprint-left-state-content-view {
+    font-size: 14;
+    font-weight: 400;
+}
+
+$theme.footprint-copyright-view {
+    background-color: #F0F0F0;
+    border-top-color: #B8B8B8;
+    border-top-width: 2px;
+}
+
+$theme.footprint-project-section-view.footprint-menu-button-view.footprint-edit-button-view.sc-button-view img {
+    vertical-align: middle;
+    position: relative;
+    top: -1px;
+    left: 3px;
+}
+
+$theme.footprint-menu-button-view.footprint-edit-button-view.sc-button-view.ace.sc-small-size.button img {
+    vertical-align: middle;
+    position: relative;
+    top: -3px;
+    left: -4px;
+}
+
+
+$theme.footprint-feature-edit-view {
+    background-color: #C0C0C0;
+}

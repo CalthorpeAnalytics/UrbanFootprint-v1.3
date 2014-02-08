@@ -1,0 +1,95 @@
+
+<!doctype html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html><head><title>Python: module TileStache.Goodies.Providers.Grid</title>
+</head><body bgcolor="#f0f0f8">
+
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="heading">
+<tr bgcolor="#7799ee">
+<td valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial">&nbsp;<br><big><big><strong><a href="TileStache.html"><font color="#ffffff">TileStache</font></a>.<a href="TileStache.Goodies.html"><font color="#ffffff">Goodies</font></a>.<a href="TileStache.Goodies.Providers.html"><font color="#ffffff">Providers</font></a>.Grid</strong></big></big></font></td
+><td align=right valign=bottom
+><font color="#ffffff" face="helvetica, arial"><a href=".">index</a></font></td></tr></table>
+    <p><tt>Grid&nbsp;rendering&nbsp;for&nbsp;TileStache.<br>
+&nbsp;<br>
+<a href="#UTM">UTM</a>&nbsp;provider&nbsp;found&nbsp;here&nbsp;draws&nbsp;gridlines&nbsp;in&nbsp;tiles,&nbsp;in&nbsp;transparent&nbsp;images&nbsp;suitable<br>
+for&nbsp;use&nbsp;as&nbsp;map&nbsp;overlays.<br>
+&nbsp;<br>
+Example&nbsp;TileStache&nbsp;provider&nbsp;configuration:<br>
+&nbsp;<br>
+"grid":<br>
+{<br>
+&nbsp;&nbsp;&nbsp;&nbsp;"provider":&nbsp;{"class":&nbsp;"TileStache.Goodies.Providers.Grid:<a href="#UTM">UTM</a>",<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"kwargs":&nbsp;{"display":&nbsp;"MGRS",&nbsp;"spacing":&nbsp;200,&nbsp;"tick":&nbsp;10}}<br>
+}</tt></p>
+<p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#aa55cc">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial"><big><strong>Modules</strong></big></font></td></tr>
+    
+<tr><td bgcolor="#aa55cc"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%"><table width="100%" summary="list"><tr><td width="25%" valign=top><a href="PIL.Image.html">PIL.Image</a><br>
+<a href="PIL.ImageDraw.html">PIL.ImageDraw</a><br>
+</td><td width="25%" valign=top><a href="PIL.ImageFont.html">PIL.ImageFont</a><br>
+<a href="PIL.html">PIL</a><br>
+</td><td width="25%" valign=top><a href="TileStache.html">TileStache</a><br>
+<a href="sys.html">sys</a><br>
+</td><td width="25%" valign=top></td></tr></table></td></tr></table><p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#ee77aa">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial"><big><strong>Classes</strong></big></font></td></tr>
+    
+<tr><td bgcolor="#ee77aa"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%"><dl>
+<dt><font face="helvetica, arial"><a href="TileStache.Goodies.Providers.Grid.html#UTM">UTM</a>
+</font></dt></dl>
+ <p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#ffc8d8">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#000000" face="helvetica, arial"><a name="UTM">class <strong>UTM</strong></a></font></td></tr>
+    
+<tr bgcolor="#ffc8d8"><td rowspan=2><tt>&nbsp;&nbsp;&nbsp;</tt></td>
+<td colspan=2><tt><a href="#UTM">UTM</a>&nbsp;Grid&nbsp;provider,&nbsp;renders&nbsp;transparent&nbsp;gridlines.<br>
+&nbsp;<br>
+Example&nbsp;configuration:<br>
+&nbsp;<br>
+"grid":<br>
+{<br>
+&nbsp;&nbsp;&nbsp;&nbsp;"provider":&nbsp;{"class":&nbsp;"TileStache.Goodies.Providers.Grid.<a href="#UTM">UTM</a>",<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"kwargs":&nbsp;{"display":&nbsp;"MGRS",&nbsp;"spacing":&nbsp;200,&nbsp;"tick":&nbsp;10}}<br>
+}<br>
+&nbsp;<br>
+Additional&nbsp;arguments:<br>
+&nbsp;<br>
+-&nbsp;display&nbsp;(optional,&nbsp;default:&nbsp;"<a href="#UTM">UTM</a>")<br>
+&nbsp;&nbsp;&nbsp;&nbsp;Label&nbsp;display&nbsp;style.&nbsp;<a href="#UTM">UTM</a>:&nbsp;"18Q&nbsp;0780&nbsp;2052",&nbsp;MGRS:&nbsp;"18Q&nbsp;YF&nbsp;80&nbsp;52".<br>
+-&nbsp;spacing&nbsp;(optional,&nbsp;default:&nbsp;128)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;Minimum&nbsp;number&nbsp;of&nbsp;pixels&nbsp;between&nbsp;grid&nbsp;lines.<br>
+-&nbsp;tick&nbsp;(optional,&nbsp;default&nbsp;8)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;Pixel&nbsp;length&nbsp;of&nbsp;1/10&nbsp;grid&nbsp;tick&nbsp;marks.<br>&nbsp;</tt></td></tr>
+<tr><td>&nbsp;</td>
+<td width="100%">Methods defined here:<br>
+<dl><dt><a name="UTM-__init__"><strong>__init__</strong></a>(self, layer, display<font color="#909090">='UTM'</font>, spacing<font color="#909090">=128</font>, tick<font color="#909090">=8</font>)</dt></dl>
+
+<dl><dt><a name="UTM-renderArea"><strong>renderArea</strong></a>(self, width_, height_, srs, xmin_, ymin_, xmax_, ymax_, zoom)</dt></dl>
+
+</td></tr></table></td></tr></table><p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#eeaa77">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial"><big><strong>Functions</strong></big></font></td></tr>
+    
+<tr><td bgcolor="#eeaa77"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%"><dl><dt><a name="-lat2hemi"><strong>lat2hemi</strong></a>(lat)</dt><dd><tt>Convert&nbsp;latitude&nbsp;to&nbsp;single-letter&nbsp;hemisphere,&nbsp;"N"&nbsp;or&nbsp;"S".</tt></dd></dl>
+ <dl><dt><a name="-lat2zone"><strong>lat2zone</strong></a>(lat)</dt><dd><tt>Convert&nbsp;longitude&nbsp;to&nbsp;single-letter&nbsp;<a href="#UTM">UTM</a>&nbsp;zone.</tt></dd></dl>
+ <dl><dt><a name="-lon2zone"><strong>lon2zone</strong></a>(lon)</dt><dd><tt>Convert&nbsp;longitude&nbsp;to&nbsp;numeric&nbsp;<a href="#UTM">UTM</a>&nbsp;zone,&nbsp;1-60.</tt></dd></dl>
+ <dl><dt><a name="-lonlat2grid"><strong>lonlat2grid</strong></a>(lon, lat)</dt><dd><tt>Convert&nbsp;lat/lon&nbsp;pair&nbsp;to&nbsp;alphanumeric&nbsp;<a href="#UTM">UTM</a>&nbsp;zone.</tt></dd></dl>
+ <dl><dt><a name="-transform"><strong>transform</strong></a>(w, h, xmin, ymin, xmax, ymax)</dt></dl>
+ <dl><dt><a name="-utm2mgrs"><strong>utm2mgrs</strong></a>(e, n, grid, zeros<font color="#909090">=0</font>)</dt><dd><tt>Convert&nbsp;<a href="#UTM">UTM</a>&nbsp;easting/northing&nbsp;pair&nbsp;and&nbsp;grid&nbsp;zone<br>
+to&nbsp;MGRS-style&nbsp;grid&nbsp;reference,&nbsp;e.g.&nbsp;"18Q&nbsp;YF&nbsp;80&nbsp;52".<br>
+&nbsp;<br>
+Adapted&nbsp;from&nbsp;<a href="http://haiticrisismap.org/js/usng2.js">http://haiticrisismap.org/js/usng2.js</a></tt></dd></dl>
+</td></tr></table>
+</body></html>

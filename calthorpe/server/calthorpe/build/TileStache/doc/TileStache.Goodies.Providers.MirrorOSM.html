@@ -1,0 +1,165 @@
+
+<!doctype html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html><head><title>Python: module TileStache.Goodies.Providers.MirrorOSM</title>
+</head><body bgcolor="#f0f0f8">
+
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="heading">
+<tr bgcolor="#7799ee">
+<td valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial">&nbsp;<br><big><big><strong><a href="TileStache.html"><font color="#ffffff">TileStache</font></a>.<a href="TileStache.Goodies.html"><font color="#ffffff">Goodies</font></a>.<a href="TileStache.Goodies.Providers.html"><font color="#ffffff">Providers</font></a>.MirrorOSM</strong></big></big></font></td
+><td align=right valign=bottom
+><font color="#ffffff" face="helvetica, arial"><a href=".">index</a></font></td></tr></table>
+    <p><tt>Populate&nbsp;an&nbsp;OSM&nbsp;rendering&nbsp;database&nbsp;using&nbsp;tiled&nbsp;data&nbsp;requests.<br>
+&nbsp;<br>
+This&nbsp;provider&nbsp;is&nbsp;unusual&nbsp;in&nbsp;that&nbsp;requests&nbsp;for&nbsp;tiles&nbsp;have&nbsp;the&nbsp;side&nbsp;effect&nbsp;of<br>
+running&nbsp;osm2pgsql&nbsp;to&nbsp;populate&nbsp;a&nbsp;PostGIS&nbsp;database&nbsp;of&nbsp;OSM&nbsp;data&nbsp;from&nbsp;a&nbsp;remote&nbsp;API<br>
+source.&nbsp;Returned&nbsp;tiles&nbsp;are&nbsp;just&nbsp;text&nbsp;confirmations&nbsp;that&nbsp;the&nbsp;process&nbsp;has&nbsp;been<br>
+successful,&nbsp;while&nbsp;the&nbsp;stored&nbsp;data&nbsp;is&nbsp;expected&nbsp;to&nbsp;be&nbsp;used&nbsp;in&nbsp;other&nbsp;providers<br>
+to&nbsp;render&nbsp;OSM&nbsp;data.&nbsp;It&nbsp;would&nbsp;be&nbsp;normal&nbsp;to&nbsp;use&nbsp;this&nbsp;provider&nbsp;outside&nbsp;the&nbsp;regular<br>
+confines&nbsp;of&nbsp;a&nbsp;web&nbsp;server,&nbsp;perhaps&nbsp;with&nbsp;a&nbsp;call&nbsp;to&nbsp;tilestache-seed.py&nbsp;governed<br>
+by&nbsp;a&nbsp;cron&nbsp;job&nbsp;or&nbsp;some&nbsp;other&nbsp;out-of-band&nbsp;process.<br>
+&nbsp;<br>
+MirrorOSM&nbsp;is&nbsp;made&nbsp;tenable&nbsp;by&nbsp;MapQuest's&nbsp;hosting&nbsp;of&nbsp;the&nbsp;XAPI&nbsp;service:<br>
+&nbsp;&nbsp;<a href="http://open.mapquestapi.com/xapi/">http://open.mapquestapi.com/xapi/</a><br>
+&nbsp;<br>
+Osm2pgsql&nbsp;is&nbsp;an&nbsp;external&nbsp;utility:<br>
+&nbsp;&nbsp;<a href="http://wiki.openstreetmap.org/wiki/Osm2pgsql">http://wiki.openstreetmap.org/wiki/Osm2pgsql</a><br>
+&nbsp;<br>
+Example&nbsp;configuration:<br>
+&nbsp;<br>
+&nbsp;&nbsp;"mirror-osm":<br>
+&nbsp;&nbsp;{<br>
+&nbsp;&nbsp;&nbsp;&nbsp;"provider":<br>
+&nbsp;&nbsp;&nbsp;&nbsp;{<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"class":&nbsp;"TileStache.Goodies.Providers.MirrorOSM:<a href="#Provider">Provider</a>",<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"kwargs":<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"username":&nbsp;"osm",<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"database":&nbsp;"planet",<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"api_base":&nbsp;"<a href="http://open.mapquestapi.com/xapi/">http://open.mapquestapi.com/xapi/</a>"<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>
+&nbsp;&nbsp;&nbsp;&nbsp;}<br>
+&nbsp;&nbsp;}<br>
+&nbsp;<br>
+<a href="#Provider">Provider</a>&nbsp;parameters:<br>
+&nbsp;<br>
+&nbsp;&nbsp;database:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;Required&nbsp;Postgres&nbsp;database&nbsp;name.<br>
+&nbsp;&nbsp;<br>
+&nbsp;&nbsp;username:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;Required&nbsp;Postgres&nbsp;user&nbsp;name.<br>
+&nbsp;&nbsp;<br>
+&nbsp;&nbsp;password:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;Optional&nbsp;Postgres&nbsp;password.<br>
+&nbsp;&nbsp;<br>
+&nbsp;&nbsp;hostname:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;Optional&nbsp;Postgres&nbsp;host&nbsp;name.<br>
+&nbsp;&nbsp;<br>
+&nbsp;&nbsp;table_prefix:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;Optional&nbsp;table&nbsp;prefix&nbsp;for&nbsp;osm2pgsql.&nbsp;Defaults&nbsp;to&nbsp;"mirrorosm"&nbsp;if&nbsp;omitted.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;Four&nbsp;tables&nbsp;will&nbsp;be&nbsp;created&nbsp;with&nbsp;this&nbsp;prefix:&nbsp;&lt;prefix&gt;_point,&nbsp;&lt;prefix&gt;_line,<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;prefix&gt;_polygon,&nbsp;and&nbsp;&lt;prefix&gt;_roads.&nbsp;Must&nbsp;result&nbsp;in&nbsp;valid&nbsp;table&nbsp;names!<br>
+&nbsp;&nbsp;<br>
+&nbsp;&nbsp;api_base:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;Optional&nbsp;OSM&nbsp;API&nbsp;base&nbsp;URL.&nbsp;Because&nbsp;we&nbsp;don't&nbsp;want&nbsp;to&nbsp;overtax&nbsp;the&nbsp;main&nbsp;OSM<br>
+&nbsp;&nbsp;&nbsp;&nbsp;API,&nbsp;this&nbsp;defaults&nbsp;to&nbsp;MapQuest's&nbsp;XAPI,&nbsp;"<a href="http://open.mapquestapi.com/xapi/">http://open.mapquestapi.com/xapi/</a>".<br>
+&nbsp;&nbsp;&nbsp;&nbsp;The&nbsp;trailing&nbsp;slash&nbsp;must&nbsp;be&nbsp;included,&nbsp;up&nbsp;to&nbsp;but&nbsp;not&nbsp;including&nbsp;the&nbsp;"api/0.6"<br>
+&nbsp;&nbsp;&nbsp;&nbsp;portion&nbsp;of&nbsp;a&nbsp;URL.&nbsp;If&nbsp;you're&nbsp;careful&nbsp;to&nbsp;limit&nbsp;your&nbsp;usage,&nbsp;the&nbsp;primary<br>
+&nbsp;&nbsp;&nbsp;&nbsp;OSM&nbsp;API&nbsp;can&nbsp;be&nbsp;specified&nbsp;with&nbsp;"<a href="http://api.openstreetmap.org/">http://api.openstreetmap.org/</a>".<br>
+&nbsp;&nbsp;<br>
+&nbsp;&nbsp;osm2pgsql:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;Optional&nbsp;filesystem&nbsp;path&nbsp;to&nbsp;osm2pgsql,&nbsp;just&nbsp;in&nbsp;case&nbsp;it's&nbsp;someplace&nbsp;outside<br>
+&nbsp;&nbsp;&nbsp;&nbsp;/usr/bin&nbsp;or&nbsp;/usr/local/bin.&nbsp;Defaults&nbsp;to&nbsp;"osm2pgsql&nbsp;--utf8-sanitize".<br>
+&nbsp;&nbsp;&nbsp;&nbsp;Additional&nbsp;arguments&nbsp;such&nbsp;as&nbsp;"--keep-coastlines"&nbsp;can&nbsp;be&nbsp;added&nbsp;to&nbsp;this&nbsp;string,<br>
+&nbsp;&nbsp;&nbsp;&nbsp;e.g.&nbsp;"/home/user/bin/osm2pgsql&nbsp;--keep-coastlines&nbsp;--utf8-sanitize".</tt></p>
+<p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#aa55cc">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial"><big><strong>Modules</strong></big></font></td></tr>
+    
+<tr><td bgcolor="#aa55cc"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%"><table width="100%" summary="list"><tr><td width="25%" valign=top><a href="PIL.Image.html">PIL.Image</a><br>
+</td><td width="25%" valign=top></td><td width="25%" valign=top></td><td width="25%" valign=top></td></tr></table></td></tr></table><p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#ee77aa">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial"><big><strong>Classes</strong></big></font></td></tr>
+    
+<tr><td bgcolor="#ee77aa"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%"><dl>
+<dt><font face="helvetica, arial"><a href="TileStache.Goodies.Providers.MirrorOSM.html#ConfirmationResponse">ConfirmationResponse</a>
+</font></dt><dt><font face="helvetica, arial"><a href="TileStache.Goodies.Providers.MirrorOSM.html#Provider">Provider</a>
+</font></dt></dl>
+ <p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#ffc8d8">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#000000" face="helvetica, arial"><a name="ConfirmationResponse">class <strong>ConfirmationResponse</strong></a></font></td></tr>
+    
+<tr bgcolor="#ffc8d8"><td rowspan=2><tt>&nbsp;&nbsp;&nbsp;</tt></td>
+<td colspan=2><tt>Wrapper&nbsp;class&nbsp;for&nbsp;confirmation&nbsp;responses.<br>
+&nbsp;<br>
+TileStache.getTile()&nbsp;expects&nbsp;to&nbsp;be&nbsp;able&nbsp;to&nbsp;save&nbsp;one&nbsp;of&nbsp;these&nbsp;to&nbsp;a&nbsp;buffer.<br>&nbsp;</tt></td></tr>
+<tr><td>&nbsp;</td>
+<td width="100%">Methods defined here:<br>
+<dl><dt><a name="ConfirmationResponse-__init__"><strong>__init__</strong></a>(self, coord, content, success)</dt></dl>
+
+<dl><dt><a name="ConfirmationResponse-do_I_have_to_draw_you_a_picture"><strong>do_I_have_to_draw_you_a_picture</strong></a>(self)</dt><dd><tt>Return&nbsp;a&nbsp;little&nbsp;thumbs-up&nbsp;/&nbsp;thumbs-down&nbsp;image&nbsp;with&nbsp;text&nbsp;in&nbsp;it.</tt></dd></dl>
+
+<dl><dt><a name="ConfirmationResponse-save"><strong>save</strong></a>(self, out, format)</dt></dl>
+
+</td></tr></table> <p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#ffc8d8">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#000000" face="helvetica, arial"><a name="Provider">class <strong>Provider</strong></a></font></td></tr>
+    
+<tr><td bgcolor="#ffc8d8"><tt>&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%">Methods defined here:<br>
+<dl><dt><a name="Provider-__init__"><strong>__init__</strong></a>(self, layer, database, username, password<font color="#909090">=None</font>, hostname<font color="#909090">=None</font>, table_prefix<font color="#909090">='mirrorosm'</font>, api_base<font color="#909090">='http://open.mapquestapi.com/xapi/'</font>, osm2pgsql<font color="#909090">='osm2pgsql --utf8-sanitize'</font>)</dt></dl>
+
+<dl><dt><a name="Provider-getTypeByExtension"><strong>getTypeByExtension</strong></a>(self, extension)</dt><dd><tt>Get&nbsp;mime-type&nbsp;and&nbsp;format&nbsp;by&nbsp;file&nbsp;extension.<br>
+&nbsp;<br>
+This&nbsp;only&nbsp;accepts&nbsp;"txt".</tt></dd></dl>
+
+<dl><dt><a name="Provider-renderTile"><strong>renderTile</strong></a>(self, width, height, srs, coord)</dt><dd><tt>Render&nbsp;a&nbsp;single&nbsp;tile,&nbsp;return&nbsp;a&nbsp;<a href="#ConfirmationResponse">ConfirmationResponse</a>&nbsp;instance.</tt></dd></dl>
+
+</td></tr></table></td></tr></table><p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#eeaa77">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial"><big><strong>Functions</strong></big></font></td></tr>
+    
+<tr><td bgcolor="#eeaa77"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%"><dl><dt><a name="-clean_up_tables"><strong>clean_up_tables</strong></a>(db, tmp_prefix)</dt><dd><tt>Drop&nbsp;all&nbsp;temporary&nbsp;tables&nbsp;created&nbsp;by&nbsp;<a href="#-prepare_data">prepare_data</a>().</tt></dd></dl>
+ <dl><dt><a name="-close"><strong>close</strong></a>(...)</dt><dd><tt><a href="#-close">close</a>(fd)<br>
+&nbsp;<br>
+Close&nbsp;a&nbsp;file&nbsp;descriptor&nbsp;(for&nbsp;low&nbsp;level&nbsp;IO).</tt></dd></dl>
+ <dl><dt><a name="-coordinate_latlon_bbox"><strong>coordinate_latlon_bbox</strong></a>(coord, projection)</dt><dd><tt>Return&nbsp;an&nbsp;(xmin,&nbsp;ymin,&nbsp;xmax,&nbsp;ymax)&nbsp;bounding&nbsp;box&nbsp;for&nbsp;a&nbsp;projected&nbsp;tile.</tt></dd></dl>
+ <dl><dt><a name="-create_tables"><strong>create_tables</strong></a>(db, prefix, tmp_prefix)</dt><dd><tt>Create&nbsp;permanent&nbsp;tables&nbsp;for&nbsp;OSM&nbsp;data.&nbsp;No-op&nbsp;if&nbsp;they&nbsp;already&nbsp;exist.</tt></dd></dl>
+ <dl><dt><a name="-download_api_data"><strong>download_api_data</strong></a>(filename, coord, api_base, projection)</dt><dd><tt>Download&nbsp;API&nbsp;data&nbsp;for&nbsp;a&nbsp;tile&nbsp;to&nbsp;a&nbsp;named&nbsp;file,&nbsp;return&nbsp;size&nbsp;in&nbsp;kilobytes.</tt></dd></dl>
+ <dl><dt><a name="-populate_tables"><strong>populate_tables</strong></a>(db, prefix, tmp_prefix, bounds)</dt><dd><tt>Move&nbsp;prepared&nbsp;OSM&nbsp;data&nbsp;from&nbsp;temporary&nbsp;to&nbsp;permanent&nbsp;tables.<br>
+&nbsp;<br>
+Replace&nbsp;existing&nbsp;data&nbsp;and&nbsp;work&nbsp;within&nbsp;a&nbsp;single&nbsp;transaction.</tt></dd></dl>
+ <dl><dt><a name="-prepare_data"><strong>prepare_data</strong></a>(filename, tmp_prefix, dbargs, osm2pgsql, projection)</dt><dd><tt>Stage&nbsp;OSM&nbsp;data&nbsp;into&nbsp;a&nbsp;temporary&nbsp;set&nbsp;of&nbsp;tables&nbsp;using&nbsp;osm2pgsql.</tt></dd></dl>
+ <dl><dt><a name="-time"><strong>time</strong></a>(...)</dt><dd><tt><a href="#-time">time</a>()&nbsp;-&gt;&nbsp;floating&nbsp;point&nbsp;number<br>
+&nbsp;<br>
+Return&nbsp;the&nbsp;current&nbsp;time&nbsp;in&nbsp;seconds&nbsp;since&nbsp;the&nbsp;Epoch.<br>
+Fractions&nbsp;of&nbsp;a&nbsp;second&nbsp;may&nbsp;be&nbsp;present&nbsp;if&nbsp;the&nbsp;system&nbsp;clock&nbsp;provides&nbsp;them.</tt></dd></dl>
+ <dl><dt><a name="-unlink"><strong>unlink</strong></a>(...)</dt><dd><tt><a href="#-unlink">unlink</a>(path)<br>
+&nbsp;<br>
+Remove&nbsp;a&nbsp;file&nbsp;(same&nbsp;as&nbsp;remove(path)).</tt></dd></dl>
+ <dl><dt><a name="-write"><strong>write</strong></a>(...)</dt><dd><tt><a href="#-write">write</a>(fd,&nbsp;string)&nbsp;-&gt;&nbsp;byteswritten<br>
+&nbsp;<br>
+Write&nbsp;a&nbsp;string&nbsp;to&nbsp;a&nbsp;file&nbsp;descriptor.</tt></dd></dl>
+</td></tr></table><p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#55aa55">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial"><big><strong>Data</strong></big></font></td></tr>
+    
+<tr><td bgcolor="#55aa55"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%"><strong>PIPE</strong> = -1<br>
+<strong>stderr</strong> = &lt;open file '&lt;stderr&gt;', mode 'w' at 0x100416140&gt;</td></tr></table>
+</body></html>

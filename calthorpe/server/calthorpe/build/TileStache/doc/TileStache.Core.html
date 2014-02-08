@@ -1,0 +1,514 @@
+
+<!doctype html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html><head><title>Python: module TileStache.Core</title>
+</head><body bgcolor="#f0f0f8">
+
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="heading">
+<tr bgcolor="#7799ee">
+<td valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial">&nbsp;<br><big><big><strong><a href="TileStache.html"><font color="#ffffff">TileStache</font></a>.Core</strong></big></big></font></td
+><td align=right valign=bottom
+><font color="#ffffff" face="helvetica, arial"><a href=".">index</a></font></td></tr></table>
+    <p><tt>The&nbsp;core&nbsp;class&nbsp;bits&nbsp;of&nbsp;TileStache.<br>
+&nbsp;<br>
+Two&nbsp;important&nbsp;classes&nbsp;can&nbsp;be&nbsp;found&nbsp;here.<br>
+&nbsp;<br>
+<a href="#Layer">Layer</a>&nbsp;represents&nbsp;a&nbsp;set&nbsp;of&nbsp;tiles&nbsp;in&nbsp;TileStache.&nbsp;It&nbsp;keeps&nbsp;references&nbsp;to<br>
+providers,&nbsp;projections,&nbsp;a&nbsp;Configuration&nbsp;instance,&nbsp;and&nbsp;other&nbsp;details&nbsp;required<br>
+for&nbsp;to&nbsp;the&nbsp;storage&nbsp;and&nbsp;rendering&nbsp;of&nbsp;a&nbsp;tile&nbsp;set.&nbsp;Layers&nbsp;are&nbsp;represented&nbsp;in&nbsp;the<br>
+configuration&nbsp;file&nbsp;as&nbsp;a&nbsp;dictionary:<br>
+&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;{<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"cache":&nbsp;...,<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"layers":&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"example-name":<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"provider":&nbsp;{&nbsp;...&nbsp;},<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"metatile":&nbsp;{&nbsp;...&nbsp;},<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"preview":&nbsp;{&nbsp;...&nbsp;},<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"projection":&nbsp;...,<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"stale&nbsp;lock&nbsp;timeout":&nbsp;...,<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"cache&nbsp;lifespan":&nbsp;...,<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"write&nbsp;cache":&nbsp;...,<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"bounds":&nbsp;{&nbsp;...&nbsp;},<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"allowed&nbsp;origin":&nbsp;...,<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"maximum&nbsp;cache&nbsp;age":&nbsp;...,<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"redirects":&nbsp;...,<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"tile&nbsp;height":&nbsp;...,<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"jpeg&nbsp;options":&nbsp;...,<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"png&nbsp;options":&nbsp;...<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>
+&nbsp;&nbsp;&nbsp;&nbsp;}<br>
+&nbsp;<br>
+-&nbsp;"provider"&nbsp;refers&nbsp;to&nbsp;a&nbsp;Provider,&nbsp;explained&nbsp;in&nbsp;detail&nbsp;in&nbsp;TileStache.Providers.<br>
+-&nbsp;"metatile"&nbsp;optionally&nbsp;makes&nbsp;it&nbsp;possible&nbsp;for&nbsp;multiple&nbsp;individual&nbsp;tiles&nbsp;to&nbsp;be<br>
+&nbsp;&nbsp;rendered&nbsp;at&nbsp;one&nbsp;time,&nbsp;for&nbsp;greater&nbsp;speed&nbsp;and&nbsp;efficiency.&nbsp;This&nbsp;is&nbsp;commonly&nbsp;used<br>
+&nbsp;&nbsp;for&nbsp;the&nbsp;Mapnik&nbsp;provider.&nbsp;See&nbsp;below&nbsp;for&nbsp;more&nbsp;information&nbsp;on&nbsp;metatiles.<br>
+-&nbsp;"preview"&nbsp;optionally&nbsp;overrides&nbsp;the&nbsp;starting&nbsp;point&nbsp;for&nbsp;the&nbsp;built-in&nbsp;per-layer<br>
+&nbsp;&nbsp;slippy&nbsp;map&nbsp;preview,&nbsp;useful&nbsp;for&nbsp;image-based&nbsp;layers&nbsp;where&nbsp;appropriate.<br>
+&nbsp;&nbsp;See&nbsp;below&nbsp;for&nbsp;more&nbsp;information&nbsp;on&nbsp;the&nbsp;preview.<br>
+-&nbsp;"projection"&nbsp;names&nbsp;a&nbsp;geographic&nbsp;projection,&nbsp;explained&nbsp;in&nbsp;TileStache.Geography.<br>
+&nbsp;&nbsp;If&nbsp;omitted,&nbsp;defaults&nbsp;to&nbsp;spherical&nbsp;mercator.<br>
+-&nbsp;"stale&nbsp;lock&nbsp;timeout"&nbsp;is&nbsp;an&nbsp;optional&nbsp;number&nbsp;of&nbsp;seconds&nbsp;to&nbsp;wait&nbsp;before&nbsp;forcing<br>
+&nbsp;&nbsp;a&nbsp;lock&nbsp;that&nbsp;might&nbsp;be&nbsp;stuck.&nbsp;This&nbsp;is&nbsp;defined&nbsp;on&nbsp;a&nbsp;per-layer&nbsp;basis,&nbsp;rather&nbsp;than<br>
+&nbsp;&nbsp;for&nbsp;an&nbsp;entire&nbsp;cache&nbsp;at&nbsp;one&nbsp;time,&nbsp;because&nbsp;you&nbsp;may&nbsp;have&nbsp;different&nbsp;expectations<br>
+&nbsp;&nbsp;for&nbsp;the&nbsp;rendering&nbsp;speeds&nbsp;of&nbsp;different&nbsp;layer&nbsp;configurations.&nbsp;Defaults&nbsp;to&nbsp;15.<br>
+-&nbsp;"cache&nbsp;lifespan"&nbsp;is&nbsp;an&nbsp;optional&nbsp;number&nbsp;of&nbsp;seconds&nbsp;that&nbsp;cached&nbsp;tiles&nbsp;should<br>
+&nbsp;&nbsp;be&nbsp;stored.&nbsp;This&nbsp;is&nbsp;defined&nbsp;on&nbsp;a&nbsp;per-layer&nbsp;basis.&nbsp;Defaults&nbsp;to&nbsp;forever&nbsp;if&nbsp;None,<br>
+&nbsp;&nbsp;0&nbsp;or&nbsp;omitted.<br>
+-&nbsp;"write&nbsp;cache"&nbsp;is&nbsp;an&nbsp;optional&nbsp;boolean&nbsp;value&nbsp;to&nbsp;allow&nbsp;skipping&nbsp;cache&nbsp;write<br>
+&nbsp;&nbsp;altogether.&nbsp;This&nbsp;is&nbsp;defined&nbsp;on&nbsp;a&nbsp;per-layer&nbsp;basis.&nbsp;Defaults&nbsp;to&nbsp;true&nbsp;if&nbsp;omitted.<br>
+-&nbsp;"bounds"&nbsp;is&nbsp;an&nbsp;optional&nbsp;dictionary&nbsp;of&nbsp;six&nbsp;tile&nbsp;boundaries&nbsp;to&nbsp;limit&nbsp;the<br>
+&nbsp;&nbsp;rendered&nbsp;area:&nbsp;low&nbsp;(lowest&nbsp;zoom&nbsp;level),&nbsp;high&nbsp;(highest&nbsp;zoom&nbsp;level),&nbsp;north,<br>
+&nbsp;&nbsp;west,&nbsp;south,&nbsp;and&nbsp;east&nbsp;(all&nbsp;in&nbsp;degrees).<br>
+-&nbsp;"allowed&nbsp;origin"&nbsp;is&nbsp;an&nbsp;optional&nbsp;string&nbsp;that&nbsp;shows&nbsp;up&nbsp;in&nbsp;the&nbsp;response&nbsp;HTTP<br>
+&nbsp;&nbsp;header&nbsp;Access-Control-Allow-Origin,&nbsp;useful&nbsp;for&nbsp;when&nbsp;you&nbsp;need&nbsp;to&nbsp;provide<br>
+&nbsp;&nbsp;javascript&nbsp;direct&nbsp;access&nbsp;to&nbsp;response&nbsp;data&nbsp;such&nbsp;as&nbsp;GeoJSON&nbsp;or&nbsp;pixel&nbsp;values.<br>
+&nbsp;&nbsp;The&nbsp;header&nbsp;is&nbsp;part&nbsp;of&nbsp;a&nbsp;W3C&nbsp;working&nbsp;draft&nbsp;(<a href="http://www.w3.org/TR/cors/">http://www.w3.org/TR/cors/</a>).<br>
+-&nbsp;"maximum&nbsp;cache&nbsp;age"&nbsp;is&nbsp;an&nbsp;optional&nbsp;number&nbsp;of&nbsp;seconds&nbsp;used&nbsp;to&nbsp;control&nbsp;behavior<br>
+&nbsp;&nbsp;of&nbsp;downstream&nbsp;caches.&nbsp;Causes&nbsp;TileStache&nbsp;responses&nbsp;to&nbsp;include&nbsp;Cache-Control<br>
+&nbsp;&nbsp;and&nbsp;Expires&nbsp;HTTP&nbsp;response&nbsp;headers.&nbsp;Useful&nbsp;when&nbsp;TileStache&nbsp;is&nbsp;itself&nbsp;hosted<br>
+&nbsp;&nbsp;behind&nbsp;an&nbsp;HTTP&nbsp;cache&nbsp;such&nbsp;as&nbsp;Squid,&nbsp;Cloudfront,&nbsp;or&nbsp;Akamai.<br>
+-&nbsp;"redirects"&nbsp;is&nbsp;an&nbsp;optional&nbsp;dictionary&nbsp;of&nbsp;per-extension&nbsp;HTTP&nbsp;redirects,<br>
+&nbsp;&nbsp;treated&nbsp;as&nbsp;lowercase.&nbsp;Useful&nbsp;in&nbsp;cases&nbsp;where&nbsp;your&nbsp;tile&nbsp;provider&nbsp;can&nbsp;support<br>
+&nbsp;&nbsp;many&nbsp;formats&nbsp;but&nbsp;you&nbsp;want&nbsp;to&nbsp;enforce&nbsp;limits&nbsp;to&nbsp;save&nbsp;on&nbsp;cache&nbsp;usage.<br>
+&nbsp;&nbsp;If&nbsp;a&nbsp;request&nbsp;is&nbsp;made&nbsp;for&nbsp;a&nbsp;tile&nbsp;with&nbsp;an&nbsp;extension&nbsp;in&nbsp;the&nbsp;dictionary&nbsp;keys,<br>
+&nbsp;&nbsp;a&nbsp;response&nbsp;can&nbsp;be&nbsp;generated&nbsp;that&nbsp;redirects&nbsp;the&nbsp;client&nbsp;to&nbsp;the&nbsp;same&nbsp;tile<br>
+&nbsp;&nbsp;with&nbsp;another&nbsp;extension.<br>
+-&nbsp;"tile&nbsp;height"&nbsp;gives&nbsp;the&nbsp;height&nbsp;of&nbsp;the&nbsp;image&nbsp;tile&nbsp;in&nbsp;pixels.&nbsp;You&nbsp;almost&nbsp;always<br>
+&nbsp;&nbsp;want&nbsp;to&nbsp;leave&nbsp;this&nbsp;at&nbsp;the&nbsp;default&nbsp;value&nbsp;of&nbsp;256,&nbsp;but&nbsp;you&nbsp;can&nbsp;use&nbsp;a&nbsp;value&nbsp;of&nbsp;512<br>
+&nbsp;&nbsp;to&nbsp;create&nbsp;double-size,&nbsp;double-resolution&nbsp;tiles&nbsp;for&nbsp;high-density&nbsp;phone&nbsp;screens.<br>
+-&nbsp;"jpeg&nbsp;options"&nbsp;is&nbsp;an&nbsp;optional&nbsp;dictionary&nbsp;of&nbsp;JPEG&nbsp;creation&nbsp;options,&nbsp;passed<br>
+&nbsp;&nbsp;through&nbsp;to&nbsp;PIL:&nbsp;<a href="http://www.pythonware.com/library/pil/handbook/format-jpeg.htm">http://www.pythonware.com/library/pil/handbook/format-jpeg.htm</a>.<br>
+-&nbsp;"png&nbsp;options"&nbsp;is&nbsp;an&nbsp;optional&nbsp;dictionary&nbsp;of&nbsp;PNG&nbsp;creation&nbsp;options,&nbsp;passed<br>
+&nbsp;&nbsp;through&nbsp;to&nbsp;PIL:&nbsp;<a href="http://www.pythonware.com/library/pil/handbook/format-png.htm">http://www.pythonware.com/library/pil/handbook/format-png.htm</a>.<br>
+&nbsp;<br>
+The&nbsp;public-facing&nbsp;URL&nbsp;of&nbsp;a&nbsp;single&nbsp;tile&nbsp;for&nbsp;this&nbsp;layer&nbsp;might&nbsp;look&nbsp;like&nbsp;this:<br>
+&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<a href="http://example.com/tilestache.cgi/example-name/0/0/0.png">http://example.com/tilestache.cgi/example-name/0/0/0.png</a><br>
+&nbsp;<br>
+Sample&nbsp;JPEG&nbsp;creation&nbsp;options:<br>
+&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;{<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"quality":&nbsp;90,<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"progressive":&nbsp;true,<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"optimize":&nbsp;true<br>
+&nbsp;&nbsp;&nbsp;&nbsp;}<br>
+&nbsp;<br>
+Sample&nbsp;PNG&nbsp;creation&nbsp;options:<br>
+&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;{<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"optimize":&nbsp;true,<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"palette":&nbsp;"filename.act"<br>
+&nbsp;&nbsp;&nbsp;&nbsp;}<br>
+&nbsp;<br>
+Sample&nbsp;bounds:<br>
+&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;{<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"low":&nbsp;9,&nbsp;"high":&nbsp;15,<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"south":&nbsp;37.749,&nbsp;"west":&nbsp;-122.358,<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"north":&nbsp;37.860,&nbsp;"east":&nbsp;-122.113<br>
+&nbsp;&nbsp;&nbsp;&nbsp;}<br>
+&nbsp;<br>
+<a href="#Metatile">Metatile</a>&nbsp;represents&nbsp;a&nbsp;larger&nbsp;area&nbsp;to&nbsp;be&nbsp;rendered&nbsp;at&nbsp;one&nbsp;time.&nbsp;Metatiles&nbsp;are<br>
+represented&nbsp;in&nbsp;the&nbsp;configuration&nbsp;file&nbsp;as&nbsp;a&nbsp;dictionary:<br>
+&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;{<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"rows":&nbsp;4,<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"columns":&nbsp;4,<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"buffer":&nbsp;64<br>
+&nbsp;&nbsp;&nbsp;&nbsp;}<br>
+&nbsp;<br>
+-&nbsp;"rows"&nbsp;and&nbsp;"columns"&nbsp;are&nbsp;the&nbsp;height&nbsp;and&nbsp;width&nbsp;of&nbsp;the&nbsp;metatile&nbsp;measured&nbsp;in<br>
+&nbsp;&nbsp;tiles.&nbsp;This&nbsp;example&nbsp;metatile&nbsp;is&nbsp;four&nbsp;rows&nbsp;tall&nbsp;and&nbsp;four&nbsp;columns&nbsp;wide,&nbsp;so&nbsp;it<br>
+&nbsp;&nbsp;will&nbsp;render&nbsp;sixteen&nbsp;tiles&nbsp;simultaneously.<br>
+-&nbsp;"buffer"&nbsp;is&nbsp;a&nbsp;buffer&nbsp;area&nbsp;around&nbsp;the&nbsp;metatile,&nbsp;measured&nbsp;in&nbsp;pixels.&nbsp;This&nbsp;is<br>
+&nbsp;&nbsp;useful&nbsp;for&nbsp;providers&nbsp;with&nbsp;labels&nbsp;or&nbsp;icons,&nbsp;where&nbsp;it's&nbsp;necessary&nbsp;to&nbsp;draw&nbsp;a<br>
+&nbsp;&nbsp;bit&nbsp;extra&nbsp;around&nbsp;the&nbsp;edges&nbsp;to&nbsp;ensure&nbsp;that&nbsp;text&nbsp;is&nbsp;not&nbsp;cut&nbsp;off.&nbsp;This&nbsp;example<br>
+&nbsp;&nbsp;metatile&nbsp;has&nbsp;a&nbsp;buffer&nbsp;of&nbsp;64&nbsp;pixels,&nbsp;so&nbsp;the&nbsp;resulting&nbsp;metatile&nbsp;will&nbsp;be&nbsp;1152<br>
+&nbsp;&nbsp;pixels&nbsp;square:&nbsp;4&nbsp;rows&nbsp;x&nbsp;256&nbsp;pixels&nbsp;+&nbsp;2&nbsp;x&nbsp;64&nbsp;pixel&nbsp;buffer.<br>
+&nbsp;<br>
+The&nbsp;preview&nbsp;can&nbsp;be&nbsp;accessed&nbsp;through&nbsp;a&nbsp;URL&nbsp;like&nbsp;/&lt;layer&nbsp;name&gt;/preview.html:<br>
+&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;{<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"lat":&nbsp;33.9901,<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"lon":&nbsp;-116.1637,<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"zoom":&nbsp;16,<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"ext":&nbsp;"jpg"<br>
+&nbsp;&nbsp;&nbsp;&nbsp;}<br>
+&nbsp;<br>
+-&nbsp;"lat"&nbsp;and&nbsp;"lon"&nbsp;are&nbsp;the&nbsp;starting&nbsp;latitude&nbsp;and&nbsp;longitude&nbsp;in&nbsp;degrees.<br>
+-&nbsp;"zoom"&nbsp;is&nbsp;the&nbsp;starting&nbsp;zoom&nbsp;level.<br>
+-&nbsp;"ext"&nbsp;is&nbsp;the&nbsp;filename&nbsp;extension,&nbsp;e.g.&nbsp;"png".</tt></p>
+<p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#aa55cc">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial"><big><strong>Modules</strong></big></font></td></tr>
+    
+<tr><td bgcolor="#aa55cc"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%"><table width="100%" summary="list"><tr><td width="25%" valign=top><a href="PIL.Image.html">PIL.Image</a><br>
+</td><td width="25%" valign=top><a href="logging.html">logging</a><br>
+</td><td width="25%" valign=top></td><td width="25%" valign=top></td></tr></table></td></tr></table><p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#ee77aa">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial"><big><strong>Classes</strong></big></font></td></tr>
+    
+<tr><td bgcolor="#ee77aa"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%"><dl>
+<dt><font face="helvetica, arial"><a href="TileStache.Core.html#Layer">Layer</a>
+</font></dt><dt><font face="helvetica, arial"><a href="TileStache.Core.html#Metatile">Metatile</a>
+</font></dt><dt><font face="helvetica, arial"><a href="exceptions.html#Exception">exceptions.Exception</a>(<a href="exceptions.html#BaseException">exceptions.BaseException</a>)
+</font></dt><dd>
+<dl>
+<dt><font face="helvetica, arial"><a href="TileStache.Core.html#KnownUnknown">KnownUnknown</a>
+</font></dt><dt><font face="helvetica, arial"><a href="TileStache.Core.html#NoTileLeftBehind">NoTileLeftBehind</a>
+</font></dt><dt><font face="helvetica, arial"><a href="TileStache.Core.html#TheTileIsInAnotherCastle">TheTileIsInAnotherCastle</a>
+</font></dt></dl>
+</dd>
+</dl>
+ <p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#ffc8d8">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#000000" face="helvetica, arial"><a name="KnownUnknown">class <strong>KnownUnknown</strong></a>(<a href="exceptions.html#Exception">exceptions.Exception</a>)</font></td></tr>
+    
+<tr bgcolor="#ffc8d8"><td rowspan=2><tt>&nbsp;&nbsp;&nbsp;</tt></td>
+<td colspan=2><tt>There&nbsp;are&nbsp;known&nbsp;unknowns.&nbsp;That&nbsp;is&nbsp;to&nbsp;say,&nbsp;there&nbsp;are&nbsp;things&nbsp;that&nbsp;we&nbsp;now&nbsp;know&nbsp;we&nbsp;don't&nbsp;know.<br>
+&nbsp;<br>
+This&nbsp;exception&nbsp;gets&nbsp;thrown&nbsp;in&nbsp;a&nbsp;couple&nbsp;places&nbsp;where&nbsp;common&nbsp;mistakes&nbsp;are&nbsp;made.<br>&nbsp;</tt></td></tr>
+<tr><td>&nbsp;</td>
+<td width="100%"><dl><dt>Method resolution order:</dt>
+<dd><a href="TileStache.Core.html#KnownUnknown">KnownUnknown</a></dd>
+<dd><a href="exceptions.html#Exception">exceptions.Exception</a></dd>
+<dd><a href="exceptions.html#BaseException">exceptions.BaseException</a></dd>
+<dd><a href="__builtin__.html#object">__builtin__.object</a></dd>
+</dl>
+<hr>
+Data descriptors defined here:<br>
+<dl><dt><strong>__weakref__</strong></dt>
+<dd><tt>list&nbsp;of&nbsp;weak&nbsp;references&nbsp;to&nbsp;the&nbsp;object&nbsp;(if&nbsp;defined)</tt></dd>
+</dl>
+<hr>
+Methods inherited from <a href="exceptions.html#Exception">exceptions.Exception</a>:<br>
+<dl><dt><a name="KnownUnknown-__init__"><strong>__init__</strong></a>(...)</dt><dd><tt>x.<a href="#KnownUnknown-__init__">__init__</a>(...)&nbsp;initializes&nbsp;x;&nbsp;see&nbsp;x.__class__.__doc__&nbsp;for&nbsp;signature</tt></dd></dl>
+
+<hr>
+Data and other attributes inherited from <a href="exceptions.html#Exception">exceptions.Exception</a>:<br>
+<dl><dt><strong>__new__</strong> = &lt;built-in method __new__ of type object at 0x100119f80&gt;<dd><tt>T.<a href="#KnownUnknown-__new__">__new__</a>(S,&nbsp;...)&nbsp;-&gt;&nbsp;a&nbsp;new&nbsp;object&nbsp;with&nbsp;type&nbsp;S,&nbsp;a&nbsp;subtype&nbsp;of&nbsp;T</tt></dl>
+
+<hr>
+Methods inherited from <a href="exceptions.html#BaseException">exceptions.BaseException</a>:<br>
+<dl><dt><a name="KnownUnknown-__delattr__"><strong>__delattr__</strong></a>(...)</dt><dd><tt>x.<a href="#KnownUnknown-__delattr__">__delattr__</a>('name')&nbsp;&lt;==&gt;&nbsp;del&nbsp;x.name</tt></dd></dl>
+
+<dl><dt><a name="KnownUnknown-__getattribute__"><strong>__getattribute__</strong></a>(...)</dt><dd><tt>x.<a href="#KnownUnknown-__getattribute__">__getattribute__</a>('name')&nbsp;&lt;==&gt;&nbsp;x.name</tt></dd></dl>
+
+<dl><dt><a name="KnownUnknown-__getitem__"><strong>__getitem__</strong></a>(...)</dt><dd><tt>x.<a href="#KnownUnknown-__getitem__">__getitem__</a>(y)&nbsp;&lt;==&gt;&nbsp;x[y]</tt></dd></dl>
+
+<dl><dt><a name="KnownUnknown-__getslice__"><strong>__getslice__</strong></a>(...)</dt><dd><tt>x.<a href="#KnownUnknown-__getslice__">__getslice__</a>(i,&nbsp;j)&nbsp;&lt;==&gt;&nbsp;x[i:j]<br>
+&nbsp;<br>
+Use&nbsp;of&nbsp;negative&nbsp;indices&nbsp;is&nbsp;not&nbsp;supported.</tt></dd></dl>
+
+<dl><dt><a name="KnownUnknown-__reduce__"><strong>__reduce__</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="KnownUnknown-__repr__"><strong>__repr__</strong></a>(...)</dt><dd><tt>x.<a href="#KnownUnknown-__repr__">__repr__</a>()&nbsp;&lt;==&gt;&nbsp;repr(x)</tt></dd></dl>
+
+<dl><dt><a name="KnownUnknown-__setattr__"><strong>__setattr__</strong></a>(...)</dt><dd><tt>x.<a href="#KnownUnknown-__setattr__">__setattr__</a>('name',&nbsp;value)&nbsp;&lt;==&gt;&nbsp;x.name&nbsp;=&nbsp;value</tt></dd></dl>
+
+<dl><dt><a name="KnownUnknown-__setstate__"><strong>__setstate__</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="KnownUnknown-__str__"><strong>__str__</strong></a>(...)</dt><dd><tt>x.<a href="#KnownUnknown-__str__">__str__</a>()&nbsp;&lt;==&gt;&nbsp;str(x)</tt></dd></dl>
+
+<dl><dt><a name="KnownUnknown-__unicode__"><strong>__unicode__</strong></a>(...)</dt></dl>
+
+<hr>
+Data descriptors inherited from <a href="exceptions.html#BaseException">exceptions.BaseException</a>:<br>
+<dl><dt><strong>__dict__</strong></dt>
+</dl>
+<dl><dt><strong>args</strong></dt>
+</dl>
+<dl><dt><strong>message</strong></dt>
+</dl>
+</td></tr></table> <p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#ffc8d8">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#000000" face="helvetica, arial"><a name="Layer">class <strong>Layer</strong></a></font></td></tr>
+    
+<tr bgcolor="#ffc8d8"><td rowspan=2><tt>&nbsp;&nbsp;&nbsp;</tt></td>
+<td colspan=2><tt>A&nbsp;<a href="#Layer">Layer</a>.<br>
+&nbsp;<br>
+Required&nbsp;attributes:<br>
+&nbsp;<br>
+&nbsp;&nbsp;provider:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;Render&nbsp;provider,&nbsp;see&nbsp;Providers&nbsp;module.<br>
+&nbsp;<br>
+&nbsp;&nbsp;config:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;Configuration&nbsp;instance,&nbsp;see&nbsp;Config&nbsp;module.<br>
+&nbsp;<br>
+&nbsp;&nbsp;projection:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;Geographic&nbsp;projection,&nbsp;see&nbsp;Geography&nbsp;module.<br>
+&nbsp;<br>
+&nbsp;&nbsp;metatile:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;Some&nbsp;information&nbsp;for&nbsp;drawing&nbsp;many&nbsp;tiles&nbsp;at&nbsp;once.<br>
+&nbsp;<br>
+Optional&nbsp;attributes:<br>
+&nbsp;<br>
+&nbsp;&nbsp;stale_lock_timeout:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;Number&nbsp;of&nbsp;seconds&nbsp;until&nbsp;a&nbsp;cache&nbsp;lock&nbsp;is&nbsp;forced,&nbsp;default&nbsp;15.<br>
+&nbsp;<br>
+&nbsp;&nbsp;cache_lifespan:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;Number&nbsp;of&nbsp;seconds&nbsp;that&nbsp;cached&nbsp;tiles&nbsp;should&nbsp;be&nbsp;stored,&nbsp;default&nbsp;15.<br>
+&nbsp;<br>
+&nbsp;&nbsp;write_cache:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;Allow&nbsp;skipping&nbsp;cache&nbsp;write&nbsp;altogether,&nbsp;default&nbsp;true.<br>
+&nbsp;<br>
+&nbsp;&nbsp;bounds:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;Instance&nbsp;of&nbsp;Config.Bounds&nbsp;for&nbsp;limiting&nbsp;rendered&nbsp;tiles.<br>
+&nbsp;&nbsp;<br>
+&nbsp;&nbsp;allowed_origin:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;Value&nbsp;for&nbsp;the&nbsp;Access-Control-Allow-Origin&nbsp;HTTP&nbsp;response&nbsp;header.<br>
+&nbsp;<br>
+&nbsp;&nbsp;max_cache_age:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;Number&nbsp;of&nbsp;seconds&nbsp;that&nbsp;tiles&nbsp;from&nbsp;this&nbsp;layer&nbsp;may&nbsp;be&nbsp;cached&nbsp;by&nbsp;downstream&nbsp;clients.<br>
+&nbsp;<br>
+&nbsp;&nbsp;redirects:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;Dictionary&nbsp;of&nbsp;per-extension&nbsp;HTTP&nbsp;redirects,&nbsp;treated&nbsp;as&nbsp;lowercase.<br>
+&nbsp;<br>
+&nbsp;&nbsp;preview_lat:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;Starting&nbsp;latitude&nbsp;for&nbsp;slippy&nbsp;map&nbsp;layer&nbsp;preview,&nbsp;default&nbsp;37.80.<br>
+&nbsp;<br>
+&nbsp;&nbsp;preview_lon:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;Starting&nbsp;longitude&nbsp;for&nbsp;slippy&nbsp;map&nbsp;layer&nbsp;preview,&nbsp;default&nbsp;-122.26.<br>
+&nbsp;<br>
+&nbsp;&nbsp;preview_zoom:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;Starting&nbsp;zoom&nbsp;for&nbsp;slippy&nbsp;map&nbsp;layer&nbsp;preview,&nbsp;default&nbsp;10.<br>
+&nbsp;<br>
+&nbsp;&nbsp;preview_ext:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;Tile&nbsp;name&nbsp;extension&nbsp;for&nbsp;slippy&nbsp;map&nbsp;layer&nbsp;preview,&nbsp;default&nbsp;"png".<br>
+&nbsp;<br>
+&nbsp;&nbsp;tile_height:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;Height&nbsp;of&nbsp;tile&nbsp;in&nbsp;pixels,&nbsp;as&nbsp;a&nbsp;single&nbsp;integer.&nbsp;Tiles&nbsp;are&nbsp;generally<br>
+&nbsp;&nbsp;&nbsp;&nbsp;assumed&nbsp;to&nbsp;be&nbsp;square,&nbsp;and&nbsp;<a href="#Layer">Layer</a>.<a href="#Layer-render">render</a>()&nbsp;will&nbsp;respond&nbsp;with&nbsp;an&nbsp;error<br>
+&nbsp;&nbsp;&nbsp;&nbsp;if&nbsp;the&nbsp;rendered&nbsp;image&nbsp;is&nbsp;not&nbsp;this&nbsp;height.<br>&nbsp;</tt></td></tr>
+<tr><td>&nbsp;</td>
+<td width="100%">Methods defined here:<br>
+<dl><dt><a name="Layer-__init__"><strong>__init__</strong></a>(self, config, projection, metatile, stale_lock_timeout<font color="#909090">=15</font>, cache_lifespan<font color="#909090">=None</font>, write_cache<font color="#909090">=True</font>, allowed_origin<font color="#909090">=None</font>, max_cache_age<font color="#909090">=None</font>, redirects<font color="#909090">=None</font>, preview_lat<font color="#909090">=37.799999999999997</font>, preview_lon<font color="#909090">=-122.26000000000001</font>, preview_zoom<font color="#909090">=10</font>, preview_ext<font color="#909090">='png'</font>, bounds<font color="#909090">=None</font>, tile_height<font color="#909090">=256</font>)</dt></dl>
+
+<dl><dt><a name="Layer-doMetatile"><strong>doMetatile</strong></a>(self)</dt><dd><tt>Return&nbsp;True&nbsp;if&nbsp;we&nbsp;have&nbsp;a&nbsp;real&nbsp;metatile&nbsp;and&nbsp;the&nbsp;provider&nbsp;is&nbsp;OK&nbsp;with&nbsp;it.</tt></dd></dl>
+
+<dl><dt><a name="Layer-envelope"><strong>envelope</strong></a>(self, coord)</dt><dd><tt>Projected&nbsp;rendering&nbsp;envelope&nbsp;(xmin,&nbsp;ymin,&nbsp;xmax,&nbsp;ymax)&nbsp;for&nbsp;a&nbsp;Coordinate.</tt></dd></dl>
+
+<dl><dt><a name="Layer-getTypeByExtension"><strong>getTypeByExtension</strong></a>(self, extension)</dt><dd><tt>Get&nbsp;mime-type&nbsp;and&nbsp;PIL&nbsp;format&nbsp;by&nbsp;file&nbsp;extension.</tt></dd></dl>
+
+<dl><dt><a name="Layer-metaEnvelope"><strong>metaEnvelope</strong></a>(self, coord)</dt><dd><tt>Projected&nbsp;rendering&nbsp;envelope&nbsp;(xmin,&nbsp;ymin,&nbsp;xmax,&nbsp;ymax)&nbsp;for&nbsp;a&nbsp;metatile.</tt></dd></dl>
+
+<dl><dt><a name="Layer-metaSize"><strong>metaSize</strong></a>(self, coord)</dt><dd><tt>Pixel&nbsp;width&nbsp;and&nbsp;height&nbsp;of&nbsp;full&nbsp;rendered&nbsp;image&nbsp;for&nbsp;a&nbsp;metatile.</tt></dd></dl>
+
+<dl><dt><a name="Layer-metaSubtiles"><strong>metaSubtiles</strong></a>(self, coord)</dt><dd><tt>List&nbsp;of&nbsp;all&nbsp;coords&nbsp;in&nbsp;a&nbsp;metatile&nbsp;and&nbsp;their&nbsp;x,&nbsp;y&nbsp;offsets&nbsp;in&nbsp;a&nbsp;parent&nbsp;image.</tt></dd></dl>
+
+<dl><dt><a name="Layer-name"><strong>name</strong></a>(self)</dt><dd><tt>Figure&nbsp;out&nbsp;what&nbsp;I'm&nbsp;called,&nbsp;return&nbsp;a&nbsp;name&nbsp;if&nbsp;there&nbsp;is&nbsp;one.<br>
+&nbsp;<br>
+<a href="#Layer">Layer</a>&nbsp;names&nbsp;are&nbsp;stored&nbsp;in&nbsp;the&nbsp;Configuration&nbsp;object,&nbsp;so<br>
+config.layers&nbsp;must&nbsp;be&nbsp;inspected&nbsp;to&nbsp;find&nbsp;a&nbsp;matching&nbsp;name.</tt></dd></dl>
+
+<dl><dt><a name="Layer-render"><strong>render</strong></a>(self, coord, format)</dt><dd><tt>Render&nbsp;a&nbsp;tile&nbsp;for&nbsp;a&nbsp;coordinate,&nbsp;return&nbsp;PIL&nbsp;Image-like&nbsp;object.<br>
+&nbsp;<br>
+Perform&nbsp;metatile&nbsp;slicing&nbsp;here&nbsp;as&nbsp;well,&nbsp;if&nbsp;required,&nbsp;writing&nbsp;the<br>
+full&nbsp;set&nbsp;of&nbsp;rendered&nbsp;tiles&nbsp;to&nbsp;cache&nbsp;as&nbsp;we&nbsp;go.<br>
+&nbsp;<br>
+Note&nbsp;that&nbsp;metatiling&nbsp;and&nbsp;pass-through&nbsp;mode&nbsp;of&nbsp;a&nbsp;Provider<br>
+are&nbsp;mutually&nbsp;exclusive&nbsp;options</tt></dd></dl>
+
+<dl><dt><a name="Layer-setSaveOptionsJPEG"><strong>setSaveOptionsJPEG</strong></a>(self, quality<font color="#909090">=None</font>, optimize<font color="#909090">=None</font>, progressive<font color="#909090">=None</font>)</dt><dd><tt>Optional&nbsp;arguments&nbsp;are&nbsp;added&nbsp;to&nbsp;self.<strong>jpeg_options</strong>&nbsp;for&nbsp;pickup&nbsp;when&nbsp;saving.<br>
+&nbsp;<br>
+More&nbsp;information&nbsp;about&nbsp;options:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<a href="http://www.pythonware.com/library/pil/handbook/format-jpeg.htm">http://www.pythonware.com/library/pil/handbook/format-jpeg.htm</a></tt></dd></dl>
+
+<dl><dt><a name="Layer-setSaveOptionsPNG"><strong>setSaveOptionsPNG</strong></a>(self, optimize<font color="#909090">=None</font>, palette<font color="#909090">=None</font>)</dt><dd><tt>Optional&nbsp;arguments&nbsp;are&nbsp;added&nbsp;to&nbsp;self.<strong>png_options</strong>&nbsp;for&nbsp;pickup&nbsp;when&nbsp;saving.<br>
+&nbsp;<br>
+Palette&nbsp;argument&nbsp;is&nbsp;a&nbsp;URL&nbsp;relative&nbsp;to&nbsp;the&nbsp;configuration&nbsp;file,<br>
+and&nbsp;it&nbsp;implies&nbsp;bits&nbsp;and&nbsp;optional&nbsp;transparency&nbsp;options.<br>
+&nbsp;<br>
+More&nbsp;information&nbsp;about&nbsp;options:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<a href="http://www.pythonware.com/library/pil/handbook/format-png.htm">http://www.pythonware.com/library/pil/handbook/format-png.htm</a></tt></dd></dl>
+
+</td></tr></table> <p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#ffc8d8">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#000000" face="helvetica, arial"><a name="Metatile">class <strong>Metatile</strong></a></font></td></tr>
+    
+<tr bgcolor="#ffc8d8"><td rowspan=2><tt>&nbsp;&nbsp;&nbsp;</tt></td>
+<td colspan=2><tt>Some&nbsp;basic&nbsp;characteristics&nbsp;of&nbsp;a&nbsp;metatile.<br>
+&nbsp;<br>
+Properties:<br>
+-&nbsp;rows:&nbsp;number&nbsp;of&nbsp;tile&nbsp;rows&nbsp;this&nbsp;metatile&nbsp;covers&nbsp;vertically.<br>
+-&nbsp;columns:&nbsp;number&nbsp;of&nbsp;tile&nbsp;columns&nbsp;this&nbsp;metatile&nbsp;covers&nbsp;horizontally.<br>
+-&nbsp;buffer:&nbsp;pixel&nbsp;width&nbsp;of&nbsp;outer&nbsp;edge.<br>&nbsp;</tt></td></tr>
+<tr><td>&nbsp;</td>
+<td width="100%">Methods defined here:<br>
+<dl><dt><a name="Metatile-__init__"><strong>__init__</strong></a>(self, buffer<font color="#909090">=0</font>, rows<font color="#909090">=1</font>, columns<font color="#909090">=1</font>)</dt></dl>
+
+<dl><dt><a name="Metatile-allCoords"><strong>allCoords</strong></a>(self, coord)</dt><dd><tt>Return&nbsp;a&nbsp;list&nbsp;of&nbsp;coordinates&nbsp;for&nbsp;a&nbsp;complete&nbsp;metatile.<br>
+&nbsp;<br>
+Results&nbsp;are&nbsp;guaranteed&nbsp;to&nbsp;be&nbsp;ordered&nbsp;left-to-right,&nbsp;top-to-bottom.</tt></dd></dl>
+
+<dl><dt><a name="Metatile-firstCoord"><strong>firstCoord</strong></a>(self, coord)</dt><dd><tt>Return&nbsp;a&nbsp;new&nbsp;coordinate&nbsp;for&nbsp;the&nbsp;upper-left&nbsp;corner&nbsp;of&nbsp;a&nbsp;metatile.<br>
+&nbsp;<br>
+This&nbsp;is&nbsp;useful&nbsp;as&nbsp;a&nbsp;predictable&nbsp;way&nbsp;to&nbsp;refer&nbsp;to&nbsp;an&nbsp;entire&nbsp;metatile<br>
+by&nbsp;one&nbsp;of&nbsp;its&nbsp;sub-tiles,&nbsp;currently&nbsp;needed&nbsp;to&nbsp;do&nbsp;locking&nbsp;correctly.</tt></dd></dl>
+
+<dl><dt><a name="Metatile-isForReal"><strong>isForReal</strong></a>(self)</dt><dd><tt>Return&nbsp;True&nbsp;if&nbsp;this&nbsp;is&nbsp;really&nbsp;a&nbsp;metatile&nbsp;with&nbsp;a&nbsp;buffer&nbsp;or&nbsp;multiple&nbsp;tiles.<br>
+&nbsp;<br>
+A&nbsp;default&nbsp;1x1&nbsp;metatile&nbsp;with&nbsp;buffer=0&nbsp;is&nbsp;not&nbsp;for&nbsp;real.</tt></dd></dl>
+
+</td></tr></table> <p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#ffc8d8">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#000000" face="helvetica, arial"><a name="NoTileLeftBehind">class <strong>NoTileLeftBehind</strong></a>(<a href="exceptions.html#Exception">exceptions.Exception</a>)</font></td></tr>
+    
+<tr bgcolor="#ffc8d8"><td rowspan=2><tt>&nbsp;&nbsp;&nbsp;</tt></td>
+<td colspan=2><tt>Leave&nbsp;no&nbsp;tile&nbsp;in&nbsp;the&nbsp;cache.<br>
+&nbsp;<br>
+This&nbsp;exception&nbsp;can&nbsp;be&nbsp;thrown&nbsp;in&nbsp;a&nbsp;provider&nbsp;to&nbsp;signal&nbsp;to<br>
+TileStache.getTile()&nbsp;that&nbsp;the&nbsp;result&nbsp;tile&nbsp;should&nbsp;be&nbsp;returned,<br>
+but&nbsp;not&nbsp;saved&nbsp;in&nbsp;a&nbsp;cache.&nbsp;Useful&nbsp;in&nbsp;cases&nbsp;where&nbsp;a&nbsp;full&nbsp;tileset<br>
+is&nbsp;being&nbsp;rendered&nbsp;for&nbsp;static&nbsp;hosting,&nbsp;and&nbsp;you&nbsp;don't&nbsp;want&nbsp;millions<br>
+of&nbsp;identical&nbsp;ocean&nbsp;tiles.<br>
+&nbsp;<br>
+The&nbsp;one&nbsp;constructor&nbsp;argument&nbsp;is&nbsp;an&nbsp;instance&nbsp;of&nbsp;PIL.Image&nbsp;or<br>
+some&nbsp;other&nbsp;object&nbsp;with&nbsp;a&nbsp;save()&nbsp;method,&nbsp;as&nbsp;would&nbsp;be&nbsp;returned<br>
+by&nbsp;provider&nbsp;renderArea()&nbsp;or&nbsp;renderTile()&nbsp;methods.<br>&nbsp;</tt></td></tr>
+<tr><td>&nbsp;</td>
+<td width="100%"><dl><dt>Method resolution order:</dt>
+<dd><a href="TileStache.Core.html#NoTileLeftBehind">NoTileLeftBehind</a></dd>
+<dd><a href="exceptions.html#Exception">exceptions.Exception</a></dd>
+<dd><a href="exceptions.html#BaseException">exceptions.BaseException</a></dd>
+<dd><a href="__builtin__.html#object">__builtin__.object</a></dd>
+</dl>
+<hr>
+Methods defined here:<br>
+<dl><dt><a name="NoTileLeftBehind-__init__"><strong>__init__</strong></a>(self, tile)</dt></dl>
+
+<hr>
+Data descriptors defined here:<br>
+<dl><dt><strong>__weakref__</strong></dt>
+<dd><tt>list&nbsp;of&nbsp;weak&nbsp;references&nbsp;to&nbsp;the&nbsp;object&nbsp;(if&nbsp;defined)</tt></dd>
+</dl>
+<hr>
+Data and other attributes inherited from <a href="exceptions.html#Exception">exceptions.Exception</a>:<br>
+<dl><dt><strong>__new__</strong> = &lt;built-in method __new__ of type object at 0x100119f80&gt;<dd><tt>T.<a href="#NoTileLeftBehind-__new__">__new__</a>(S,&nbsp;...)&nbsp;-&gt;&nbsp;a&nbsp;new&nbsp;object&nbsp;with&nbsp;type&nbsp;S,&nbsp;a&nbsp;subtype&nbsp;of&nbsp;T</tt></dl>
+
+<hr>
+Methods inherited from <a href="exceptions.html#BaseException">exceptions.BaseException</a>:<br>
+<dl><dt><a name="NoTileLeftBehind-__delattr__"><strong>__delattr__</strong></a>(...)</dt><dd><tt>x.<a href="#NoTileLeftBehind-__delattr__">__delattr__</a>('name')&nbsp;&lt;==&gt;&nbsp;del&nbsp;x.name</tt></dd></dl>
+
+<dl><dt><a name="NoTileLeftBehind-__getattribute__"><strong>__getattribute__</strong></a>(...)</dt><dd><tt>x.<a href="#NoTileLeftBehind-__getattribute__">__getattribute__</a>('name')&nbsp;&lt;==&gt;&nbsp;x.name</tt></dd></dl>
+
+<dl><dt><a name="NoTileLeftBehind-__getitem__"><strong>__getitem__</strong></a>(...)</dt><dd><tt>x.<a href="#NoTileLeftBehind-__getitem__">__getitem__</a>(y)&nbsp;&lt;==&gt;&nbsp;x[y]</tt></dd></dl>
+
+<dl><dt><a name="NoTileLeftBehind-__getslice__"><strong>__getslice__</strong></a>(...)</dt><dd><tt>x.<a href="#NoTileLeftBehind-__getslice__">__getslice__</a>(i,&nbsp;j)&nbsp;&lt;==&gt;&nbsp;x[i:j]<br>
+&nbsp;<br>
+Use&nbsp;of&nbsp;negative&nbsp;indices&nbsp;is&nbsp;not&nbsp;supported.</tt></dd></dl>
+
+<dl><dt><a name="NoTileLeftBehind-__reduce__"><strong>__reduce__</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="NoTileLeftBehind-__repr__"><strong>__repr__</strong></a>(...)</dt><dd><tt>x.<a href="#NoTileLeftBehind-__repr__">__repr__</a>()&nbsp;&lt;==&gt;&nbsp;repr(x)</tt></dd></dl>
+
+<dl><dt><a name="NoTileLeftBehind-__setattr__"><strong>__setattr__</strong></a>(...)</dt><dd><tt>x.<a href="#NoTileLeftBehind-__setattr__">__setattr__</a>('name',&nbsp;value)&nbsp;&lt;==&gt;&nbsp;x.name&nbsp;=&nbsp;value</tt></dd></dl>
+
+<dl><dt><a name="NoTileLeftBehind-__setstate__"><strong>__setstate__</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="NoTileLeftBehind-__str__"><strong>__str__</strong></a>(...)</dt><dd><tt>x.<a href="#NoTileLeftBehind-__str__">__str__</a>()&nbsp;&lt;==&gt;&nbsp;str(x)</tt></dd></dl>
+
+<dl><dt><a name="NoTileLeftBehind-__unicode__"><strong>__unicode__</strong></a>(...)</dt></dl>
+
+<hr>
+Data descriptors inherited from <a href="exceptions.html#BaseException">exceptions.BaseException</a>:<br>
+<dl><dt><strong>__dict__</strong></dt>
+</dl>
+<dl><dt><strong>args</strong></dt>
+</dl>
+<dl><dt><strong>message</strong></dt>
+</dl>
+</td></tr></table> <p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#ffc8d8">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#000000" face="helvetica, arial"><a name="TheTileIsInAnotherCastle">class <strong>TheTileIsInAnotherCastle</strong></a>(<a href="exceptions.html#Exception">exceptions.Exception</a>)</font></td></tr>
+    
+<tr bgcolor="#ffc8d8"><td rowspan=2><tt>&nbsp;&nbsp;&nbsp;</tt></td>
+<td colspan=2><tt>Ask&nbsp;a&nbsp;client&nbsp;to&nbsp;look&nbsp;someplace&nbsp;else&nbsp;for&nbsp;a&nbsp;tile.<br>
+&nbsp;<br>
+This&nbsp;exception&nbsp;can&nbsp;be&nbsp;thrown&nbsp;in&nbsp;a&nbsp;provider&nbsp;to&nbsp;signal<br>
+to&nbsp;HTTP&nbsp;clients&nbsp;that&nbsp;a&nbsp;tile&nbsp;should&nbsp;be&nbsp;asked-for&nbsp;elsewhere.<br>&nbsp;</tt></td></tr>
+<tr><td>&nbsp;</td>
+<td width="100%"><dl><dt>Method resolution order:</dt>
+<dd><a href="TileStache.Core.html#TheTileIsInAnotherCastle">TheTileIsInAnotherCastle</a></dd>
+<dd><a href="exceptions.html#Exception">exceptions.Exception</a></dd>
+<dd><a href="exceptions.html#BaseException">exceptions.BaseException</a></dd>
+<dd><a href="__builtin__.html#object">__builtin__.object</a></dd>
+</dl>
+<hr>
+Methods defined here:<br>
+<dl><dt><a name="TheTileIsInAnotherCastle-__init__"><strong>__init__</strong></a>(self, path_info)</dt></dl>
+
+<hr>
+Data descriptors defined here:<br>
+<dl><dt><strong>__weakref__</strong></dt>
+<dd><tt>list&nbsp;of&nbsp;weak&nbsp;references&nbsp;to&nbsp;the&nbsp;object&nbsp;(if&nbsp;defined)</tt></dd>
+</dl>
+<hr>
+Data and other attributes inherited from <a href="exceptions.html#Exception">exceptions.Exception</a>:<br>
+<dl><dt><strong>__new__</strong> = &lt;built-in method __new__ of type object at 0x100119f80&gt;<dd><tt>T.<a href="#TheTileIsInAnotherCastle-__new__">__new__</a>(S,&nbsp;...)&nbsp;-&gt;&nbsp;a&nbsp;new&nbsp;object&nbsp;with&nbsp;type&nbsp;S,&nbsp;a&nbsp;subtype&nbsp;of&nbsp;T</tt></dl>
+
+<hr>
+Methods inherited from <a href="exceptions.html#BaseException">exceptions.BaseException</a>:<br>
+<dl><dt><a name="TheTileIsInAnotherCastle-__delattr__"><strong>__delattr__</strong></a>(...)</dt><dd><tt>x.<a href="#TheTileIsInAnotherCastle-__delattr__">__delattr__</a>('name')&nbsp;&lt;==&gt;&nbsp;del&nbsp;x.name</tt></dd></dl>
+
+<dl><dt><a name="TheTileIsInAnotherCastle-__getattribute__"><strong>__getattribute__</strong></a>(...)</dt><dd><tt>x.<a href="#TheTileIsInAnotherCastle-__getattribute__">__getattribute__</a>('name')&nbsp;&lt;==&gt;&nbsp;x.name</tt></dd></dl>
+
+<dl><dt><a name="TheTileIsInAnotherCastle-__getitem__"><strong>__getitem__</strong></a>(...)</dt><dd><tt>x.<a href="#TheTileIsInAnotherCastle-__getitem__">__getitem__</a>(y)&nbsp;&lt;==&gt;&nbsp;x[y]</tt></dd></dl>
+
+<dl><dt><a name="TheTileIsInAnotherCastle-__getslice__"><strong>__getslice__</strong></a>(...)</dt><dd><tt>x.<a href="#TheTileIsInAnotherCastle-__getslice__">__getslice__</a>(i,&nbsp;j)&nbsp;&lt;==&gt;&nbsp;x[i:j]<br>
+&nbsp;<br>
+Use&nbsp;of&nbsp;negative&nbsp;indices&nbsp;is&nbsp;not&nbsp;supported.</tt></dd></dl>
+
+<dl><dt><a name="TheTileIsInAnotherCastle-__reduce__"><strong>__reduce__</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="TheTileIsInAnotherCastle-__repr__"><strong>__repr__</strong></a>(...)</dt><dd><tt>x.<a href="#TheTileIsInAnotherCastle-__repr__">__repr__</a>()&nbsp;&lt;==&gt;&nbsp;repr(x)</tt></dd></dl>
+
+<dl><dt><a name="TheTileIsInAnotherCastle-__setattr__"><strong>__setattr__</strong></a>(...)</dt><dd><tt>x.<a href="#TheTileIsInAnotherCastle-__setattr__">__setattr__</a>('name',&nbsp;value)&nbsp;&lt;==&gt;&nbsp;x.name&nbsp;=&nbsp;value</tt></dd></dl>
+
+<dl><dt><a name="TheTileIsInAnotherCastle-__setstate__"><strong>__setstate__</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="TheTileIsInAnotherCastle-__str__"><strong>__str__</strong></a>(...)</dt><dd><tt>x.<a href="#TheTileIsInAnotherCastle-__str__">__str__</a>()&nbsp;&lt;==&gt;&nbsp;str(x)</tt></dd></dl>
+
+<dl><dt><a name="TheTileIsInAnotherCastle-__unicode__"><strong>__unicode__</strong></a>(...)</dt></dl>
+
+<hr>
+Data descriptors inherited from <a href="exceptions.html#BaseException">exceptions.BaseException</a>:<br>
+<dl><dt><strong>__dict__</strong></dt>
+</dl>
+<dl><dt><strong>args</strong></dt>
+</dl>
+<dl><dt><strong>message</strong></dt>
+</dl>
+</td></tr></table></td></tr></table><p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#eeaa77">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial"><big><strong>Functions</strong></big></font></td></tr>
+    
+<tr><td bgcolor="#eeaa77"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%"><dl><dt><a name="-time"><strong>time</strong></a>(...)</dt><dd><tt><a href="#-time">time</a>()&nbsp;-&gt;&nbsp;floating&nbsp;point&nbsp;number<br>
+&nbsp;<br>
+Return&nbsp;the&nbsp;current&nbsp;time&nbsp;in&nbsp;seconds&nbsp;since&nbsp;the&nbsp;Epoch.<br>
+Fractions&nbsp;of&nbsp;a&nbsp;second&nbsp;may&nbsp;be&nbsp;present&nbsp;if&nbsp;the&nbsp;system&nbsp;clock&nbsp;provides&nbsp;them.</tt></dd></dl>
+</td></tr></table>
+</body></html>

@@ -1,0 +1,206 @@
+
+<!doctype html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html><head><title>Python: module TileStache.Mapnik</title>
+</head><body bgcolor="#f0f0f8">
+
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="heading">
+<tr bgcolor="#7799ee">
+<td valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial">&nbsp;<br><big><big><strong><a href="TileStache.html"><font color="#ffffff">TileStache</font></a>.Mapnik</strong></big></big></font></td
+><td align=right valign=bottom
+><font color="#ffffff" face="helvetica, arial"><a href=".">index</a></font></td></tr></table>
+    <p><tt>Mapnik&nbsp;Providers.<br>
+&nbsp;<br>
+<a href="#ImageProvider">ImageProvider</a>&nbsp;is&nbsp;known&nbsp;as&nbsp;"mapnik"&nbsp;in&nbsp;TileStache&nbsp;config,&nbsp;<a href="#GridProvider">GridProvider</a>&nbsp;is<br>
+known&nbsp;as&nbsp;"mapnik&nbsp;grid".&nbsp;Both&nbsp;require&nbsp;Mapnik&nbsp;to&nbsp;be&nbsp;installed;&nbsp;Grid&nbsp;requires<br>
+Mapnik&nbsp;2.0.0&nbsp;and&nbsp;above.</tt></p>
+<p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#aa55cc">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial"><big><strong>Modules</strong></big></font></td></tr>
+    
+<tr><td bgcolor="#aa55cc"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%"><table width="100%" summary="list"><tr><td width="25%" valign=top><a href="PIL.Image.html">PIL.Image</a><br>
+<a href="json.html">json</a><br>
+</td><td width="25%" valign=top><a href="logging.html">logging</a><br>
+<a href="mapnik.html">mapnik</a><br>
+</td><td width="25%" valign=top><a href="os.html">os</a><br>
+</td><td width="25%" valign=top></td></tr></table></td></tr></table><p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#ee77aa">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial"><big><strong>Classes</strong></big></font></td></tr>
+    
+<tr><td bgcolor="#ee77aa"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%"><dl>
+<dt><font face="helvetica, arial"><a href="TileStache.Mapnik.html#GridProvider">GridProvider</a>
+</font></dt><dt><font face="helvetica, arial"><a href="TileStache.Mapnik.html#ImageProvider">ImageProvider</a>
+</font></dt><dt><font face="helvetica, arial"><a href="TileStache.Mapnik.html#SaveableResponse">SaveableResponse</a>
+</font></dt></dl>
+ <p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#ffc8d8">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#000000" face="helvetica, arial"><a name="GridProvider">class <strong>GridProvider</strong></a></font></td></tr>
+    
+<tr bgcolor="#ffc8d8"><td rowspan=2><tt>&nbsp;&nbsp;&nbsp;</tt></td>
+<td colspan=2><tt>Built-in&nbsp;UTF&nbsp;Grid&nbsp;provider.&nbsp;Renders&nbsp;JSON&nbsp;raster&nbsp;objects&nbsp;from&nbsp;Mapnik.<br>
+&nbsp;<br>
+This&nbsp;provider&nbsp;is&nbsp;identified&nbsp;by&nbsp;the&nbsp;name&nbsp;"mapnik&nbsp;grid"&nbsp;in&nbsp;the<br>
+Tilestache&nbsp;config,&nbsp;and&nbsp;uses&nbsp;Mapnik&nbsp;2.0&nbsp;(and&nbsp;above)&nbsp;to&nbsp;generate<br>
+JSON&nbsp;UTF&nbsp;grid&nbsp;responses.<br>
+&nbsp;<br>
+Sample&nbsp;configuration&nbsp;for&nbsp;a&nbsp;single&nbsp;grid&nbsp;layer:<br>
+&nbsp;<br>
+&nbsp;&nbsp;"provider":<br>
+&nbsp;&nbsp;{<br>
+&nbsp;&nbsp;&nbsp;&nbsp;"name":&nbsp;"mapnik&nbsp;grid",<br>
+&nbsp;&nbsp;&nbsp;&nbsp;"mapfile":&nbsp;"world_merc.xml",&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;"fields":&nbsp;["NAME",&nbsp;"POP2005"]<br>
+&nbsp;&nbsp;}<br>
+&nbsp;<br>
+Sample&nbsp;configuration&nbsp;for&nbsp;multiple&nbsp;overlaid&nbsp;grid&nbsp;layers:<br>
+&nbsp;<br>
+&nbsp;&nbsp;"provider":<br>
+&nbsp;&nbsp;{<br>
+&nbsp;&nbsp;&nbsp;&nbsp;"name":&nbsp;"mapnik&nbsp;grid",<br>
+&nbsp;&nbsp;&nbsp;&nbsp;"mapfile":&nbsp;"world_merc.xml",<br>
+&nbsp;&nbsp;&nbsp;&nbsp;"layers":<br>
+&nbsp;&nbsp;&nbsp;&nbsp;[<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[1,&nbsp;["NAME"]],<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[0,&nbsp;["NAME",&nbsp;"POP2005"]],<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[0,&nbsp;null],<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[0,&nbsp;[]]<br>
+&nbsp;&nbsp;&nbsp;&nbsp;]<br>
+&nbsp;&nbsp;}<br>
+&nbsp;<br>
+Arguments:<br>
+&nbsp;<br>
+-&nbsp;mapfile&nbsp;(required)<br>
+&nbsp;&nbsp;Local&nbsp;file&nbsp;path&nbsp;to&nbsp;Mapnik&nbsp;XML&nbsp;file.<br>
+&nbsp;<br>
+-&nbsp;fields&nbsp;(optional)<br>
+&nbsp;&nbsp;Array&nbsp;of&nbsp;field&nbsp;names&nbsp;to&nbsp;return&nbsp;in&nbsp;the&nbsp;response,&nbsp;defaults&nbsp;to&nbsp;all.<br>
+&nbsp;&nbsp;An&nbsp;empty&nbsp;list&nbsp;will&nbsp;return&nbsp;no&nbsp;field&nbsp;names,&nbsp;while&nbsp;a&nbsp;value&nbsp;of&nbsp;null&nbsp;is<br>
+&nbsp;&nbsp;equivalent&nbsp;to&nbsp;all.<br>
+&nbsp;<br>
+-&nbsp;layer&nbsp;index&nbsp;(optional)<br>
+&nbsp;&nbsp;Which&nbsp;layer&nbsp;from&nbsp;the&nbsp;mapfile&nbsp;to&nbsp;render,&nbsp;defaults&nbsp;to&nbsp;0&nbsp;(first&nbsp;layer).<br>
+&nbsp;<br>
+-&nbsp;layers&nbsp;(optional)<br>
+&nbsp;&nbsp;Ordered&nbsp;list&nbsp;of&nbsp;(layer&nbsp;index,&nbsp;fields)&nbsp;to&nbsp;combine;&nbsp;if&nbsp;provided<br>
+&nbsp;&nbsp;layers&nbsp;overrides&nbsp;both&nbsp;layer&nbsp;index&nbsp;and&nbsp;fields&nbsp;arguments.<br>
+&nbsp;&nbsp;An&nbsp;empty&nbsp;fields&nbsp;list&nbsp;will&nbsp;return&nbsp;no&nbsp;field&nbsp;names,&nbsp;while&nbsp;a&nbsp;value&nbsp;of&nbsp;null&nbsp;<br>
+&nbsp;&nbsp;is&nbsp;equivalent&nbsp;to&nbsp;all&nbsp;fields.<br>
+&nbsp;<br>
+-&nbsp;scale&nbsp;(optional)<br>
+&nbsp;&nbsp;Scale&nbsp;factor&nbsp;of&nbsp;output&nbsp;raster,&nbsp;defaults&nbsp;to&nbsp;4&nbsp;(64x64).<br>
+&nbsp;<br>
+-&nbsp;layer&nbsp;id&nbsp;key&nbsp;(optional)<br>
+&nbsp;&nbsp;If&nbsp;set,&nbsp;each&nbsp;item&nbsp;in&nbsp;the&nbsp;'data'&nbsp;property&nbsp;will&nbsp;have&nbsp;its&nbsp;source&nbsp;mapnik<br>
+&nbsp;&nbsp;layer&nbsp;name&nbsp;added,&nbsp;keyed&nbsp;by&nbsp;this&nbsp;value.&nbsp;Useful&nbsp;for&nbsp;distingushing<br>
+&nbsp;&nbsp;between&nbsp;data&nbsp;items.<br>
+&nbsp;<br>
+Information&nbsp;and&nbsp;examples&nbsp;for&nbsp;UTF&nbsp;Grid:<br>
+-&nbsp;https://github.com/mapbox/utfgrid-spec/blob/master/1.2/utfgrid.md<br>
+-&nbsp;<a href="http://mapbox.github.com/wax/interaction-leaf.html">http://mapbox.github.com/wax/interaction-leaf.html</a><br>&nbsp;</tt></td></tr>
+<tr><td>&nbsp;</td>
+<td width="100%">Methods defined here:<br>
+<dl><dt><a name="GridProvider-__init__"><strong>__init__</strong></a>(self, layer, mapfile, fields<font color="#909090">=None</font>, layers<font color="#909090">=None</font>, layer_index<font color="#909090">=0</font>, scale<font color="#909090">=4</font>, layer_id_key<font color="#909090">=None</font>)</dt><dd><tt>Initialize&nbsp;Mapnik&nbsp;grid&nbsp;provider&nbsp;with&nbsp;layer&nbsp;and&nbsp;mapfile.<br>
+&nbsp;<br>
+XML&nbsp;mapfile&nbsp;keyword&nbsp;arg&nbsp;comes&nbsp;from&nbsp;TileStache&nbsp;config,<br>
+and&nbsp;is&nbsp;an&nbsp;absolute&nbsp;path&nbsp;by&nbsp;the&nbsp;time&nbsp;it&nbsp;gets&nbsp;here.</tt></dd></dl>
+
+<dl><dt><a name="GridProvider-getTypeByExtension"><strong>getTypeByExtension</strong></a>(self, extension)</dt><dd><tt>Get&nbsp;mime-type&nbsp;and&nbsp;format&nbsp;by&nbsp;file&nbsp;extension.<br>
+&nbsp;<br>
+This&nbsp;only&nbsp;accepts&nbsp;"json".</tt></dd></dl>
+
+<dl><dt><a name="GridProvider-renderArea"><strong>renderArea</strong></a>(self, width, height, srs, xmin, ymin, xmax, ymax, zoom)</dt></dl>
+
+<hr>
+Static methods defined here:<br>
+<dl><dt><a name="GridProvider-prepareKeywordArgs"><strong>prepareKeywordArgs</strong></a>(config_dict)</dt><dd><tt>Convert&nbsp;configured&nbsp;parameters&nbsp;to&nbsp;keyword&nbsp;args&nbsp;for&nbsp;<a href="#GridProvider-__init__">__init__</a>().</tt></dd></dl>
+
+</td></tr></table> <p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#ffc8d8">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#000000" face="helvetica, arial"><a name="ImageProvider">class <strong>ImageProvider</strong></a></font></td></tr>
+    
+<tr bgcolor="#ffc8d8"><td rowspan=2><tt>&nbsp;&nbsp;&nbsp;</tt></td>
+<td colspan=2><tt>Built-in&nbsp;Mapnik&nbsp;provider.&nbsp;Renders&nbsp;map&nbsp;images&nbsp;from&nbsp;Mapnik&nbsp;XML&nbsp;files.<br>
+&nbsp;<br>
+This&nbsp;provider&nbsp;is&nbsp;identified&nbsp;by&nbsp;the&nbsp;name&nbsp;"mapnik"&nbsp;in&nbsp;the&nbsp;TileStache&nbsp;config.<br>
+&nbsp;<br>
+Arguments:<br>
+&nbsp;<br>
+-&nbsp;mapfile&nbsp;(required)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;Local&nbsp;file&nbsp;path&nbsp;to&nbsp;Mapnik&nbsp;XML&nbsp;file.<br>
+&nbsp;<br>
+-&nbsp;fonts&nbsp;(optional)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;Local&nbsp;directory&nbsp;path&nbsp;to&nbsp;*.ttf&nbsp;font&nbsp;files.<br>
+&nbsp;<br>
+More&nbsp;information&nbsp;on&nbsp;Mapnik&nbsp;and&nbsp;Mapnik&nbsp;XML:<br>
+-&nbsp;<a href="http://mapnik.org">http://mapnik.org</a><br>
+-&nbsp;<a href="http://trac.mapnik.org/wiki/XMLGettingStarted">http://trac.mapnik.org/wiki/XMLGettingStarted</a><br>
+-&nbsp;<a href="http://trac.mapnik.org/wiki/XMLConfigReference">http://trac.mapnik.org/wiki/XMLConfigReference</a><br>&nbsp;</tt></td></tr>
+<tr><td>&nbsp;</td>
+<td width="100%">Methods defined here:<br>
+<dl><dt><a name="ImageProvider-__init__"><strong>__init__</strong></a>(self, layer, mapfile, fonts<font color="#909090">=None</font>)</dt><dd><tt>Initialize&nbsp;Mapnik&nbsp;provider&nbsp;with&nbsp;layer&nbsp;and&nbsp;mapfile.<br>
+&nbsp;<br>
+XML&nbsp;mapfile&nbsp;keyword&nbsp;arg&nbsp;comes&nbsp;from&nbsp;TileStache&nbsp;config,<br>
+and&nbsp;is&nbsp;an&nbsp;absolute&nbsp;path&nbsp;by&nbsp;the&nbsp;time&nbsp;it&nbsp;gets&nbsp;here.</tt></dd></dl>
+
+<dl><dt><a name="ImageProvider-renderArea"><strong>renderArea</strong></a>(self, width, height, srs, xmin, ymin, xmax, ymax, zoom)</dt></dl>
+
+<hr>
+Static methods defined here:<br>
+<dl><dt><a name="ImageProvider-prepareKeywordArgs"><strong>prepareKeywordArgs</strong></a>(config_dict)</dt><dd><tt>Convert&nbsp;configured&nbsp;parameters&nbsp;to&nbsp;keyword&nbsp;args&nbsp;for&nbsp;<a href="#ImageProvider-__init__">__init__</a>().</tt></dd></dl>
+
+</td></tr></table> <p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#ffc8d8">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#000000" face="helvetica, arial"><a name="SaveableResponse">class <strong>SaveableResponse</strong></a></font></td></tr>
+    
+<tr bgcolor="#ffc8d8"><td rowspan=2><tt>&nbsp;&nbsp;&nbsp;</tt></td>
+<td colspan=2><tt>Wrapper&nbsp;class&nbsp;for&nbsp;JSON&nbsp;response&nbsp;that&nbsp;makes&nbsp;it&nbsp;behave&nbsp;like&nbsp;a&nbsp;PIL.Image&nbsp;object.<br>
+&nbsp;<br>
+TileStache.getTile()&nbsp;expects&nbsp;to&nbsp;be&nbsp;able&nbsp;to&nbsp;save&nbsp;one&nbsp;of&nbsp;these&nbsp;to&nbsp;a&nbsp;buffer.<br>&nbsp;</tt></td></tr>
+<tr><td>&nbsp;</td>
+<td width="100%">Methods defined here:<br>
+<dl><dt><a name="SaveableResponse-__init__"><strong>__init__</strong></a>(self, content, scale)</dt></dl>
+
+<dl><dt><a name="SaveableResponse-crop"><strong>crop</strong></a>(self, bbox)</dt><dd><tt>Return&nbsp;a&nbsp;cropped&nbsp;grid&nbsp;response.</tt></dd></dl>
+
+<dl><dt><a name="SaveableResponse-save"><strong>save</strong></a>(self, out, format)</dt></dl>
+
+</td></tr></table></td></tr></table><p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#eeaa77">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial"><big><strong>Functions</strong></big></font></td></tr>
+    
+<tr><td bgcolor="#eeaa77"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%"><dl><dt><a name="-allocate_lock"><strong>allocate_lock</strong></a>(...)</dt><dd><tt><a href="#-allocate_lock">allocate_lock</a>()&nbsp;-&gt;&nbsp;lock&nbsp;object<br>
+(allocate()&nbsp;is&nbsp;an&nbsp;obsolete&nbsp;synonym)<br>
+&nbsp;<br>
+Create&nbsp;a&nbsp;new&nbsp;lock&nbsp;object.&nbsp;&nbsp;See&nbsp;LockType.__doc__&nbsp;for&nbsp;information&nbsp;about&nbsp;locks.</tt></dd></dl>
+ <dl><dt><a name="-decode_char"><strong>decode_char</strong></a>(char)</dt></dl>
+ <dl><dt><a name="-encode_id"><strong>encode_id</strong></a>(id)</dt></dl>
+ <dl><dt><a name="-get_mapnikMap"><strong>get_mapnikMap</strong></a>(mapfile)</dt><dd><tt>Get&nbsp;a&nbsp;new&nbsp;mapnik.Map&nbsp;instance&nbsp;for&nbsp;a&nbsp;mapfile</tt></dd></dl>
+ <dl><dt><a name="-merge_grids"><strong>merge_grids</strong></a>(grid1, grid2)</dt><dd><tt>Merge&nbsp;two&nbsp;UTF&nbsp;Grid&nbsp;objects.</tt></dd></dl>
+ <dl><dt><a name="-time"><strong>time</strong></a>(...)</dt><dd><tt><a href="#-time">time</a>()&nbsp;-&gt;&nbsp;floating&nbsp;point&nbsp;number<br>
+&nbsp;<br>
+Return&nbsp;the&nbsp;current&nbsp;time&nbsp;in&nbsp;seconds&nbsp;since&nbsp;the&nbsp;Epoch.<br>
+Fractions&nbsp;of&nbsp;a&nbsp;second&nbsp;may&nbsp;be&nbsp;present&nbsp;if&nbsp;the&nbsp;system&nbsp;clock&nbsp;provides&nbsp;them.</tt></dd></dl>
+</td></tr></table><p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#55aa55">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial"><big><strong>Data</strong></big></font></td></tr>
+    
+<tr><td bgcolor="#55aa55"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%"><strong>global_mapnik_lock</strong> = &lt;thread.lock object at 0x1004b3210&gt;</td></tr></table>
+</body></html>

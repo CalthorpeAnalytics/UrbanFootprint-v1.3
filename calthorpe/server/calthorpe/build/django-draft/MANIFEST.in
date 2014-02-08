@@ -1,0 +1,3 @@
+include LICENSE README.md AUTHORS
+recursive-include draft/templates/admin *.html
+recursive-include draft/static/draft/js *.js

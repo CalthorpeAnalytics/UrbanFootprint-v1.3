@@ -1,0 +1,140 @@
+# UrbanFootprint-California (v1.0), Land Use Scenario Development and Modeling System.
+# 
+# Copyright
+# (C) 2012 Calthorpe Associates
+# 
+# This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, version 3 of the License.
+# 
+# This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
+# 
+# You should have received a copy of the GNU General Public License along with this program.  If not, see <http://www.gnu.org/licenses/>.
+# 
+# Contact: Joe DiStefano (joed@calthorpe.com), Calthorpe Associates. Firm contact: 2095 Rose Street Suite 201, Berkeley CA 94709. Phone: (510) 548-6800. Web: www.calthorpe.com
+from django.conf.urls import include, url, patterns
+
+from tastypie.api import Api
+from footprint.resources.built_form_resources import BuiltFormResource, BuiltFormSetResource, PlacetypeResource, PlacetypeComponentResource, BuildingResource, BuildingTypeResource, BuildingTypePercentResource, BuildingUseDefinitionResource, BuildingUsePercentResource, BuildingAttributeSetResource, BuildingPercentResource
+from footprint.resources.category_resource import CategoryResource
+from footprint.resources.config_entity_resources import GlobalConfigResource, RegionResource, ProjectResource, ScenarioResource, ConfigEntityResource
+from footprint.resources.db_entity_resources import DbEntityResource, DbEntityInterestResource, InterestResource
+from footprint.resources.medium_resources import MediumResource
+from footprint.resources.policy_resources import PolicyResource, PolicySetResource
+from footprint.resources.presentation_resources import PresentationResource
+from footprint.resources.tag_resource import TagResource
+from footprint.resources.user_resource import UserResource
+
+from views import api_authentication
+from footprint.publishing.tilestache_views import update_with_selection, tilestache_tiles, tilestache_map, run_intersection_query
+
+from settings import API_VERSION
+
+
+urlpatterns = patterns('',
+    url(r'^api_authentication$', api_authentication),
+    url(r'^$', 'index', name='index'),
+    (r'^scenario/(\d+)/tilestache_map$', tilestache_map),
+    (r'^scenario/(\d+)/run_intersection_query$', run_intersection_query),
+    (r'^scenario/(\d+)/update_with_selection$', update_with_selection),
+
+#    (r'^scenario/(\d+)/tilestache_map-fullscreen$', view_tilestache_map_fullscreen),
+    url(r'^tiles/(?P<layer_name>[^/]+)/(?P<z>[^/]+)/(?P<x>[^/]+)/(?P<y>[^/]+)\.(?P<extension>.+)$', tilestache_tiles, name='tiles_url'),
+#    (r'^scenario/(\d+)/test_api$', test_api),
+
+   # url("", include('django_socketio.urls')),
+    #    # TODO Most of all of these should be removed
+#    (r'^scenario/(\d+)/$', scenario_view),
+#    (r'^scenario/(\d+)/config$', scenario_view_config),
+##    (r'^scenario/create$', scenario_view_create),
+#     # Create doesn't need a scenario id. Ignore it if one is passed in
+#    (r'^scenario/(\d+)/create$', scenario_view_create),
+#    #(r'^scenario/(\d+)/prepare$', scenario_view_prepare),
+#    (r'^scenario/(\d+)/vmt$', scenario_view_vmt),
+#    (r'^scenario/(\d+)/painting$', scenario_view_painting),# scenario_view_painting),
+#    (r'^scenario/(\d+)/painting-fullscreen$', scenario_view_painting_fullscreen),
+#    (r'^scenario/(\d+)/run$', scenario_view_run),
+#    (r'^scenario/(\d+)/scenario_settings$', scenario_view_settings),
+#    (r'^scenario/(\d+)/results$', scenario_view_results),
+#    (r'^scenario/(\d+)/results_painted$', scenario_view_results_painted),
+#    (r'^scenario/(\d+)/results_painted-fullscreen$', scenario_view_results_painted_fullscreen),
+#    (r'^scenario/(\d+)/scenario_study_area_results$', scenario_study_area_view_results),
+    (r'charts$', sample_charts),
+
+#    (r'^scenario/(\d+)/placetypes_primary$', scenario_view_placetypes_primary),
+#    (r'^scenario/(\d+)/placetypes$', scenario_view_placetypes),
+#    (r'^scenario/(\d+)/placetype_gridupdate$', placetype_gridupdate),
+#    (r'^scenario/(\d+)/placetype_griderase$', placetype_griderase),
+#    (r'^scenario/(\d+)/placetype_gridrevert$', placetype_gridrevert),
+#    (r'^scenario/(\d+)/placetype_gridundolast$', placetype_gridundolast),
+#    (r'^error$', error_view),
+#    #(r'^success', success_view),
+#    (r'^scenario/(\d+)/save_as$', scenario_save_as),
+#    (r'^scenario/(\d+)/scenario_settings/land_use_rules$', land_use_rules),
+#    (r'^scenario/(\d+)/scenario_settings/policy_settings$', policy_settings),
+#    (r'^scenario/(?P<scenario_id>\d+)/report_data/(?P<report_id>.+)/$', report_view),
+#    (r'^study_area/(\d+)/results$', study_area_view_results),
+#    (r'^study_area/(?P<study_area_id>\d+)/report_data/(?P<report_id>.+)/$', study_area_report_view),
+#    (r'^study_area/(\d+)/increments_layer_style$', study_area_increments_layer_style),
+#    (r'^grid_table_views$', grid_table_views),
+#    # Proxies AJAX requests to GeoServer from the website
+#    (r'^geoproxy/', geoserver_proxy),
+#    (r'^scenario/(\d+)/test_create_table_view$', test_create_table_view),
+
+)
+
+# All tastypie resources need to be listed here
+v1_api = Api(api_name="v{0}".format(API_VERSION))
+v1_api.register(ConfigEntityResource())
+v1_api.register(GlobalConfigResource())
+v1_api.register(RegionResource())
+v1_api.register(ProjectResource())
+v1_api.register(ScenarioResource())
+v1_api.register(DbEntityResource())
+v1_api.register(DbEntityInterestResource())
+v1_api.register(InterestResource())
+v1_api.register(BuiltFormSetResource())
+v1_api.register(BuiltFormResource())
+v1_api.register(PlacetypeResource())
+v1_api.register(PlacetypeComponentResource())
+v1_api.register(BuildingResource())
+v1_api.register(BuildingTypeResource())
+v1_api.register(BuildingTypePercentResource())
+v1_api.register(BuildingUseDefinitionResource())
+v1_api.register(BuildingUsePercentResource())
+v1_api.register(BuildingAttributeSetResource())
+v1_api.register(BuildingPercentResource())
+#v1_api.register(InfrastructureResource())
+#v1_api.register(InfrastructureAttributeResource())
+#v1_api.register(InfrastructureTypeResource())
+#v1_api.register(PolicySetResource())
+v1_api.register(PolicyResource())
+v1_api.register(PolicySetResource())
+v1_api.register(PresentationResource())
+v1_api.register(MediumResource())
+v1_api.register(UserResource())
+v1_api.register(CategoryResource())
+v1_api.register(TagResource())
+
+# Django Rest API
+urlpatterns += patterns('',
+    # The normal jazz here...
+    (r'^api/', include(v1_api.urls)),
+)
+
+# Cross-domain proxying if we need it
+#urlpatterns += patterns('',
+#    (r'^(?P<url>.*)$', 'httpproxy.views.proxy'),
+#)
+#urlpatterns += staticfiles_urlpatterns() #this is meant for debug only
+
+#from celery.task import PingTask
+#from djcelery import views as celery_views
+
+#celery webhook
+#urlpatterns += patterns("",
+#    url(r'^apply/(?P<task_name>.+?)/', celery_views.apply),
+#    url(r'^ping/', celery_views.task_view(PingTask)),
+#    url(r'^(?P<task_id>[\w\d\-]+)/done/?$', celery_views.is_task_successful,
+#        name="celery-is_task_successful"),
+#    url(r'^(?P<task_id>[\w\d\-]+)/status/?$', celery_views.task_status,
+#        name="celery-task_status"),
+#)

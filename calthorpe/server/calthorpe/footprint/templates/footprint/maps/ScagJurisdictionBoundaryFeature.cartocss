@@ -1,0 +1,84 @@
+.{{ htmlClass }}
+{buffer-size: 50;}
+
+@citywidth: 2.5;
+@citydash: 5;
+@cityspace: 4;
+
+[zoom<=9] {
+  outline/line-color:#000000;
+  outline/line-opacity: 0.4;
+  outline/line-width: @citywidth * 0.4;
+  outline/line-join: round;
+  outline/line-cap: round;
+  mainline/line-color:#FFFFFF;
+  mainline/line-width: @citywidth * 0.2;
+  mainline/line-dasharray: @citydash * 0.5, @cityspace * 0.5;
+  mainline/line-join: round;
+  mainline/line-cap: round; 
+}
+
+[zoom=10] {
+  outline/line-color:#000000;
+  outline/line-opacity: 0.4;
+  outline/line-width: @citywidth * 1;
+  outline/line-join: round;
+  outline/line-cap: round;
+  mainline/line-color:#FFFFFF;
+  mainline/line-width: @citywidth * 0.5;
+  mainline/line-dasharray: @citydash * 0.5, @cityspace * 0.5;
+  mainline/line-join: round;
+  mainline/line-cap: round; 
+}
+
+[zoom<=12] {
+  outline/line-color:#000000;
+  outline/line-opacity: 0.4;
+  outline/line-width: @citywidth * 3;
+  outline/line-join: round;
+  outline/line-cap: round;
+  mainline/line-color:#FFFFFF;
+  mainline/line-width: @citywidth * 1;
+  mainline/line-dasharray: @citydash * 1, @cityspace * 1;
+  mainline/line-join: round;
+  mainline/line-cap: round; 
+}
+
+[zoom=13] {
+  outline/line-color:#000000;
+  outline/line-opacity: 0.4;
+  outline/line-width: @citywidth * 4;
+  outline/line-join: round;
+  outline/line-cap: round;
+  mainline/line-color:#FFFFFF;
+  mainline/line-width: @citywidth * 1.4;
+  mainline/line-dasharray: @citydash * 1.4, @cityspace * 1.4;
+  mainline/line-join: round;
+  mainline/line-cap: round; 
+}
+
+[zoom=14] {
+  outline/line-color:#000000;
+  outline/line-opacity: 0.4;
+  outline/line-width: @citywidth * 5;
+  outline/line-join: round;
+  outline/line-cap: round;
+  mainline/line-color:#FFFFFF;
+  mainline/line-width: @citywidth * 1.7;
+  mainline/line-dasharray: @citydash * 1.7, @cityspace * 1.7;
+  mainline/line-join: round;
+  mainline/line-cap: round; 
+}
+
+[zoom>=15] {
+  outline/line-color:#000000;
+  outline/line-opacity: 0.4;
+  outline/line-width: @citywidth * 6;
+  outline/line-join: round;
+  outline/line-cap: round;
+  mainline/line-color:#FFFFFF;
+  mainline/line-width: @citywidth * 2.5;
+  mainline/line-dasharray: @citydash * 2.5, @cityspace * 2.5;
+  mainline/line-join: round;
+  mainline/line-cap: round; 
+}

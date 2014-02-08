@@ -1,0 +1,72 @@
+
+<!doctype html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html><head><title>Python: module TileStache.Goodies.VecTiles.mvt</title>
+</head><body bgcolor="#f0f0f8">
+
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="heading">
+<tr bgcolor="#7799ee">
+<td valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial">&nbsp;<br><big><big><strong><a href="TileStache.html"><font color="#ffffff">TileStache</font></a>.<a href="TileStache.Goodies.html"><font color="#ffffff">Goodies</font></a>.<a href="TileStache.Goodies.VecTiles.html"><font color="#ffffff">VecTiles</font></a>.mvt</strong></big></big></font></td
+><td align=right valign=bottom
+><font color="#ffffff" face="helvetica, arial"><a href=".">index</a></font></td></tr></table>
+    <p><tt>Implementation&nbsp;of&nbsp;MVT&nbsp;(Mapnik&nbsp;Vector&nbsp;Tiles)&nbsp;data&nbsp;format.<br>
+&nbsp;<br>
+Mapnik's&nbsp;PythonDatasource.features()&nbsp;method&nbsp;can&nbsp;return&nbsp;a&nbsp;list&nbsp;of&nbsp;WKB&nbsp;features,<br>
+pairs&nbsp;of&nbsp;WKB&nbsp;format&nbsp;geometry&nbsp;and&nbsp;dictionaries&nbsp;of&nbsp;key-value&nbsp;pairs&nbsp;that&nbsp;are<br>
+rendered&nbsp;by&nbsp;Mapnik&nbsp;directly.&nbsp;PythonDatasource&nbsp;is&nbsp;new&nbsp;in&nbsp;Mapnik&nbsp;as&nbsp;of&nbsp;version<br>
+2.1.0.<br>
+&nbsp;<br>
+More&nbsp;information:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<a href="http://mapnik.org/docs/v2.1.0/api/python/mapnik.PythonDatasource-class.html">http://mapnik.org/docs/v2.1.0/api/python/mapnik.PythonDatasource-class.html</a><br>
+&nbsp;<br>
+The&nbsp;MVT&nbsp;file&nbsp;format&nbsp;is&nbsp;a&nbsp;simple&nbsp;container&nbsp;for&nbsp;Mapnik-compatible&nbsp;vector&nbsp;tiles<br>
+that&nbsp;minimizes&nbsp;the&nbsp;amount&nbsp;of&nbsp;conversion&nbsp;performed&nbsp;by&nbsp;the&nbsp;renderer,&nbsp;in&nbsp;contrast<br>
+to&nbsp;other&nbsp;file&nbsp;formats&nbsp;such&nbsp;as&nbsp;GeoJSON.<br>
+&nbsp;<br>
+An&nbsp;MVT&nbsp;file&nbsp;starts&nbsp;with&nbsp;8&nbsp;bytes.<br>
+&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;4&nbsp;bytes&nbsp;"\x89MVT"<br>
+&nbsp;&nbsp;&nbsp;&nbsp;uint32&nbsp;&nbsp;Length&nbsp;of&nbsp;body<br>
+&nbsp;&nbsp;&nbsp;&nbsp;bytes&nbsp;&nbsp;&nbsp;zlib-compressed&nbsp;body<br>
+&nbsp;<br>
+The&nbsp;following&nbsp;body&nbsp;is&nbsp;a&nbsp;zlib-compressed&nbsp;bytestream.&nbsp;When&nbsp;decompressed,<br>
+it&nbsp;starts&nbsp;with&nbsp;four&nbsp;bytes&nbsp;indicating&nbsp;the&nbsp;total&nbsp;feature&nbsp;count.<br>
+&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;uint32&nbsp;&nbsp;Feature&nbsp;count<br>
+&nbsp;&nbsp;&nbsp;&nbsp;bytes&nbsp;&nbsp;&nbsp;Stream&nbsp;of&nbsp;feature&nbsp;data<br>
+&nbsp;<br>
+Each&nbsp;feature&nbsp;has&nbsp;two&nbsp;parts,&nbsp;a&nbsp;raw&nbsp;WKB&nbsp;(well-known&nbsp;binary)&nbsp;representation&nbsp;of<br>
+the&nbsp;geometry&nbsp;in&nbsp;spherical&nbsp;mercator&nbsp;and&nbsp;a&nbsp;JSON&nbsp;blob&nbsp;for&nbsp;feature&nbsp;properties.<br>
+&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;uint32&nbsp;&nbsp;Length&nbsp;of&nbsp;feature&nbsp;WKB<br>
+&nbsp;&nbsp;&nbsp;&nbsp;bytes&nbsp;&nbsp;&nbsp;Raw&nbsp;bytes&nbsp;of&nbsp;WKB<br>
+&nbsp;&nbsp;&nbsp;&nbsp;uint32&nbsp;&nbsp;Length&nbsp;of&nbsp;properties&nbsp;JSON<br>
+&nbsp;&nbsp;&nbsp;&nbsp;bytes&nbsp;&nbsp;&nbsp;JSON&nbsp;dictionary&nbsp;of&nbsp;feature&nbsp;properties<br>
+&nbsp;<br>
+By&nbsp;default,&nbsp;<a href="#-encode">encode</a>()&nbsp;approximates&nbsp;the&nbsp;floating&nbsp;point&nbsp;precision&nbsp;of&nbsp;WKB&nbsp;geometry<br>
+to&nbsp;26&nbsp;bits&nbsp;for&nbsp;a&nbsp;significant&nbsp;compression&nbsp;improvement&nbsp;and&nbsp;no&nbsp;visible&nbsp;impact&nbsp;on<br>
+rendering&nbsp;at&nbsp;zoom&nbsp;18&nbsp;and&nbsp;lower.</tt></p>
+<p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#aa55cc">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial"><big><strong>Modules</strong></big></font></td></tr>
+    
+<tr><td bgcolor="#aa55cc"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%"><table width="100%" summary="list"><tr><td width="25%" valign=top><a href="json.html">json</a><br>
+</td><td width="25%" valign=top></td><td width="25%" valign=top></td><td width="25%" valign=top></td></tr></table></td></tr></table><p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#eeaa77">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial"><big><strong>Functions</strong></big></font></td></tr>
+    
+<tr><td bgcolor="#eeaa77"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%"><dl><dt><a name="-decode"><strong>decode</strong></a>(file)</dt><dd><tt>Decode&nbsp;an&nbsp;MVT&nbsp;file&nbsp;into&nbsp;a&nbsp;list&nbsp;of&nbsp;(WKB,&nbsp;property&nbsp;dict)&nbsp;features.<br>
+&nbsp;<br>
+Result&nbsp;can&nbsp;be&nbsp;passed&nbsp;directly&nbsp;to&nbsp;mapnik.PythonDatasource.wkb_features().</tt></dd></dl>
+ <dl><dt><a name="-encode"><strong>encode</strong></a>(file, features)</dt><dd><tt>Encode&nbsp;a&nbsp;list&nbsp;of&nbsp;(WKB,&nbsp;property&nbsp;dict)&nbsp;features&nbsp;into&nbsp;an&nbsp;MVT&nbsp;stream.<br>
+&nbsp;<br>
+Geometries&nbsp;in&nbsp;the&nbsp;features&nbsp;list&nbsp;are&nbsp;assumed&nbsp;to&nbsp;be&nbsp;in&nbsp;spherical&nbsp;mercator.<br>
+Floating&nbsp;point&nbsp;precision&nbsp;in&nbsp;the&nbsp;output&nbsp;is&nbsp;approximated&nbsp;to&nbsp;26&nbsp;bits.</tt></dd></dl>
+</td></tr></table>
+</body></html>

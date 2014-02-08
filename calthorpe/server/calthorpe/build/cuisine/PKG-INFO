@@ -1,0 +1,19 @@
+Metadata-Version: 1.1
+Name: cuisine
+Version: 0.6.5
+Summary: Chef-like functionality for Fabric
+Home-page: http://github.com/sebastien/cuisine
+Author: Sébastien Pierre
+Author-email: sebastien.pierre@gmail.com
+License: License :: OSI Approved :: BSD License
+Download-URL: https://github.com/sebastien/cuisine/tarball/0.6.5
+Description: UNKNOWN
+Keywords: fabric,chef,ssh
+Platform: UNKNOWN
+Classifier: Programming Language :: Python
+Classifier: Development Status :: 3 - Alpha
+Classifier: Natural Language :: English
+Classifier: Environment :: Web Environment
+Classifier: Intended Audience :: Developers
+Classifier: Operating System :: OS Independent
+Classifier: Topic :: Utilities

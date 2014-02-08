@@ -1,0 +1,300 @@
+
+
+/* line 113, tmp/chance//srv/calthorpe/urbanfootprint/calthorpe/server/calthorpe/footprint/sproutcore/apps/fp/resources/stylesheets/presentation/map/polymaps-css.scss */
+#county\:01001, #county\:01017, #county\:01021, #county\:01031, #county\:01123, #county\:05005, #county\:05009, #county\:05055, #county\:05085, #county\:05091, #county\:05093, #county\:05115, #county\:05145, #county\:06005, #county\:06039, #county\:08101, #county\:12023, #county\:12063, #county\:12121, #county\:12125, #county\:13011, #county\:13017, #county\:13023, #county\:13029, #county\:13039, #county\:13053, #county\:13069, #county\:13075, #county\:13105, #county\:13109, #county\:13111, #county\:13123, #county\:13131, #county\:13145, #county\:13169, #county\:13175, #county\:13177, #county\:13187, #county\:13207, #county\:13231, #county\:13237, #county\:13261, #county\:13279, #county\:13281, #county\:13291, #county\:16005, #county\:16065, #county\:17049, #county\:17073, #county\:17081, #county\:17083, #county\:17109, #county\:17117, #county\:17121, #county\:17127, #county\:17133, #county\:17137, #county\:17141, #county\:17145, #county\:17157, #county\:17165, #county\:17185, #county\:17203, #county\:18015, #county\:18027, #county\:18031, #county\:18047, #county\:18049, #county\:18051, #county\:18055, #county\:18061, #county\:18073, #county\:18075, #county\:18079, #county\:18115, #county\:18119, #county\:18129, #county\:18135, #county\:18137, #county\:18147, #county\:18159, #county\:18165, #county\:18175, #county\:19017, #county\:19045, #county\:19049, #county\:19099, #county\:19111, #county\:19125, #county\:19127, #county\:19181, #county\:19187, #county\:20037, #county\:20061, #county\:20079, #county\:20125, #county\:20155, #county\:21003, #county\:21017, #county\:21043, #county\:21051, #county\:21065, #county\:21079, #county\:21083, #county\:21095, #county\:21097, #county\:21103, #county\:21123, #county\:21137, #county\:21155, #county\:21159, #county\:21161, #county\:21177, #county\:21191, #county\:21197, #county\:21203, #county\:21207, #county\:21213, #county\:21215, #county\:21223, #county\:22007, #county\:22039, #county\:22047, #county\:22099, #county\:22117, #county\:22119, #county\:23015, #county\:24019, #county\:24029, #county\:26007, #county\:26029, #county\:26035, #county\:26047, #county\:26051, #county\:26089, #county\:26105, #county\:26107, #county\:26123, #county\:26157, #county\:26165, #county\:27035, #county\:27041, #county\:27049, #county\:27059, #county\:27067, #county\:27079, #county\:27085, #county\:27099, #county\:27103, #county\:28025, #county\:28027, #county\:28043, #county\:28071, #county\:28083, #county\:28085, #county\:28109, #county\:28115, #county\:28117, #county\:28137, #county\:28145, #county\:29023, #county\:29029, #county\:29069, #county\:29101, #county\:29107, #county\:29109, #county\:29113, #county\:29127, #county\:29159, #county\:29161, #county\:29175, #county\:29209, #county\:29213, #county\:29219, #county\:29225, #county\:31001, #county\:31053, #county\:31119, #county\:32005, #county\:32031, #county\:35049, #county\:35061, #county\:36009, #county\:36017, #county\:36077, #county\:36095, #county\:36097, #county\:36101, #county\:36113, #county\:36115, #county\:36121, #county\:36123, #county\:37009, #county\:37011, #county\:37013, #county\:37033, #county\:37037, #county\:37039, #county\:37047, #county\:37053, #county\:37061, #county\:37079, #county\:37091, #county\:37099, #county\:37113, #county\:37117, #county\:37121, #county\:37123, #county\:37163, #county\:37199, #county\:38017, #county\:39019, #county\:39031, #county\:39047, #county\:39053, #county\:39065, #county\:39069, #county\:39071, #county\:39073, #county\:39105, #county\:39131, #county\:39137, #county\:39161, #county\:39175, #county\:40019, #county\:40021, #county\:40037, #county\:40047, #county\:40071, #county\:40097, #county\:40111, #county\:40115, #county\:40135, #county\:41009, #county\:41029, #county\:41039, #county\:42015, #county\:42031, #county\:42033, #county\:42059, #county\:42061, #county\:42065, #county\:42067, #county\:42115, #county\:42127, #county\:42131, #county\:45001, #county\:45023, #county\:45025, #county\:45027, #county\:45043, #county\:45055, #county\:45067, #county\:45069, #county\:45071, #county\:45087, #county\:47023, #county\:47025, #county\:47033, #county\:47035, #county\:47041, #county\:47045, #county\:47051, #county\:47057, #county\:47079, #county\:47091, #county\:47097, #county\:47099, #county\:47103, #county\:47111, #county\:47115, #county\:47117, #county\:47121, #county\:47123, #county\:47131, #county\:47159, #county\:47169, #county\:47183, #county\:47185, #county\:48001, #county\:48021, #county\:48055, #county\:48063, #county\:48099, #county\:48199, #county\:48203, #county\:48277, #county\:48291, #county\:48343, #county\:48347, #county\:48401, #county\:48449, #county\:48451, #county\:48459, #county\:48467, #county\:48473, #county\:48479, #county\:48497, #county\:48499, #county\:50003, #county\:50011, #county\:50021, #county\:50025, #county\:50027, #county\:51009, #county\:51015, #county\:51023, #county\:51027, #county\:51035, #county\:51043, #county\:51065, #county\:51075, #county\:51105, #county\:51109, #county\:51117, #county\:51127, #county\:51131, #county\:51133, #county\:51143, #county\:51147, #county\:51167, #county\:51171, #county\:51173, #county\:51193, #county\:51197, #county\:53045, #county\:53057, #county\:53077, #county\:54005, #county\:54019, #county\:54035, #county\:54047, #county\:54053, #county\:54059, #county\:54065, #county\:54073, #county\:54097, #county\:54109, #county\:55005, #county\:55017, #county\:55021, #county\:55029, #county\:55045, #county\:55047, #county\:55061, #county\:55093, #county\:55111, #county\:55135 {
+  fill: #DD3497;
+}
+
+
+/* line 114, tmp/chance//srv/calthorpe/urbanfootprint/calthorpe/server/calthorpe/footprint/sproutcore/apps/fp/resources/stylesheets/presentation/map/polymaps-css.scss */
+#county\:01003, #county\:01009, #county\:01033, #county\:01043, #county\:01045, #county\:01049, #county\:01051, #county\:01083, #county\:01113, #county\:01115, #county\:01121, #county\:01127, #county\:04019, #county\:05031, #county\:05033, #county\:05035, #county\:05069, #county\:05125, #county\:06017, #county\:06029, #county\:06031, #county\:06047, #county\:06053, #county\:06057, #county\:06071, #county\:06079, #county\:06107, #county\:06115, #county\:08069, #county\:12007, #county\:12035, #county\:12039, #county\:12055, #county\:12087, #county\:12089, #county\:12107, #county\:12113, #county\:12119, #county\:13031, #county\:13035, #county\:13055, #county\:13071, #county\:13081, #county\:13083, #county\:13085, #county\:13103, #county\:13119, #county\:13143, #county\:13147, #county\:13157, #county\:13171, #county\:13179, #county\:13189, #county\:13195, #county\:13213, #county\:13227, #county\:13275, #county\:13293, #county\:13311, #county\:15007, #county\:15009, #county\:16055, #county\:17001, #county\:17027, #county\:17029, #county\:17055, #county\:17063, #county\:17077, #county\:17095, #county\:17099, #county\:17177, #county\:17183, #county\:17195, #county\:18001, #county\:18009, #county\:18011, #county\:18017, #county\:18021, #county\:18023, #county\:18033, #county\:18037, #county\:18041, #county\:18069, #county\:18071, #county\:18077, #county\:18083, #county\:18087, #county\:18093, #county\:18099, #county\:18103, #county\:18107, #county\:18113, #county\:18133, #county\:18143, #county\:18145, #county\:18149, #county\:18151, #county\:18169, #county\:18179, #county\:18183, #county\:19033, #county\:19057, #county\:19139, #county\:19155, #county\:19179, #county\:19193, #county\:20161, #county\:20169, #county\:21005, #county\:21009, #county\:21013, #county\:21035, #county\:21041, #county\:21047, #county\:21071, #county\:21077, #county\:21081, #county\:21089, #county\:21101, #county\:21107, #county\:21115, #county\:21121, #county\:21125, #county\:21133, #county\:21157, #county\:21163, #county\:21167, #county\:21173, #county\:21179, #county\:21193, #county\:21195, #county\:21199, #county\:21205, #county\:21209, #county\:21211, #county\:21217, #county\:21235, #county\:21239, #county\:22001, #county\:22015, #county\:22057, #county\:22061, #county\:22079, #county\:22093, #county\:22097, #county\:22101, #county\:22109, #county\:22121, #county\:23013, #county\:24011, #county\:24035, #county\:24039, #county\:24047, #county\:25011, #county\:26015, #county\:26023, #county\:26027, #county\:26037, #county\:26057, #county\:26059, #county\:26067, #county\:26073, #county\:26117, #county\:27009, #county\:27013, #county\:27025, #county\:27131, #county\:27145, #county\:27147, #county\:27169, #county\:28001, #county\:28003, #county\:28045, #county\:28067, #county\:28073, #county\:28075, #county\:28089, #county\:28105, #county\:28113, #county\:28149, #county\:28151, #county\:29031, #county\:29037, #county\:29043, #county\:29071, #county\:29145, #county\:29169, #county\:29201, #county\:31043, #county\:31079, #county\:33005, #county\:33019, #county\:36011, #county\:36019, #county\:36021, #county\:36023, #county\:36035, #county\:36037, #county\:36039, #county\:36045, #county\:36051, #county\:36053, #county\:36073, #county\:36099, #county\:36105, #county\:36107, #county\:37019, #county\:37031, #county\:37041, #county\:37055, #county\:37065, #county\:37069, #county\:37077, #county\:37083, #county\:37087, #county\:37093, #county\:37111, #county\:37125, #county\:37145, #county\:37149, #county\:37153, #county\:37161, #county\:37165, #county\:37169, #county\:37175, #county\:37193, #county\:37197, #county\:39011, #county\:39015, #county\:39021, #county\:39027, #county\:39033, #county\:39037, #county\:39039, #county\:39051, #county\:39059, #county\:39075, #county\:39077, #county\:39079, #county\:39083, #county\:39091, #county\:39097, #county\:39107, #county\:39117, #county\:39127, #county\:39129, #county\:39135, #county\:39141, #county\:39147, #county\:39149, #county\:39159, #county\:39167, #county\:39171, #county\:40017, #county\:40031, #county\:40101, #county\:40119, #county\:40125, #county\:40131, #county\:40145, #county\:40147, #county\:41003, #county\:41053, #county\:41071, #county\:42005, #county\:42039, #county\:42063, #county\:42081, #county\:42087, #county\:42099, #county\:42103, #county\:42109, #county\:42111, #county\:42121, #county\:45031, #county\:45033, #county\:45057, #county\:45059, #county\:45073, #county\:45075, #county\:47003, #county\:47013, #county\:47021, #county\:47029, #county\:47031, #county\:47043, #county\:47053, #county\:47059, #county\:47073, #county\:47107, #county\:47119, #county\:47143, #county\:47147, #county\:47155, #county\:47167, #county\:47171, #county\:47173, #county\:47177, #county\:48005, #county\:48007, #county\:48037, #county\:48139, #county\:48181, #county\:48213, #county\:48221, #county\:48231, #county\:48257, #county\:48367, #county\:48381, #county\:48409, #county\:48469, #county\:48471, #county\:49005, #county\:50013, #county\:50023, #county\:51001, #county\:51003, #county\:51031, #county\:51047, #county\:51061, #county\:51079, #county\:51093, #county\:51099, #county\:51103, #county\:51115, #county\:51119, #county\:51137, #county\:51139, #county\:51145, #county\:51155, #county\:51165, #county\:51185, #county\:51191, #county\:51195, #county\:53005, #county\:53015, #county\:53055, #county\:53073, #county\:54045, #county\:54051, #county\:54057, #county\:54091, #county\:54099, #county\:55027, #county\:55073, #county\:55097, #county\:55109, #county\:55141 {
+  fill: #AE017E;
+}
+
+
+/* line 115, tmp/chance//srv/calthorpe/urbanfootprint/calthorpe/server/calthorpe/footprint/sproutcore/apps/fp/resources/stylesheets/presentation/map/polymaps-css.scss */
+#county\:01015, #county\:01055, #county\:01069, #county\:01077, #county\:01081, #county\:01095, #county\:01101, #county\:01103, #county\:01117, #county\:01125, #county\:02020, #county\:05007, #county\:05045, #county\:05051, #county\:05131, #county\:05143, #county\:06007, #county\:06019, #county\:06055, #county\:06061, #county\:06065, #county\:06083, #county\:06097, #county\:06101, #county\:06113, #county\:08035, #county\:08041, #county\:09005, #county\:09015, #county\:10001, #county\:10005, #county\:12001, #county\:12005, #county\:12015, #county\:12017, #county\:12019, #county\:12021, #county\:12053, #county\:12061, #county\:12069, #county\:12083, #county\:12085, #county\:12091, #county\:12097, #county\:12105, #county\:12109, #county\:13009, #county\:13013, #county\:13015, #county\:13045, #county\:13077, #county\:13095, #county\:13115, #county\:13127, #county\:13129, #county\:13137, #county\:13153, #county\:13185, #county\:13217, #county\:13219, #county\:13223, #county\:13225, #county\:13233, #county\:13257, #county\:13277, #county\:13285, #county\:13295, #county\:13297, #county\:13313, #county\:16001, #county\:16027, #county\:17007, #county\:17019, #county\:17037, #county\:17091, #county\:17093, #county\:17113, #county\:17115, #county\:17167, #county\:17179, #county\:17199, #county\:18005, #county\:18019, #county\:18029, #county\:18053, #county\:18059, #county\:18063, #county\:18065, #county\:18067, #county\:18085, #county\:18091, #county\:18109, #county\:18167, #county\:18173, #county\:18177, #county\:19013, #county\:19061, #county\:19103, #county\:19113, #county\:19169, #county\:20045, #county\:20103, #county\:21021, #county\:21029, #county\:21049, #county\:21059, #county\:21073, #county\:21093, #county\:21113, #county\:21145, #county\:21151, #county\:21185, #county\:21227, #county\:22005, #county\:22017, #county\:22019, #county\:22045, #county\:22063, #county\:22073, #county\:22087, #county\:22089, #county\:22095, #county\:22103, #county\:22105, #county\:23001, #county\:23011, #county\:23023, #county\:23031, #county\:24001, #county\:24015, #county\:24017, #county\:24021, #county\:24037, #county\:24041, #county\:24043, #county\:24045, #county\:25003, #county\:25007, #county\:25015, #county\:25019, #county\:26005, #county\:26017, #county\:26021, #county\:26025, #county\:26045, #county\:26055, #county\:26075, #county\:26087, #county\:26091, #county\:26093, #county\:26111, #county\:26115, #county\:26145, #county\:26147, #county\:26149, #county\:26155, #county\:26159, #county\:27019, #county\:27109, #county\:27139, #county\:27141, #county\:27171, #county\:28033, #county\:28035, #county\:28049, #county\:28059, #county\:28081, #county\:28087, #county\:28121, #county\:29019, #county\:29021, #county\:29051, #county\:29097, #county\:29165, #county\:29187, #county\:32003, #county\:33001, #county\:33013, #county\:34019, #county\:34033, #county\:34037, #county\:34041, #county\:35028, #county\:36007, #county\:36013, #county\:36015, #county\:36057, #county\:36065, #county\:36069, #county\:36075, #county\:36083, #county\:36091, #county\:36109, #county\:36111, #county\:36117, #county\:37003, #county\:37023, #county\:37027, #county\:37045, #county\:37049, #county\:37057, #county\:37059, #county\:37085, #county\:37089, #county\:37097, #county\:37101, #county\:37105, #county\:37107, #county\:37109, #county\:37127, #county\:37133, #county\:37139, #county\:37147, #county\:37151, #county\:37155, #county\:37157, #county\:37159, #county\:37167, #county\:37171, #county\:37179, #county\:37181, #county\:37189, #county\:37191, #county\:37195, #county\:39003, #county\:39005, #county\:39007, #county\:39009, #county\:39013, #county\:39029, #county\:39041, #county\:39045, #county\:39055, #county\:39063, #county\:39081, #county\:39087, #county\:39089, #county\:39101, #county\:39109, #county\:39119, #county\:39123, #county\:39139, #county\:39143, #county\:39145, #county\:39157, #county\:39169, #county\:39173, #county\:41005, #county\:41047, #county\:42001, #county\:42013, #county\:42019, #county\:42021, #county\:42025, #county\:42027, #county\:42037, #county\:42051, #county\:42055, #county\:42073, #county\:42085, #county\:42089, #county\:42093, #county\:42097, #county\:42107, #county\:42119, #county\:42125, #county\:45003, #county\:45007, #county\:45013, #county\:45015, #county\:45021, #county\:45035, #county\:45041, #county\:45047, #county\:45051, #county\:45077, #county\:45085, #county\:45091, #county\:46099, #county\:47001, #county\:47009, #county\:47011, #county\:47019, #county\:47089, #county\:47105, #county\:47113, #county\:47125, #county\:47141, #county\:47145, #county\:47149, #county\:47165, #county\:47187, #county\:47189, #county\:48027, #county\:48039, #county\:48041, #county\:48091, #county\:48135, #county\:48187, #county\:48209, #county\:48245, #county\:48251, #county\:48303, #county\:48309, #county\:48329, #county\:48339, #county\:48361, #county\:48375, #county\:48423, #county\:48441, #county\:48485, #county\:48491, #county\:49049, #county\:50007, #county\:51069, #county\:51073, #county\:51085, #county\:51089, #county\:51121, #county\:51149, #county\:51177, #county\:51187, #county\:51800, #county\:53061, #county\:53063, #county\:53067, #county\:54003, #county\:54009, #county\:54033, #county\:54037, #county\:54039, #county\:54049, #county\:54055, #county\:54061, #county\:54079, #county\:54081, #county\:54107, #county\:55015, #county\:55035, #county\:55039, #county\:55055, #county\:55063, #county\:55071, #county\:55087, #county\:55105, #county\:55117, #county\:55127, #county\:55131 {
+  fill: #7A0177;
+}
+
+
+/* line 116, tmp/chance//srv/calthorpe/urbanfootprint/calthorpe/server/calthorpe/footprint/sproutcore/apps/fp/resources/stylesheets/presentation/map/polymaps-css.scss */
+#county\:01073, #county\:01089, #county\:01097, #county\:04013, #county\:05119, #county\:06001, #county\:06013, #county\:06037, #county\:06041, #county\:06059, #county\:06067, #county\:06073, #county\:06075, #county\:06077, #county\:06081, #county\:06085, #county\:06087, #county\:06095, #county\:06099, #county\:06111, #county\:08001, #county\:08005, #county\:08013, #county\:08031, #county\:08059, #county\:09001, #county\:09003, #county\:09007, #county\:09009, #county\:09011, #county\:09013, #county\:10003, #county\:11001, #county\:12009, #county\:12011, #county\:12031, #county\:12033, #county\:12057, #county\:12071, #county\:12073, #county\:12081, #county\:12025, #county\:12095, #county\:12099, #county\:12101, #county\:12103, #county\:12111, #county\:12115, #county\:12117, #county\:12127, #county\:13021, #county\:13047, #county\:13051, #county\:13057, #county\:13059, #county\:13063, #county\:13067, #county\:13073, #county\:13089, #county\:13097, #county\:13113, #county\:13117, #county\:13121, #county\:13135, #county\:13139, #county\:13151, #county\:13215, #county\:13245, #county\:13247, #county\:13255, #county\:15003, #county\:17031, #county\:17043, #county\:17089, #county\:17097, #county\:17111, #county\:17119, #county\:17143, #county\:17161, #county\:17163, #county\:17197, #county\:17201, #county\:18003, #county\:18035, #county\:18039, #county\:18043, #county\:18057, #county\:18081, #county\:18089, #county\:18095, #county\:18097, #county\:18105, #county\:18127, #county\:18141, #county\:18157, #county\:18163, #county\:19153, #county\:19163, #county\:20091, #county\:20173, #county\:20177, #county\:20209, #county\:21015, #county\:21019, #county\:21037, #county\:21067, #county\:21111, #county\:21117, #county\:22033, #county\:22051, #county\:22055, #county\:22071, #county\:23005, #county\:24003, #county\:24005, #county\:24009, #county\:24013, #county\:24025, #county\:24027, #county\:24031, #county\:24033, #county\:25001, #county\:25005, #county\:25009, #county\:25013, #county\:25017, #county\:25021, #county\:25023, #county\:25025, #county\:25027, #county\:26049, #county\:26065, #county\:26077, #county\:26081, #county\:26099, #county\:26121, #county\:26125, #county\:26139, #county\:26161, #county\:26163, #county\:27003, #county\:27037, #county\:27053, #county\:27123, #county\:27163, #county\:28047, #county\:29047, #county\:29077, #county\:29095, #county\:29099, #county\:29183, #county\:29189, #county\:31055, #county\:31109, #county\:31153, #county\:32510, #county\:33011, #county\:33015, #county\:33017, #county\:34001, #county\:34003, #county\:34005, #county\:34007, #county\:34009, #county\:34011, #county\:34013, #county\:34015, #county\:34017, #county\:34021, #county\:34023, #county\:34025, #county\:34027, #county\:34029, #county\:34031, #county\:34035, #county\:34039, #county\:35001, #county\:36001, #county\:36005, #county\:36027, #county\:36029, #county\:36047, #county\:36055, #county\:36059, #county\:36061, #county\:36063, #county\:36067, #county\:36071, #county\:36079, #county\:36081, #county\:36085, #county\:36087, #county\:36093, #county\:36103, #county\:36119, #county\:37001, #county\:37021, #county\:37025, #county\:37035, #county\:37051, #county\:37063, #county\:37067, #county\:37071, #county\:37081, #county\:37119, #county\:37129, #county\:37135, #county\:37183, #county\:39017, #county\:39023, #county\:39025, #county\:39035, #county\:39043, #county\:39049, #county\:39057, #county\:39061, #county\:39085, #county\:39093, #county\:39095, #county\:39099, #county\:39103, #county\:39113, #county\:39133, #county\:39151, #county\:39153, #county\:39155, #county\:39165, #county\:40027, #county\:40109, #county\:40143, #county\:41051, #county\:41067, #county\:42003, #county\:42007, #county\:42011, #county\:42017, #county\:42029, #county\:42041, #county\:42043, #county\:42045, #county\:42049, #county\:42069, #county\:42071, #county\:42075, #county\:42077, #county\:42079, #county\:42091, #county\:42095, #county\:42101, #county\:42129, #county\:42133, #county\:44001, #county\:44003, #county\:44005, #county\:44007, #county\:44009, #county\:45019, #county\:45045, #county\:45063, #county\:45079, #county\:45083, #county\:47037, #county\:47063, #county\:47065, #county\:47093, #county\:47157, #county\:47163, #county\:47179, #county\:48029, #county\:48061, #county\:48085, #county\:48113, #county\:48121, #county\:48141, #county\:48157, #county\:48167, #county\:48183, #county\:48201, #county\:48215, #county\:48355, #county\:48397, #county\:48439, #county\:48453, #county\:49011, #county\:49035, #county\:49057, #county\:51013, #county\:51515, #county\:51041, #county\:51600, #county\:51620, #county\:51087, #county\:51095, #county\:51107, #county\:51153, #county\:51760, #county\:51770, #county\:51179, #county\:51199, #county\:51510, #county\:51520, #county\:51530, #county\:51540, #county\:51550, #county\:51560, #county\:51570, #county\:51580, #county\:51590, #county\:51595, #county\:51610, #county\:51630, #county\:51640, #county\:51650, #county\:51660, #county\:51670, #county\:51678, #county\:51680, #county\:51683, #county\:51685, #county\:51690, #county\:51700, #county\:51710, #county\:51720, #county\:51730, #county\:51735, #county\:51740, #county\:51750, #county\:51775, #county\:51790, #county\:51810, #county\:51820, #county\:51830, #county\:51840, #county\:53011, #county\:53029, #county\:53033, #county\:53035, #county\:53053, #county\:54011, #county\:54029, #county\:54069, #county\:55009, #county\:55025, #county\:55059, #county\:55079, #county\:55089, #county\:55101, #county\:55133, #county\:55139 {
+  fill: #49006A;
+}
+
+
+/* line 5, tmp/chance//srv/calthorpe/urbanfootprint/calthorpe/server/calthorpe/footprint/sproutcore/apps/fp/resources/stylesheets/presentation/result/charts-css.scss */
+.chart-view {
+  font: 11px sans-serif;
+}
+
+
+/* line 11, tmp/chance//srv/calthorpe/urbanfootprint/calthorpe/server/calthorpe/footprint/sproutcore/apps/fp/resources/stylesheets/presentation/result/charts-css.scss */
+.chart-view .axis path,
+.chart-view .axis line,
+.chart-view .zero-line {
+  fill: none;
+  stroke: black;
+  stroke-width: 1;
+  shape-rendering: crispEdges;
+}
+
+
+/* line 18, tmp/chance//srv/calthorpe/urbanfootprint/calthorpe/server/calthorpe/footprint/sproutcore/apps/fp/resources/stylesheets/presentation/result/charts-css.scss */
+.chart-view .x-axis path {
+  display: none;
+}
+
+
+/* line 22, tmp/chance//srv/calthorpe/urbanfootprint/calthorpe/server/calthorpe/footprint/sproutcore/apps/fp/resources/stylesheets/presentation/result/charts-css.scss */
+.chart-view .legend {
+  float: left;
+  background-color: blue;
+  /*#fff;*/
+  border: 1px solid #bbb;
+  margin: 1px 1px 1px 1px;
+}
+
+
+/* line 29, tmp/chance//srv/calthorpe/urbanfootprint/calthorpe/server/calthorpe/footprint/sproutcore/apps/fp/resources/stylesheets/presentation/result/charts-css.scss */
+.chart-view .text {
+  font: 10px sans-serif;
+  fill: black;
+  stroke: none;
+}
+
+
+/* line 35, tmp/chance//srv/calthorpe/urbanfootprint/calthorpe/server/calthorpe/footprint/sproutcore/apps/fp/resources/stylesheets/presentation/result/charts-css.scss */
+.result-button-view, .result-toggle-view {
+  margin-top: 20px;
+  margin-left: 224px;
+}
+
+
+/* line 40, tmp/chance//srv/calthorpe/urbanfootprint/calthorpe/server/calthorpe/footprint/sproutcore/apps/fp/resources/stylesheets/presentation/result/charts-css.scss */
+div.tooltip {
+  position: absolute;
+  text-align: center;
+  width: 60px;
+  height: 14px;
+  padding: 2px;
+  font: 12px sans-serif;
+  background: lightyellow;
+  border: 0;
+  border-radius: 8px;
+  pointer-events: none;
+}
+
+
+/* line 9, tmp/chance//srv/calthorpe/urbanfootprint/calthorpe/server/calthorpe/footprint/sproutcore/apps/fp/resources/stylesheets/presentation/result/legends-css.scss */
+.chart-view .axis text {
+  font: 10px sans-serif;
+}
+
+
+/* line 13, tmp/chance//srv/calthorpe/urbanfootprint/calthorpe/server/calthorpe/footprint/sproutcore/apps/fp/resources/stylesheets/presentation/result/legends-css.scss */
+.chart-view .legend {
+  float: left;
+  background-color: #fff;
+  width: 300px;
+  height: 6000px;
+  border: 1px solid #bbb;
+  margin: 1px 1px 1px 1px;
+}
+
+
+/* line 22, tmp/chance//srv/calthorpe/urbanfootprint/calthorpe/server/calthorpe/footprint/sproutcore/apps/fp/resources/stylesheets/presentation/result/legends-css.scss */
+div.tooltip {
+  position: absolute;
+  text-align: center;
+  width: 60px;
+  height: 14px;
+  padding: 2px;
+  font: 12px sans-serif;
+  background: lightyellow;
+  border: 0;
+  border-radius: 8px;
+  pointer-events: none;
+}
+
+
+/* line 6, tmp/chance//srv/calthorpe/urbanfootprint/calthorpe/server/calthorpe/footprint/sproutcore/apps/fp/resources/stylesheets/section_titlebars/titlebar-css.scss */
+.footprint-edit-button-view {
+  background-position: 0px -2923px;
+  background-repeat: no-repeat;
+}
+
+
+/*
+.sc-button {
+    @include box-shadow(inset 0 1px 0 rgba(255,255,255,0.5));
+}
+*/
+/* line 12, tmp/chance//srv/calthorpe/urbanfootprint/calthorpe/server/calthorpe/footprint/sproutcore/apps/fp/resources/stylesheets/styles-css.scss */
+body {
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizelegibility;
+}
+
+
+/* line 18, tmp/chance//srv/calthorpe/urbanfootprint/calthorpe/server/calthorpe/footprint/sproutcore/apps/fp/resources/stylesheets/styles-css.scss */
+.sc-pane {
+  -webkit-transform: none;
+}
+
+
+/* line 22, tmp/chance//srv/calthorpe/urbanfootprint/calthorpe/server/calthorpe/footprint/sproutcore/apps/fp/resources/stylesheets/styles-css.scss */
+.ace.footprint.sc-text-field-view {
+  font-size: 14px;
+}
+
+/* line 24, tmp/chance//srv/calthorpe/urbanfootprint/calthorpe/server/calthorpe/footprint/sproutcore/apps/fp/resources/stylesheets/styles-css.scss */
+.ace.footprint.sc-text-field-view .hint {
+  font-size: 14px;
+  line-height: 30px;
+}
+
+/* line 29, tmp/chance//srv/calthorpe/urbanfootprint/calthorpe/server/calthorpe/footprint/sproutcore/apps/fp/resources/stylesheets/styles-css.scss */
+.ace.footprint.sc-text-field-view .padding {
+  left: 14px;
+}
+
+
+/* line 36, tmp/chance//srv/calthorpe/urbanfootprint/calthorpe/server/calthorpe/footprint/sproutcore/apps/fp/resources/stylesheets/styles-css.scss */
+.ace.footprint.toolbar .checkbox .button {
+  left: 13px;
+  top: 50%;
+  margin-top: -8px;
+}
+
+/* line 42, tmp/chance//srv/calthorpe/urbanfootprint/calthorpe/server/calthorpe/footprint/sproutcore/apps/fp/resources/stylesheets/styles-css.scss */
+.ace.footprint.toolbar .checkbox .label {
+  left: 47px;
+  line-height: 36px;
+}
+
+
+/* line 49, tmp/chance//srv/calthorpe/urbanfootprint/calthorpe/server/calthorpe/footprint/sproutcore/apps/fp/resources/stylesheets/styles-css.scss */
+.sc-list-insertion-point {
+  overflow: visible;
+  background-color: #C9D3DF;
+  z-index: 1000;
+}
+
+
+/* line 55, tmp/chance//srv/calthorpe/urbanfootprint/calthorpe/server/calthorpe/footprint/sproutcore/apps/fp/resources/stylesheets/styles-css.scss */
+.sc-list-insertion-point > .anchor {
+  position: absolute;
+  width: 8px;
+  top: -3px;
+  left: -4px;
+  height: 8px;
+  border-radius: 4px;
+  background-color: #C9D3DF;
+}
+
+
+/* line 65, tmp/chance//srv/calthorpe/urbanfootprint/calthorpe/server/calthorpe/footprint/sproutcore/apps/fp/resources/stylesheets/styles-css.scss */
+.loading-image {
+  -webkit-animation-name: spinner;
+  -webkit-animation-timing-function: linear;
+  -webkit-animation-iteration-count: infinite;
+  -webkit-animation-duration: 6s;
+  -webkit-transform-style: preserve-3d;
+}
+
+/* line 71, tmp/chance//srv/calthorpe/urbanfootprint/calthorpe/server/calthorpe/footprint/sproutcore/apps/fp/resources/stylesheets/styles-css.scss */
+.loading-image.hover {
+  -webkit-animation-play-state: paused;
+}
+
+
+/* line 7, tmp/chance//srv/calthorpe/urbanfootprint/calthorpe/server/calthorpe/footprint/sproutcore/apps/fp/resources/stylesheets/tool/tool-css.scss */
+.ace.footprint.featurer-bar {
+  margin-left: 10px;
+  margin-rigth: 10px;
+}
+
+
+/* line 12, tmp/chance//srv/calthorpe/urbanfootprint/calthorpe/server/calthorpe/footprint/sproutcore/apps/fp/resources/stylesheets/tool/tool-css.scss */
+.ace.footprint.featurer-bar-apply {
+  -webkit-border-radius: 4px;
+  -moz-border-radius: 4px;
+  -ms-border-radius: 4px;
+  -o-border-radius: 4px;
+  border-radius: 4px;
+  background-image: -webkit-gradient(linear, 50% 100%, 50% 0%, color-stop(0%, #4b8ada), color-stop(100%, #447ec3));
+  background-image: -webkit-linear-gradient(bottom, #4b8ada 0%, #447ec3 100%);
+  background-image: -moz-linear-gradient(bottom, #4b8ada 0%, #447ec3 100%);
+  background-image: -o-linear-gradient(bottom, #4b8ada 0%, #447ec3 100%);
+  background-image: linear-gradient(bottom, #4b8ada 0%, #447ec3 100%);
+  -webkit-box-shadow: inset 0 1px 0 #5b9aea;
+  -moz-box-shadow: inset 0 1px 0 #5b9aea;
+  box-shadow: inset 0 1px 0 #5b9aea;
+  background-color: #589AEA;
+  border: 1px solid #1B5AAA;
+  color: white;
+}
+
+/* line 20, tmp/chance//srv/calthorpe/urbanfootprint/calthorpe/server/calthorpe/footprint/sproutcore/apps/fp/resources/stylesheets/tool/tool-css.scss */
+.ace.footprint.featurer-bar-apply.active, .ace.footprint.featurer-bar-apply.sel {
+  background-image: -webkit-gradient(linear, 50% 100%, 50% 0%, color-stop(0%, #3b7aca), color-stop(100%, #346e93));
+  background-image: -webkit-linear-gradient(bottom, #3b7aca 0%, #346e93 100%);
+  background-image: -moz-linear-gradient(bottom, #3b7aca 0%, #346e93 100%);
+  background-image: -o-linear-gradient(bottom, #3b7aca 0%, #346e93 100%);
+  background-image: linear-gradient(bottom, #3b7aca 0%, #346e93 100%);
+  -webkit-box-shadow: inset 0 1px 0 #4b9ada;
+  -moz-box-shadow: inset 0 1px 0 #4b9ada;
+  box-shadow: inset 0 1px 0 #4b9ada;
+  background-color: #4B9ADA;
+}
+
+/* line 26, tmp/chance//srv/calthorpe/urbanfootprint/calthorpe/server/calthorpe/footprint/sproutcore/apps/fp/resources/stylesheets/tool/tool-css.scss */
+.ace.footprint.featurer-bar-apply.is-full-redevelopment {
+  background-image: -webkit-gradient(linear, 50% 100%, 50% 0%, color-stop(0%, #ee0000), color-stop(100%, #aa0000));
+  background-image: -webkit-linear-gradient(bottom, #ee0000 0%, #aa0000 100%);
+  background-image: -moz-linear-gradient(bottom, #ee0000 0%, #aa0000 100%);
+  background-image: -o-linear-gradient(bottom, #ee0000 0%, #aa0000 100%);
+  background-image: linear-gradient(bottom, #ee0000 0%, #aa0000 100%);
+  -webkit-box-shadow: inset 0 1px 0 red;
+  -moz-box-shadow: inset 0 1px 0 red;
+  box-shadow: inset 0 1px 0 red;
+  background-color: #BB0000;
+}
+
+/* line 31, tmp/chance//srv/calthorpe/urbanfootprint/calthorpe/server/calthorpe/footprint/sproutcore/apps/fp/resources/stylesheets/tool/tool-css.scss */
+.ace.footprint.featurer-bar-apply.is-full-redevelopment.active, .ace.footprint.featurer-bar-apply.is-full-redevelopment.sel {
+  background-image: -webkit-gradient(linear, 50% 100%, 50% 0%, color-stop(0%, #be0000), color-stop(100%, #990000));
+  background-image: -webkit-linear-gradient(bottom, #be0000 0%, #990000 100%);
+  background-image: -moz-linear-gradient(bottom, #be0000 0%, #990000 100%);
+  background-image: -o-linear-gradient(bottom, #be0000 0%, #990000 100%);
+  background-image: linear-gradient(bottom, #be0000 0%, #990000 100%);
+  -webkit-box-shadow: inset 0 1px 0 #de0000;
+  -moz-box-shadow: inset 0 1px 0 #de0000;
+  box-shadow: inset 0 1px 0 #de0000;
+  background-color: #BB0000;
+}
+
+/* line 39, tmp/chance//srv/calthorpe/urbanfootprint/calthorpe/server/calthorpe/footprint/sproutcore/apps/fp/resources/stylesheets/tool/tool-css.scss */
+.ace.footprint.featurer-bar-apply label.sc-button-label {
+  line-height: 18px;
+  padding-left: 0;
+  padding-right: 0;
+  height: auto;
+}
+
+/* line 46, tmp/chance//srv/calthorpe/urbanfootprint/calthorpe/server/calthorpe/footprint/sproutcore/apps/fp/resources/stylesheets/tool/tool-css.scss */
+.ace.footprint.featurer-bar-apply.theme-button-short label.sc-button-label {
+  line-height: 20px;
+}
+
+/* line 51, tmp/chance//srv/calthorpe/urbanfootprint/calthorpe/server/calthorpe/footprint/sproutcore/apps/fp/resources/stylesheets/tool/tool-css.scss */
+.ace.footprint.featurer-bar-apply.theme-button-tall label.sc-button-label {
+  line-height: 28px;
+}
+
+/* line 57, tmp/chance//srv/calthorpe/urbanfootprint/calthorpe/server/calthorpe/footprint/sproutcore/apps/fp/resources/stylesheets/tool/tool-css.scss */
+.ace.footprint.featurer-bar-apply .left, .ace.footprint.featurer-bar-apply .middle, .ace.footprint.featurer-bar-apply .right {
+  display: none;
+}

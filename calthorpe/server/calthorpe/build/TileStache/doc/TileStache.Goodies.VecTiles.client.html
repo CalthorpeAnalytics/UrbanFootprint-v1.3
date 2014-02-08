@@ -1,0 +1,213 @@
+
+<!doctype html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html><head><title>Python: module TileStache.Goodies.VecTiles.client</title>
+</head><body bgcolor="#f0f0f8">
+
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="heading">
+<tr bgcolor="#7799ee">
+<td valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial">&nbsp;<br><big><big><strong><a href="TileStache.html"><font color="#ffffff">TileStache</font></a>.<a href="TileStache.Goodies.html"><font color="#ffffff">Goodies</font></a>.<a href="TileStache.Goodies.VecTiles.html"><font color="#ffffff">VecTiles</font></a>.client</strong></big></big></font></td
+><td align=right valign=bottom
+><font color="#ffffff" face="helvetica, arial"><a href=".">index</a></font></td></tr></table>
+    <p><tt><a href="#Datasource">Datasource</a>&nbsp;for&nbsp;Mapnik&nbsp;that&nbsp;consumes&nbsp;vector&nbsp;tiles&nbsp;in&nbsp;GeoJSON&nbsp;or&nbsp;MVT&nbsp;format.<br>
+&nbsp;<br>
+VecTiles&nbsp;provides&nbsp;Mapnik&nbsp;with&nbsp;a&nbsp;<a href="#Datasource">Datasource</a>&nbsp;that&nbsp;can&nbsp;read&nbsp;remote&nbsp;tiles&nbsp;of&nbsp;vector<br>
+data&nbsp;in&nbsp;spherical&nbsp;mercator&nbsp;projection,&nbsp;providing&nbsp;for&nbsp;rendering&nbsp;of&nbsp;data&nbsp;without<br>
+the&nbsp;use&nbsp;of&nbsp;a&nbsp;local&nbsp;PostGIS&nbsp;database.<br>
+&nbsp;<br>
+Sample&nbsp;usage&nbsp;in&nbsp;Mapnik&nbsp;configuration&nbsp;XML:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<br>
+&nbsp;&lt;Layer&nbsp;name="test"&nbsp;srs="+proj=merc&nbsp;+a=6378137&nbsp;+b=6378137&nbsp;+lat_ts=0.0&nbsp;+lon_0=0.0&nbsp;+x_0=0.0&nbsp;+y_0=0&nbsp;+k=1.0&nbsp;+units=m&nbsp;+nadgrids=@null&nbsp;+no_defs"&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;StyleName&gt;...&lt;/StyleName&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;<a href="#Datasource">Datasource</a>&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;Parameter&nbsp;name="type"&gt;python&lt;/Parameter&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;Parameter&nbsp;name="factory"&gt;TileStache.Goodies.VecTiles:<a href="#Datasource">Datasource</a>&lt;/Parameter&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;Parameter&nbsp;name="template"&gt;<a href="http://example.com/{z}/{x}/{y}.mvt&lt;/Parameter">http://example.com/{z}/{x}/{y}.mvt&lt;/Parameter</a>&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;Parameter&nbsp;name="sort_key"&gt;sort_key&nbsp;ascending&lt;/Parameter&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;/<a href="#Datasource">Datasource</a>&gt;<br>
+&nbsp;&lt;/Layer&gt;<br>
+&nbsp;<br>
+From&nbsp;<a href="http://github.com/mapnik/mapnik/wiki/Python-Plugin">http://github.com/mapnik/mapnik/wiki/Python-Plugin</a>:<br>
+&nbsp;<br>
+&nbsp;&nbsp;The&nbsp;Mapnik&nbsp;Python&nbsp;plugin&nbsp;allows&nbsp;you&nbsp;to&nbsp;write&nbsp;data&nbsp;sources&nbsp;in&nbsp;the&nbsp;Python<br>
+&nbsp;&nbsp;programming&nbsp;language.&nbsp;This&nbsp;is&nbsp;useful&nbsp;if&nbsp;you&nbsp;want&nbsp;to&nbsp;rapidly&nbsp;prototype&nbsp;a<br>
+&nbsp;&nbsp;plugin,&nbsp;perform&nbsp;some&nbsp;custom&nbsp;manipulation&nbsp;on&nbsp;data&nbsp;or&nbsp;if&nbsp;you&nbsp;want&nbsp;to&nbsp;bind<br>
+&nbsp;&nbsp;mapnik&nbsp;to&nbsp;a&nbsp;datasource&nbsp;which&nbsp;is&nbsp;most&nbsp;conveniently&nbsp;accessed&nbsp;through&nbsp;Python.<br>
+&nbsp;<br>
+&nbsp;&nbsp;The&nbsp;plugin&nbsp;may&nbsp;be&nbsp;used&nbsp;from&nbsp;the&nbsp;existing&nbsp;mapnik&nbsp;Python&nbsp;bindings&nbsp;or&nbsp;it&nbsp;can<br>
+&nbsp;&nbsp;embed&nbsp;the&nbsp;Python&nbsp;interpreter&nbsp;directly&nbsp;allowing&nbsp;it&nbsp;to&nbsp;be&nbsp;used&nbsp;from&nbsp;C++,&nbsp;XML<br>
+&nbsp;&nbsp;or&nbsp;even&nbsp;JavaScript.<br>
+&nbsp;<br>
+See&nbsp;also:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<a href="http://mapnik.org/docs/v2.1.0/api/python/mapnik.PythonDatasource-class.html">http://mapnik.org/docs/v2.1.0/api/python/mapnik.PythonDatasource-class.html</a></tt></p>
+<p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#aa55cc">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial"><big><strong>Modules</strong></big></font></td></tr>
+    
+<tr><td bgcolor="#aa55cc"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%"><table width="100%" summary="list"><tr><td width="25%" valign=top><a href="TileStache.Goodies.VecTiles.geojson.html">TileStache.Goodies.VecTiles.geojson</a><br>
+</td><td width="25%" valign=top><a href="logging.html">logging</a><br>
+</td><td width="25%" valign=top><a href="TileStache.Goodies.VecTiles.mvt.html">TileStache.Goodies.VecTiles.mvt</a><br>
+</td><td width="25%" valign=top></td></tr></table></td></tr></table><p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#ee77aa">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial"><big><strong>Classes</strong></big></font></td></tr>
+    
+<tr><td bgcolor="#ee77aa"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%"><dl>
+<dt><font face="helvetica, arial"><a href="mapnik.html#PythonDatasource">mapnik.PythonDatasource</a>(<a href="__builtin__.html#object">__builtin__.object</a>)
+</font></dt><dd>
+<dl>
+<dt><font face="helvetica, arial"><a href="TileStache.Goodies.VecTiles.client.html#Datasource">Datasource</a>
+</font></dt></dl>
+</dd>
+</dl>
+ <p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#ffc8d8">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#000000" face="helvetica, arial"><a name="Datasource">class <strong>Datasource</strong></a>(<a href="mapnik.html#PythonDatasource">mapnik.PythonDatasource</a>)</font></td></tr>
+    
+<tr bgcolor="#ffc8d8"><td rowspan=2><tt>&nbsp;&nbsp;&nbsp;</tt></td>
+<td colspan=2><tt>Mapnik&nbsp;datasource&nbsp;to&nbsp;read&nbsp;tiled&nbsp;vector&nbsp;data&nbsp;in&nbsp;GeoJSON&nbsp;or&nbsp;MVT&nbsp;formats.<br>
+&nbsp;<br>
+Sample&nbsp;usage&nbsp;in&nbsp;Mapnik&nbsp;configuration&nbsp;XML:<br>
+&nbsp;<br>
+&lt;Layer&nbsp;name="test"&nbsp;srs="+proj=merc&nbsp;+a=6378137&nbsp;+b=6378137&nbsp;+lat_ts=0.0&nbsp;+lon_0=0.0&nbsp;+x_0=0.0&nbsp;+y_0=0&nbsp;+k=1.0&nbsp;+units=m&nbsp;+nadgrids=@null&nbsp;+no_defs"&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;StyleName&gt;...&lt;/StyleName&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;<a href="#Datasource">Datasource</a>&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;Parameter&nbsp;name="type"&gt;python&lt;/Parameter&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;Parameter&nbsp;name="factory"&gt;TileStache.Goodies.VecTiles:<a href="#Datasource">Datasource</a>&lt;/Parameter&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;Parameter&nbsp;name="template"&gt;<a href="http://example.com/{z}/{x}/{y}.mvt&lt;/Parameter">http://example.com/{z}/{x}/{y}.mvt&lt;/Parameter</a>&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;Parameter&nbsp;name="sort_key"&gt;sort_key&nbsp;ascending&lt;/Parameter&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;/<a href="#Datasource">Datasource</a>&gt;<br>
+&lt;/Layer&gt;<br>&nbsp;</tt></td></tr>
+<tr><td>&nbsp;</td>
+<td width="100%"><dl><dt>Method resolution order:</dt>
+<dd><a href="TileStache.Goodies.VecTiles.client.html#Datasource">Datasource</a></dd>
+<dd><a href="mapnik.html#PythonDatasource">mapnik.PythonDatasource</a></dd>
+<dd><a href="__builtin__.html#object">__builtin__.object</a></dd>
+</dl>
+<hr>
+Methods defined here:<br>
+<dl><dt><a name="Datasource-__init__"><strong>__init__</strong></a>(self, template, sort_key<font color="#909090">=None</font>, clipped<font color="#909090">='true'</font>, zoom_data<font color="#909090">='single'</font>)</dt><dd><tt>Make&nbsp;a&nbsp;new&nbsp;<a href="#Datasource">Datasource</a>.<br>
+&nbsp;<br>
+Parameters:<br>
+&nbsp;<br>
+&nbsp;&nbsp;template:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;Required&nbsp;URL&nbsp;template&nbsp;with&nbsp;placeholders&nbsp;for&nbsp;tile&nbsp;zoom,&nbsp;x&nbsp;and&nbsp;y,<br>
+&nbsp;&nbsp;&nbsp;&nbsp;e.g.&nbsp;"<a href="http://example.com/layer/{z}/{x}/{y}.json">http://example.com/layer/{z}/{x}/{y}.json</a>".<br>
+&nbsp;<br>
+&nbsp;&nbsp;sort_key:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;Optional&nbsp;field&nbsp;name&nbsp;to&nbsp;use&nbsp;when&nbsp;sorting&nbsp;features&nbsp;for&nbsp;rendering.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;E.g.&nbsp;"name"&nbsp;or&nbsp;"name&nbsp;ascending"&nbsp;to&nbsp;sort&nbsp;ascending&nbsp;by&nbsp;name,<br>
+&nbsp;&nbsp;&nbsp;&nbsp;"name&nbsp;descending"&nbsp;to&nbsp;sort&nbsp;descending&nbsp;by&nbsp;name.<br>
+&nbsp;&nbsp;<br>
+&nbsp;&nbsp;clipped:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;Optional&nbsp;boolean&nbsp;flag&nbsp;to&nbsp;determine&nbsp;correct&nbsp;behavior&nbsp;for<br>
+&nbsp;&nbsp;&nbsp;&nbsp;duplicate&nbsp;geometries.&nbsp;When&nbsp;tile&nbsp;data&nbsp;is&nbsp;not&nbsp;clipped,&nbsp;<a href="#Datasource-features">features</a>()<br>
+&nbsp;&nbsp;&nbsp;&nbsp;will&nbsp;check&nbsp;geometry&nbsp;uniqueness&nbsp;and&nbsp;throw&nbsp;out&nbsp;duplicates.<br>
+&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;Setting&nbsp;clipped&nbsp;to&nbsp;false&nbsp;for&nbsp;actually-clipped&nbsp;geometries&nbsp;has&nbsp;no<br>
+&nbsp;&nbsp;&nbsp;&nbsp;effect&nbsp;but&nbsp;wastes&nbsp;time.&nbsp;Setting&nbsp;clipped&nbsp;to&nbsp;false&nbsp;for&nbsp;unclipped<br>
+&nbsp;&nbsp;&nbsp;&nbsp;geometries&nbsp;will&nbsp;result&nbsp;in&nbsp;possibly&nbsp;wrong-looking&nbsp;output.<br>
+&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;Default&nbsp;is&nbsp;"true".<br>
+&nbsp;&nbsp;<br>
+&nbsp;&nbsp;zoom_data:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;Optional&nbsp;keyword&nbsp;specifying&nbsp;single&nbsp;or&nbsp;double&nbsp;zoom&nbsp;data&nbsp;tiles.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;Works&nbsp;especially&nbsp;well&nbsp;with&nbsp;relatively&nbsp;sparse&nbsp;label&nbsp;layers.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;When&nbsp;set&nbsp;to&nbsp;"double",&nbsp;tiles&nbsp;will&nbsp;be&nbsp;requested&nbsp;at&nbsp;one&nbsp;zoom&nbsp;level<br>
+&nbsp;&nbsp;&nbsp;&nbsp;out&nbsp;from&nbsp;the&nbsp;map&nbsp;view,&nbsp;e.g.&nbsp;double-sized&nbsp;z13&nbsp;tiles&nbsp;will&nbsp;be&nbsp;used<br>
+&nbsp;&nbsp;&nbsp;&nbsp;to&nbsp;render&nbsp;a&nbsp;normal&nbsp;z14&nbsp;map.<br>
+&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;Default&nbsp;is&nbsp;"single".</tt></dd></dl>
+
+<dl><dt><a name="Datasource-features"><strong>features</strong></a>(self, query)</dt></dl>
+
+<hr>
+Methods inherited from <a href="mapnik.html#PythonDatasource">mapnik.PythonDatasource</a>:<br>
+<dl><dt><a name="Datasource-features_at_point"><strong>features_at_point</strong></a>(self, point)</dt><dd><tt>Rarely&nbsp;uses.&nbsp;Return&nbsp;an&nbsp;iterable&nbsp;which&nbsp;yields&nbsp;instances&nbsp;of&nbsp;Feature&nbsp;for&nbsp;the&nbsp;specified&nbsp;point.</tt></dd></dl>
+
+<hr>
+Class methods inherited from <a href="mapnik.html#PythonDatasource">mapnik.PythonDatasource</a>:<br>
+<dl><dt><a name="Datasource-wkb_features"><strong>wkb_features</strong></a>(cls, keys, features)<font color="#909090"><font face="helvetica, arial"> from <a href="__builtin__.html#type">__builtin__.type</a></font></font></dt><dd><tt>A&nbsp;convenience&nbsp;function&nbsp;to&nbsp;wrap&nbsp;an&nbsp;iterator&nbsp;yielding&nbsp;pairs&nbsp;of&nbsp;WKB&nbsp;format&nbsp;geometry&nbsp;and&nbsp;dictionaries&nbsp;of<br>
+key-value&nbsp;pairs&nbsp;into&nbsp;mapnik&nbsp;features.&nbsp;Return&nbsp;this&nbsp;from&nbsp;<a href="mapnik.html#PythonDatasource">PythonDatasource</a>.<a href="#Datasource-features">features</a>()&nbsp;passing&nbsp;it&nbsp;a&nbsp;sequence&nbsp;of&nbsp;keys<br>
+to&nbsp;appear&nbsp;in&nbsp;the&nbsp;output&nbsp;and&nbsp;an&nbsp;iterator&nbsp;yielding&nbsp;features.<br>
+&nbsp;<br>
+For&nbsp;example.&nbsp;One&nbsp;might&nbsp;have&nbsp;a&nbsp;<a href="#Datasource-features">features</a>()&nbsp;method&nbsp;in&nbsp;a&nbsp;derived&nbsp;class&nbsp;like&nbsp;the&nbsp;following:<br>
+&nbsp;<br>
+def&nbsp;<a href="#Datasource-features">features</a>(self,&nbsp;query):<br>
+&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;...&nbsp;create&nbsp;WKB&nbsp;features&nbsp;feat1&nbsp;and&nbsp;feat2<br>
+&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;mapnik.<a href="mapnik.html#PythonDatasource">PythonDatasource</a>.<a href="#Datasource-wkb_features">wkb_features</a>(<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;keys&nbsp;=&nbsp;(&nbsp;'name',&nbsp;'author'&nbsp;),<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;features&nbsp;=&nbsp;[<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(feat1,&nbsp;{&nbsp;'name':&nbsp;'feat1',&nbsp;'author':&nbsp;'alice'&nbsp;}),<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(feat2,&nbsp;{&nbsp;'name':&nbsp;'feat2',&nbsp;'author':&nbsp;'bob'&nbsp;}),<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;]<br>
+&nbsp;&nbsp;&nbsp;&nbsp;)</tt></dd></dl>
+
+<dl><dt><a name="Datasource-wkt_features"><strong>wkt_features</strong></a>(cls, keys, features)<font color="#909090"><font face="helvetica, arial"> from <a href="__builtin__.html#type">__builtin__.type</a></font></font></dt><dd><tt>A&nbsp;convenience&nbsp;function&nbsp;to&nbsp;wrap&nbsp;an&nbsp;iterator&nbsp;yielding&nbsp;pairs&nbsp;of&nbsp;WKT&nbsp;format&nbsp;geometry&nbsp;and&nbsp;dictionaries&nbsp;of<br>
+key-value&nbsp;pairs&nbsp;into&nbsp;mapnik&nbsp;features.&nbsp;Return&nbsp;this&nbsp;from&nbsp;<a href="mapnik.html#PythonDatasource">PythonDatasource</a>.<a href="#Datasource-features">features</a>()&nbsp;passing&nbsp;it&nbsp;a&nbsp;sequence&nbsp;of&nbsp;keys<br>
+to&nbsp;appear&nbsp;in&nbsp;the&nbsp;output&nbsp;and&nbsp;an&nbsp;iterator&nbsp;yielding&nbsp;features.<br>
+&nbsp;<br>
+For&nbsp;example.&nbsp;One&nbsp;might&nbsp;have&nbsp;a&nbsp;<a href="#Datasource-features">features</a>()&nbsp;method&nbsp;in&nbsp;a&nbsp;derived&nbsp;class&nbsp;like&nbsp;the&nbsp;following:<br>
+&nbsp;<br>
+def&nbsp;<a href="#Datasource-features">features</a>(self,&nbsp;query):<br>
+&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;...&nbsp;create&nbsp;WKT&nbsp;features&nbsp;feat1&nbsp;and&nbsp;feat2<br>
+&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;mapnik.<a href="mapnik.html#PythonDatasource">PythonDatasource</a>.<a href="#Datasource-wkt_features">wkt_features</a>(<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;keys&nbsp;=&nbsp;(&nbsp;'name',&nbsp;'author'&nbsp;),<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;features&nbsp;=&nbsp;[<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(feat1,&nbsp;{&nbsp;'name':&nbsp;'feat1',&nbsp;'author':&nbsp;'alice'&nbsp;}),<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(feat2,&nbsp;{&nbsp;'name':&nbsp;'feat2',&nbsp;'author':&nbsp;'bob'&nbsp;}),<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;]<br>
+&nbsp;&nbsp;&nbsp;&nbsp;)</tt></dd></dl>
+
+<hr>
+Data descriptors inherited from <a href="mapnik.html#PythonDatasource">mapnik.PythonDatasource</a>:<br>
+<dl><dt><strong>__dict__</strong></dt>
+<dd><tt>dictionary&nbsp;for&nbsp;instance&nbsp;variables&nbsp;(if&nbsp;defined)</tt></dd>
+</dl>
+<dl><dt><strong>__weakref__</strong></dt>
+<dd><tt>list&nbsp;of&nbsp;weak&nbsp;references&nbsp;to&nbsp;the&nbsp;object&nbsp;(if&nbsp;defined)</tt></dd>
+</dl>
+</td></tr></table></td></tr></table><p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#eeaa77">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial"><big><strong>Functions</strong></big></font></td></tr>
+    
+<tr><td bgcolor="#eeaa77"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%"><dl><dt><a name="-list_tiles"><strong>list_tiles</strong></a>(query, zoom_adjust)</dt><dd><tt>Return&nbsp;a&nbsp;list&nbsp;of&nbsp;tiles&nbsp;(z,&nbsp;x,&nbsp;y)&nbsp;dicts&nbsp;for&nbsp;a&nbsp;mapnik&nbsp;Query&nbsp;object.<br>
+&nbsp;<br>
+Query&nbsp;is&nbsp;assumed&nbsp;to&nbsp;be&nbsp;in&nbsp;spherical&nbsp;mercator&nbsp;projection.<br>
+Zoom_adjust&nbsp;is&nbsp;an&nbsp;integer&nbsp;delta&nbsp;to&nbsp;subtract&nbsp;from&nbsp;the&nbsp;calculated&nbsp;zoom.</tt></dd></dl>
+ <dl><dt><a name="-load_features"><strong>load_features</strong></a>(jobs, host, port, path, tiles)</dt><dd><tt>Load&nbsp;data&nbsp;from&nbsp;tiles&nbsp;to&nbsp;features.<br>
+&nbsp;<br>
+Calls&nbsp;<a href="#-load_tile_features">load_tile_features</a>()&nbsp;in&nbsp;a&nbsp;thread&nbsp;pool&nbsp;to&nbsp;speak&nbsp;HTTP.</tt></dd></dl>
+ <dl><dt><a name="-load_tile_features"><strong>load_tile_features</strong></a>(lock, host, port, path_fmt, tiles, features)</dt><dd><tt>Load&nbsp;data&nbsp;from&nbsp;tiles&nbsp;to&nbsp;features.<br>
+&nbsp;<br>
+Called&nbsp;from&nbsp;<a href="#-load_features">load_features</a>(),&nbsp;in&nbsp;a&nbsp;thread.<br>
+&nbsp;<br>
+Returns&nbsp;a&nbsp;list&nbsp;of&nbsp;(WKB,&nbsp;property&nbsp;dict)&nbsp;pairs.</tt></dd></dl>
+ <dl><dt><a name="-utf8_keys"><strong>utf8_keys</strong></a>(dictionary)</dt><dd><tt>Convert&nbsp;dictionary&nbsp;keys&nbsp;to&nbsp;utf8-encoded&nbsp;strings&nbsp;for&nbsp;Mapnik.<br>
+&nbsp;<br>
+By&nbsp;default,&nbsp;json.load()&nbsp;returns&nbsp;dictionaries&nbsp;with&nbsp;unicode&nbsp;keys<br>
+but&nbsp;Mapnik&nbsp;is&nbsp;ultra-whiny&nbsp;about&nbsp;these&nbsp;and&nbsp;rejects&nbsp;them.</tt></dd></dl>
+</td></tr></table><p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#55aa55">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial"><big><strong>Data</strong></big></font></td></tr>
+    
+<tr><td bgcolor="#55aa55"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%"><strong>diameter</strong> = 40075016.685578488<br>
+<strong>meter_zoom</strong> = 17.256199785269999<br>
+<strong>pi</strong> = 3.1415926535897931</td></tr></table>
+</body></html>

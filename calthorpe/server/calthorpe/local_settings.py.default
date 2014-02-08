@@ -1,0 +1,56 @@
+import os
+from settings import ROOT_PATH
+
+# Fixtures for the given client will be loaded
+CLIENT = 'scag'
+USE_SAMPLE_DATA_SETS = True
+
+# Run celery as the main process
+CELERY_ALWAYS_EAGER = True
+
+# Indicates that the system should use test data for default data sets
+import warnings
+warnings.filterwarnings(
+        'error', r"DateTimeField received a naive datetime",
+        RuntimeWarning, r'django\.db\.models\.fields')
+
+DEBUG = True
+CONSOLE_DEBUG = DEBUG
+REUSE_DB=1
+# Set the source for built form imports, or don't import them at all
+IMPORT_BUILT_FORMS = 'CSV' #  set to 'CSV' to run full import, 'JSON' to use fixtures, or 'FALSE' to skip import
+# Skip slow calculations for testing
+SKIP_ALL_BUILT_FORMS = False
+TEST_SKIP_BUILT_FORM_COMPUTATIONS = False
+
+MEDIA_ROOT = '/srv/calthorpe_media'
+TEMPLATE_DEBUG = DEBUG
+
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.contrib.gis.db.backends.postgis',
+        'OPTIONS': {
+            'autocommit': True,
+        },
+        'NAME': 'urbanfootprint',
+        'USER': 'calthorpe',
+        'PASSWORD': 'sample password', # replace with password
+        'HOST': 'localhost',
+        'PORT': '5432',
+    }
+}
+
+CALTHORPE_ENGINE_PATH = os.path.join(ROOT_PATH, 'engines')
+
+SQL_PATH = "/srv/calthorpe/urbanfootprint/calthorpe/server/calthorpe/footprint/static/sql"
+#celery - redis specific
+BROKER_TRANSPORT = "redis"
+BROKER_URL = "redis://localhost:6379/0"
+CELERY_RESULT_BACKEND = "redis"
+CELERY_REDIS_HOST = "localhost"
+CELERY_REDIS_PORT = 6379
+CELERY_REDIS_DB = 0
+
+#celery generic
+CELERY_TASK_RESULT_EXPIRES = 18000  # 5 hours.
+CELERY_RESULT_PERSISTENT = True

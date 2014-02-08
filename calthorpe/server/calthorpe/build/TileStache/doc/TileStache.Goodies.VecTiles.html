@@ -1,0 +1,74 @@
+
+<!doctype html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html><head><title>Python: package TileStache.Goodies.VecTiles</title>
+</head><body bgcolor="#f0f0f8">
+
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="heading">
+<tr bgcolor="#7799ee">
+<td valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial">&nbsp;<br><big><big><strong><a href="TileStache.html"><font color="#ffffff">TileStache</font></a>.<a href="TileStache.Goodies.html"><font color="#ffffff">Goodies</font></a>.VecTiles</strong></big></big></font></td
+><td align=right valign=bottom
+><font color="#ffffff" face="helvetica, arial"><a href=".">index</a></font></td></tr></table>
+    <p><tt>VecTiles&nbsp;implements&nbsp;client&nbsp;and&nbsp;server&nbsp;support&nbsp;for&nbsp;efficient&nbsp;vector&nbsp;tiles.<br>
+&nbsp;<br>
+VecTiles&nbsp;implements&nbsp;a&nbsp;TileStache&nbsp;Provider&nbsp;that&nbsp;returns&nbsp;tiles&nbsp;with&nbsp;contents<br>
+simplified,&nbsp;precision&nbsp;reduced&nbsp;and&nbsp;often&nbsp;clipped.&nbsp;The&nbsp;MVT&nbsp;format&nbsp;in&nbsp;particular<br>
+is&nbsp;designed&nbsp;for&nbsp;use&nbsp;in&nbsp;Mapnik&nbsp;with&nbsp;the&nbsp;VecTiles&nbsp;Datasource,&nbsp;which&nbsp;can&nbsp;read<br>
+binary&nbsp;MVT&nbsp;tiles.<br>
+&nbsp;<br>
+VecTiles&nbsp;also&nbsp;provides&nbsp;Mapnik&nbsp;with&nbsp;a&nbsp;Datasource&nbsp;that&nbsp;can&nbsp;read&nbsp;remote&nbsp;tiles&nbsp;of<br>
+vector&nbsp;data&nbsp;in&nbsp;spherical&nbsp;mercator&nbsp;projection,&nbsp;providing&nbsp;for&nbsp;rendering&nbsp;of&nbsp;data<br>
+without&nbsp;the&nbsp;use&nbsp;of&nbsp;a&nbsp;local&nbsp;PostGIS&nbsp;database.<br>
+&nbsp;<br>
+Sample&nbsp;usage&nbsp;in&nbsp;Mapnik&nbsp;configuration&nbsp;XML:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<br>
+&nbsp;&lt;Layer&nbsp;name="test"&nbsp;srs="+proj=merc&nbsp;+a=6378137&nbsp;+b=6378137&nbsp;+lat_ts=0.0&nbsp;+lon_0=0.0&nbsp;+x_0=0.0&nbsp;+y_0=0&nbsp;+k=1.0&nbsp;+units=m&nbsp;+nadgrids=@null&nbsp;+no_defs"&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;StyleName&gt;...&lt;/StyleName&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;Datasource&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;Parameter&nbsp;name="type"&gt;python&lt;/Parameter&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;Parameter&nbsp;name="factory"&gt;TileStache.Goodies.VecTiles:Datasource&lt;/Parameter&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;Parameter&nbsp;name="template"&gt;<a href="http://example.com/{z}/{x}/{y}.mvt&lt;/Parameter">http://example.com/{z}/{x}/{y}.mvt&lt;/Parameter</a>&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;/Datasource&gt;<br>
+&nbsp;&lt;/Layer&gt;<br>
+&nbsp;<br>
+Sample&nbsp;usage&nbsp;in&nbsp;a&nbsp;TileStache&nbsp;configuration,&nbsp;for&nbsp;a&nbsp;layer&nbsp;with&nbsp;no&nbsp;results&nbsp;at<br>
+zooms&nbsp;0-9,&nbsp;basic&nbsp;selection&nbsp;of&nbsp;lines&nbsp;with&nbsp;names&nbsp;and&nbsp;highway&nbsp;tags&nbsp;for&nbsp;zoom&nbsp;10,<br>
+a&nbsp;remote&nbsp;URL&nbsp;containing&nbsp;a&nbsp;query&nbsp;for&nbsp;zoom&nbsp;11,&nbsp;and&nbsp;a&nbsp;local&nbsp;file&nbsp;for&nbsp;zooms&nbsp;12+:<br>
+&nbsp;<br>
+&nbsp;&nbsp;"provider":<br>
+&nbsp;&nbsp;{<br>
+&nbsp;&nbsp;&nbsp;&nbsp;"class":&nbsp;"TileStache.Goodies.VecTiles:Provider",<br>
+&nbsp;&nbsp;&nbsp;&nbsp;"kwargs":<br>
+&nbsp;&nbsp;&nbsp;&nbsp;{<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"dbinfo":<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"host":&nbsp;"localhost",<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"user":&nbsp;"gis",<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"password":&nbsp;"gis",<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"database":&nbsp;"gis"<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;},<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"queries":<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;null,&nbsp;null,&nbsp;null,&nbsp;null,&nbsp;null,<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;null,&nbsp;null,&nbsp;null,&nbsp;null,&nbsp;null,<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"SELECT&nbsp;way&nbsp;AS&nbsp;geometry,&nbsp;highway,&nbsp;name&nbsp;FROM&nbsp;planet_osm_line&nbsp;--&nbsp;zoom&nbsp;10+&nbsp;",<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"<a href="http://example.com/query-z11.pgsql">http://example.com/query-z11.pgsql</a>",<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"query-z12-plus.pgsql"<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;]<br>
+&nbsp;&nbsp;&nbsp;&nbsp;}<br>
+&nbsp;&nbsp;}</tt></p>
+<p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#aa55cc">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial"><big><strong>Package Contents</strong></big></font></td></tr>
+    
+<tr><td bgcolor="#aa55cc"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%"><table width="100%" summary="list"><tr><td width="25%" valign=top><a href="TileStache.Goodies.VecTiles.client.html">client</a><br>
+<a href="TileStache.Goodies.VecTiles.geojson.html">geojson</a><br>
+</td><td width="25%" valign=top><a href="TileStache.Goodies.VecTiles.mvt.html">mvt</a><br>
+<a href="TileStache.Goodies.VecTiles.ops.html">ops</a><br>
+</td><td width="25%" valign=top><a href="TileStache.Goodies.VecTiles.server.html">server</a><br>
+<a href="TileStache.Goodies.VecTiles.wkb.html">wkb</a><br>
+</td><td width="25%" valign=top></td></tr></table></td></tr></table>
+</body></html>

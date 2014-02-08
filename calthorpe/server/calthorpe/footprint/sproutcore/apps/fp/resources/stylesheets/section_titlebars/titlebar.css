@@ -1,0 +1,4 @@
+
+.footprint-edit-button-view {
+    @include slice("../../images/section_titlebars/pulldown.png");
+}

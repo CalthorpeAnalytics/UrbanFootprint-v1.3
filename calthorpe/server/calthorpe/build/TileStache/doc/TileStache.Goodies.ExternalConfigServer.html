@@ -1,0 +1,98 @@
+
+<!doctype html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html><head><title>Python: module TileStache.Goodies.ExternalConfigServer</title>
+</head><body bgcolor="#f0f0f8">
+
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="heading">
+<tr bgcolor="#7799ee">
+<td valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial">&nbsp;<br><big><big><strong><a href="TileStache.html"><font color="#ffffff">TileStache</font></a>.<a href="TileStache.Goodies.html"><font color="#ffffff">Goodies</font></a>.ExternalConfigServer</strong></big></big></font></td
+><td align=right valign=bottom
+><font color="#ffffff" face="helvetica, arial"><a href=".">index</a></font></td></tr></table>
+    <p><tt>ExternalConfigServer&nbsp;is&nbsp;a&nbsp;replacement&nbsp;for&nbsp;<a href="TileStache.html#WSGITileServer">WSGITileServer</a>&nbsp;that&nbsp;uses&nbsp;external<br>
+configuration&nbsp;fetched&nbsp;via&nbsp;HTTP&nbsp;to&nbsp;service&nbsp;all&nbsp;config&nbsp;requests.<br>
+&nbsp;<br>
+Example&nbsp;usage,&nbsp;with&nbsp;gunicorn&nbsp;(<a href="http://gunicorn.org">http://gunicorn.org</a>):<br>
+&nbsp;&nbsp;<br>
+&nbsp;&nbsp;gunicorn&nbsp;--bind&nbsp;localhost:8888&nbsp;"TileStache.Goodies.ExternalConfigServer:<a href="#WSGIServer">WSGIServer</a>(url)"</tt></p>
+<p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#aa55cc">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial"><big><strong>Modules</strong></big></font></td></tr>
+    
+<tr><td bgcolor="#aa55cc"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%"><table width="100%" summary="list"><tr><td width="25%" valign=top><a href="TileStache.html">TileStache</a><br>
+</td><td width="25%" valign=top><a href="logging.html">logging</a><br>
+</td><td width="25%" valign=top></td><td width="25%" valign=top></td></tr></table></td></tr></table><p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#ee77aa">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial"><big><strong>Classes</strong></big></font></td></tr>
+    
+<tr><td bgcolor="#ee77aa"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%"><dl>
+<dt><font face="helvetica, arial"><a href="TileStache.html#WSGITileServer">TileStache.WSGITileServer</a>
+</font></dt><dd>
+<dl>
+<dt><font face="helvetica, arial"><a href="TileStache.Goodies.ExternalConfigServer.html#WSGIServer">WSGIServer</a>
+</font></dt></dl>
+</dd>
+<dt><font face="helvetica, arial"><a href="TileStache.Goodies.ExternalConfigServer.html#DynamicLayers">DynamicLayers</a>
+</font></dt><dt><font face="helvetica, arial"><a href="TileStache.Goodies.ExternalConfigServer.html#ExternalConfiguration">ExternalConfiguration</a>
+</font></dt></dl>
+ <p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#ffc8d8">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#000000" face="helvetica, arial"><a name="DynamicLayers">class <strong>DynamicLayers</strong></a></font></td></tr>
+    
+<tr><td bgcolor="#ffc8d8"><tt>&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%">Methods defined here:<br>
+<dl><dt><a name="DynamicLayers-__contains__"><strong>__contains__</strong></a>(self, key)</dt></dl>
+
+<dl><dt><a name="DynamicLayers-__getitem__"><strong>__getitem__</strong></a>(self, key)</dt></dl>
+
+<dl><dt><a name="DynamicLayers-__init__"><strong>__init__</strong></a>(self, config, url_root, cache_responses, dirpath)</dt></dl>
+
+<dl><dt><a name="DynamicLayers-items"><strong>items</strong></a>(self)</dt></dl>
+
+<dl><dt><a name="DynamicLayers-keys"><strong>keys</strong></a>(self)</dt></dl>
+
+<dl><dt><a name="DynamicLayers-parse_layer"><strong>parse_layer</strong></a>(self, layer_json)</dt></dl>
+
+</td></tr></table> <p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#ffc8d8">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#000000" face="helvetica, arial"><a name="ExternalConfiguration">class <strong>ExternalConfiguration</strong></a></font></td></tr>
+    
+<tr><td bgcolor="#ffc8d8"><tt>&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%">Methods defined here:<br>
+<dl><dt><a name="ExternalConfiguration-__init__"><strong>__init__</strong></a>(self, url_root, cache_dict, cache_responses, dirpath)</dt></dl>
+
+</td></tr></table> <p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#ffc8d8">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#000000" face="helvetica, arial"><a name="WSGIServer">class <strong>WSGIServer</strong></a>(<a href="TileStache.html#WSGITileServer">TileStache.WSGITileServer</a>)</font></td></tr>
+    
+<tr bgcolor="#ffc8d8"><td rowspan=2><tt>&nbsp;&nbsp;&nbsp;</tt></td>
+<td colspan=2><tt>Wrap&nbsp;WSGI&nbsp;application,&nbsp;passing&nbsp;it&nbsp;a&nbsp;custom&nbsp;configuration.<br>
+&nbsp;<br>
+The&nbsp;WSGI&nbsp;application&nbsp;is&nbsp;an&nbsp;instance&nbsp;of&nbsp;TileStache:<a href="TileStache.html#WSGITileServer">WSGITileServer</a>.<br>
+&nbsp;<br>
+This&nbsp;method&nbsp;is&nbsp;initiated&nbsp;with&nbsp;a&nbsp;url_root&nbsp;that&nbsp;contains&nbsp;the&nbsp;scheme,&nbsp;host,&nbsp;port<br>
+and&nbsp;path&nbsp;that&nbsp;must&nbsp;prefix&nbsp;the&nbsp;API&nbsp;calls&nbsp;on&nbsp;our&nbsp;local&nbsp;server.&nbsp;&nbsp;Any&nbsp;valid&nbsp;http<br>
+or&nbsp;https&nbsp;urls&nbsp;should&nbsp;work.<br>
+&nbsp;<br>
+The&nbsp;cache_responses&nbsp;parameter&nbsp;tells&nbsp;TileStache&nbsp;to&nbsp;cache&nbsp;all&nbsp;responses&nbsp;from<br>
+the&nbsp;configuration&nbsp;server.<br>&nbsp;</tt></td></tr>
+<tr><td>&nbsp;</td>
+<td width="100%">Methods defined here:<br>
+<dl><dt><a name="WSGIServer-__call__"><strong>__call__</strong></a>(self, environ, start_response)</dt></dl>
+
+<dl><dt><a name="WSGIServer-__init__"><strong>__init__</strong></a>(self, url_root, cache_responses<font color="#909090">=True</font>, debug_level<font color="#909090">='DEBUG'</font>)</dt></dl>
+
+</td></tr></table></td></tr></table>
+</body></html>

@@ -1,0 +1,72 @@
+.{{ htmlClass }}
+{buffer-size: 50;}
+
+[zoom<12] {
+  outline/line-width: 1.6;
+  outline/line-color:#ffffff;
+  outline/line-opacity: 0.5;
+  outline/line-join: round;
+  outline/line-cap: round;   mainline/line-width: 1;
+  mainline/line-color:#CC00FF;
+  mainline/line-opacity: 1;
+  mainline/line-join: round;
+  mainline/line-cap: round; 
+  polygon-fill:#CC00FF;
+  polygon-opacity:0.15;
+}
+
+[zoom=12] {
+  outline/line-width: 3.8;
+  outline/line-color:#ffffff;
+  outline/line-opacity: 0.5;
+  outline/line-join: round;
+  outline/line-cap: round;   mainline/line-width: 1.8;
+  mainline/line-color:#CC00FF;
+  mainline/line-opacity: 1;
+  mainline/line-join: round;
+  mainline/line-cap: round; 
+  polygon-fill:#CC00FF;
+  polygon-opacity:0.1;
+}
+
+[zoom=13] {
+  outline/line-width: 5;
+  outline/line-color:#ffffff;
+  outline/line-opacity: 0.5;
+  mainline/line-width: 2.6;
+  mainline/line-color:#CC00FF;
+  mainline/line-opacity: 1;
+  mainline/line-join: round;
+  mainline/line-cap: round; 
+  polygon-fill:#CC00FF;
+  polygon-opacity:0.05;
+}
+
+[zoom=14] {
+  outline/line-width: 6;
+  outline/line-color:#ffffff;
+  outline/line-opacity: 0.5;
+  outline/line-join: round;
+  outline/line-cap: round; 
+  mainline/line-width: 2.8;
+  mainline/line-color:#CC00FF;
+  mainline/line-opacity: 1;
+  mainline/line-join: round;
+  mainline/line-cap: round; 
+  polygon-fill:#CC00FF;
+  polygon-opacity:0.05;
+}
+
+[zoom>=15] {
+  outline/line-width: 7.5;
+  outline/line-color:#ffffff;
+  outline/line-opacity: 0.5;
+  outline/line-join: round;
+  outline/line-cap: round;   mainline/line-width: 3.5;
+  mainline/line-color:#CC00FF;
+  mainline/line-opacity: 1;
+  mainline/line-join: round;
+  mainline/line-cap: round; 
+  polygon-fill:#CC00FF;
+  polygon-opacity:0.05;
+}

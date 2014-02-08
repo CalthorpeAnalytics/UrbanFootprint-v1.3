@@ -1,0 +1,69 @@
+
+<!doctype html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html><head><title>Python: module TileStache.Goodies.VecTiles.ops</title>
+</head><body bgcolor="#f0f0f8">
+
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="heading">
+<tr bgcolor="#7799ee">
+<td valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial">&nbsp;<br><big><big><strong><a href="TileStache.html"><font color="#ffffff">TileStache</font></a>.<a href="TileStache.Goodies.html"><font color="#ffffff">Goodies</font></a>.<a href="TileStache.Goodies.VecTiles.html"><font color="#ffffff">VecTiles</font></a>.ops</strong></big></big></font></td
+><td align=right valign=bottom
+><font color="#ffffff" face="helvetica, arial"><a href=".">index</a></font></td></tr></table>
+    <p><tt>Per-coordinate&nbsp;transformation&nbsp;function&nbsp;for&nbsp;shapely&nbsp;geometries.<br>
+&nbsp;<br>
+To&nbsp;be&nbsp;replaced&nbsp;with&nbsp;shapely.ops.transform&nbsp;in&nbsp;Shapely&nbsp;1.2.18.<br>
+&nbsp;<br>
+See&nbsp;also:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;https://github.com/Toblerity/Shapely/issues/46<br>
+&nbsp;<br>
+&gt;&gt;&gt;&nbsp;from&nbsp;shapely.geometry&nbsp;import&nbsp;*<br>
+&nbsp;<br>
+&gt;&gt;&gt;&nbsp;coll0&nbsp;=&nbsp;GeometryCollection()<br>
+&gt;&gt;&gt;&nbsp;coll1&nbsp;=&nbsp;<a href="#-transform">transform</a>(coll0,&nbsp;lambda&nbsp;(x,&nbsp;y):&nbsp;(x+1,&nbsp;y+1))<br>
+&gt;&gt;&gt;&nbsp;print&nbsp;coll1&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;doctest:&nbsp;+ELLIPSIS<br>
+GEOMETRYCOLLECTION&nbsp;EMPTY<br>
+&nbsp;<br>
+&gt;&gt;&gt;&nbsp;point0&nbsp;=&nbsp;Point(0,&nbsp;0)<br>
+&gt;&gt;&gt;&nbsp;point1&nbsp;=&nbsp;<a href="#-transform">transform</a>(point0,&nbsp;lambda&nbsp;(x,&nbsp;y):&nbsp;(x+1,&nbsp;y+1))<br>
+&gt;&gt;&gt;&nbsp;print&nbsp;point1&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;doctest:&nbsp;+ELLIPSIS<br>
+POINT&nbsp;(1.00...&nbsp;1.00...)<br>
+&nbsp;<br>
+&gt;&gt;&gt;&nbsp;mpoint0&nbsp;=&nbsp;MultiPoint(((0,&nbsp;0),&nbsp;(1,&nbsp;1),&nbsp;(2,&nbsp;2)))<br>
+&gt;&gt;&gt;&nbsp;mpoint1&nbsp;=&nbsp;<a href="#-transform">transform</a>(mpoint0,&nbsp;lambda&nbsp;(x,&nbsp;y):&nbsp;(x+1,&nbsp;y+1))<br>
+&gt;&gt;&gt;&nbsp;print&nbsp;mpoint1&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;doctest:&nbsp;+ELLIPSIS<br>
+MULTIPOINT&nbsp;(1.00...&nbsp;1.00...,&nbsp;2.00...&nbsp;2.00...,&nbsp;3.00...&nbsp;3.00...)<br>
+&nbsp;<br>
+&gt;&gt;&gt;&nbsp;line0&nbsp;=&nbsp;LineString(((0,&nbsp;0),&nbsp;(1,&nbsp;1),&nbsp;(2,&nbsp;2)))<br>
+&gt;&gt;&gt;&nbsp;line1&nbsp;=&nbsp;<a href="#-transform">transform</a>(line0,&nbsp;lambda&nbsp;(x,&nbsp;y):&nbsp;(x+1,&nbsp;y+1))<br>
+&gt;&gt;&gt;&nbsp;print&nbsp;line1&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;doctest:&nbsp;+ELLIPSIS<br>
+LINESTRING&nbsp;(1.00...&nbsp;1.00...,&nbsp;2.00...&nbsp;2.00...,&nbsp;3.00...&nbsp;3.00...)<br>
+&nbsp;<br>
+&gt;&gt;&gt;&nbsp;mline0&nbsp;=&nbsp;MultiLineString((((0,&nbsp;0),&nbsp;(1,&nbsp;1),&nbsp;(2,&nbsp;2)),&nbsp;((3,&nbsp;3),&nbsp;(4,&nbsp;4),&nbsp;(5,&nbsp;5))))<br>
+&gt;&gt;&gt;&nbsp;mline1&nbsp;=&nbsp;<a href="#-transform">transform</a>(mline0,&nbsp;lambda&nbsp;(x,&nbsp;y):&nbsp;(x+1,&nbsp;y+1))<br>
+&gt;&gt;&gt;&nbsp;print&nbsp;mline1&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;doctest:&nbsp;+ELLIPSIS<br>
+MULTILINESTRING&nbsp;((1.00...&nbsp;1.00...,&nbsp;2.00...&nbsp;2.00...,&nbsp;3.00...&nbsp;3.00...),&nbsp;(4.00...&nbsp;4.00...,&nbsp;5.00...&nbsp;5.00...,&nbsp;6.00...&nbsp;6.00...))<br>
+&nbsp;<br>
+&gt;&gt;&gt;&nbsp;poly0&nbsp;=&nbsp;Polygon(((0,&nbsp;0),&nbsp;(1,&nbsp;0),&nbsp;(1,&nbsp;1),&nbsp;(0,&nbsp;1),&nbsp;(0,&nbsp;0)))<br>
+&gt;&gt;&gt;&nbsp;poly1&nbsp;=&nbsp;<a href="#-transform">transform</a>(poly0,&nbsp;lambda&nbsp;(x,&nbsp;y):&nbsp;(x+1,&nbsp;y+1))<br>
+&gt;&gt;&gt;&nbsp;print&nbsp;poly1&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;doctest:&nbsp;+ELLIPSIS<br>
+POLYGON&nbsp;((1.00...&nbsp;1.00...,&nbsp;2.00...&nbsp;1.00...,&nbsp;2.00...&nbsp;2.00...,&nbsp;1.00...&nbsp;2.00...,&nbsp;1.00...&nbsp;1.00...))<br>
+&nbsp;<br>
+&gt;&gt;&gt;&nbsp;poly0&nbsp;=&nbsp;Polygon(((0,&nbsp;0),&nbsp;(3,&nbsp;0),&nbsp;(3,&nbsp;3),&nbsp;(0,&nbsp;3),&nbsp;(0,&nbsp;0)),&nbsp;[((1,&nbsp;1),&nbsp;(2,&nbsp;1),&nbsp;(2,&nbsp;2),&nbsp;(1,&nbsp;2),&nbsp;(1,&nbsp;1))])<br>
+&gt;&gt;&gt;&nbsp;poly1&nbsp;=&nbsp;<a href="#-transform">transform</a>(poly0,&nbsp;lambda&nbsp;(x,&nbsp;y):&nbsp;(x+1,&nbsp;y+1))<br>
+&gt;&gt;&gt;&nbsp;print&nbsp;poly1&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;doctest:&nbsp;+ELLIPSIS<br>
+POLYGON&nbsp;((1.00...&nbsp;1.00...,&nbsp;4.00...&nbsp;1.00...,&nbsp;4.00...&nbsp;4.00...,&nbsp;1.00...&nbsp;4.00...,&nbsp;1.00...&nbsp;1.00...),&nbsp;(2.00...&nbsp;2.00...,&nbsp;3.00...&nbsp;2.00...,&nbsp;3.00...&nbsp;3.00...,&nbsp;2.00...&nbsp;3.00...,&nbsp;2.00...&nbsp;2.00...))<br>
+&nbsp;<br>
+&gt;&gt;&gt;&nbsp;mpoly0&nbsp;=&nbsp;MultiPolygon(((((0,&nbsp;0),&nbsp;(3,&nbsp;0),&nbsp;(3,&nbsp;3),&nbsp;(0,&nbsp;3),&nbsp;(0,&nbsp;0)),&nbsp;[((1,&nbsp;1),&nbsp;(2,&nbsp;1),&nbsp;(2,&nbsp;2),&nbsp;(1,&nbsp;2),&nbsp;(1,&nbsp;1))]),&nbsp;(((10,&nbsp;10),&nbsp;(13,&nbsp;10),&nbsp;(13,&nbsp;13),&nbsp;(10,&nbsp;13),&nbsp;(10,&nbsp;10)),&nbsp;[((11,&nbsp;11),&nbsp;(12,&nbsp;11),&nbsp;(12,&nbsp;12),&nbsp;(11,&nbsp;12),&nbsp;(11,&nbsp;11))])))<br>
+&gt;&gt;&gt;&nbsp;mpoly1&nbsp;=&nbsp;<a href="#-transform">transform</a>(mpoly0,&nbsp;lambda&nbsp;(x,&nbsp;y):&nbsp;(x+1,&nbsp;y+1))<br>
+&gt;&gt;&gt;&nbsp;print&nbsp;mpoly1&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;doctest:&nbsp;+ELLIPSIS<br>
+MULTIPOLYGON&nbsp;(((1.00...&nbsp;1.00...,&nbsp;4.00...&nbsp;1.00...,&nbsp;4.00...&nbsp;4.00...,&nbsp;1.00...&nbsp;4.00...,&nbsp;1.00...&nbsp;1.00...),&nbsp;(2.00...&nbsp;2.00...,&nbsp;3.00...&nbsp;2.00...,&nbsp;3.00...&nbsp;3.00...,&nbsp;2.00...&nbsp;3.00...,&nbsp;2.00...&nbsp;2.00...)),&nbsp;((11.00...&nbsp;11.00...,&nbsp;14.00...&nbsp;11.00...,&nbsp;14.00...&nbsp;14.00...,&nbsp;11.00...&nbsp;14.00...,&nbsp;11.00...&nbsp;11.00...),&nbsp;(12.00...&nbsp;12.00...,&nbsp;13.00...&nbsp;12.00...,&nbsp;13.00...&nbsp;13.00...,&nbsp;12.00...&nbsp;13.00...,&nbsp;12.00...&nbsp;12.00...)))</tt></p>
+<p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#eeaa77">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial"><big><strong>Functions</strong></big></font></td></tr>
+    
+<tr><td bgcolor="#eeaa77"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%"><dl><dt><a name="-transform"><strong>transform</strong></a>(shape, func)</dt><dd><tt>Apply&nbsp;a&nbsp;function&nbsp;to&nbsp;every&nbsp;coordinate&nbsp;in&nbsp;a&nbsp;geometry.</tt></dd></dl>
+</td></tr></table>
+</body></html>

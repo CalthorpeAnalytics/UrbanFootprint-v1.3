@@ -1,0 +1,138 @@
+
+<!doctype html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html><head><title>Python: module TileStache.Goodies.Providers.SolrGeoJSON</title>
+</head><body bgcolor="#f0f0f8">
+
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="heading">
+<tr bgcolor="#7799ee">
+<td valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial">&nbsp;<br><big><big><strong><a href="TileStache.html"><font color="#ffffff">TileStache</font></a>.<a href="TileStache.Goodies.html"><font color="#ffffff">Goodies</font></a>.<a href="TileStache.Goodies.Providers.html"><font color="#ffffff">Providers</font></a>.SolrGeoJSON</strong></big></big></font></td
+><td align=right valign=bottom
+><font color="#ffffff" face="helvetica, arial"><a href=".">index</a></font></td></tr></table>
+    <p><tt><a href="#Provider">Provider</a>&nbsp;that&nbsp;returns&nbsp;GeoJSON&nbsp;data&nbsp;responses&nbsp;from&nbsp;Solr&nbsp;spatial&nbsp;queries.<br>
+&nbsp;<br>
+This&nbsp;is&nbsp;an&nbsp;example&nbsp;of&nbsp;a&nbsp;provider&nbsp;that&nbsp;does&nbsp;not&nbsp;return&nbsp;an&nbsp;image,&nbsp;but&nbsp;rather<br>
+queries&nbsp;a&nbsp;Solr&nbsp;instance&nbsp;for&nbsp;raw&nbsp;data&nbsp;and&nbsp;replies&nbsp;with&nbsp;a&nbsp;string&nbsp;of&nbsp;GeoJSON.<br>
+&nbsp;<br>
+Read&nbsp;more&nbsp;about&nbsp;the&nbsp;GeoJSON&nbsp;spec&nbsp;at:&nbsp;<a href="http://geojson.org/geojson-spec.html">http://geojson.org/geojson-spec.html</a><br>
+&nbsp;<br>
+Caveats:<br>
+&nbsp;<br>
+Example&nbsp;TileStache&nbsp;provider&nbsp;configuration:<br>
+&nbsp;<br>
+"solr":&nbsp;{<br>
+&nbsp;&nbsp;&nbsp;&nbsp;"provider":&nbsp;{"class":&nbsp;"TileStache.Goodies.Providers.SolrGeoJSON.<a href="#Provider">Provider</a>",<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"kwargs":&nbsp;{<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"solr_endpoint":&nbsp;"<a href="http://localhost:8983/solr/example">http://localhost:8983/solr/example</a>",<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"solr_query":&nbsp;"*:*",<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}}<br>
+}<br>
+&nbsp;<br>
+The&nbsp;following&nbsp;optional&nbsp;parameters&nbsp;are&nbsp;also&nbsp;supported:<br>
+&nbsp;<br>
+latitude_field:&nbsp;The&nbsp;name&nbsp;of&nbsp;the&nbsp;latitude&nbsp;field&nbsp;associated&nbsp;with&nbsp;your&nbsp;query&nbsp;parser;<br>
+the&nbsp;default&nbsp;is&nbsp;'latitude'<br>
+&nbsp;<br>
+longitude_field:&nbsp;The&nbsp;name&nbsp;of&nbsp;the&nbsp;longitude&nbsp;field&nbsp;associated&nbsp;with&nbsp;your&nbsp;query<br>
+parser,&nbsp;default&nbsp;is&nbsp;'longitude<br>
+&nbsp;<br>
+response_fields:&nbsp;A&nbsp;comma-separated&nbsp;list&nbsp;of&nbsp;fields&nbsp;with&nbsp;which&nbsp;to&nbsp;filter&nbsp;the&nbsp;Solr<br>
+response;&nbsp;the&nbsp;default&nbsp;is&nbsp;''&nbsp;(or:&nbsp;include&nbsp;all&nbsp;fields)<br>
+&nbsp;<br>
+id_field:&nbsp;The&nbsp;name&nbsp;name&nbsp;of&nbsp;your&nbsp;Solr&nbsp;instance's&nbsp;unique&nbsp;ID&nbsp;field;&nbsp;the&nbsp;default&nbsp;is&nbsp;''.<br>
+&nbsp;<br>
+By&nbsp;default&nbsp;queries&nbsp;are&nbsp;scoped&nbsp;to&nbsp;the&nbsp;bounding&nbsp;box&nbsp;of&nbsp;a&nbsp;given&nbsp;tile.&nbsp;Radial&nbsp;queries<br>
+are&nbsp;also&nbsp;supported&nbsp;if&nbsp;you&nbsp;supply&nbsp;a&nbsp;'radius'&nbsp;kwarg&nbsp;to&nbsp;your&nbsp;provider&nbsp;and&nbsp;have&nbsp;installed<br>
+the&nbsp;JTeam&nbsp;spatial&nbsp;plugin:&nbsp;<a href="http://www.jteam.nl/news/spatialsolr.html">http://www.jteam.nl/news/spatialsolr.html</a>.<br>
+&nbsp;<br>
+For&nbsp;example:<br>
+&nbsp;<br>
+"solr":&nbsp;{<br>
+&nbsp;&nbsp;&nbsp;&nbsp;"provider":&nbsp;{"class":&nbsp;"TileStache.Goodies.Providers.SolrGeoJSON.<a href="#Provider">Provider</a>",<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"kwargs":&nbsp;{<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"solr_endpoint":&nbsp;"<a href="http://localhost:8983/solr/example">http://localhost:8983/solr/example</a>",<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"solr_query":&nbsp;'foo:bar',<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"radius":&nbsp;"1",<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}}<br>
+}<br>
+&nbsp;<br>
+Radial&nbsp;queries&nbsp;are&nbsp;begin&nbsp;at&nbsp;the&nbsp;center&nbsp;of&nbsp;the&nbsp;tile&nbsp;being&nbsp;rendered&nbsp;and&nbsp;distances&nbsp;are<br>
+measured&nbsp;in&nbsp;kilometers.<br>
+&nbsp;<br>
+The&nbsp;following&nbsp;optional&nbsp;parameters&nbsp;are&nbsp;also&nbsp;supported&nbsp;for&nbsp;radial&nbsp;queries:<br>
+&nbsp;<br>
+query_parser:&nbsp;The&nbsp;name&nbsp;of&nbsp;the&nbsp;Solr&nbsp;query&nbsp;parser&nbsp;associated&nbsp;with&nbsp;your&nbsp;spatial<br>
+plugin;&nbsp;the&nbsp;default&nbsp;is&nbsp;'spatial'.</tt></p>
+<p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#ee77aa">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial"><big><strong>Classes</strong></big></font></td></tr>
+    
+<tr><td bgcolor="#ee77aa"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%"><dl>
+<dt><font face="helvetica, arial"><a href="TileStache.Goodies.Providers.SolrGeoJSON.html#Provider">Provider</a>
+</font></dt><dt><font face="helvetica, arial"><a href="TileStache.Goodies.Providers.SolrGeoJSON.html#SaveableResponse">SaveableResponse</a>
+</font></dt></dl>
+ <p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#ffc8d8">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#000000" face="helvetica, arial"><a name="Provider">class <strong>Provider</strong></a></font></td></tr>
+    
+<tr><td bgcolor="#ffc8d8"><tt>&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%">Methods defined here:<br>
+<dl><dt><a name="Provider-__init__"><strong>__init__</strong></a>(self, layer, solr_endpoint, solr_query, **kwargs)</dt></dl>
+
+<dl><dt><a name="Provider-getTypeByExtension"><strong>getTypeByExtension</strong></a>(self, extension)</dt><dd><tt>Get&nbsp;mime-type&nbsp;and&nbsp;format&nbsp;by&nbsp;file&nbsp;extension.<br>
+&nbsp;<br>
+This&nbsp;only&nbsp;accepts&nbsp;"json".</tt></dd></dl>
+
+<dl><dt><a name="Provider-renderTile"><strong>renderTile</strong></a>(self, width, height, srs, coord)</dt><dd><tt>Render&nbsp;a&nbsp;single&nbsp;tile,&nbsp;return&nbsp;a&nbsp;<a href="#SaveableResponse">SaveableResponse</a>&nbsp;instance.</tt></dd></dl>
+
+<dl><dt><a name="Provider-unproject"><strong>unproject</strong></a>(self, x, y)</dt></dl>
+
+</td></tr></table> <p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#ffc8d8">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#000000" face="helvetica, arial"><a name="SaveableResponse">class <strong>SaveableResponse</strong></a></font></td></tr>
+    
+<tr bgcolor="#ffc8d8"><td rowspan=2><tt>&nbsp;&nbsp;&nbsp;</tt></td>
+<td colspan=2><tt>Wrapper&nbsp;class&nbsp;for&nbsp;JSON&nbsp;response&nbsp;that&nbsp;makes&nbsp;it&nbsp;behave&nbsp;like&nbsp;a&nbsp;PIL.Image&nbsp;object.<br>
+&nbsp;<br>
+TileStache.getTile()&nbsp;expects&nbsp;to&nbsp;be&nbsp;able&nbsp;to&nbsp;save&nbsp;one&nbsp;of&nbsp;these&nbsp;to&nbsp;a&nbsp;buffer.<br>&nbsp;</tt></td></tr>
+<tr><td>&nbsp;</td>
+<td width="100%">Methods defined here:<br>
+<dl><dt><a name="SaveableResponse-__init__"><strong>__init__</strong></a>(self, content)</dt></dl>
+
+<dl><dt><a name="SaveableResponse-save"><strong>save</strong></a>(self, out, format)</dt></dl>
+
+</td></tr></table></td></tr></table><p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#eeaa77">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial"><big><strong>Functions</strong></big></font></td></tr>
+    
+<tr><td bgcolor="#eeaa77"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%"><dl><dt><a name="-atan"><strong>atan</strong></a>(...)</dt><dd><tt><a href="#-atan">atan</a>(x)<br>
+&nbsp;<br>
+Return&nbsp;the&nbsp;arc&nbsp;tangent&nbsp;(measured&nbsp;in&nbsp;radians)&nbsp;of&nbsp;x.</tt></dd></dl>
+ <dl><dt><a name="-log"><strong>log</strong></a>(...)</dt><dd><tt><a href="#-log">log</a>(x[,&nbsp;base])&nbsp;-&gt;&nbsp;the&nbsp;logarithm&nbsp;of&nbsp;x&nbsp;to&nbsp;the&nbsp;given&nbsp;base.<br>
+If&nbsp;the&nbsp;base&nbsp;not&nbsp;specified,&nbsp;returns&nbsp;the&nbsp;natural&nbsp;logarithm&nbsp;(base&nbsp;e)&nbsp;of&nbsp;x.</tt></dd></dl>
+ <dl><dt><a name="-pow"><strong>pow</strong></a>(...)</dt><dd><tt><a href="#-pow">pow</a>(x,y)<br>
+&nbsp;<br>
+Return&nbsp;x**y&nbsp;(x&nbsp;to&nbsp;the&nbsp;power&nbsp;of&nbsp;y).</tt></dd></dl>
+ <dl><dt><a name="-tan"><strong>tan</strong></a>(...)</dt><dd><tt><a href="#-tan">tan</a>(x)<br>
+&nbsp;<br>
+Return&nbsp;the&nbsp;tangent&nbsp;of&nbsp;x&nbsp;(measured&nbsp;in&nbsp;radians).</tt></dd></dl>
+</td></tr></table><p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#55aa55">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial"><big><strong>Data</strong></big></font></td></tr>
+    
+<tr><td bgcolor="#55aa55"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%"><strong>e</strong> = 2.7182818284590451<br>
+<strong>pi</strong> = 3.1415926535897931</td></tr></table>
+</body></html>

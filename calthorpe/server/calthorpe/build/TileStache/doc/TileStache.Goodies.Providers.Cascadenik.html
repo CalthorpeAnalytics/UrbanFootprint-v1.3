@@ -1,0 +1,74 @@
+
+<!doctype html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html><head><title>Python: module TileStache.Goodies.Providers.Cascadenik</title>
+</head><body bgcolor="#f0f0f8">
+
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="heading">
+<tr bgcolor="#7799ee">
+<td valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial">&nbsp;<br><big><big><strong><a href="TileStache.html"><font color="#ffffff">TileStache</font></a>.<a href="TileStache.Goodies.html"><font color="#ffffff">Goodies</font></a>.<a href="TileStache.Goodies.Providers.html"><font color="#ffffff">Providers</font></a>.Cascadenik</strong></big></big></font></td
+><td align=right valign=bottom
+><font color="#ffffff" face="helvetica, arial"><a href=".">index</a></font></td></tr></table>
+    <p><tt>Cascadenik&nbsp;<a href="#Provider">Provider</a>.<br>
+&nbsp;<br>
+Simple&nbsp;wrapper&nbsp;for&nbsp;TileStache&nbsp;Mapnik&nbsp;provider&nbsp;that&nbsp;parses&nbsp;Cascadenik&nbsp;MML&nbsp;files<br>
+directly,&nbsp;skipping&nbsp;the&nbsp;typical&nbsp;compilation&nbsp;to&nbsp;XML&nbsp;step.<br>
+&nbsp;<br>
+More&nbsp;information&nbsp;on&nbsp;Cascadenik:<br>
+-&nbsp;https://github.com/mapnik/Cascadenik/wiki/Cascadenik<br>
+&nbsp;<br>
+Requires&nbsp;Cascadenik&nbsp;2.x+.</tt></p>
+<p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#aa55cc">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial"><big><strong>Modules</strong></big></font></td></tr>
+    
+<tr><td bgcolor="#aa55cc"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%"><table width="100%" summary="list"><tr><td width="25%" valign=top><a href="mapnik.html">mapnik</a><br>
+</td><td width="25%" valign=top></td><td width="25%" valign=top></td><td width="25%" valign=top></td></tr></table></td></tr></table><p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#ee77aa">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial"><big><strong>Classes</strong></big></font></td></tr>
+    
+<tr><td bgcolor="#ee77aa"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%"><dl>
+<dt><font face="helvetica, arial"><a href="TileStache.Mapnik.html#ImageProvider">TileStache.Mapnik.ImageProvider</a>
+</font></dt><dd>
+<dl>
+<dt><font face="helvetica, arial"><a href="TileStache.Goodies.Providers.Cascadenik.html#Provider">Provider</a>
+</font></dt></dl>
+</dd>
+</dl>
+ <p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#ffc8d8">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#000000" face="helvetica, arial"><a name="Provider">class <strong>Provider</strong></a>(<a href="TileStache.Mapnik.html#ImageProvider">TileStache.Mapnik.ImageProvider</a>)</font></td></tr>
+    
+<tr bgcolor="#ffc8d8"><td rowspan=2><tt>&nbsp;&nbsp;&nbsp;</tt></td>
+<td colspan=2><tt>Renders&nbsp;map&nbsp;images&nbsp;from&nbsp;Cascadenik&nbsp;MML&nbsp;files.<br>
+&nbsp;<br>
+Arguments:<br>
+&nbsp;<br>
+-&nbsp;mapfile&nbsp;(required)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;Local&nbsp;file&nbsp;path&nbsp;to&nbsp;Mapnik&nbsp;XML&nbsp;file.<br>
+&nbsp;<br>
+-&nbsp;fonts&nbsp;(optional)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;Local&nbsp;directory&nbsp;path&nbsp;to&nbsp;*.ttf&nbsp;font&nbsp;files.<br>
+&nbsp;<br>
+-&nbsp;workdir&nbsp;(optional)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;Directory&nbsp;path&nbsp;for&nbsp;working&nbsp;files,&nbsp;tempfile.gettempdir()&nbsp;by&nbsp;default.<br>&nbsp;</tt></td></tr>
+<tr><td>&nbsp;</td>
+<td width="100%">Methods defined here:<br>
+<dl><dt><a name="Provider-__init__"><strong>__init__</strong></a>(self, layer, mapfile, fonts<font color="#909090">=None</font>, workdir<font color="#909090">=None</font>)</dt><dd><tt>Initialize&nbsp;Cascadenik&nbsp;provider&nbsp;with&nbsp;layer&nbsp;and&nbsp;mapfile.</tt></dd></dl>
+
+<dl><dt><a name="Provider-renderArea"><strong>renderArea</strong></a>(self, width, height, srs, xmin, ymin, xmax, ymax, zoom)</dt><dd><tt>Mostly&nbsp;hand&nbsp;off&nbsp;functionality&nbsp;to&nbsp;Mapnik.<a href="TileStache.Mapnik.html#ImageProvider">ImageProvider</a>.<a href="#Provider-renderArea">renderArea</a>()</tt></dd></dl>
+
+<hr>
+Static methods inherited from <a href="TileStache.Mapnik.html#ImageProvider">TileStache.Mapnik.ImageProvider</a>:<br>
+<dl><dt><a name="Provider-prepareKeywordArgs"><strong>prepareKeywordArgs</strong></a>(config_dict)</dt><dd><tt>Convert&nbsp;configured&nbsp;parameters&nbsp;to&nbsp;keyword&nbsp;args&nbsp;for&nbsp;<a href="#Provider-__init__">__init__</a>().</tt></dd></dl>
+
+</td></tr></table></td></tr></table>
+</body></html>
