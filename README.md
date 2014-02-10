@@ -1,3 +1,7 @@
+<p align='center'>
+<img src='https://raw.github.com/Calthorpe-Associates/UrbanFootprint/Release-1.1.0b/sproutcore/apps/fp/resources/images/loading.png' height='250px' width='250px'/>
+</p>
+
 UrbanFootprint
 ==============
 
