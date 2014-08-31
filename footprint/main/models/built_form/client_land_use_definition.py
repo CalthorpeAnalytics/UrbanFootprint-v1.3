@@ -9,6 +9,8 @@ class ClientLandUseDefinition(models.Model):
         A generic land use definition class for clients to subclass
     """
     objects = GeoInheritanceManager()
+
+    api_include = None
     class Meta(object):
         abstract = True
         app_label = 'main'

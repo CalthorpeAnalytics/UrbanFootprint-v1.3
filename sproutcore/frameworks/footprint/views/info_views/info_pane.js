@@ -32,7 +32,7 @@ Footprint.InfoPane = SC.PalettePane.extend(SC.ActionSupport, {
     /***
      * This view should be added to the contentView childViews to enabling save, delete, and cancel
      */
-    buttonsView: Footprint.InfoPaneButtonsView.extend(),
+    toggleButtonsView: Footprint.InfoPaneButtonsView.extend(),
 
     /**
      * Save changes

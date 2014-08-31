@@ -15,35 +15,69 @@
 # Contact: Joe DiStefano (joed@calthorpe.com), Calthorpe Associates.
 # Firm contact: 2095 Rose Street Suite 201, Berkeley CA 94709.
 # Phone: (510) 548-6800. Web: www.calthorpe.com
-from django.conf.urls import url
+import re
 
 from tastypie import fields
 from tastypie.bundle import Bundle
 from tastypie.fields import ListField, ToOneField
 from tastypie.resources import ModelResource
+
+from footprint.main.lib.functions import remove_keys
 from footprint.main.models.config.db_entity_interest import DbEntityInterest
 from footprint.main.models.geospatial.db_entity import DbEntity
 from footprint.main.models.config.interest import Interest
+from footprint.main.resources.behavior_resources import FeatureBehaviorResource
 from footprint.main.resources.config_entity_resources import ConfigEntityResource
-from footprint.main.resources.mixins.mixins import TagResourceMixin
+from footprint.main.resources.mixins.mixins import TagResourceMixin, TimestampResourceMixin, CloneableResourceMixin
 from footprint.main.resources.footprint_resource import FootprintResource
 from footprint.main.resources.pickled_dict_field import PickledDictField
 
 __author__ = 'calthorpe_associates'
 
-class DbEntityResource(FootprintResource, TagResourceMixin):
+class DbEntityResource(FootprintResource, TagResourceMixin, TimestampResourceMixin, CloneableResourceMixin):
     hosts = fields.ListField('hosts', null=True)
 
     # This gets sent by the client and is used to set the url.
     # It is marked readonly so that tastypie doesn't try to find a matching
-    # DbEntity using it. I don't know how to tell tastypie to just map this
+    # DbEntity attribute using it. I don't know how to tell tastypie to just map this
     # value to url
     upload_id = fields.CharField(null=True, readonly=True)
-    origin_instance = ToOneField('self', attribute='origin_instance', null=True)
+
+    # FeatureClassConfiguration isn't a model class, so we just pickle it
+    feature_class_configuration = PickledDictField(attribute='feature_class_configuration_as_dict', null=True)
+
+    # FeatureBehavior is a settable property of DbEntity, since the relationship is actually defined from FeatureBehavior to DbEntity.
+    feature_behavior = ToOneField(FeatureBehaviorResource, attribute='feature_behavior', null=True, full=True)
+
+    @staticmethod
+    def increment_key(key):
+        r = r'_(\d+)$'
+        m = r.match(key)
+        if m:
+            replacement = '_%s' % int(m.group(1))+1
+            return re.sub(replacement, key)
+
+    def lookup_kwargs_with_identifiers(self, bundle, kwargs):
+        """
+            Override to remove feature_behavior from the lookup_kwargs,
+            since it is actually defined in reverse--feature_behavior has a db_entity
+        """
+        return remove_keys(
+            super(DbEntityResource, self).lookup_kwargs_with_identifiers(bundle, kwargs),
+            ['feature_behavior'])
 
     def hydrate(self, bundle):
-        if not bundle.obj.id:
+        if not bundle.data.get('id'):
             bundle.obj.creator = self.resolve_user(bundle.request.GET)
+            # Update the key if this is a new instance but the key already is in use
+            while DbEntity.objects.filter(key=bundle.obj.key).count() > 0:
+                bundle.obj.key = self.increment_key(bundle.obj.key)
+        else:
+            # Set the back-reference to the db_entity
+            # We have to load form the db since bundle.obj isn't yet hydrated
+            temp_bundle = self.build_bundle(obj=DbEntity.objects.get(id=bundle.data['id']))
+            bundle.data['feature_behavior']['db_entity'] = self.get_resource_uri(temp_bundle)
+
         bundle.obj.updater = self.resolve_user(bundle.request.GET)
         return bundle
 
@@ -56,7 +90,7 @@ class DbEntityResource(FootprintResource, TagResourceMixin):
     class Meta(FootprintResource.Meta):
         always_return_data = True
         queryset = DbEntity.objects.filter(deleted=False)
-        excludes=['feature_class_configuration']
+        excludes=['table', 'query', 'hosts', 'group_by']
         resource_name= 'db_entity'
 
 class InterestResource(ModelResource):
@@ -95,6 +129,16 @@ class DbEntityInterestResource(ModelResource):
             bundle.data['interest'] = interest_resource.full_dehydrate(interest_resource.build_bundle(obj=interest))
         return bundle
 
+    def full_hydrate(self, bundle):
+        hydrated_bundle = super(DbEntityInterestResource, self).full_hydrate(bundle)
+        # If new, Ensure the db_entity schema matches that of the config_entity
+        # This happens after all hydration since it depends on two different fields
+        if not hydrated_bundle.obj.id:
+            hydrated_bundle.obj.db_entity.schema = hydrated_bundle.obj.config_entity.schema()
+        return hydrated_bundle
+
     class Meta(FootprintResource.Meta):
+        always_return_data = True
         queryset = DbEntityInterest.objects.filter(deleted=False)
         resource_name= 'db_entity_interest'
+

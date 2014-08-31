@@ -128,7 +128,7 @@ $.extend({
         func = func || function(a) { return a;}
         var target = target || this;
 	    var obj = objectType ? objectType() : {};
-        $.map(array, function(value, index) {
+        (array || []).map(function(value, index) {
 	        var result = func.apply(target, [value, index]);
             if (result)
                 obj[result[0]] = result[1]
@@ -238,6 +238,14 @@ $.extend({
         });
         return results;
     },
+    /***
+     * Accumulate results.
+     * @param array
+     * @param func. The function expects the current item, the previous accumulation (or null if i==0), and the third argument is the index i
+     * The function should accumulate using the current item and previous accumulation. The return value becomes the previous accumulation
+     * argument for the next iteration
+     * @returns {*}. The last accumulation result
+     */
     accumulate: function(array, func) {
         return this.mapWithPreviousResult(array, func).slice(-1)[0];
     },
@@ -340,12 +348,17 @@ $.extend({
         return [array[0], array[array.length-1]];
     },
     /**
-     * Shallow flatten an array of arrays. This just uses $.map with the identity function,
-     * since jQuery's map shallow flattens results.
+     * Shallow flatten an array of arrays and/or single items.
      * @param array
      */
     shallowFlatten: function(array) {
-        return $.map(array, function(a) {return a;});
+        var results = [];
+        array.forEach(function(a) {
+            a && a.isEnumerable ?
+                results.pushObjects(a) :
+                results.pushObject(a);
+        });
+        return results;
     },
     deepEquals: function(a, b) {
         var result = true;
@@ -397,6 +410,9 @@ $.extend({
 
 String.prototype.capitalize = function() {
     return this.replace(/(?:^|\s)\S/g, function(a) { return a.toUpperCase(); });
+};
+Array.prototype.clear = function() {
+    this.splice(0, this.length);
 };
 
 $.fn.extend ({

@@ -28,46 +28,38 @@ __author__ = 'calthorpe_associates'
 
 class BaseFeature(PaintingFeature):
 
-    built_form_key = models.CharField(max_length=250, null=True, blank=True, default=None, db_column='built_form')
+    api_include = ['region_lu_code', 'built_form_key', 'land_development_category', 'clear_base_flag', 'redevelopment_flag', 'dev_pct', 'density_pct', 'gross_net_pct', 'acres_gross', 'acre_parcel', 'intersection_density_sqmi', 'pop', 'hh', 'du', 'du_detsf', 'du_attsf', 'du_mf', 'emp', 'emp_ret', 'emp_off', 'emp_pub', 'emp_ind', 'emp_ag', 'emp_military', 'acres_parcel_res', 'acre_parcel_emp', 'acres_parcel_mixed', 'acres_parcel_no_use']
+
     region_lu_code = models.CharField(max_length=250, null=True, blank=True, default=None)
+    built_form_key = models.CharField(max_length=250, null=True, blank=True, default=None)
+    land_development_category = models.CharField(max_length=250, null=True, blank=True, default=None)
+
     intersection_density_sqmi = models.DecimalField(max_digits=14, decimal_places=4, default=0)
-    intersection_count = models.DecimalField(max_digits=14, decimal_places=4, default=0)
     acres_gross = models.DecimalField(max_digits=14, decimal_places=4, default=0)
     sqft_parcel = models.DecimalField(max_digits=14, decimal_places=4)
     acres_parcel = models.DecimalField(max_digits=14, decimal_places=4)
-    acres_parcel_res = models.DecimalField(max_digits=14, decimal_places=4)
-    acres_parcel_res_detsf = models.DecimalField(max_digits=14, decimal_places=4)
-    acres_parcel_res_detsf_sl = models.DecimalField(max_digits=14, decimal_places=4)
-    acres_parcel_res_detsf_ll = models.DecimalField(max_digits=14, decimal_places=4)
-    acres_parcel_res_attsf = models.DecimalField(max_digits=14, decimal_places=4)
-    acres_parcel_res_mf = models.DecimalField(max_digits=14, decimal_places=4)
-    acres_parcel_emp = models.DecimalField(max_digits=14, decimal_places=4)
-    acres_parcel_emp_off = models.DecimalField(max_digits=14, decimal_places=4)
-    acres_parcel_emp_ret = models.DecimalField(max_digits=14, decimal_places=4)
-    acres_parcel_emp_ind = models.DecimalField(max_digits=14, decimal_places=4)
-    acres_parcel_emp_ag = models.DecimalField(max_digits=14, decimal_places=4)
-    acres_parcel_emp_mixed = models.DecimalField(max_digits=14, decimal_places=4)
-    acres_parcel_emp_military = models.DecimalField(max_digits=14, decimal_places=4)
-    acres_parcel_mixed = models.DecimalField(max_digits=14, decimal_places=4)
-    acres_parcel_mixed_w_off = models.DecimalField(max_digits=14, decimal_places=4)
-    acres_parcel_mixed_no_off = models.DecimalField(max_digits=14, decimal_places=4)
-    acres_parcel_no_use = models.DecimalField(max_digits=14, decimal_places=4)
 
     pop = models.DecimalField(max_digits=14, decimal_places=4)
     hh = models.DecimalField(max_digits=14, decimal_places=4)
-
     du = models.DecimalField(max_digits=14, decimal_places=4)
+
     du_detsf = models.DecimalField(max_digits=14, decimal_places=4)
-    du_detsf_sl = models.DecimalField(max_digits=14, decimal_places=4)
-    du_detsf_ll = models.DecimalField(max_digits=14, decimal_places=4)
     du_attsf = models.DecimalField(max_digits=14, decimal_places=4)
     du_mf = models.DecimalField(max_digits=14, decimal_places=4)
-    du_mf2to4 = models.DecimalField(max_digits=14, decimal_places=4)
-    du_mf5p = models.DecimalField(max_digits=14, decimal_places=4)
 
     emp = models.DecimalField(max_digits=14, decimal_places=4)
 
     emp_ret = models.DecimalField(max_digits=14, decimal_places=4)
+    emp_off = models.DecimalField(max_digits=14, decimal_places=4)
+    emp_pub = models.DecimalField(max_digits=14, decimal_places=4)
+    emp_ind = models.DecimalField(max_digits=14, decimal_places=4)
+    emp_ag = models.DecimalField(max_digits=14, decimal_places=4)
+    emp_military = models.DecimalField(max_digits=14, decimal_places=4)
+
+    du_detsf_sl = models.DecimalField(max_digits=14, decimal_places=4)
+    du_detsf_ll = models.DecimalField(max_digits=14, decimal_places=4)
+    du_mf2to4 = models.DecimalField(max_digits=14, decimal_places=4)
+    du_mf5p = models.DecimalField(max_digits=14, decimal_places=4)
 
     emp_retail_services = models.DecimalField(max_digits=14, decimal_places=4)
     emp_restaurant = models.DecimalField(max_digits=14, decimal_places=4)
@@ -75,14 +67,10 @@ class BaseFeature(PaintingFeature):
     emp_arts_entertainment = models.DecimalField(max_digits=14, decimal_places=4)
     emp_other_services = models.DecimalField(max_digits=14, decimal_places=4)
 
-    emp_off = models.DecimalField(max_digits=14, decimal_places=4)
-
     emp_office_services = models.DecimalField(max_digits=14, decimal_places=4)
     emp_public_admin = models.DecimalField(max_digits=14, decimal_places=4)
     emp_education = models.DecimalField(max_digits=14, decimal_places=4)
     emp_medical_services = models.DecimalField(max_digits=14, decimal_places=4)
-
-    emp_ind = models.DecimalField(max_digits=14, decimal_places=4)
 
     emp_manufacturing = models.DecimalField(max_digits=14, decimal_places=4)
     emp_wholesale = models.DecimalField(max_digits=14, decimal_places=4)
@@ -90,11 +78,8 @@ class BaseFeature(PaintingFeature):
     emp_utilities = models.DecimalField(max_digits=14, decimal_places=4)
     emp_construction = models.DecimalField(max_digits=14, decimal_places=4)
 
-    emp_ag = models.DecimalField(max_digits=14, decimal_places=4)
     emp_agriculture = models.DecimalField(max_digits=14, decimal_places=4)
     emp_extraction = models.DecimalField(max_digits=14, decimal_places=4)
-
-    emp_military = models.DecimalField(max_digits=14, decimal_places=4)
 
     bldg_sqft_detsf_sl = models.DecimalField(max_digits=14, decimal_places=4)
     bldg_sqft_detsf_ll = models.DecimalField(max_digits=14, decimal_places=4)
@@ -115,6 +100,24 @@ class BaseFeature(PaintingFeature):
 
     residential_irrigated_sqft = models.DecimalField(max_digits=14, decimal_places=4)
     commercial_irrigated_sqft = models.DecimalField(max_digits=14, decimal_places=4)
+
+    acres_parcel_res = models.DecimalField(max_digits=14, decimal_places=4)
+    acres_parcel_res_detsf = models.DecimalField(max_digits=14, decimal_places=4)
+    acres_parcel_res_detsf_sl = models.DecimalField(max_digits=14, decimal_places=4)
+    acres_parcel_res_detsf_ll = models.DecimalField(max_digits=14, decimal_places=4)
+    acres_parcel_res_attsf = models.DecimalField(max_digits=14, decimal_places=4)
+    acres_parcel_res_mf = models.DecimalField(max_digits=14, decimal_places=4)
+    acres_parcel_emp = models.DecimalField(max_digits=14, decimal_places=4)
+    acres_parcel_emp_off = models.DecimalField(max_digits=14, decimal_places=4)
+    acres_parcel_emp_ret = models.DecimalField(max_digits=14, decimal_places=4)
+    acres_parcel_emp_ind = models.DecimalField(max_digits=14, decimal_places=4)
+    acres_parcel_emp_ag = models.DecimalField(max_digits=14, decimal_places=4)
+    acres_parcel_emp_mixed = models.DecimalField(max_digits=14, decimal_places=4)
+    acres_parcel_emp_military = models.DecimalField(max_digits=14, decimal_places=4)
+    acres_parcel_mixed = models.DecimalField(max_digits=14, decimal_places=4)
+    acres_parcel_mixed_w_off = models.DecimalField(max_digits=14, decimal_places=4)
+    acres_parcel_mixed_no_off = models.DecimalField(max_digits=14, decimal_places=4)
+    acres_parcel_no_use = models.DecimalField(max_digits=14, decimal_places=4)
 
     class Meta(object):
         abstract = True

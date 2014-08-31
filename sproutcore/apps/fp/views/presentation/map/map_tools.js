@@ -2,7 +2,7 @@
  /* 
 * UrbanFootprint-California (v1.0), Land Use Scenario Development and Modeling System.
 * 
-* Copyright (C) 2013 Calthorpe Associates
+* Copyright (C) 2014 Calthorpe Associates
 * 
 * This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, version 3 of the License.
 * 
@@ -52,7 +52,7 @@ Footprint.MapTools = SC.Object.extend({
                 var coordinates = [];
                 var polybrush = d3.select(".polybrush");
                 var polybrushNodes = polybrush.data()[0];
-                if (!polybrushNodes)
+                if (!polybrushNodes || polybrushNodes.get('length') == 0)
                     return;
 
                 for (var i=0; i < polybrushNodes.length; i++ ) {
@@ -64,6 +64,22 @@ Footprint.MapTools = SC.Object.extend({
                 coordinates.push(new jsts.geom.Coordinate(polybrushNodes[0][0], polybrushNodes[0][1]));
                 return self.polygonFromLinearRing(coordinates);
             },
+            /***
+             * Add the given geometry to the existing one and return the combo
+             * @param geometry
+             */
+            appendGeometry: function(geometry) {
+                var internalGeometry = this.geometry()
+                if (internalGeometry) {
+                    if (geometry)
+                        return internalGeometry.coordinates.concat(geometry.coordinates)
+                    else
+                        return internalGeometry
+                }
+                return geometry
+            },
+
+
 
             toString: function() {
                 return 'Footprint.PolygonBrushTool';
@@ -241,15 +257,31 @@ Footprint.BrushTool = Footprint.PaintTool.extend({
         Footprint.statechart.sendAction('doCancelLayerSelectionUpdate');
     },
 
+    geometry: function() {
+        throw Error("Must override in subclass");
+    },
+
+    /***
+     * Returns true if the geometry has at least three points
+     */
+    isValidGeometry: function() {
+        var geometry = this.geometry();
+        return geometry && geometry.length >= 3;
+    },
+
     startSelection: function() {
-        Footprint.statechart.sendAction('doStartSelection');
+        Footprint.statechart.sendAction('doStartSelection', event);
     },
 
     addToSelection: function() {
-        Footprint.statechart.sendAction('doAddToSelection');
+        Footprint.statechart.sendAction('doAddToSelection', event);
     },
 
     endSelection: function() {
-        Footprint.statechart.sendAction('doEndSelection');
+        Footprint.statechart.sendAction('doEndSelection', event);
+    },
+
+    clear: function() {
+       this.get('brush').clear();
     }
 });

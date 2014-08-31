@@ -1,7 +1,7 @@
 /*
  * UrbanFootprint-California (v1.0), Land Use Scenario Development and Modeling System.
  *
- * Copyright (C) 2013 Calthorpe Associates
+ * Copyright (C) 2014 Calthorpe Associates
  *
  * This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, version 3 of the License.
  *
@@ -13,14 +13,13 @@
  */
 sc_require('views/editable_model_string_view');
 sc_require('views/menu_button_view');
+sc_require('views/view_mixins/debug_binding_overlay');
 
-Footprint.LabelSelectView = SC.PopupButtonView.extend({
+Footprint.LabelSelectView = SC.PopupButtonView.extend(Footprint.DebugBindingOverlay, {
 
     classNames:'footprint-label-select-view theme-button theme-button-gray'.w(),
     requiredProperties: 'title menuItems'.w(),
     validationControllerBinding: SC.Binding.oneWay('.controller'),
-    layout: {height: 24, width: .8, left: 0.1},
-
     /**
      * Required. the items to select from.
      */
@@ -28,11 +27,20 @@ Footprint.LabelSelectView = SC.PopupButtonView.extend({
     selection:null,
     // Indicates if items in the list can be selected
     isSelectable: YES,
+    // Add a null item to the top of the list, titled by nullTitle
     includeNullItem:NO,
+    // Only add a null item if the content is empty (this overrides includeNullItem)
+    // This will also make the pull down disabled
+    includeNullItemIfEmpty:NO,
+    nullItemIncluded: function() {
+        var contentIsEmpty = this.getPath('content.length') == 0;
+        return (!contentIsEmpty && this.get('includeNullItem') && !this.get('includeNullItemIfEmpty')) ||
+               (contentIsEmpty && this.get('includeNullItemIfEmpty'));
+    }.property('content', 'includeNullItem', 'includeNullItemIfEmpty').cacheable(),
     nullTitle: null,
 
     // The max height of the popup panel
-    maxHeight: 72,
+    maxHeight: 300,
 
     // This is all hacked since firstSelection won't update as it should
     firstSelectedItem:null,
@@ -44,11 +52,18 @@ Footprint.LabelSelectView = SC.PopupButtonView.extend({
         return this.getPath('selection.firstObject');
     }.property('firstSelectedItem').cacheable(),
 
+    /***
+     * Defaults to the status of the content. Optionally override status with something else
+     */
+    status: function() {
+        return this.get('contentStatus');
+    }.property('contentStatus').cacheable(),
     contentStatus: null,
     contentStatusBinding: SC.Binding.oneWay('*content.status'),
-
     selectedItemStatus: null,
     selectedItemStatusBinding: SC.Binding.oneWay('*selectedItem.status'),
+    // The action to take when selecting an item, defaults to 'doPickSelection'
+    selectionAction: null,
 
     /**
      * The attribute of each item to display in the menu and label. null for primitives
@@ -65,22 +80,13 @@ Footprint.LabelSelectView = SC.PopupButtonView.extend({
     itemsStatus: null,
     itemsStatusBinding: SC.Binding.oneWay('*items.status'),
     menuItems: function () {
-        if (this.getPath('contentStatus') & SC.Record.READY ||
+        if (this.getPath('status') & SC.Record.READY ||
             (this.get('content') && !this.getPath('content.status'))) {
-                // If includeNullItem make an ObjectController whose content is null
-            return (this.get('includeNullItem') ? [this.get('nullItem')] : []).concat(this.get('content').toArray());
+            return (this.get('nullItemIncluded') ?
+                    [null] :
+                    []).concat(this.get('content') ? this.get('content').toArray() : []);
         }
-    }.property('contentStatus', 'content').cacheable(),
-
-    /**
-     * Creates an SC.ObjectController to server as the null menu item
-     */
-    nullItem: function() {
-        var obj = SC.Object.create();
-        // Set the variable itemTitleKey.
-        obj.set(this.get('itemTitleKey'), this.get('nullTitle'));
-        return obj;
-    }.property('itemTitleKey', 'nullTitle').cacheable(),
+    }.property('status', 'content').cacheable(),
 
     menu: SC.PickerPane.extend({
         layout: {top: 16, height: 0, left:0, width:200},
@@ -100,6 +106,12 @@ Footprint.LabelSelectView = SC.PopupButtonView.extend({
         isSelectableBinding: '*anchor.isSelectable',
         // default to content for primitives, otherwise the titleKey will delegate through content
         itemTitleKeyBinding: SC.Binding.oneWay('*anchor.itemTitleKey'),
+        nullItemIncluded: null,
+        nullItemIncludedBinding: SC.Binding.oneWay('*anchor.nullItemIncluded'),
+        nullTitle:null,
+        nullTitleBinding:SC.Binding.oneWay('*anchor.nullTitle'),
+        selectionAction: null,
+        selectionActionBinding:SC.Binding.oneWay('*anchor.selectionAction'),
 
         contentView: SC.ScrollView.extend({
 
@@ -111,19 +123,35 @@ Footprint.LabelSelectView = SC.PopupButtonView.extend({
             isSelectableBinding: '.parentView.isSelectable',
             itemTitleKey:null,
             itemTitleKeyBinding:SC.Binding.oneWay('.parentView.itemTitleKey'),
+            nullItemIncluded: null,
+            nullItemIncludedBinding: SC.Binding.oneWay('.parentView.nullItemIncluded'),
+            nullTitle:null,
+            nullTitleBinding:SC.Binding.oneWay('.parentView.nullTitle'),
+            action: null,
+            actionBinding:SC.Binding.oneWay('.parentView.selectionAction'),
 
             contentView: SC.SourceListView.extend({
                 classNames:'footprint-label-select-content-view'.w(),
                 rowHeight: 18,
                 actOnSelect:YES,
-                action:'doPickSelection',
+
+                action: null,
+                actionBinding:SC.Binding.oneWay('.parentView.parentView.action').transform(function(value) {
+                    return value || 'doPickSelection';
+                }),
 
                 contentBinding: SC.Binding.oneWay('.parentView.parentView.content'),
                 selectionBinding: '.parentView.parentView.selection',
                 isSelectableBinding: SC.Binding.oneWay('.parentView.parentView.isSelectable'),
                 itemTitleKey:null,
                 itemTitleKeyBinding:SC.Binding.oneWay('.parentView.parentView.itemTitleKey'),
-                isEnabledBinding: SC.Binding.oneWay('.content').bool(),
+                nullItemIncluded: null,
+                nullItemIncludedBinding: SC.Binding.oneWay('.parentView.parentView.nullItemIncluded'),
+                nullTitle:null,
+                nullTitleBinding:SC.Binding.oneWay('.parentView.parentView.nullTitle'),
+                isEnabled: function() {
+                    return this.getPath('content') && this.getPath('content.length') > (this.get('nullItemIncluded') ? 1 : 0);
+                }.property('content', 'nullItemIncluded').cacheable(),
 
                 frameDidChange: function() {
                     if (!this.getPath('pane.maxHeight'))
@@ -141,6 +169,8 @@ Footprint.LabelSelectView = SC.PopupButtonView.extend({
 
                     itemTitleKey:null,
                     itemTitleKeyBinding:SC.Binding.oneWay('.parentView.itemTitleKey'),
+                    nullTitle:null,
+                    nullTitleBinding:SC.Binding.oneWay('.parentView.nullTitle'),
 
                     labelView: SC.LabelView.extend({
                         classNames:'footprint-label-select-item-label-view'.w(),
@@ -148,11 +178,13 @@ Footprint.LabelSelectView = SC.PopupButtonView.extend({
                         contentBinding: SC.Binding.oneWay('.parentView.content'),
                         contentValueKey: null,
                         contentValueKeyBinding: SC.Binding.oneWay('.parentView.itemTitleKey'),
+                        nullTitle:null,
+                        nullTitleBinding:SC.Binding.oneWay('.parentView.nullTitle'),
                         value: function() {
                             if (this.get('content') && !this.get('contentValueKey'))
                                 // content is string case. Otherwise we rely on content+contentValueKey
                                 return this.get('content');
-                            return this.get('content') && this.get('content').getPath(this.get('contentValueKey'));
+                            return this.get('content') ? this.get('content').getPath(this.get('contentValueKey')) : this.get('nullTitle');
                         }.property('contentValueKey', 'content')
                     })
                 })

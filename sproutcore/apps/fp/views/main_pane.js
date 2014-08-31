@@ -1,10 +1,9 @@
 sc_require('views/sections/scenario_section_view');
 sc_require('views/sections/result_section_view');
 sc_require('views/sections/map_section_view');
-sc_require('views/sections/analytic_section_view');
+sc_require('views/sections/analysis_module_section_view');
 sc_require('views/sections/layer_section_view');
-sc_require('views/sections/tool_section_view');
-sc_require('views/sections/built_form_section_view');
+sc_require('views/sections/visible_layer_section_view');
 
 Footprint.MainPane = SC.MainPane.extend({
     childViews: ['headerBarView', 'bodyView'],
@@ -20,6 +19,7 @@ Footprint.MainPane = SC.MainPane.extend({
             selectionBinding: 'Footprint.projectsController.selection',
 
             childViews: ['projectLogoView', 'projectSelectView', 'projectMenuView'],
+
             projectLogoView: SC.ImageView.extend({
                 layout: { left: 5, height: 24, width: 24, centerY: 0 },
                 clientBinding: SC.Binding.oneWay('Footprint.regionActiveController.client'),
@@ -46,14 +46,17 @@ Footprint.MainPane = SC.MainPane.extend({
 
                 icon: sc_static('images/section_toolbars/pulldown.png'),
 
-                contentBinding: SC.Binding.oneWay('.parentView.content'),
+                contentBinding: SC.Binding.oneWay('Footprint.scenarioActiveController.content'),
 
                 // TODO: Hook these back up for use in the statecharts.
-                recordType: null,
-                activeRecord: null,
+                recordType: Footprint.Scenario,
+                activeRecordBinding: SC.Binding.oneWay('Footprint.scenarioActiveController.content'),
                 menuItems: [
-                    SC.Object.create({ title: 'Get Info', isEnabled:NO}),
-                    SC.Object.create({ title: 'Manage Projects', isEnabled:NO})
+                    SC.Object.create({ title: 'Manage Projects', keyEquivalent: 'c', action: 'doManageProjects', isEnabled:NO }),
+                    SC.Object.create({ isSeparator: YES }),
+                    SC.Object.create({ title: 'Manage Scenarios', keyEquivalent: 'ctrl_i', action: 'doManageScenarios' }),
+                    SC.Object.create({ title: 'Export Scenario', keyEquivalent: 'ctrl_e', action: 'doExportRecord', isEnabled:NO }),
+                    SC.Object.create({ title: 'Remove Scenario', keyEquivalent: ['ctrl_delete', 'ctrl_backspace'], action: 'doRemoveRecord', isEnabled:NO })
                 ]
             })
         }),
@@ -88,60 +91,46 @@ Footprint.MainPane = SC.MainPane.extend({
         childViews: ['topView', 'bottomView'],
         topView: SC.SplitView.extend(SC.SplitChild, {
             size: 200,
-            sizeOffset:-5,
+            sizeOffset:-2,
             canCollapse:YES,
             layoutDirection: SC.LAYOUT_HORIZONTAL,
 
             childViews: ['scenarioSectionView', 'resultSectionView'],
             scenarioSectionView: Footprint.ScenarioSectionView.extend(SC.SplitChild, {
                 size: 470,
-                sizeOffset:-5,
+                sizeOffset:-2,
                 canCollapse:YES
             }),
             resultSectionView: Footprint.ResultSectionView.extend(SC.SplitChild, {
                 autoResizeStyle: SC.RESIZE_AUTOMATIC,
-                positionOffset:5,
-                sizeOffset:-5,
+                positionOffset:2,
+                sizeOffset:-2,
                 canCollapse:YES
             })
         }),
         bottomView: SC.SplitView.extend(SC.SplitChild, {
             autoResizeStyle: SC.RESIZE_AUTOMATIC,
-            positionOffset:5,
-            sizeOffset:-5,
+            positionOffset:2,
+            sizeOffset:-2,
             canCollapse:YES,
 
-            childViews: ['sidebarView', 'mapView', 'analyticView'],
+            childViews: ['sidebarView', 'centerView'],
             sidebarView: SC.View.extend(SC.SplitChild, {
                 classNames: "footprint-sidebar-view".w(),
                 size: 350,
-                sizeOffset:-5,
+                sizeOffset:-2,
                 canCollapse:YES,
                 childViews: ['sidebarViewItself', 'copyrightView'],
                 sidebarViewItself: SC.SplitView.extend({
                     layout: { bottom: 35 },
 
-                    childViews:['layerSectionView', 'toolsetView', 'builtFormsView'],
+                    childViews:['layerSectionView'],
                     layoutDirection: SC.LAYOUT_VERTICAL,
 
                     layerSectionView: Footprint.LayerSectionView.extend(SC.SplitChild, {
                         size: 150,
                         autoResizeStyle: SC.RESIZE_AUTOMATIC,
-                        sizeOffset:-5,
-                        canCollapse:YES
-                    }),
-                    toolsetView: Footprint.ToolSectionView.extend(SC.SplitChild, {
-                        size: 130,
-                        maximumSize: 130,
-                        minimumSize: 130,
-                        sizeOffset: -10,
-                        positionOffset: 5,
-                        canCollapse:YES
-                    }),
-                    builtFormsView: Footprint.BuiltFormSectionView.extend(SC.SplitChild, {
-                        size: 100,
-                        sizeOffset: -5,
-                        positionOffset: 5,
+                        sizeOffset:-2,
                         canCollapse:YES
                     })
                 }),
@@ -155,22 +144,52 @@ Footprint.MainPane = SC.MainPane.extend({
                     }),
                     copyrightLabelView: SC.LabelView.create({
                         classNames: "footprint-copyright-label-view",
-                        value: 'UrbanFootprint rev. 2014.1.27 \n © 2013 Calthorpe Associates',
+                        value: 'UrbanFootprint rev. 2014.4.7 \n © 2014 Calthorpe Associates',
                         layout: {top: 0.05, left: 40}
                     })
                 })
             }),
-            mapView: Footprint.MapSectionView.extend(SC.SplitChild, {
+            centerView:SC.View.extend(SC.SplitChild, {
                 autoResizeStyle: SC.RESIZE_AUTOMATIC,
-                sizeOffset:-5,
-                positionOffset:5,
-                canCollapse:NO
-            }),
-            analyticView: Footprint.AnalyticSectionView.extend(SC.SplitChild, {
-                 size: 275,
-                 sizeOffset:-5,
-                 positionOffset:5,
-                 canCollapse:YES
+                sizeOffset:-2,
+                positionOffset:2,
+                canCollapse:NO,
+
+                childViews: ['mapView', 'layersMenuView', 'modulesView', 'modulesButtonView'],
+                mapView: Footprint.MapSectionView,
+                layersMenuView: Footprint.VisibleLayerSectionView.extend({
+                    layout: { width: 250, borderRight: 1 },
+                    isVisible: NO,
+                    isVisibleBinding: 'F.layersVisibleController.layersMenuSectionIsVisible',
+                    transitionShow: SC.View.SLIDE_IN,
+                    transitionShowOptions: { duration: 0.2 },
+                    transitionHide: SC.View.SLIDE_OUT,
+                    transitionHideOptions: { direction: 'left', duration: 0.2 }
+                }),
+                modulesView: Footprint.AnalysisModuleSectionView.extend({
+                    layout: { width: 275, right: 0, borderLeft: 1, top: 24 },
+                    isVisible: NO,
+                    isVisibleBinding: 'F.analysisModulesController.analysisModuleSectionIsVisible',
+                    transitionShow: SC.View.SLIDE_IN,
+                    transitionShowOptions: { direction: 'left', duration: 0.2 },
+                    transitionHide: SC.View.SLIDE_OUT,
+                    transitionHideOptions: { duration: 0.2 }
+                }),
+                modulesButtonView: SC.ButtonView.extend({
+                    // This button is rotated, making its layout a bit fiddly.
+                    layout: { top: 55, right: -30, height: 20, width: 80, rotateZ: -90 },
+                    classNames: ['theme-button', 'theme-button-gray', 'theme-button-shorter', 'theme-button-flat-bottom'],
+                    valueBinding: 'Footprint.analysisModulesController.analysisModuleSectionIsVisible',
+                    icon: function() {
+                        if (this.get('value')) return sc_static('fp:images/section_toolbars/pulldown.png');
+                        else return sc_static('fp:images/section_toolbars/pullup.png')
+                    }.property('value').cacheable(),
+                    title: function() {
+                        if (this.get('value')) return 'Collapse';
+                        else return 'Analysis';
+                    }.property('value').cacheable(),
+                    buttonBehavior: SC.TOGGLE_BEHAVIOR
+                })
             })
         })
     })

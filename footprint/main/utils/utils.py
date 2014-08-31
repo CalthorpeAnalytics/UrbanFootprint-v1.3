@@ -34,6 +34,8 @@ from django.conf import settings
 from shapely.geometry import LineString
 from django.contrib.gis.geos import MultiPolygon, Polygon, LinearRing
 import pwd
+import logging
+logger = logging.getLogger(__name__)
 
 def os_user():
     for name in ('LOGNAME', 'USER', 'LNAME', 'USERNAME'):
@@ -63,6 +65,25 @@ def resolvable_model_name(cls):
         Reverse of resolve_model. Returns the model cls as an app name plus class name
     """
     return '%s.%s' % (cls._meta.app_label, cls.__name__)
+
+
+def get_client_source_data_connection():
+    from footprint.client.configuration.utils import resolve_fixture
+    from footprint.client.configuration.fixture import InitFixture
+
+    source_db = resolve_fixture(None, 'init', InitFixture).import_database()
+
+    source_db['ENGINE'] = 'django.contrib.gis.db.backends.postgis'
+    source_db['OPTIONS'] = {'autocommit': True}
+    source_db['NAME'] = source_db['database']
+    source_db['PASSWORD'] = source_db['password']
+    source_db['USER'] = source_db['user']
+    source_db['HOST'] = source_db['host']
+    logger.info("Connecting to database {db} on {host}".format(db=source_db['NAME'], host=source_db['HOST']))
+
+    connections.databases['import'] = source_db
+
+    return connections['import']
 
 def resolve_module_attr(str):
     """
@@ -626,7 +647,7 @@ def get_property_path(dict_or_obj, path):
         return get_property_path(value, '.'.join(segments[1:]))
 
 
-def get_one_or(list, value):
+def first_or_default(list, value=None):
     """
         Simply return the only element in the list or default to the given value
     """
@@ -662,3 +683,15 @@ def clear_many_cache(model):
 
 def normalize_null(value):
     return value if value else None
+
+def split_filter(func, sequence):
+    """
+        Returns a tuple of two list. The first are those items that evaluate true, and the second are those that evaluate false
+    """
+    true_results, false_results = ([], [])
+    for item in sequence:
+        if func(item):
+            true_results.append(item)
+        else:
+            false_results.append(item)
+    return true_results, false_results

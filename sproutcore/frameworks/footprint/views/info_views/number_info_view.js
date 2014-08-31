@@ -18,6 +18,7 @@ sc_require('views/info_views/range_item_view');
 Footprint.NumberItemView = Footprint.InfoView.extend({
     classNames:'footprint-number-item-view'.w(),
     contentView: Footprint.EditableModelStringView.extend({
+        classNames: ['footprint-editable-content-view'],
         layout: {left: .2, width: .8},
         valueBinding: parentViewPath(1, '*value'),
         validator: SC.Validator.Number
@@ -27,6 +28,7 @@ Footprint.NumberItemView = Footprint.InfoView.extend({
 Footprint.NumberRangeItemView = Footprint.RangeItemView.extend({
     classNames:'footprint-number-range-item-view'.w(),
     contentView: Footprint.EditableModelStringView.extend({
+        classNames: ['footprint-editable-content-view'],
         layout: {left: .2, width: .8},
         isEditableBinding: parentViewPath(1, '.isEditable'),
         valueBinding: parentViewPath(1, '*value'),

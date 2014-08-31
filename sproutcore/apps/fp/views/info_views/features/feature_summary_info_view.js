@@ -1,7 +1,7 @@
 /*
  * UrbanFootprint-California (v1.0), Land Use Scenario Development and Modeling System.
  *
- * Copyright (C) 2013 Calthorpe Associates
+ * Copyright (C) 2014 Calthorpe Associates
  *
  * This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, version 3 of the License.
  *
@@ -13,6 +13,7 @@
  */
 
 sc_require('views/info_views/query_info_view');
+sc_require('views/info_views/feature_table_info_view');
 
 /***
  * The pane used to edit the settings of a new or existing Feature and the DbEntity to which it is associated (if any). The saving order of this will have to first save a created DbEntity and then the Feature if a DbEntity is being created here
@@ -26,27 +27,30 @@ Footprint.FeatureSummaryInfoView = SC.View.extend({
     content: null,
 
     // TODO ideally these are in the declaration of the view subclass
-    contentBinding: SC.Binding.oneWay('.parentView.parentView.content'),
+    contentBinding: SC.Binding.oneWay('Footprint.featuresActiveController.content'),
+    status: null,
+    statusBinding: SC.Binding.oneWay('Footprint.featuresActiveController.status'),
     recordTypeBinding: SC.Binding.oneWay('.parentView.parentView.recordType'),
     selectionBinding: '.parentView.parentView.selection',
     layerSelection: null,
-    layerSelectionBinding: SC.Binding.oneWay('.parentView.parentView.content'),
+    layerSelectionBinding: SC.Binding.oneWay('Footprint.layerSelectionActiveController.content'),
 
     contentView: Footprint.ContentView.extend({
-        childViews: 'summaryView commitButtonsView'.w(),
+        childViews: 'resultsView commitButtonsView'.w(),
         contentBinding: SC.Binding.oneWay('.parentView.content'),
+        status: null,
+        statusBinding: SC.Binding.oneWay('.parentView.status'),
         selection: null,
         selectionBinding: '.parentView.selection',
         recordTypeBinding: SC.Binding.oneWay('.parentView.recordType'),
         layerSelection: null,
         layerSelectionBinding: SC.Binding.oneWay('.parentView.layerSelection'),
 
-        summaryView: Footprint.TableInfoView.extend({
+        resultsView: Footprint.FeatureTableInfoView.extend({
             layout: {top: 10, bottom: 0},
             contentBinding: SC.Binding.oneWay('.parentView.content'),
+            statusBinding: SC.Binding.oneWay('.parentView.status'),
             selectionBinding: '.parentView.selection',
-            countBinding: SC.Binding.oneWay('.parentView.content').lengthOf(),
-            recordTypeBinding: SC.Binding.oneWay('.parentView.recordType'),
             layerSelectionBinding: SC.Binding.oneWay('.parentView.layerSelection')
         }),
 

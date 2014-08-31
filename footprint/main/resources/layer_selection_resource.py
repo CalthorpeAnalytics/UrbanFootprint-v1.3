@@ -1,5 +1,6 @@
 from tastypie.contrib.gis.resources import GeometryApiField
 from footprint.main.resources.layer_resources import LayerResource
+from footprint.main.utils.query_parsing import resolve_related_model_path_via_geographies, model_field_paths
 
 __author__ = 'calthorpe'
 
@@ -7,9 +8,9 @@ from django.contrib.auth.models import User
 import geojson
 from tastypie import fields
 from tastypie.constants import ALL_WITH_RELATIONS, ALL
-from footprint.main.lib.functions import deep_merge
+from footprint.main.lib.functions import deep_merge, flat_map, map_to_dict, merge
 from footprint.main.models.config.scenario import FutureScenario
-from footprint.main.models.geospatial.db_entity_configuration import create_db_entity_configuration
+from footprint.main.models.geospatial.db_entity_configuration import update_or_create_db_entity
 from footprint.main.models.geospatial.feature_class_creator import FeatureClassCreator
 from footprint.main.resources.pickled_dict_field import PickledDictField
 from footprint.main.models import Layer
@@ -19,6 +20,7 @@ from footprint.main.resources.mixins.dynamic_resource import DynamicResource
 from footprint.main.resources.mixins.mixins import ToManyFieldWithSubclasses
 from footprint.main.resources.user_resource import UserResource
 from footprint.main.utils.dynamic_subclassing import get_dynamic_resource_class
+from footprint.main.utils.query_parsing import model_field_paths
 
 class CustomGeometryApiField(GeometryApiField):
     def hydrate(self, bundle):
@@ -40,13 +42,13 @@ class LayerSelectionResource(DynamicResource):
     user = fields.ToOneField(UserResource, 'user', readonly=True, full=False)
     filter = PickledDictField(attribute='filter', null=True, blank=True)
     group_bys = PickledDictField(attribute='group_bys', null=True, blank=True)
-    joins = PickledDictField(attribute='joins', null=True, blank=True)
+    joins = fields.ListField(attribute='joins', null=True, blank=True)
     aggregates = PickledDictField(attribute='aggregates', null=True, blank=True)
 
     result_fields = fields.ListField(attribute='result_fields', null=True, blank=True, readonly=True)
     result_field_title_lookup = PickledDictField(attribute='result_field_title_lookup', null=True, blank=True, readonly=True)
 
-    summary_results = PickledDictField(attribute='summary_results', null=True, blank=True, readonly=True)
+    summary_results = fields.ListField(attribute='summary_results', null=True, blank=True, readonly=True)
     summary_fields = fields.ListField(attribute='summary_fields', null=True, blank=True, readonly=True)
     summary_field_title_lookup = PickledDictField(attribute='summary_field_title_lookup', null=True, blank=True, readonly=True)
 
@@ -71,15 +73,6 @@ class LayerSelectionResource(DynamicResource):
         :return:
         """
 
-        # TODO Not used. Remove. Store the old versions of the objects to detect changes
-        previous_attributes = dict(
-            joins=bundle.obj.joins,
-            query_strings=dict(
-                filter_string=bundle.obj.query_strings.get('filter_string', None),
-                aggregates_string=bundle.obj.query_strings.get('aggregates_string', None),
-                group_by_string=bundle.obj.query_strings.get('group_by_string', None),
-                )
-        )
         # Remove the computed properties. Some or all will be set
         bundle.obj.summary_results = None
         bundle.obj.summary_fields = None
@@ -91,27 +84,46 @@ class LayerSelectionResource(DynamicResource):
             if not bundle.data.get(attr, None):
                 setattr(bundle.obj, attr, None)
 
+        # TODO move everything under here to a method of layer_selection
+        # Update the features to the queryset
         feature_class = bundle.obj.feature_class()
-        query_set = bundle.obj.create_query_set(feature_class.objects, previous_attributes)
-        # Update the features based on the new query_set
-        if query_set:
-            bundle.obj.update_features(query_set)
-        else:
-            bundle.obj.clear_features()
+        query_set = bundle.obj.create_query_set(feature_class.objects)
+        bundle.obj.update_features(query_set)
+
+        related_models = bundle.obj.resolve_related_models()
+        # Get the related model paths final segment. We want to map these to the db_entity_key names
+        related_model_path_to_name = map_to_dict(
+            lambda related_model:
+                [resolve_related_model_path_via_geographies(feature_class.objects, related_model).split('__')[1],
+                 related_model.db_entity_key],
+                related_models
+            )
+
         # Parse the QuerySet to get the result fields and their column title lookup
-        bundle.obj.result_fields, bundle.obj.result_field_title_lookup = (query_set if query_set!=None else feature_class.objects.all()).result_fields_and_title_lookup()
+        if len(bundle.obj.joins or []) > 0:
+            values_query_set = bundle.obj.values_query_set(query_set)
+        else:
+            field_paths = model_field_paths(feature_class, fields=feature_class.limited_api_fields())
+            values_query_set = (query_set if query_set else feature_class.objects).values(*field_paths)
+
+        bundle.obj.result_fields, bundle.obj.result_field_title_lookup = values_query_set.result_fields_and_title_lookup(
+            related_models=related_models,
+            # map_path_segments maps related object paths to their model name, and removes the geographies segment of the path
+            map_path_segments=merge(dict(geographies=None),
+                                    related_model_path_to_name)
+        )
 
         # Create the summary results from the entire set
         summary_query_set = bundle.obj.create_summary_query_set(
-            feature_class.objects,
-            previous_attributes)
+            feature_class.objects)
         if summary_query_set:
             # Update the summary results
             bundle.obj.update_summary_results(summary_query_set)
         else:
             bundle.obj.clear_summary_results()
 
-        bundle.obj.query_sql = query_set.query if query_set else None
+        # Debugging
+        bundle.obj.query_sql = values_query_set.query
         bundle.obj.summary_query_sql = summary_query_set.query if hasattr(summary_query_set, 'query') else None
 
         return bundle
@@ -133,7 +145,7 @@ class LayerSelectionResource(DynamicResource):
             raise Exception("Layer with db_entity_key %s has no feature_class. Its LayerSelections should not be requested" % layer.db_entity_key)
         if kwargs.get('method', None) == 'PATCH':
             # Create a simple Feature resource subclass (no related fields needed)
-            feature_resource_class = FeatureResource().create_subclass(params)
+            feature_resource_class = FeatureResource().create_subclass(params, query_may_be_empty=True)
             features = fields.ToManyField(feature_resource_class, attribute='selected_features', readonly=True, null=True, full=False)
         else:
             features = ToManyFieldWithSubclasses(
@@ -157,17 +169,6 @@ class LayerSelectionResource(DynamicResource):
         user = User.objects.get(username=params['username'])
         return dict(user__id=user.id)
 
-    def post_save(self, request, **kwargs):
-        """
-            Call the layer publisher on save manually since the signaling doesn't seem to work with dynamic
-            classes
-        :param request:
-        :return:
-        """
-        layer_instance = self.resolve_layer(kwargs['GET'])
-        user = User.objects.get(username=request.GET['username'])
-        #layer_publishing.on_layer_selection_post_save_layer(self, layer=layer_instance, user=user)
-
     def resolve_config_entity(self, params):
         return Layer.objects.get(id=params['layer__id']).presentation.config_entity
 
@@ -176,7 +177,7 @@ class LayerSelectionResource(DynamicResource):
         source_layer = self.resolve_layer(params)
         config_entity = source_layer.presentation.config_entity
         db_entity = source_layer.db_entity_interest.db_enitty
-        feature_class = FeatureClassCreator(config_entity, db_entity).dynamic_feature_class()
+        feature_class = FeatureClassCreator(config_entity, db_entity).dynamic_model_class()
         layer = Layer.objects.get(presentation__config_entity=config_entity, db_entity_key=db_entity.key)
         layer_selection = get_or_create_dynamic_layer_selection_class_and_table(layer, False).objects.all()[0]
         # TODO no need to do geojson here
@@ -189,7 +190,7 @@ class LayerSelectionResource(DynamicResource):
         json = dict({ "type": "FeatureCollection",
                       "features": feature_dicts
         })
-        db_entity_configuration = create_db_entity_configuration(config_entity, **dict(
+        db_entity_configuration = update_or_create_db_entity(config_entity, **dict(
             class_scope=FutureScenario,
             name='Import From Selection Test',
             key='import_selection_test',

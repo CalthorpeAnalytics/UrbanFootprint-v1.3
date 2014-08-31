@@ -1,6 +1,6 @@
 # UrbanFootprint-California (v1.0), Land Use Scenario Development and Modeling System.
 #
-# Copyright (C) 2013 Calthorpe Associates
+# Copyright (C) 2014 Calthorpe Associates
 #
 # This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, version 3 of the License.
 #
@@ -11,6 +11,7 @@
 # Contact: Joe DiStefano (joed@calthorpe.com), Calthorpe Associates. Firm contact: 2095 Rose Street Suite 201, Berkeley CA 94709. Phone: (510) 548-6800. Web: www.calthorpe.com
 
 from footprint.client.configuration.fixture import ResultConfigurationFixture
+from footprint.main.models.geospatial.db_entity_keys import DbEntityKey
 from footprint.main.publishing.result_initialization import ResultConfiguration, ResultLibraryKey, ResultKey, ResultSort
 from footprint.main.models.config.scenario import BaseScenario
 from footprint.main.models.keys.keys import Keys
@@ -34,7 +35,7 @@ class SandagResultConfigurationFixtures(ResultConfigurationFixture):
                     result_type='analytic_bars',
                     result_library_key=ResultLibraryKey.DEFAULT,
                     result_db_entity_key=ResultKey.Fab.ricate('base_bars'),
-                    source_db_entity_key=Keys.DB_ABSTRACT_BASE_FEATURE,
+                    source_db_entity_key=DbEntityKey.BASE,
 
                     name='Base Results',
                     attributes=['employment', 'dwelling_units', 'population'],

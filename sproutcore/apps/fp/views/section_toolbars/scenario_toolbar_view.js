@@ -5,9 +5,10 @@
  */
 
 
-Footprint.ScenarioToolbarView = Footprint.EditingToolbarView.extend({
+Footprint.ScenarioToolbarView = SC.ToolbarView.extend({
     titleViewLayout: {left: 0, right: 270, height: 17},
     classNames: "footprint-scenario-toolbar-view".w(),
+    childViews: ['titleView', 'stats1View', 'stats2View', 'stats3View'],
     contentBinding: SC.Binding.oneWay('Footprint.scenarioActiveController.content'),
     controlSize: SC.SMALL_CONTROL_SIZE,
     // Make the title Scenarios for [property name]
@@ -18,22 +19,18 @@ Footprint.ScenarioToolbarView = Footprint.EditingToolbarView.extend({
         stats2View: 'Dwelling Units',
         stats3View: 'Employment'
     }),
-
-    // TODO stats title bars must be dynamic
-    childViews: 'titleView stats1View stats2View stats3View'.w(),
-
-    recordType: Footprint.Scenario,
-    activeRecordBinding: SC.Binding.oneWay('Footprint.scenarioActiveController.content'),
-    menuItems: [
-        SC.Object.create({ title: 'Manage Scenarios', keyEquivalent: 'ctrl_i', action: 'doManageScenarios' }),
-        SC.Object.create({ isSeparator: YES }),
-        SC.Object.create({ title: 'Export Selected', keyEquivalent: 'ctrl_e', action: 'doExportRecord', isEnabled:NO }),
-        SC.Object.create({ title: 'Remove Selected', keyEquivalent: ['ctrl_delete', 'ctrl_backspace'], action: 'doRemoveRecord', isEnabled:NO })
-    ],
+    titleView: SC.LabelView.extend({
+        layout: { height: 17, right: 35 },
+        valueBinding: SC.Binding.transform(function(name) {
+            if (!name)
+                return 'Scenarios';
+            else return 'Scenarios for %@'.fmt(name);
+        }).oneWay('Footprint.scenarioActiveController.name')
+    }),
 
     stats1View: SC.ToolbarView.extend({
         childViews: ['label'],
-        layout: {right:180, width: 90, height: 17},
+        layout: {right:180, width: 90, height: 18},
         anchorLocation: SC.ANCHOR_TOP,
         label: SC.LabelView.extend({
             valueBinding: SC.Binding.oneWay(parentViewPath(2, '.titles.stats1View'))
@@ -41,7 +38,7 @@ Footprint.ScenarioToolbarView = Footprint.EditingToolbarView.extend({
     }),
     stats2View: SC.ToolbarView.extend({
         childViews: ['label'],
-        layout: {right:90, width: 90, height: 17},
+        layout: {right:90, width: 90, height: 18},
         anchorLocation: SC.ANCHOR_TOP,
         label: SC.LabelView.extend({
             valueBinding: SC.Binding.oneWay(parentViewPath(2, '.titles.stats2View'))
@@ -49,7 +46,7 @@ Footprint.ScenarioToolbarView = Footprint.EditingToolbarView.extend({
     }),
     stats3View: SC.ToolbarView.extend({
         childViews: ['label'],
-        layout: {right:0, width: 90, height: 17},
+        layout: {right:0, width: 90, height: 18},
         anchorLocation: SC.ANCHOR_TOP,
         layoutBinding: SC.Binding.oneWay(parentViewPath(1, '.layouts.stats3View')),
         label: SC.LabelView.extend({

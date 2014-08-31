@@ -15,8 +15,7 @@
 # Contact: Joe DiStefano (joed@calthorpe.com), Calthorpe Associates.
 # Firm contact: 2095 Rose Street Suite 201, Berkeley CA 94709.
 # Phone: (510) 548-6800. Web: www.calthorpe.com
-from footprint.main.lib.functions import get_list_or_if_empty
-
+from footprint.main.lib.functions import get_list_or_if_empty, remove_keys
 from footprint.main.utils.utils import has_explicit_through_class, foreign_key_field_of_related_class
 
 __author__ = 'calthorpe_associates'
@@ -150,11 +149,21 @@ class RelatedCollectionAdoption(object):
 
         if tool.is_through:
             for non_existing_value in new_values:
-                # Set the foreign key relationship to self. This might already be done
-                setattr(non_existing_value, tool.self_foreign_key_attribute, self)
+                # Get a new copy from the db so we don't mutilate the local instance
+                instance = non_existing_value.__class__.objects.get(pk=non_existing_value.pk)
                 # Clear the pk in case the value is coming from the donor (via self._adopt_from_donor)
-                setattr(non_existing_value, 'pk', None)
-                non_existing_value.save()
+                setattr(instance, 'pk', None)
+                # Set the foreign key relationship to self. This might already be done
+                setattr(instance, tool.self_foreign_key_attribute, self)
+                # Hack to disable DbEntity publishing after this
+                if attribute=='db_entities':
+                    from footprint.main.models import DbEntityInterest
+                    previous_value = DbEntityInterest._no_post_save_publishing
+                    DbEntityInterest._no_post_save_publishing = True
+                    instance.save()
+                    DbEntityInterest._no_post_save_publishing = previous_value
+                else:
+                    instance.save()
         else:
             getattr(self, attribute).add(*new_values)
 
@@ -186,21 +195,24 @@ class RelatedCollectionAdoption(object):
         """
             Returns this instance's attribute's related values or through values (for attributes with an explicit through class) or the donor's if this instance hasn't overridden its values
         :param attribute: 'db_entities', etc. Not the through attribute name (e.g. dbentities_set)
-        :param **query_kwargs: optionally specify query arguments to use with filter() on the results
+        :param **query_kwargs: optionally specify query arguments to use with filter() on the results.
+            One special param is with_deleted, which enables deleted objects to return, normally omited
         :return: this attribute's collection or its parents, with optional filtering applied after
         """
         resolved_attribute = self.through_attribute(self.many_field(attribute)) if has_explicit_through_class(self, attribute) else attribute
+        params = (dict(deleted=query_kwargs.get('deleted', False)) if not query_kwargs.get('with_deleted') else dict())
+        q_kwargs = remove_keys(query_kwargs, ['with_deleted'])
         if self.donor():
             return get_list_or_if_empty(
                 # Get instance's own Many items
                 self._filter_computed(
-                    getattr(self, resolved_attribute).filter(deleted=False),
-                    **query_kwargs),
+                    getattr(self, resolved_attribute).filter(**params),
+                    **q_kwargs),
                 # If none exist get donor's
-                lambda: self.donor()._computed(attribute, **query_kwargs))
+                lambda: self.donor()._computed(attribute, **q_kwargs))
         else:
             # No donor is defined so just consider this instance's items
-            return self._filter_computed(getattr(self, resolved_attribute).filter(deleted=False), **query_kwargs)
+            return self._filter_computed(getattr(self, resolved_attribute).filter(**params), **q_kwargs)
 
     def _filter_computed(self, all, **query_kwargs):
         return all.filter(**query_kwargs) if len(query_kwargs) > 0 else all
@@ -212,17 +224,21 @@ class RelatedCollectionAdoption(object):
         :param query_kwargs: optional args to filter the results
         :return: The related class instances
         """
+        modified_query_kwargs = remove_keys(query_kwargs, ['with_deleted'])
+        deleted_kwargs = (dict(deleted=False) if not query_kwargs.get('with_deleted') else dict())
         if self.donor():
             return get_list_or_if_empty(
                 # Get instance's own Many items
                 self._filter_computed(
-                    getattr(self, attribute).filter(deleted=False),
-                    **query_kwargs),
+                    getattr(self, attribute).filter(**deleted_kwargs),
+                    **modified_query_kwargs),
                 # If none exist get donor's
-                lambda: self.donor()._computed_related(attribute, **query_kwargs))
+                lambda: self.donor()._computed_related(attribute, **modified_query_kwargs))
         else:
             # No donor is defined so just consider this instance's items
-            return self._filter_computed(getattr(self, attribute).filter(deleted=False), **query_kwargs)
+            return self._filter_computed(
+                getattr(self, attribute).filter(**deleted_kwargs),
+                **modified_query_kwargs)
 
     def through_class(self, attribute):
         return self.many_field(attribute).through

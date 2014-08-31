@@ -48,7 +48,7 @@ Footprint.MapStyling = {
                 }),
 
             selection_stylist: po.stylist()
-                .attr('stroke', 'Yellow').attr('fill','Red;').attr('class', 'selected')
+                .attr('stroke', '#00FF00').attr('class', 'selected')
         })
     },
 

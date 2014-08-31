@@ -25,10 +25,8 @@
 }
 
 .selected{
-    fill: yellow !important;
+    fill: #00FF00 !important;
     opacity: 1 !important;
-    stroke: red;
-    stroke-width: 3;
 }
 
 #parcel_base {

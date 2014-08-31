@@ -355,6 +355,7 @@ po.queue = (function() {
         callback(img);
         process();
       };
+      src = src + '?' + Math.random();
       img.src = src;
       image.setAttributeNS(po.ns.xlink, "href", src);
     }
@@ -1111,7 +1112,7 @@ po.image = function() {
 
     if (typeof url == "function") {
       element.setAttribute("opacity", 0);
-      var tileUrl = url(tile);
+      var tileUrl = url(tile) + '?' + Math.random();
       if (tileUrl != null) {
         tile.request = po.queue.image(element, tileUrl, function(img) {
           delete tile.request;

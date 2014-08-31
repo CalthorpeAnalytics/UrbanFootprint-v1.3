@@ -74,11 +74,13 @@ Footprint.DataSource = SC.DataSource.extend({
                 var objs = $.map(response.get('body')['objects'], function(obj) {
                     return self._transformTastypieJsonToSproutcore(obj, recordType);
                 });
+                //store.flushFakeChanges(); // Deals with a nested record bug
                 storeKeys = store.loadRecords(recordType, objs);
             }
             else {
                 // Otherwise return the single result as a list (loadRecord might work here instead)
                 var obj = this._transformTastypieJsonToSproutcore(response.get('body'), recordType);
+                //store.flushFakeChanges(); // Deals with a nested record bug
                 storeKeys = [store.loadRecord(recordType, obj)];
             }
             store.dataSourceDidFetchQuery(query, storeKeys);
@@ -124,7 +126,7 @@ Footprint.DataSource = SC.DataSource.extend({
                 return obj &&
                     // Certain recordTypes have child dictionaries that transformed to SC.Objects.
                     // We don't want to transform the recordType objects themselves, just their keys that are dicts, hence key
-                    (key && [Footprint.BuiltForm, Footprint.LayerSelection].contains(recordType) ?
+                    (key && [].contains(recordType) ?
                         mapObjectToSCObject(obj, function(key, value) {
                             return [key, self._transform(func, value, obj, key, recordType)];
                         }) :
@@ -169,9 +171,11 @@ Footprint.DataSource = SC.DataSource.extend({
                     // Extract the attributes from the record if it is a record
                     var dataHash = value.storeKey ? store.readDataHash(value.storeKey) : value;
                     // Get the parent store data hash so that we only send values that have actually changed
-                    var originalDataHash = store.parentStore && value && value.storeKey ?
-                        this._processDataHash(store.parentStore.readDataHash(value.storeKey), data.recordType) :
-                        null;
+                    // TODO we'ere not using originalDataHash right now
+                    var originalDataHash = null;
+                    //store.parentStore && value && value.storeKey ?
+                    //    data.recordType.processDataHash(store.parentStore.readDataHash(value.storeKey)) :
+                    //    null;
                     return self._transformSproutcoreJsonToTastypie(store, dataHash, originalDataHash, recordType)
                 });
             }
@@ -196,9 +200,11 @@ Footprint.DataSource = SC.DataSource.extend({
                         // Extract the attributes from the record if it is a record
                         var data = value && value.storeKey ? store.readDataHash(value.storeKey) : value;
                         // Get the parent store data hash so that we only send values that have actually changed
-                        var originalData = store.parentStore && value && value.storeKey ?
-                            this._processDataHash(store.parentStore.readDataHash(value.storeKey), data.recordType) :
-                            null;
+                        // TODO we'ere not using originalDataHash right now
+                        var originalData = null;
+                        //store.parentStore && value && value.storeKey ?
+                        //    data.recordType.processDataHash(store.parentStore.readDataHash(value.storeKey)) :
+                        //    null;
                         var childRecordType = self._modelClassOfAttribute(recordType, key);
                         return [key, self._transformSproutcoreJsonToTastypie(store, data, originalData, childRecordType)];
                     }
@@ -259,9 +265,8 @@ Footprint.DataSource = SC.DataSource.extend({
             return SC.Store.recordTypeFor(storeKey);
         });
 
-        // Never load ConfigEntities with retrieveRecords.
-        // It causes a problem when a Feature is being fetched that has a config_entity_id
-        // because the store tries to fetch the ConfigEntity while something else is busy_loading
+        // Never load these 'abstract' classes
+        // Whoever is invoking this should be stopped by instead invoking the subclassed version
         if (recordTypes.contains(Footprint.ConfigEntity))
             return NO;
 
@@ -310,17 +315,20 @@ Footprint.DataSource = SC.DataSource.extend({
     },
 
     retrieveRecordsOfType: function(store, recordType, ids, retry) {
-        if (ids.length > 0) {
-            var apiCaller = this.recordTypeToApiCaller(recordType, {ids: ids});
-            // if apiCaller was found - initiate request
-            if (apiCaller) {
-                apiCaller.load(
-                    this,
-                    this._didRetrieveRecords,
-                    { store: store, recordType: recordType, ids: ids, retry:retry });
-                return YES;
+        for (var i=0; i<ids.length; i+=Footprint.DataSource.RETRIEVE_MAXIMUM) {
+            var slicedIds = ids.slice(i, i+Footprint.DataSource.RETRIEVE_MAXIMUM);
+            if (slicedIds.length > 0) {
+                var apiCaller = this.recordTypeToApiCaller(recordType, {ids: slicedIds});
+                // if apiCaller was found - initiate request
+                if (apiCaller) {
+                    apiCaller.load(
+                        this,
+                        this._didRetrieveRecords,
+                        { store: store, recordType: recordType, ids: slicedIds, retry:retry });
+                }
             }
         }
+        return YES;
     },
 
     // Called when a group of records have returns. assume result is array of data hashes
@@ -331,10 +339,13 @@ Footprint.DataSource = SC.DataSource.extend({
 
         // normal: load into store...response == dataHash
         if (SC.$ok(response)) {
-            if (!response.get('body')['objects']) {
+            if (!response.get('body')['objects'] || response.get('body')['objects'].length==0) {
                 logError('Response body has no objects!');
             }
             else {
+                if (response.get('body')['not_found']) {
+                    logError('One or more requested ids were not found for recordType %@. Ids: %@'.fmt(recordType, response.get('body')['not_found'].join(', ')));
+                }
                 // If the API returned a list there will be an 'objects' property containing all the object
                 var self = this;
                 var objs = response.get('body')['objects'].map(function(obj) {
@@ -344,24 +355,50 @@ Footprint.DataSource = SC.DataSource.extend({
                 if (params.create)
                     params.storeKeys.forEach(function(storeKey, i) {
                         var object = objs[i];
-                        params.store.dataSourceDidComplete(storeKey, object, object.id);
+                        if (!(store.peekStatus(storeKey) & SC.Record.BUSY)) {
+                            logWarning('id %@ of recordType: %@ is not BUSY!'.fmt(object.id, recordType));
+                        }
+                        else {
+                            store.dataSourceDidComplete(storeKey, object, object.id);
+                        }
                     });
                 else {
+                    // There seems to be a bug where READY_CLEAN records are occasionally retrieved.
+                    var busy_objs = [];
                     if (params.ids) {
-                        params.ids.forEach(function(id) {
-                            if (!(store.find(recordType, id).get('status') & SC.Record.BUSY)) {
+                        params.ids.forEach(function(id, i) {
+                            if (!(store.peekStatus(recordType.storeKeyFor(id)) & SC.Record.BUSY)) {
                                 logWarning('id %@ of recordType: %@ is not BUSY!'.fmt(id, recordType));
-                            };
-                        });
-                    }
-                    else {
-                        params.storeKeys.forEach(function(storeKey) {
-                            if (!(store.peekStatus(storeKey) & SC.Record.BUSY)) {
-                                logWarning('storeKey %@ of recordType: %@ is not READY_CLEAN!'.fmt(storeKey, recordType));
+                            }
+                            else {
+                                if (objs[i]) {
+                                    busy_objs.push(objs[i]);
+                                }
                             }
                         });
                     }
-                    var storeKeys = store.loadRecords(recordType, objs || [], objs.mapProperty(recordType.prototype.primaryKey));
+                    else {
+                        params.storeKeys.forEach(function(storeKey, i) {
+                            if (!(store.peekStatus(storeKey) & SC.Record.BUSY)) {
+                                logWarning('storeKey %@ of recordType: %@ is not BUSY!'.fmt(storeKey, recordType));
+                            }
+                            else {
+                                if (objs[i]) {
+                                    busy_objs.push(objs[i]);
+                                }
+                            }
+                        });
+                    }
+                    // store.flushFakeChanges(); // Deals with a nested record bug Dave's patch removes the need for this
+                    var storeKeys = store.loadRecords(recordType, busy_objs, busy_objs.mapProperty(recordType.prototype.primaryKey));
+
+                    // Attempts to fix buggy nested stores' inability to sync the records that they themselves requested.
+                    // This is only a problem when you call retrieveRecords from a nested store record, which delegates to the parentStore
+                    // If the parentStore requests directly all the nested stores are correctly updated.
+//                    (store.nestedStores || []).forEach(function(nstore) {
+//                        nstore.loadRecords(recordType, busy_objs, busy_objs.mapProperty(recordType.prototype.primaryKey));
+//                    });
+
                     storeKeys.forEach(function(storeKey) {
                         if (store.peekStatus(storeKey) !== SC.Record.READY_CLEAN) {
                             logWarning('storeKey %@ of recordType: %@ is not READY_CLEAN!'.fmt(storeKey, recordType));
@@ -389,10 +426,9 @@ Footprint.DataSource = SC.DataSource.extend({
      * @param storeKey
      * @returns {*}
      */
-    uploadUri: function(store, storeKey) {
+    uploadUri: function() {
         // Strip the api url to make it a django call
-        return this.createRecord(store, storeKey, YES).replace(
-            /api\/v\d+\/db_entity\//, 'upload/');
+        return this.recordTypeToApiCaller(null, {}, 'UPLOAD').uri
     },
 
     /***
@@ -403,7 +439,7 @@ Footprint.DataSource = SC.DataSource.extend({
      * for the file upload hack
      * @returns {*}
      */
-    createRecord: function(store, storeKey, uriOnly) {
+    createRecord: function(store, storeKey) {
 
         var recordType = store.recordTypeFor(storeKey);
 
@@ -418,15 +454,12 @@ Footprint.DataSource = SC.DataSource.extend({
         // now our Scenarios are all the base class Footprint.Scenario
         if (recordType==Footprint.Scenario) {
             var scenario = store.materializeRecord(storeKey)
-            recordType = scenario.getPath('origin_config_entity.categories.firstObject.value') == 'Future' ? Footprint.FutureScenario : Footprint.BaseScenario;
+            recordType = scenario.getPath('origin_instance.categories.firstObject.value') == 'Base' ?
+                Footprint.BaseScenario : Footprint.FutureScenario;
         }
 
-        var apiCaller = this.recordTypeToApiCaller(recordType, {}, 'POST');
-        if (uriOnly)
-            return apiCaller.uri;
-
         // Create is always performed as a PATCH, so convert this to a multi-object request with storeKeys
-        apiCaller.create(
+        this.recordTypeToApiCaller(recordType, {}, 'POST').create(
             this,
             this._didCreate,
             { store: store, storeKeys: [storeKey], recordType: recordType }
@@ -520,7 +553,9 @@ Footprint.DataSource = SC.DataSource.extend({
                 // Update without a response
                 else {
                     params.storeKeys.forEach(function(storeKey) {
-                        params.store.dataSourceDidComplete(storeKey);
+                        if (params.store.peekStatus(storeKey) & SC.Record.BUSY) {
+                            params.store.dataSourceDidComplete(storeKey);
+                        }
                     });
                 }
             }
@@ -530,7 +565,8 @@ Footprint.DataSource = SC.DataSource.extend({
             }
             else {
                 params.storeKeys.forEach(function(storeKey) {
-                    params.store.dataSourceDidError(storeKey, response.get('errorObject'));
+                    if (params.store.peekStatus(storeKey) & SC.Record.BUSY)
+                        params.store.dataSourceDidError(storeKey, response.get('errorObject'));
                 });
             }
         }
@@ -575,15 +611,20 @@ Footprint.DataSource = SC.DataSource.extend({
      */
     _constructUri : function(apiModelName, options) {
         // Append the id as 'id/' or ids in the form: 'set/id1;id2;....' or nothing
-        var idSegment = options['id'] ? '%@/'.fmt(options['id']) : (options['ids'] ? 'set/%@/'.fmt(options['ids'].join(';')): '');
-        return '/footprint/api/v1/%@/%@'.fmt(apiModelName, idSegment);
+        var idSegment = options['id'] ?
+            '%@/'.fmt(options['id']) :
+            (options['ids'] ?
+                'set/%@/'.fmt(options['ids'].join(';')):
+                null);
+        return idSegment ?
+            '/footprint/api/v1/%@/%@'.fmt(apiModelName, idSegment) :
+            '/footprint/api/v1/%@/'.fmt(apiModelName);
     },
 
     authenticationApiCaller: function(username, password) {
         // TODO this just uses a Django view instead of the api
-        uri = '/fp/api_authentication';
         var uriOptions = {format:'json', username:username, password:password};
-        return this.createCallerForUri(uri, uriOptions, Footprint.Use);
+        return this.createCallerForUri(uri, uriOptions);
     },
 
 
@@ -591,22 +632,28 @@ Footprint.DataSource = SC.DataSource.extend({
      * Creates an ApiCaller instance for the record type and the given options.
      * @param recordType
      * @param parameters: The options are usually based on the Sproutcore query parameters, but the api call
-     * @param method: Optional: 'PATCH', 'GET', etc
+     * @param method: Optional: 'POST', 'PATCH', 'GET', or 'UPLOAD'. 'UPLOAD' is a pseudomethod that tells
+     * the API caller to create the upload URL. For now that means that recordType is ignored for UPLOAD
      * is only interested in certain parameters, which sometimes depend on the recordType
      */
     recordTypeToApiCaller: function(recordType, parameters, method) {
         parameters = parameters || {};
-        // Map the recordType API name to another name, if toApiRecordType doesn't already do the job
-        var apiModelName = this.toApiResourceName(recordType.apiRecordType(parameters, method));
-        //var options = {csrf_token:'{{ csrf_token }}'};
-        var uriPath,
-            uriOptions,
-        // The id to append to the url for single record queries
-            id = parameters && parameters.id && parameters['id'],
-            ids = parameters && parameters.ids && parameters['ids'];
+        if (method==='UPLOAD') {
+            // Upload doesn't care about the recordType nor ids.
+            uriPath = '/footprint/upload/';
+            recordType = Footprint.Record;
+        }
+        else {
+            // Map the recordType API name to another name, if toApiRecordType doesn't already do the job
+            var apiModelName = this.toApiResourceName(recordType.apiRecordType(parameters, method));
+            var uriPath,
+                uriOptions,
+                // The id to append to the url for single record queries
+                id = parameters && parameters.id && parameters['id'],
+                ids = parameters && parameters.ids && parameters['ids'];
+            uriPath = this._constructUri(apiModelName, {id:id, ids:ids});
+        }
 
-        // All other Tastypie calls
-        uriPath = this._constructUri(apiModelName, {id:id, ids:ids});
         uriOptions = $.extend(
             {},
             {format:'json', limit:10000},
@@ -618,7 +665,7 @@ Footprint.DataSource = SC.DataSource.extend({
             this._contextParameters(recordType, parameters, method)
         );
 
-        return this.createCallerForUri(uriPath, uriOptions, recordType);
+        return this.createCallerForUri(uriPath, uriOptions);
     },
 
     /***
@@ -639,8 +686,8 @@ Footprint.DataSource = SC.DataSource.extend({
         }
         else if (['PATCH', 'POST', 'PUT'].contains(method) && [Footprint.Scenario].contains(recordType.apiRecordType())) {
             // DITTO
-            modified_parameters['origin_config_entity__id'] =
-                Footprint.scenariosEditController.getPath('selection.firstObject.origin_config_entity.id');
+            modified_parameters['origin_instance__id'] =
+                Footprint.scenariosEditController.getPath('selection.firstObject.origin_instance.id');
         }
 
         if (parameters.config_entity || parameters.parent_config_entity) {
@@ -681,4 +728,7 @@ Footprint.DataSource = SC.DataSource.extend({
             uri: uri
         });
     }
+});
+Footprint.DataSource.mixin({
+    RETRIEVE_MAXIMUM: 10
 });

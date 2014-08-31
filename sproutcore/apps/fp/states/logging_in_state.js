@@ -90,7 +90,8 @@ Footprint.LoggingInState = SC.State.extend({
 
     didFailToLoadUser: function() {
         SC.AlertPane.error("Authentication Failed");
-        this.gotoState('loginReadyState');
+        Footprint.userController.destroyCookie();
+        this.gotoState(this.get('parentState'));
     }
 });
 

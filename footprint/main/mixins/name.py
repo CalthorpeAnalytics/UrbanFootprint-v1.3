@@ -27,6 +27,13 @@ class Name(models.Model):
     name = models.CharField(max_length=100, null=False, blank=False)
     description = models.TextField(null=True, blank=True)
 
+    @property
+    def full_name(self):
+        """
+            Override to add context to the name, such as the ConfigEntity name
+        """
+        return self.name
+
     def __unicode__(self):
         return "name:{0}, description:{1}".format(self.name, self.description)
 

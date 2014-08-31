@@ -17,15 +17,11 @@
 # Phone: (510) 548-6800. Web: www.calthorpe.com
 
 from tastypie import fields
-from tastypie.fields import CharField, ListField
-from footprint.main.lib.functions import remove_keys
-from footprint.main.models import PresentationConfiguration, PresentationMedium
+from footprint.main.models.presentation.presentation_configuration import  PresentationConfiguration
 from footprint.main.models.presentation.presentation import Presentation
 from footprint.main.resources.config_entity_resources import ConfigEntityResource
-from footprint.main.resources.db_entity_resources import DbEntityInterestResource
-from footprint.main.resources.medium_resources import MediumResource
-from footprint.main.resources.mixins.mixins import ToManyFieldWithSubclasses, TagResourceMixin
-from footprint.main.resources.pickled_dict_field import PickledDictField, PickledObjField
+from footprint.main.resources.mixins.mixins import ToManyFieldWithSubclasses
+from footprint.main.resources.pickled_dict_field import PickledObjField
 from footprint.main.resources.footprint_resource import FootprintResource
 
 __author__ = 'calthorpe_associates'

@@ -24,7 +24,7 @@ class SharedKey(models.Model):
     """
         Mixin applied to classes that use a alpha-numeric key for naming database tables. Keys must not contain spaces. They represent a human-readable identifier used to lookup by predefined constants. Unlike the Key mixin, this key field has no unique constraint. It is useful when multiple versions of something are available, such as multiple DbEntities, and they should be selected between.
     """
-    key = models.CharField(max_length=50, null=False, blank=False)
+    key = models.CharField(max_length=100, null=False, blank=False)
 
     @classmethod
     def unique_key(cls):

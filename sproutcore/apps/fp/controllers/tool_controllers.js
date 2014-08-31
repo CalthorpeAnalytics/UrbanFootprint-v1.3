@@ -1,7 +1,7 @@
 /* 
  * UrbanFootprint-California (v1.0), Land Use Scenario Development and Modeling System.
  *
- * Copyright (C) 2013 Calthorpe Associates
+ * Copyright (C) 2014 Calthorpe Associates
  *
  * This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, version 3 of the License.
  *
@@ -25,6 +25,8 @@ Footprint.toolController = SC.Object.create({
      * Controls if selection tools are enabled
      */
     selectorIsEnabled: NO,
+    deselectorIsEnabled: null,
+    deselectorIsEnabledBinding: SC.Binding.oneWay('Footprint.layerSelectionActiveController.*features.length').isGreaterThan(0),
     /***
      * Controls if feature edit/info tools are enabled
      */
@@ -39,5 +41,7 @@ Footprint.toolController = SC.Object.create({
 Footprint.paintingController = SC.Object.create({
     developmentPercent: 1,
     densityPercent: 1,
-    isFullRedevelopment: NO
+    grossNetPercent: 1,
+    isClearBase: NO,
+    isRedevelopment: NO
 });

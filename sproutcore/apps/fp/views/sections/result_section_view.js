@@ -32,8 +32,26 @@ Footprint.ResultSectionView = Footprint.SectionView.extend({
         contentBinding: SC.Binding.from('.parentView.content'),
         statusBinding:SC.Binding.oneWay('*content.status')
     }),
-    toolbarView: Footprint.ResultToolbarView.extend({
-        controller: Footprint.scenarioActiveController
+    toolbarView: SC.ToolbarView.extend({
+        layout: { height: 16 },
+        childViews: ['titleView'],
+        titleView: SC.LabelView.extend({
+            layout: { height: 16, centerY: 0, right: 35 },
+            valueBinding: SC.Binding.transform(function(name) {
+                if (!name)
+                    return 'Results';
+                else return 'Results for %@'.fmt(name);
+            }).oneWay('Footprint.scenarioActiveController.name')
+        }),
+        // Currently disabled
+        menuButtonView: Footprint.EditButtonView.extend({
+            layout: { right: 38, width: 26 },
+            icon: sc_static('fp:images/section_toolbars/pulldown.png'),
+            menuItems: [
+                SC.Object.create({ title: 'Manage Results', action: 'doResultLayer' }),
+                SC.Object.create({ title: 'Export Selected', action: 'doExportRecord' }),
+            ]
+        })
     }),
 
 //    modelManagementView: SC.View.extend({
@@ -48,7 +66,7 @@ Footprint.ResultSectionView = Footprint.SectionView.extend({
 //            nowShowing: 'Footprint.scenarioDevelopmentManagementView',
 //            items: [
 //                {title: 'Develop/Edit', value: 'Footprint.scenarioDevelopmentManagementView', isEnabled: YES},
-//                {title: 'Analyze', value: 'Footprint.analyticModelManagementView', isEnabled: YES},
+//                {title: 'Analyze', value: 'Footprint.AnalysisModuleManagementView', isEnabled: YES},
 //                {title: 'Compare', value: 'Footprint.compareScenariosManagementView', isEnabled: YES}
 //            ],
 //            nowShowingBinding: '.parentView.nowShowing'

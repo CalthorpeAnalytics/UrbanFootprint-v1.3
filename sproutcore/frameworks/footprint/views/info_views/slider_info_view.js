@@ -2,7 +2,7 @@
  /* 
 * UrbanFootprint-California (v1.0), Land Use Scenario Development and Modeling System.
 * 
-* Copyright (C) 2013 Calthorpe Associates
+* Copyright (C) 2014 Calthorpe Associates
 * 
 * This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, version 3 of the License.
 * 
@@ -38,7 +38,7 @@ Footprint.SliderInfoView = SC.View.extend({
     }),
 
     labelView: Footprint.EditableModelStringView.design({
-        classNames: ['slider-item-value-label'],
+        classNames: ['slider-item-value-label', 'footprint-editable-content-view'],
         layout: { right:.3, left:.3, top:0, height: 0.3},
         textAlign: SC.ALIGN_CENTER,
         valueBinding: SC.Binding.from('.parentView.value')

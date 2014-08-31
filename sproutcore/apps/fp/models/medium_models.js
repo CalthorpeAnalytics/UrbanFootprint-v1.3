@@ -15,9 +15,12 @@
 sc_require('models/key_mixin');
 sc_require('models/name_mixin');
 
-Footprint.Medium = Footprint.Record.extend(Footprint.Key, Footprint.Name, {
+Footprint.Medium = Footprint.Record.extend({
+    // name has limited use on Medium. It might be removed in the future. Thus name is not linked to key like it
+    // is for Scenario and other record types
     name: SC.Record.attr(String),
     description: SC.Record.attr(String),
+    // The unique key of the Medium. Usually this is prefixed to help define to what the medium belongs (e.g. a BuiltForm)
     key: SC.Record.attr(String),
     url: SC.Record.attr(String),
     content_type: SC.Record.attr(String),

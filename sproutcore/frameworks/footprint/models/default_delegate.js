@@ -12,6 +12,8 @@ Footprint.DefaultDelegate = SC.Object.extend({
             increments: Footprint.IncrementsFeature,
             end_state: Footprint.EndStateFeature,
             base_demographic_feature: Footprint.BaseDemographicFeature,
+            base_agriculture_feature: Footprint.BaseAgricultureFeature,
+            future_agriculture_feature: Footprint.FutureAgricultureFeature,
             end_state_demographic_feature: Footprint.EndStateDemographicFeature,
             future_scenario_feature: Footprint.FutureScenarioFeature,
             census_tract: Footprint.CensusTract,

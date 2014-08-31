@@ -1,7 +1,7 @@
 /*
  * UrbanFootprint-California (v1.0), Land Use Scenario Development and Modeling System.
  *
- * Copyright (C) 2013 Calthorpe Associates
+ * Copyright (C) 2014 Calthorpe Associates
  *
  * This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, version 3 of the License.
  *
@@ -13,14 +13,14 @@
  */
 
 
-Footprint.SandagScenarioABoundaryFeature = Footprint.Feature.extend({
-});
-
-Footprint.SandagScenarioBBoundaryFeature = Footprint.Feature.extend({
-});
-
-FootprintSandag.SandagScenarioCBoundaryFeature = Footprint.Feature.extend({
-});
+//Footprint.SandagScenarioABoundaryFeature = Footprint.Feature.extend({
+//});
+//
+//Footprint.SandagScenarioBBoundaryFeature = Footprint.Feature.extend({
+//});
+//
+//FootprintSandag.SandagScenarioCBoundaryFeature = Footprint.Feature.extend({
+//});
 
 FootprintSandag.Sandag2050RtpTransitNetworkFeature = Footprint.Feature.extend({
 });

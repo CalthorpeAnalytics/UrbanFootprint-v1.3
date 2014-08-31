@@ -12,9 +12,9 @@
  * Contact: Joe DiStefano (joed@calthorpe.com), Calthorpe Associates. Firm contact: 2095 Rose Street Suite 201, Berkeley CA 94709. Phone: (510) 548-6800. Web: www.calthorpe.com
  */
 
+sc_require('views/view_mixins/debug_binding_overlay')
 
-Footprint.EditableModelStringView = SC.LabelView.extend({
-    classNames: "footprint-editable-model-string-view".w(),
+Footprint.EditableModelStringView = SC.LabelView.extend(Footprint.DebugBindingOverlay, {
     classNameBindings: ['isEditable'], // adds the is-editable when isEditable is YES
     textAlign: SC.ALIGN_MIDDLE,
     isEditable:YES,

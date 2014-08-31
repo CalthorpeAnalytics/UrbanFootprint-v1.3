@@ -19,12 +19,7 @@
 import logging
 
 from django.db import models
-from django.db.models.aggregates import Sum
-
 from footprint.main.managers.geo_inheritance_manager import GeoInheritanceManager
-from footprint.main.mixins.building_aggregate import BuildingAttributeAggregate
-from footprint.main.mixins.street_attributes import StreetAttributes
-
 from footprint.main.models.built_form.placetype_component import PlacetypeComponent
 from footprint.main.models.built_form.built_form import BuiltForm
 
@@ -32,30 +27,23 @@ __author__ = 'calthorpe_associates'
 logger = logging.getLogger(__name__)
 
 # noinspection PySingleQuotedDocstring
-class Placetype(BuildingAttributeAggregate, BuiltForm, StreetAttributes):
+class Placetype(BuiltForm):
     """
-    Placetypes are a set of BuildingTypes with a percent mix applied to each BuildingType
+    Placetypes are a set of placetype_components with a percent mix applied to each placetype_component
     """
     objects = GeoInheritanceManager()
+    placetype_components = models.ManyToManyField(PlacetypeComponent, through='PlacetypeComponentPercent')
+
+    def get_component_field(self):
+        return self.placetype_components
+
+    def get_percent_set(self):
+        return self.placetypecomponentpercent_set
+
+    def get_parent_field(self):
+        return
 
     # So the model is pluralized correctly in the admin.
     class Meta(BuiltForm.Meta):
         verbose_name_plural = "Place Types"
         app_label = 'main'
-
-    placetype_components = models.ManyToManyField(PlacetypeComponent, through='PlacetypeComponentPercent')
-
-    intersection_density = models.DecimalField(max_digits=8, decimal_places=4, default=0)
-
-    def get_component_field(self):
-        return self.placetype_components
-
-    def calculate_gross_net_ratio(self):
-        all_components = self.get_all_components().all()
-        net_components = all_components.filter(placetype_component__component_category__contributes_to_net=True)
-
-        gross = all_components.aggregate(Sum('percent'))['percent__sum']
-        net = net_components.aggregate(Sum('percent'))['percent__sum']
-        # logger.debug("{0}: {1}/{2} ".format(self.name, net, gross))
-
-        return net / gross

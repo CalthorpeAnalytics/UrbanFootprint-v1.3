@@ -1,7 +1,7 @@
 /*
  *UrbanFootprint-California (v1.0), Land Use Scenario Development and Modeling System.
  *
- *Copyright (C) 2013 Calthorpe Associates
+ *Copyright (C) 2014 Calthorpe Associates
  *
  *This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, version 3 of the License.
  *
@@ -29,8 +29,6 @@ Footprint.LabelSelectToolbarView = Footprint.EditingToolbarView.extend({
     selection:null,
 
     titleView: Footprint.EditTitleView.extend({
-
-//        editViewLayout: {height: 24, width: 0.1, right: 0},
         layoutBinding: SC.Binding.oneWay('.parentView.titleViewLayout'),
         recordTypeBinding: SC.Binding.oneWay('.parentView.recordType'),
         activeRecordBinding: SC.Binding.oneWay('.parentView.activeRecord'),
@@ -47,6 +45,7 @@ Footprint.LabelSelectToolbarView = Footprint.EditingToolbarView.extend({
         itemTitleKeyBinding: SC.Binding.oneWay('.parentView.itemTitleKey'),
 
         labelView: Footprint.LabelSelectView.extend({
+            layout: {height: 24, left: 31, right: 2},
             contentBinding: SC.Binding.oneWay('.parentView.content'),
             selection: null,
             selectionBinding: '.parentView.selection',

@@ -35,7 +35,5 @@ class PolicySet(Key, Name, PolicyLookup, Deletable):
     objects = GeoInheritanceManager()
     policies = models.ManyToManyField(Policy)
 
-
     class Meta(object):
         app_label = 'main'
-

@@ -49,8 +49,16 @@ class ConfigEntityRelatedCollectionAdoption(object):
         db_entities = self._computed_related('db_entities', **query_kwargs)
         for db_entity in db_entities:
             if db_entity.schema not in self.schema() and db_entity.schema != 'global':
-                raise Exception("For some reason the DbEntity schema {0} is not part of the ConfigEntity schema hierarchy {1}".format(db_entity.schema, self.schema()))
+                raise Exception("For some reason the DbEntity schema {0} of DbEntity {1} is not part of the ConfigEntity schema hierarchy {2}".format(
+                    db_entity.schema, db_entity.key, self.schema()))
         return db_entities
+
+    def valid_computed_db_entities(self, **query_kwargs):
+        """
+            Filters out non-valid db_entities and then returns a query matching the valid ones
+        """
+        return self.computed_db_entities(id__in=map(lambda db_entity: db_entity.id, filter(lambda db_entity: db_entity.is_valid,
+                      self.computed_db_entities(**query_kwargs))))
 
     def computed_db_entity_interests(self, **query_kwargs):
         """

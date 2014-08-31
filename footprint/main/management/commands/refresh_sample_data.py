@@ -18,7 +18,7 @@ class Command(BaseCommand):
 
         # Try to connect
         try:
-            conn = psycopg2.connect("dbname='urbanfootprint' user='calthorpe' password='Calthorpe'")
+            conn = psycopg2.connect("host='localhost' dbname='urbanfootprint' user='calthorpe' password='[ your password ]'")
         except Exception, E:
             raise E
 
@@ -34,8 +34,8 @@ class Command(BaseCommand):
         self.drop_db()
         project = Project.objects.all()[0]
         client_fixture = ConfigEntityFixture.resolve_config_entity_fixture(project)
-        default_db_entity_configurations = client_fixture.default_db_entity_configurations()
-        for db_entity_config in default_db_entity_configurations:
+        default_db_entities = client_fixture.default_db_entities()
+        for db_entity_config in default_db_entities:
             importer = ImportData(config_entity=project, db_entity=db_entity_config)
             importer.target_database = settings.DATABASES['sample_data']
             importer.create_target_db_string()

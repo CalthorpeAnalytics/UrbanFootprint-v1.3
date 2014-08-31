@@ -1,7 +1,7 @@
 /*
  *UrbanFootprint-California (v1.0), Land Use Scenario Development and Modeling System.
  *
- *Copyright (C) 2013 Calthorpe Associates
+ *Copyright (C) 2014 Calthorpe Associates
  *
  *This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, version 3 of the License.
  *
@@ -14,27 +14,21 @@
 
 Footprint.EndStateFeature = Footprint.Feature.extend({
 
+    clear_base_flag: SC.Record.attr(Number),
+    redevelopment_flag: SC.Record.attr(Number),
+    dev_pct: SC.Record.attr(Number),
+    density_pct: SC.Record.attr(Number),
+    gross_net_pct: SC.Record.attr(Number),
+
     built_form: SC.Record.toOne("Footprint.BuiltForm", {
         isMaster: YES
     }),
-    acres_parcel: SC.Record.attr(Number),
-    acres_parcel_res: SC.Record.attr(Number),
-    acres_parcel_res_detsf: SC.Record.attr(Number),
-    acres_parcel_res_detsf_sl: SC.Record.attr(Number),
-    acres_parcel_res_detsf_ll: SC.Record.attr(Number),
-    acres_parcel_res_attsf: SC.Record.attr(Number),
-    acres_parcel_res_mf: SC.Record.attr(Number),
-    acres_parcel_emp: SC.Record.attr(Number),
-    acres_parcel_emp_off: SC.Record.attr(Number),
-    acres_parcel_emp_ret: SC.Record.attr(Number),
-    acres_parcel_emp_ind: SC.Record.attr(Number),
-    acres_parcel_emp_ag: SC.Record.attr(Number),
-    acres_parcel_emp_mixed: SC.Record.attr(Number),
-    acres_parcel_mixed: SC.Record.attr(Number),
-    acres_parcel_mixed_w_off: SC.Record.attr(Number),
-    acres_parcel_mixed_no_off: SC.Record.attr(Number),
-    acres_parcel_no_use: SC.Record.attr(Number),
 
+    built_form_key: SC.Record.attr(String),
+    land_development_category: SC.Record.attr(String),
+    acres_parcel: SC.Record.attr(Number),
+
+    pop: SC.Record.attr(Number),
     hh: SC.Record.attr(Number),
     du: SC.Record.attr(Number),
     du_detsf: SC.Record.attr(Number),
@@ -42,7 +36,6 @@ Footprint.EndStateFeature = Footprint.Feature.extend({
     du_detsf_ll: SC.Record.attr(Number),
     du_attsf: SC.Record.attr(Number),
     du_mf: SC.Record.attr(Number),
-
 
     emp: SC.Record.attr(Number),
     emp_ret: SC.Record.attr(Number),
@@ -84,7 +77,24 @@ Footprint.EndStateFeature = Footprint.Feature.extend({
     bldg_sqft_wholesale: SC.Record.attr(Number),
     bldg_sqft_transport_warehousing: SC.Record.attr(Number),
     residential_irrigated_sqft: SC.Record.attr(Number),
-    commercial_irrigated_sqft: SC.Record.attr(Number)
+    commercial_irrigated_sqft: SC.Record.attr(Number),
+
+    acres_parcel_res: SC.Record.attr(Number),
+    acres_parcel_res_detsf: SC.Record.attr(Number),
+    acres_parcel_res_detsf_sl: SC.Record.attr(Number),
+    acres_parcel_res_detsf_ll: SC.Record.attr(Number),
+    acres_parcel_res_attsf: SC.Record.attr(Number),
+    acres_parcel_res_mf: SC.Record.attr(Number),
+    acres_parcel_emp: SC.Record.attr(Number),
+    acres_parcel_emp_off: SC.Record.attr(Number),
+    acres_parcel_emp_ret: SC.Record.attr(Number),
+    acres_parcel_emp_ind: SC.Record.attr(Number),
+    acres_parcel_emp_ag: SC.Record.attr(Number),
+    acres_parcel_emp_mixed: SC.Record.attr(Number),
+    acres_parcel_mixed: SC.Record.attr(Number),
+    acres_parcel_mixed_w_off: SC.Record.attr(Number),
+    acres_parcel_mixed_no_off: SC.Record.attr(Number),
+    acres_parcel_no_use: SC.Record.attr(Number)
 });
 
 Footprint.EndStateFeature.mixin({

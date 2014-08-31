@@ -1,7 +1,7 @@
 /*
  * UrbanFootprint-California (v1.0), Land Use Scenario Development and Modeling System.
  *
- * Copyright (C) 2013 Calthorpe Associates
+ * Copyright (C) 2014 Calthorpe Associates
  *
  * This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, version 3 of the License.
  *
@@ -60,11 +60,11 @@ Footprint.TableInfoView = Footprint.InfoView.extend({
     }),
     tableExportView: Footprint.ExportView.extend({
         classNames: 'footprint-table-info-export-button'.w(),
-        layout: { height: 24, width: 100, right: 0},
+        layout: { height: 24, width: 100, right: 0.02},
         content:null,
         contentBinding:SC.Binding.oneWay('.parentView.contentView.exportContent'),
         isLocalExport: YES,
-        isEnabledBinding:SC.Binding.oneWay('.parentView.content.status').matchesStatus(SC.Record.READY)
+        isEnabledBinding:SC.Binding.oneWay('.parentView.overlayStatus').matchesStatus(SC.Record.READY)
     }),
 
     overlayView: Footprint.OverlayView.extend({
@@ -93,21 +93,30 @@ Footprint.TableInfoView = Footprint.InfoView.extend({
             return [this.get('resolvedColumns')].concat(mapProperties(this.get('content'), this.get('resolvedColumns')));
         }.property('content', 'resolvedColumns').cacheable(),
 
+        columns: null,
+        columnsBinding: SC.Binding.oneWay('.parentView.columns'),
+        /***
+         * The fields displayed are based on the sortedProperties array, and failing that the parentView.columns, and
+         * failing that the attributesKeys of the first object
+         */
+        fields: function() {
+            return  (this.getPath('sortedProperties') && this.getPath('sortedProperties.length') > 0 && this.getPath('sortedProperties')) ||
+                    (this.getPath('columns') && this.getPath('parentView.columns.length') > 0 && this.getPath('parentView.columns')) ||
+                    (this.getPath('_content.firstObject.attributeKeys') ? this.getPath('_content.firstObject').attributeKeys() : []);
+        }.property('sortedProperties', 'columns', '_content').cacheable(),
+
         content:function() {
-            if (!this.get('_content'))
+            if (!this.get('_content') || !(this.getPath('_contentStatus') & SC.Record.READY))
                 return [];
             var mapProperties = this.get('mapProperties') || (this.get('recordType') && this.get('recordType').mapProperties()) || SC.Object.create();
-            var sortedProperties =
-                (this.getPath('sortedProperties') && this.getPath('sortedProperties.length') > 0 && this.getPath('sortedProperties')) ||
-                (this.getPath('parentView.columns') && this.getPath('parentView.columns.length') > 0 && this.getPath('parentView.columns')) ||
-                (this.getPath('_content.firstObject.attributeKeys') ? this.getPath('_content.firstObject').attributeKeys() : []);
+            var fields = this.get('fields');
             return this.get('_content').map(function(item) {
-                return $.mapToDictionary(sortedProperties, function(key) {
+                return $.mapToDictionary(fields, function(key) {
                     var path = mapProperties.getPath(key);
                     return [key, path ? item.getPath(path) : item.get(key)];
                 });
             }, this);
-        }.property('_content', 'mapProperties').cacheable(),
+        }.property('_content', '_contentStatus', 'mapProperties', 'fields').cacheable(),
 
         // TODO I can't find a way to notify content that _content changed from an edit session update
         recordsDidUpdateObserver: function() {

@@ -24,8 +24,8 @@ from footprint.main.tests.test_data.imported_building import ImportedBuilding
 from footprint.main.tests.test_data.imported_buildingtype import ImportedBuildingtype, ImportedPlacetypes
 
 from footprint.main.lib.functions import map_to_dict
-from footprint.main.models.built_form.building_use_definition import BuildingUseDefinition
-from footprint.main.models.built_form.placetype import Placetype
+from footprint.main.models.built_form.urban.building_use_definition import BuildingUseDefinition
+from footprint.main.models.built_form.urban.urban_placetype import Placetype
 
 from footprint.main.models.keys.keys import Keys
 from footprint.main.utils.utils import get_or_none
@@ -36,9 +36,7 @@ __author__ = 'calthorpe_associates'
 #    buildtype_data = construct_buildingtypes()
 #    return merge(buildtype_data, construct_placetypes(buildtype_data['buildingtypes']))
 
-# import the logging library
 import logging
-# Get an instance of a logger
 logger = logging.getLogger(__name__)
 
 def load_buildings_csv():
@@ -122,7 +120,7 @@ def construct_buildings():
 
     for import_building in load_buildings_csv():
 
-        building_attributes = dict(
+        building_attribute_set = dict(
             name=import_building.name,
             floors=import_building.floors,
             total_far=import_building.total_far,
@@ -136,7 +134,7 @@ def construct_buildings():
             irrigated_percent=import_building.irrigated_percent,
         )
 
-        building = dict(building_attributes=building_attributes)
+        building = dict(building_attribute_set=building_attribute_set)
 
         buildings.append(building)
 
@@ -154,8 +152,8 @@ def construct_buildingtypes():
         buildingtype_names.append(b.building_type)
 
     for buildingtype_name in set(buildingtype_names):
-        building_attributes = dict(name=buildingtype_name)
-        buildingtypes.append(dict(building_attributes=building_attributes))
+        building_attribute_set = dict(name=buildingtype_name)
+        buildingtypes.append(dict(building_attribute_set=building_attribute_set))
 
     return buildingtypes
 
@@ -166,8 +164,8 @@ def construct_placetypes():
     """
     placetypes = []
     for placetype in load_placetype_csv():
-        building_attributes = dict(name=placetype.name)
-        placetype = dict(building_attributes=building_attributes, color=placetype.color)
+        building_attribute_set = dict(name=placetype.name)
+        placetype = dict(building_attribute_set=building_attribute_set, color=placetype.color)
         placetypes.append(placetype)
     return placetypes
 
@@ -196,8 +194,8 @@ def construct_building_use_percents(buildings):
     building_use_percents = []
 
     def make_building_use_percent_dict(import_building, building_use, building_use_category):
-        if building_use == 'Armed Forces':
-            return None
+        # if building_use == 'Armed Forces':
+        #     return None
         import_use_field = building_use.lower().replace(' ', '_')
         import_use_category_field = building_use_category.lower().replace(' ', '_')
         use_percent = getattr(import_building, 'percent_{0}'.format(import_use_field))
@@ -225,7 +223,7 @@ def construct_building_use_percents(buildings):
 
             building_use_percent = dict(
                 built_form_dict=building,
-                built_form_name=building['building_attributes']['name'],
+                built_form_name=building['building_attribute_set']['name'],
                 built_form_uses=building_uses
             )
 
@@ -268,7 +266,7 @@ def construct_placetype_component_percents(placetype_dict, buildingtype_dict):
 
         for input_buildingtype in buildingtypes:
 
-            placetype_name = placetype['building_attributes']['name'].strip()
+            placetype_name = placetype['building_attribute_set']['name'].strip()
 
             placetype_component_percent = getattr(input_buildingtype, input_placetype_dict[placetype_name].clean_name)
             placetype_component_name = input_buildingtype.name.strip()
@@ -301,8 +299,8 @@ def construct_built_forms():
     buildings = construct_buildings()
     buildingtypes = construct_buildingtypes()
     placetypes = construct_placetypes()
-    building_dict = map_to_dict(lambda building: [building['building_attributes']['name'], building], buildings)
-    buildingtype_dict = map_to_dict(lambda buildingtype: [buildingtype['building_attributes']['name'], buildingtype], buildingtypes)
+    building_dict = map_to_dict(lambda building: [building['building_attribute_set']['name'], building], buildings)
+    buildingtype_dict = map_to_dict(lambda buildingtype: [buildingtype['building_attribute_set']['name'], buildingtype], buildingtypes)
 
     return {'placetypes': placetypes,
             'buildingtypes': buildingtypes,
@@ -310,7 +308,7 @@ def construct_built_forms():
             'building_percents': construct_building_percents(buildingtype_dict, building_dict),
             'building_use_percents': construct_building_use_percents(building_dict),
             'placetype_component_percents': construct_placetype_component_percents(
-                map_to_dict(lambda placetype: [placetype['building_attributes']['name'], placetype], placetypes),
+                map_to_dict(lambda placetype: [placetype['building_attribute_set']['name'], placetype], placetypes),
                 buildingtype_dict)}
 
 
@@ -324,8 +322,8 @@ def construct_sample_built_forms():
     building_percents = construct_sample_building_percents(buildingtypes)
 
     buildings = [building['building'] for building in building_percents]
-    building_dict = map_to_dict(lambda building: [building['building_attributes']['name'], building], buildings)
-    buildingtype_dict = map_to_dict(lambda buildingtype: [buildingtype['building_attributes']['name'], buildingtype], buildingtypes)
+    building_dict = map_to_dict(lambda building: [building['building_attribute_set']['name'], building], buildings)
+    buildingtype_dict = map_to_dict(lambda buildingtype: [buildingtype['building_attribute_set']['name'], buildingtype], buildingtypes)
 
     return {'placetypes': placetypes,
             'buildingtypes': buildingtypes,
@@ -333,7 +331,7 @@ def construct_sample_built_forms():
             'building_percents': building_percents,
             'building_use_percents': construct_building_use_percents(building_dict),
             'placetype_component_percents': construct_placetype_component_percents(
-                map_to_dict(lambda placetype: [placetype['building_attributes']['name'], placetype], placetypes),
+                map_to_dict(lambda placetype: [placetype['building_attribute_set']['name'], placetype], placetypes),
                 buildingtype_dict)}
 
 
@@ -350,11 +348,11 @@ def construct_sample_buildingtypes(sample_placetypes):
     sample_buildingtypes = []
     all_buildingtypes = construct_buildingtypes()
     buildingtype_dict = map_to_dict(
-        lambda buildingtype: [buildingtype['building_attributes']['name'], buildingtype], all_buildingtypes
+        lambda buildingtype: [buildingtype['building_attribute_set']['name'], buildingtype], all_buildingtypes
     )
 
     sample_buildingtype_percents = construct_placetype_component_percents(
-        map_to_dict(lambda placetype: [placetype['building_attributes']['name'], placetype], sample_placetypes),
+        map_to_dict(lambda placetype: [placetype['building_attribute_set']['name'], placetype], sample_placetypes),
         buildingtype_dict)
 
     buildingtypes = []
@@ -363,16 +361,16 @@ def construct_sample_buildingtypes(sample_placetypes):
             buildingtypes.append(buildingtype)
 
     for buildingtype in set(buildingtypes):
-        sample_buildingtypes.append({'building_attributes': {'name': buildingtype}})
+        sample_buildingtypes.append({'building_attribute_set': {'name': buildingtype}})
 
     return sample_buildingtypes
 
 
 def construct_sample_building_percents(sample_buildingtypes):
     all_buildings = construct_buildings()
-    building_dict = map_to_dict(lambda building: [building['building_attributes']['name'], building], all_buildings)
+    building_dict = map_to_dict(lambda building: [building['building_attribute_set']['name'], building], all_buildings)
 
-    sample_buildingtype_dict = map_to_dict(lambda buildingtype: [buildingtype['building_attributes']['name'], buildingtype], sample_buildingtypes)
+    sample_buildingtype_dict = map_to_dict(lambda buildingtype: [buildingtype['building_attribute_set']['name'], buildingtype], sample_buildingtypes)
     sample_building_percents = []
 
     for import_building in load_buildings_csv():

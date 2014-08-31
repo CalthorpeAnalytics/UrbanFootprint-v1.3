@@ -26,10 +26,12 @@ Footprint.PresentationMediumRemoveView = SC.PickerPane.extend({
     contentView: SC.View.extend({
         childViews:['nameView', 'deleteView'],
         nameView: Footprint.EditableModelStringView.extend({
+            classNames: ['footprint-editable-content-view'],
             valueBinding: 'Footprint.presentationMediumEditController.dbEntity.name'
         }),
         // The query for the DbEntity if relevant (if the DbEntity represents a query or a database view)
         deleteView: Footprint.EditableModelStringView.extend({
+            classNames: ['footprint-editable-content-view'],
 
         })
     })

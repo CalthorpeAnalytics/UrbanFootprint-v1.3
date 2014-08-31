@@ -2,7 +2,7 @@
 /*
 * UrbanFootprint-California (v1.0), Land Use Scenario Development and Modeling System.
 * 
-* Copyright (C) 2013 Calthorpe Associates
+* Copyright (C) 2014 Calthorpe Associates
 * 
 * This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, version 3 of the License.
 * 
@@ -56,24 +56,35 @@ Footprint.LoadingLayerTagsState = Footprint.LoadingScenarioDependencyState.exten
     eventKey:'layerTagsController'
 });
 
-/*
-Footprint.LoadingPresentationsState = Footprint.LoadingScenarioDependencyState.extend({
-    recordType:Footprint.Presentation,
-    // Use a private controller to load presentations. The public controllers split them between LayerLibrary
-    // and ResultLibrary presentations
-    loadingController: SC.ArrayController.create(),
-    eventKey:'presentationsController'
+Footprint.LoadingBuildingUseDefinitionsState = Footprint.LoadingScenarioDependencyState.extend({
+    recordType:Footprint.BuildingUseDefinition,
+    loadingController: Footprint.buildingUseDefinitionsController,
+    eventKey:'builtUseDefinitionsController'
 });
 
-Footprint.LoadingBuiltFormSetsState = Footprint.LoadingScenarioDependencyState.extend({
-    recordType:Footprint.BuiltFormSet,
-    loadingController: Footprint.builtFormSetsController,
-    eventKey:'builtFormSetsController'
-});
-*/
-
+// TODO: unwired
 Footprint.LoadingPolicySetsState = Footprint.LoadingScenarioDependencyState.extend({
     recordType:Footprint.PolicySet,
     loadingController: Footprint.policySetsController,
-    eventKey:'builtFormSetsController'
+    eventKey:'policySetsController'
+});
+
+/***
+ * Loads all Behavior instances
+ * @type {SC.RangeObserver}
+ */
+Footprint.LoadingBehaviorsState = Footprint.LoadingScenarioDependencyState.extend({
+    recordType:Footprint.Behavior,
+    loadingController: Footprint.behaviorsController,
+    eventKey:'behaviorsController'
+});
+
+/***
+ * Loads all Intersection instances
+ * @type {SC.RangeObserver}
+ */
+Footprint.LoadingIntersectionsState = Footprint.LoadingScenarioDependencyState.extend({
+    recordType:Footprint.Intersection,
+    loadingController: Footprint.intersectionsController,
+    eventKey:'intersectionsController'
 });

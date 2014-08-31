@@ -23,12 +23,10 @@ sc_require('models/presentation_models');
 Footprint.PresentationTypes = Footprint.Record.extend({
     _internal:YES,
     layers: SC.Record.toMany('Footprint.LayerLibrary', {
-        isMaster:YES,
-        nested: YES
+        isMaster:YES
     }),
     results: SC.Record.toMany('Footprint.ResultLibrary', {
-        isMaster:YES,
-        nested: YES
+        isMaster:YES
     }),
     _cloneProperties: function() { return 'layers results'.w(); }
 });

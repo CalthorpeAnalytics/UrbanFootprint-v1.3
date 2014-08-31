@@ -16,12 +16,10 @@
 # Firm contact: 2095 Rose Street Suite 201, Berkeley CA 94709.
 # Phone: (510) 548-6800. Web: www.calthorpe.com
 #from memory_profiler import profile
-
-from footprint.main.models import PolicySet, GlobalConfig
+from footprint.main.models.config.policy_set import PolicySet
+from footprint.main.models.config.global_config import GlobalConfig
 from footprint.main.models.config.policy import Policy
 from footprint.main.models.config.scenario import Scenario
-from footprint.client.configuration import resolve_fixture
-from footprint.client.configuration.fixture import PolicyConfigurationFixture
 
 __author__ = 'calthorpe_associates'
 
@@ -44,6 +42,9 @@ def update_or_create_policy_sets(config_entity, **kwargs):
         ))[0]
 
     if isinstance(config_entity, GlobalConfig):
+
+        from footprint.client.configuration.utils import resolve_fixture
+        from footprint.client.configuration.fixture import PolicyConfigurationFixture
         client_policy = resolve_fixture(
             "policy",
             "policy",
@@ -69,9 +70,10 @@ def update_or_create_policy_sets(config_entity, **kwargs):
     elif isinstance(config_entity, Scenario): # and kwargs.get('created', None):
         # TODO for now just the first policy_set to the selected one
         config_entity.select_policy_set(config_entity.computed_policy_sets()[0])
+        previous = config_entity._no_post_save_publishing
         config_entity._no_post_save_publishing = True
         config_entity.save()
-        config_entity._no_post_save_publishing = False
+        config_entity._no_post_save_publishing = previous
 
 
 #@profile

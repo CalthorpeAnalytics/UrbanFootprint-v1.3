@@ -19,23 +19,16 @@
 
 from django.db import models
 
-from footprint.main.models import BuiltForm
 from footprint.main.models.geospatial.feature import Feature
 from footprint.main.models.keys.keys import Keys
 
 
 __author__ = 'calthorpe_associates'
 
-
 class BaseParcelFeature(Feature):
-    built_form = models.ForeignKey(BuiltForm, null=True, blank=True)
-    land_development_category = models.CharField(max_length=250, null=True, blank=True, default=None)
+    built_form_key = models.CharField(max_length=250, null=True, blank=True, default=None)
     region_lu_code = models.CharField(max_length=250, null=True, blank=True, default=None)
     landtype = models.CharField(max_length=250, null=True, blank=True, default=None)
-
-    intersection_density_sqmi = models.DecimalField(max_digits=14, decimal_places=4, default=0)
-    acres_gross = models.DecimalField(max_digits=14, decimal_places=4, default=0)
-
     sqft_parcel = models.DecimalField(max_digits=14, decimal_places=4)
     acres_parcel = models.DecimalField(max_digits=14, decimal_places=4)
     acres_parcel_res = models.DecimalField(max_digits=14, decimal_places=4)
@@ -81,9 +74,10 @@ class BaseParcelFeature(Feature):
     emp_off = models.DecimalField(max_digits=14, decimal_places=4)
 
     emp_office_services = models.DecimalField(max_digits=14, decimal_places=4)
+    emp_medical_services = models.DecimalField(max_digits=14, decimal_places=4)
     emp_public_admin = models.DecimalField(max_digits=14, decimal_places=4)
     emp_education = models.DecimalField(max_digits=14, decimal_places=4)
-    emp_medical_services = models.DecimalField(max_digits=14, decimal_places=4)
+
 
     emp_ind = models.DecimalField(max_digits=14, decimal_places=4)
 

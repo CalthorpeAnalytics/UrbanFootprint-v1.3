@@ -87,5 +87,5 @@ The UI consists of the following view hierarchy:
          - toolsView
          - placetypesView
        - mapView (map_section_view.js)
-       - settingsView (analytic_section_view.js - currently hidden)
+       - settingsView (analysis_module_section_view.js - currently hidden)
      

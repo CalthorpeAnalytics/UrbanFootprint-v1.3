@@ -28,6 +28,7 @@ Footprint.builtFormSetsController = Footprint.SetsController.create({
  * Changing it causes the ConfigEntity to be updated on the server
  * @type {*}
  */
+
 Footprint.builtFormSetActiveController = Footprint.ActiveController.create({
     listController:Footprint.builtFormSetsController,
     /***

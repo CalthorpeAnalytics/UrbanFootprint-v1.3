@@ -16,8 +16,10 @@
 # Contact: Joe DiStefano (joed@calthorpe.com), Calthorpe Associates.
 # Firm contact: 2095 Rose Street Suite 201, Berkeley CA 94709.
 # Phone: (510) 548-6800. Web: www.calthorpe.com
+from datetime import datetime
 from footprint.main.managers.geo_inheritance_manager import GeoInheritanceManager
 from footprint.main.mixins.percent import Percent
+from footprint.main.models.built_form.built_form import BuiltForm
 from footprint.main.models.built_form.placetype_component import PlacetypeComponent
 from django.db import models
 
@@ -31,11 +33,19 @@ class PlacetypeComponentPercent(Percent):
     placetype_component = models.ForeignKey(PlacetypeComponent, null=True)
     placetype = models.ForeignKey('Placetype')
 
+    @property
+    def component_class(self):
+        return self.placetype_component.subclassed_built_form.__class__.__name__
+    @property
+    def container_class(self):
+        return self.placetype.subclassed_built_form.__class__.__name__
+
     class Meta(object):
         app_label = 'main'
 
     def component(self):
-        return self.placetype_component
+        return BuiltForm.resolve_built_form(self.placetype_component)
 
     def aggregate(self):
-        return self.placetype
+        return BuiltForm.resolve_built_form(self.placetype)
+

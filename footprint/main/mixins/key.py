@@ -39,5 +39,15 @@ class Key(models.Model):
         """
         return True
 
+    def resolve_by_key(self):
+        """
+            Resolves an unsaved instance to a database instance that matches its key
+            or returns self if already saved
+        """
+        if self.pk:
+            return self
+        else:
+            return self.__class__.objects.get(key=self.key)
+
     class Meta:
         abstract = True

@@ -17,7 +17,7 @@
 # Phone: (510) 548-6800. Web: www.calthorpe.com
 import string
 from tastypie.fields import DictField, NOT_PROVIDED, ApiField
-from footprint.main.lib.functions import map_dict_to_dict, deep_copy_dict_structure, deep_copy
+from footprint.main.lib.functions import map_dict_to_dict, deep_copy_dict_structure, my_deep_copy
 
 __author__ = 'calthorpe_associates'
 
@@ -34,7 +34,7 @@ class ObjectField(ApiField):
         if value is None:
             return None
 
-        return deep_copy(value, True)
+        return my_deep_copy(value, True)
 
 class PickledObjField(ObjectField):
     """
@@ -50,7 +50,7 @@ class PickledObjField(ObjectField):
 
         # Deep copy the structure to create new dict instance so we don't mutilate the source
         obj = super(PickledObjField, self).dehydrate(bundle)
-        return deep_copy(obj, True)
+        return my_deep_copy(obj, True)
 
 
 class PickledDictField(ApiField):
@@ -63,10 +63,13 @@ class PickledDictField(ApiField):
 
         # Deep copy the structure to create new dict instance so we don't mutilate the source
         try:
-            return deep_copy(super(PickledDictField, self).dehydrate(bundle))
+            if not isinstance(getattr(bundle.obj, self.attribute), dict):
+                return {}
+            value = super(PickledDictField, self).dehydrate(bundle)
+            return my_deep_copy(value)
         except:
             setattr(bundle.obj, self.attribute, None) # value got deformed--clear it
-            return deep_copy(super(PickledDictField, self).dehydrate(bundle))
+            return my_deep_copy(super(PickledDictField, self).dehydrate(bundle))
 
     def hydrate(self, bundle):
         """

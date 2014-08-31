@@ -26,12 +26,10 @@ Footprint.ProgressOverlayView = SC.View.extend({
     // Show the progress bar if the record is not ready or the saveInProgress is true
     isVisible: function() {
         return (this.get('content') && (
-            // Record is BUSY
-            !(this.get('status') & SC.Record.READY) ||
             // Record is READY but post_save is in-progress
             this.get('saveInProgress')
         )) ? YES : NO;
-    }.property('content', 'status', 'saveInProgress').cacheable(),
+    }.property('content', 'saveInProgress').cacheable(),
 
     loadingProgressOverlayView: SC.ProgressView.extend({
         classNames: ['loading-progress-overlay-view'],
@@ -53,23 +51,29 @@ Footprint.ProgressOverlayView = SC.View.extend({
 });
 
 /***
- * This progress overlay is used where a main store record needs to show progress
- * based on a nested store records clone/create/update progress.
+ * This progress overlay is used when you need to display progress (managed on parent store
+ * records) of a nested store record.
  */
-Footprint.ProgressOverlayForMainStoreView = Footprint.ProgressOverlayView.extend({
-    layout: { left:.5, right: 270, width:.5, centerY: 0, height: 16},
-    classNames: ['overlay-view-for-main-store'],
-    // The main store content item
-    mainStoreContent: null,
-    // The nested store content array
-    nestedStoreContentArray: null,
+Footprint.ProgressOverlayForNestedStoreView = Footprint.ProgressOverlayView.extend({
+    nestedStoreContent: null,
+    nestedStoreContentStatus: null,
+    nestedStoreContentStatusBinding: SC.Binding.oneWay('*nestedStoreContent.status'),
+    nestedStoreHasChanges: null,
+    nestedStoreHasChangesBinding: SC.Binding.oneWay('*nestedStoreContent.store.hasChanges'),
     content: function() {
-        // Find the corresponding nestedStore content
-        return this.get('nestedStoreContentArray') ?
-            this.get('nestedStoreContentArray').filter(function(item) {
-                return item.get('storeKey') == this.getPath('mainStoreContent.storeKey');
-            }, this)[0] :
-            null;
-    }.property('nestedStoreContentArray', 'mainStoreContent').cacheable(),
-    statusBinding: SC.Binding.oneWay('*content.status')
+        // GATEKEEP: No nested content.
+        var nestedStoreContent = this.get('nestedStoreContent');
+        if (!nestedStoreContent)
+            return null;
+        // GATEKEEP: Doesn't exist in the master store yet.
+        var storeKey = nestedStoreContent.get('storeKey');
+        var store = nestedStoreContent.getPath('store.parentStore');
+        // The check of < 0 is a bug work around for materializeRecord of nested records
+        var id = store.idFor(storeKey);
+        if (!id || id < 0)
+            return null;
+        // Return the master store's copy of the record.
+        return store.find(nestedStoreContent.constructor, nestedStoreContent.get('id'));
+    }.property('nestedStoreContent', 'nestedStoreContentStatus', 'nestedStoreHasChanges').cacheable()
 });
+

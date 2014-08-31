@@ -19,24 +19,24 @@ Footprint.Scenario = Footprint.ConfigEntity.extend({
     // Override ConfigEntity's definition so that the API knows to look up a Project
     parent_config_entity:SC.Record.toOne('Footprint.Project'),
     // The scenario that was the clone source of this scenario, if any
-    origin_config_entity:SC.Record.toOne('Footprint.Scenario'),
+    origin_instance:SC.Record.toOne('Footprint.Scenario'),
     // The parent_config_entity is always a Project, so we can provide this synonym property
     project:function() {
         return this.get('parent_config_entity');
     }.property('parent_config_entity'),
 
-    // Hopefully these attributes aren't required, but the idea is that Scenarios are the leaf nodes of the ScenarioCategory tree
-    treeItemIsExpanded: NO,
-    treeItemChildren: function(){
-        return null;
-    }.property('id').cacheable(),
-
     _cloneProperties: function() {
         return sc_super();
     },
 
-    core_analytic_result: SC.Record.toOne('Footprint.AnalyticResult', { isMaster: YES, inverse:'scenario'})
+    core_analytic_result: SC.Record.toOne('Footprint.AnalyticResult', { isMaster: YES, inverse:'scenario'}),
 
+    /***
+     * Allow deleting of any Scenario for now
+     */
+    isDeletable: function() {
+        return YES;
+    }.property().cacheable()
 });
 
 Footprint.DwellingUnitDatum = Footprint.Record.extend({

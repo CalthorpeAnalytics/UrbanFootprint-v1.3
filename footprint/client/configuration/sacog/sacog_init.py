@@ -1,6 +1,6 @@
 # UrbanFootprint-California (v1.0), Land Use Scenario Development and Modeling System.
 #
-# Copyright (C) 2013 Calthorpe Associates
+# Copyright (C) 2014 Calthorpe Associates
 #
 # This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, version 3 of the License.
 #
@@ -15,6 +15,7 @@ from django.conf import settings
 
 from footprint.client.configuration.fixture import InitFixture
 from footprint.client.configuration.sacog.built_form.sacog_land_use_definition import SacogLandUseDefinition
+from footprint.main.lib.functions import merge
 
 class SacogInitFixture(InitFixture):
     def model_class_modules(self):
@@ -41,7 +42,7 @@ class SacogInitFixture(InitFixture):
                 host='10.0.0.133',
                 database='sacog_urbanfootprint',
                 user='calthorpe',
-                password='[PASSWORD]'
+                password='[ your password ]'
             )
 
     def populate_models(self):
@@ -54,8 +55,6 @@ class SacogInitFixture(InitFixture):
             print "skipping because of " + str(SacogLandUseDefinition.objects.count()) + " objects already there"
 
     def users(self):
-        return [
-            dict(username='test', password='test', email='testy@test.ca', api_key='TEST_API_KEY'),
-            dict(username='raef', password='raef', email='raef@sacog.gov'),
-            dict(username='jennifer', password='test', email='jennifer@test.ca', api_key='TEST_API_KEY'),
+        return  self.parent_fixture.users() + [
+            # add users here
         ]

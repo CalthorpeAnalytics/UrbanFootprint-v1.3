@@ -19,7 +19,7 @@ __author__ = 'calthorpe_associates'
 __author__ = 'calthorpe_associates'
 
 from django.contrib.gis.db import models
-from footprint.main.models.built_form.infrastructure_attribute_set import StreetAttributeSet
+from footprint.main.models.built_form.infrastructure.infrastructure_attribute_set import StreetAttributeSet
 
 class StreetAttributes(models.Model):
     class Meta:

@@ -1,6 +1,6 @@
 # UrbanFootprint-California (v1.0), Land Use Scenario Development and Modeling System.
 #
-# Copyright (C) 2013 Calthorpe Associates
+# Copyright (C) 2014 Calthorpe Associates
 #
 # This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, version 3 of the License.
 #
@@ -14,6 +14,7 @@
 
 from django.contrib.auth.models import Permission
 from django.contrib.contenttypes.models import ContentType
+from tastypie.models import ApiKey
 from footprint.main.lib.functions import remove_keys, merge
 from footprint.main.models import ConfigEntity, Layer
 from footprint.main.models.config.scenario import FutureScenario, BaseScenario
@@ -31,7 +32,13 @@ class DynamicResource(FootprintResource):
         :param params:
         :return:
         """
-        raise Exception("Must implement create_subclass in mixer")
+        raise Exception("Must implement create_subclass")
+
+    def resolve_model_class(self, **kwargs):
+        """
+            Resolve the resource's underlying dynamic model based on the kwargs
+        """
+        raise Exception("Must implement resolve_model_class")
 
     def resolve_config_entity(self, params):
         """
@@ -109,10 +116,11 @@ class DynamicResource(FootprintResource):
                 codename='{0}_{1}'.format(action, clazz.__name__.lower()),
                 # Since our dynamic model doesn't have a ContentType, borrow that of the ConfigEntity
                 content_type_id=ContentType.objects.get(app_label="main", model=config_entity.__class__.__name__.lower()).id,
-                name='Can {0} {1}'.format(action, clazz.__name__))[0],
+                # 50 is the name limit
+                name='Can {0} {1}'.format(action, clazz.__name__)[-50:])[0],
                        ['add', 'change', 'delete'])
 
-    def add_permissions_to_user(self, user , permissions):
+    def add_permissions_to_user(self, user, permissions):
         existing = user.user_permissions.all()
         new_permissions = filter(lambda permission: permission not in existing, permissions)
         user.user_permissions.add(*new_permissions)

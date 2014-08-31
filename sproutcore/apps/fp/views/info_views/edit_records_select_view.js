@@ -6,6 +6,10 @@ Footprint.EditRecordsSelectView = SC.ScrollView.extend({
      * A property path relative to each item's content used for the name. Defaults to 'name'
     */
     contentNameProperty: 'name',
+    /***
+     * Uses the following record property or property path to determine if the record can be deleted
+     */
+    deletableNameProperty: null,
 
     contentView: SC.SourceListView.extend({
         isEnabledBinding: SC.Binding.oneWay('.content').bool(),
@@ -67,12 +71,21 @@ Footprint.EditRecordsSelectView = SC.ScrollView.extend({
             deleteButtonView: Footprint.DeleteButtonView.extend({
                 layout: { left: 24, width: 16, centerY: 0, height: 16},
                 action: 'doPromptDeleteRecord',
-                contentBinding: SC.Binding.oneWay('.parentView.content')
+                contentBinding: SC.Binding.oneWay('.parentView.content'),
+                isVisible: function() {
+                    return this.getPath('content.isDeletable');
+                }.property('content').cacheable()
             }),
 
-            progressOverlayView: Footprint.ProgressOverlayView.extend({
+            progressOverlayView: Footprint.ProgressOverlayForNestedStoreView.extend({
                 layout: { left:.5, width:.5, centerY: 0, height: 16},
-                contentBinding: SC.Binding.oneWay('.parentView.content')
+                // Some records need to delegate to the main record, like Layer to DbEntityInterest
+                record: null,
+                recordBinding: SC.Binding.oneWay('.parentView.content'),
+                nestedStoreContent: function() {
+                    // normally this just returns record
+                    return this.get('record') && this.get('record')._recordForCrudUpdates();
+                }.property('record').cacheable()
             })
         })
     })

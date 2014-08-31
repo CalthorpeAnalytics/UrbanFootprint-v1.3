@@ -50,7 +50,7 @@ class Scenario(ConfigEntity):
             Concatinates all ancestor names except for that of the GlobalConfig and adds self.name. Scenario also
             includes the year
         """
-        return ' '.join(self.parent_config_entity.full_name().extend([self.name, self.year])[1:])
+        return ' '.join(self.parent_config_entity.full_name.extend([self.name, self.year])[1:])
 
     @classmethod
     def parent_classes(cls):
@@ -61,19 +61,6 @@ class Scenario(ConfigEntity):
         """
         return [Project]
 
-    @property
-    def analytic_modules(self):
-        from footprint.main.models.analysis_module.core_module.core import Core
-        from footprint.main.models.analysis_module.fiscal_module.fiscal import Fiscal
-        from footprint.main.models.analysis_module.vmt_module.vmt import Vmt
-        return dict(
-            core=get_first(Core.objects.filter(config_entity=self), None),
-            fiscal=get_first(Fiscal.objects.filter(config_entity=bundle.obj), None),
-            vmt=get_first(Vmt.objects.filter(config_entity=bundle.obj), None)
-        )
-    @analytic_modules.setter
-    def analysis_modules(self, value):
-        pass
 
     class Meta(object):
 

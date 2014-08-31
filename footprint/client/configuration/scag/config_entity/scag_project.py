@@ -16,10 +16,10 @@ class ScagProjectFixture(DefaultProjectFixture):
         feature_class_lookup = parent_fixture.feature_class_lookup()
         return merge(feature_class_lookup, {})
 
-    def default_db_entity_configurations(self):
+    def default_db_entities(self):
         """
             Project specific SCAG additional db_entities
         :param default_dict:
         :return:
         """
-        return super(ScagProjectFixture, self).default_db_entity_configurations() + []
+        return super(ScagProjectFixture, self).default_db_entities() + []

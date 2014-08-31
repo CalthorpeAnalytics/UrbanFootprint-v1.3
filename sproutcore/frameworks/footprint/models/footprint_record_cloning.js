@@ -26,24 +26,25 @@ Footprint.RecordCloning = {
      * child objects that are merely being copied by reference.
      * @param store
      * @param parentClonedRecord: set for recursive calls to identify the parent cloned record. This is used to set isMaster:NO attributes back to the parentRecord
+     * @param parentProperty: set for use with areNestedRecords to allow cloning a nested record
+     * @param areNestedRecords: true is the record being cloned is a nested record. In this case we use the parentCloneRecord.get(parentProperty) to get the ChildArray
+     *  and then create the record via the ChildArray
      * @returns {*} Returns the clonedRecord with a READY_NEW status.
      */
-    cloneRecord: function(parentClonedRecord) {
+    cloneRecord: function(parentClonedRecord, parentProperty, areNestedRecords) {
 
-        var newRecord = this.get('store').createRecord(
-            this.get('store').recordTypeFor(this.storeKey),
-            {},
-            Footprint.Record.generateId());
+        var newRecord = areNestedRecords ?
+            parentClonedRecord.get(parentProperty).createNestedRecord(
+                this.constructor, {}
+            ) :
+            this.get('store').createRecord(
+                this.constructor,
+                {},
+                Footprint.Record.generateId()
+            );
 
         // Do a clone setup for the record to set up attributes not copied from the source
-        newRecord._cloneSetup(this);
-
-        this._singleNonMasterProperties().forEach(function(property) {
-            // Assume that any SingleAttribute property that is not master is a reference back to the self.
-            // Thus set the property to the cloned parent record
-            // We shouldn't have to set !isMaster
-            //newRecord.set(property, parentClonedRecord);
-        });
+        newRecord._cloneSetup(this, parentClonedRecord);
 
         newRecord._cloneOrCopyChildAttributes(parentClonedRecord, this);
 
@@ -53,59 +54,57 @@ Footprint.RecordCloning = {
         return newRecord;
     },
 
-    /***
-     * Clones this record and transfers the properties to the given target.
-     * Only _nonTransferableProperties, such as id and resource_id are not transfered
-     * @param store
-     * @param target
-     * @param complete function called on completion of the operation
-     */
-    cloneAndTransferProperties: function(store, target, complete) {
-        var clonedRecord = this.cloneRecord(store);
-        $.each(clonedRecord, function(key, value) {
-            if (!this.get('_nonTransferableProperties').contains(key)) {
-                target.set(key, value)
-            }
-        });
-        if (complete)
-            complete();
-        // The top-level clonedRecord has not further utility
-        clonedRecord.destroy();
-    },
-
     _copyMany: function(property, value) {
         // Handle many attributes
-        this.get(property).pushObjects(value);
+        var areNestedRecords = this[property].constructor == SC.ChildrenAttribute;
+        if (!areNestedRecords) {
+            this.get(property).pushObjects(value)
+        }
+        else {
+            // Copy the attributes of each nested record into the cloned record's ChildArray
+            value.forEach(function(item) {
+                this.get(property).createNestedRecord(
+                    item.constructor,
+                    item.attributes())
+            }, this);
+        }
         return value;
     },
     _copyOne: function(property, value) {
-        // Handle a one attribute
-        this.set(property, value);
+        // Handle a toOne attribute
+        // We write the attribute to records that are not yet loaded
+        // but we don't need to load. An example is the db_entity of feature_behavior,
+        // where the db_entity is loaded as a nested record of db_entity_interest
+        // so the non-nested reference of feature_behavior is not yet loaded
+        this.writeAttribute(property, value.get('id'));
         return value;
     },
     _cloneMany: function(property, value, parentClonedRecord) {
         var store = this.get('store');
         // Clone each item of the many property normally or with the configured custom function
-        var itemRecords = value.map(function(item) {
+        var areNestedRecords = this[property].constructor == SC.ChildrenAttribute;
+        var clonedItems = value.map(function(item) {
             return this._customCloneProperties()[property] ?
-                this._customCloneProperties()[property](this, parentClonedRecord, item) :
-                item.cloneRecord(this)
+                this._customCloneProperties()[property].apply(item, [this, property, areNestedRecords]) :
+                item.cloneRecord(this, property, areNestedRecords)
         }, this).compact();
-        // Only push if no reverse relationship exists
-        // TODO I don't understand this check, validate it
-        if (itemRecords.length > 0 && itemRecords[0]._singleNonMasterProperties().length == 0)
-            this.get(property).pushObjects(itemRecords);
-        return itemRecords;
+        if (!areNestedRecords)
+            // Only push objects if non-nested. cloneRecord will have added the cloned item to the ChildArray
+            clonedItems.forEach(function(clonedItem) {
+                // We only need to push if the inverse relationship is not defined on the record definition
+                if (!this.get(property).contains(clonedItem))
+                    this.get(property).pushObject(clonedItem);
+            }, this);
+        return clonedItems;
     },
     _cloneOne: function(property, value, parentClonedRecord) {
         var store = this.get('store');
-        if (this._customCloneProperties()[property])
-            return this._customCloneProperties()[property](this, parentClonedRecord, value);
-        else {
-            var clonedItem = value.cloneRecord(this);
-            this.set(property,clonedItem);
-            return clonedItem;
-        }
+        //TODO handle toOne nested attributes
+        var clonedItem = this._customCloneProperties()[property] ?
+            this._customCloneProperties()[property].apply(value, [this, property]) :
+            value.cloneRecord(this, property);
+        this.set(property,clonedItem);
+        return clonedItem;
     },
 
     /***
@@ -145,7 +144,7 @@ Footprint.RecordCloning = {
     },
 
     /**
-     * Copy any primitive attributes that are not ids and are not returned by _skipProperties(), _copyProperties(), _cloneProperties, nor _singleNonMasterProperties()
+     * Copy any primitive attributes that are not ids and are not returned by _skipProperties(), _copyProperties(), _cloneProperties
      * @param record
      * @returns {*}
      */
@@ -157,7 +156,6 @@ Footprint.RecordCloning = {
                 self._skipProperties(),
                 self._copyProperties(),
                 self._cloneProperties(),
-                self._singleNonMasterProperties(),
                 self._nonTransferableProperties(),
                 $.map(self._customCloneProperties(), function(value, key) {return key;})).contains(key))
             {
@@ -183,9 +181,13 @@ Footprint.RecordCloning = {
         var record = this;
         // Combine the keys of non-primitive attributes that need cloning and return the corresponding record value
         // Nulls are excluded
-        var clonePropertyPairs = [].concat(
-                this._cloneProperties(),
-                $.map(this._customCloneProperties(), function(value, key) {return key;})
+        var clonePropertyPairs = SC.Set.create().addEach(
+                $.shallowFlatten(
+                    this._cloneProperties(),
+                    $.map(this._customCloneProperties(), function(value, key) {return key;}))
+            ).removeEach(
+                // No nead to load nested properties
+                this._nestedProperties()
             ).map(function(key) {
                 var value = record.get(key);
                 return value ? {key:key, value:value} : null;
@@ -193,8 +195,7 @@ Footprint.RecordCloning = {
 
         // Fetch separately the copy by reference attributes. We won't recurse on these
         var referencePropertyPairs = [].concat(
-            this._copyProperties(),
-            this._singleNonMasterProperties()
+            this._copyProperties()
             ).map(function(key) {
                     var value = record.get(key);
                     return value ? {key:key, value:value} : null;

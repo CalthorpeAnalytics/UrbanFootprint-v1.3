@@ -19,43 +19,88 @@
 import glob
 import os
 import subprocess
-
+from django.contrib.auth.models import User
 from django.db import models
 from django.template.defaultfilters import slugify
 from model_utils.managers import InheritanceManager
 from django.conf import settings
-
-from footprint.main.mixins.building_attributes import BuildingAttributes
+from footprint.main.mixins.cloneable import Cloneable
 from footprint.main.mixins.deletable import Deletable
 from footprint.main.mixins.key import Key
 from footprint.main.mixins.name import Name
 from footprint.main.mixins.tags import Tags
 from footprint.main.models.presentation.medium import Medium
 from footprint.main.models.presentation.built_form_example import BuiltFormExample
-from footprint.main.utils.utils import timestamp
+from footprint.main.utils.utils import timestamp, first_or_default
 from footprint.main.utils.utils import get_or_none
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 __author__ = 'calthorpe_associates'
 
 
-class BuiltForm(Name, Key, Tags, BuildingAttributes, Deletable):
+class BuiltForm(Name, Key, Tags, Deletable, Cloneable):
     """
     The base type for :model:`auth.User`, :model:`main.built_form.building.Building`, Buildingtypes, Placetypes, Infrastructure and InfrastructureTypes
 
     """
     objects = InheritanceManager()
-    origin_built_form = models.ForeignKey('BuiltForm', null=True)
+
     medium = models.ForeignKey('Medium', null=True)
     media = models.ManyToManyField(Medium, related_name='built_form_media')
     examples = models.ManyToManyField(BuiltFormExample, null=True)
+    # The user who created the config_entity
+    creator = models.ForeignKey(User, null=False, related_name='built_form_creator')
+    # The user who last updated the db_entity
+    updater = models.ForeignKey(User, null=False, related_name='built_form_updater')
 
     BUILT_FORM_IMAGES_DIR = 'builtform_images'
+
+    # Flag to turn off post-save publishing when the ConfigEntity is running publishers or when triggered from a child
+    # built form updating its aggregates
+    # This is class scoped
+    no_post_save_publishing = False
 
     class Meta(object):
     # This is not abstract so that django can form a many-to-many relationship with it in built_form_set
         abstract = False
         app_label = 'main'
+
+    @property
+    def subclassed_built_form(self):
+        return BuiltForm.resolve_built_form(self)
+
+    @classmethod
+    def resolve_built_form_by_id(cls, built_form_id):
+
+        return cls.resolve_built_form(BuiltForm.objects.get(id=built_form_id))
+
+    _subclassed_built_form_lookup = {}
+
+    @classmethod
+    def resolve_built_form(cls, built_form):
+        """
+            Pre Django 1.6 bug-fix. Use this instead of select subclasses do deal with the three tier class hierarchy.
+        :param built_form:
+        :return:
+        """
+        subclassed_built_form = cls._subclassed_built_form_lookup.get(built_form.id, None)
+        if subclassed_built_form:
+            return subclassed_built_form
+
+        second_tier_property = first_or_default(filter(lambda attr: hasattr(built_form, attr),
+                                                       ['placetype', 'placetypecomponent', 'primarycomponent']))
+        if not second_tier_property:
+            raise Exception('BuiltForm subclass cannot be resolved: %s' % built_form)
+        second_tier = getattr(built_form, second_tier_property)
+        first_tier_property = first_or_default(filter(lambda attr: hasattr(second_tier, attr),
+                                                      ['urbanplacetype', 'buildingtype', 'building', 'landscapetype', 'croptype', 'crop']))
+        instance = getattr(second_tier, first_tier_property) if first_tier_property else second_tier
+        cls._subclassed_built_form_lookup[built_form.id] = instance
+        return instance
+
 
     # Returns the string representation of the model.
     def __unicode__(self):
@@ -109,12 +154,12 @@ class BuiltForm(Name, Key, Tags, BuildingAttributes, Deletable):
     def custom_aggregation_methods(self):
         pass
 
-    def aggregate_built_form_attributes(self):
-        """
-        Sums the basic facts of built forms up to their aggregate type.
-        :return: None
-        """
-        pass
+    # def aggregate_built_form_attributes(self):
+    #     """
+    #     Sums the basic facts of built forms up to their aggregate type.
+    #     :return: None
+    #     """
+    #     pass
 
     def create_built_form_medium(self, color):
         medium_key = "built_form_{0}".format(self.id)
@@ -157,8 +202,6 @@ class BuiltForm(Name, Key, Tags, BuildingAttributes, Deletable):
             )[0]
             self.media.add(media)
 
-
-
     def update_or_create_built_form_examples(self, array_of_examples):
 
         built_form_key = self.key
@@ -180,6 +223,69 @@ class BuiltForm(Name, Key, Tags, BuildingAttributes, Deletable):
                 ))[0]
             self.examples.add(example)
 
+    def get_percent_set(self):
+        return None
+
+    def update_or_create_flat_built_form(self):
+        from footprint.main.models.built_form.flat_built_form import FlatBuiltForm
+        flat_built_form = FlatBuiltForm.objects.update_or_create(built_form_id=self.id)[0]
+        flat_built_form.update_attributes()
+
+    def on_instance_modify(self):
+
+        instance_subclass = self.resolve_built_form(self)
+
+        if str(instance_subclass.__class__.__name__) in ['Building']:
+            logger.info("Signal: updating building_attributes of [{0}] {1}" .format(self.__class__.__name__, self))
+            instance_subclass.building_attribute_set.calculate_derived_fields()
+            instance_subclass.update_or_create_flat_built_form()
+
+        elif str(instance_subclass.__class__.__name__) in ['BuildingType', 'UrbanPlacetype']:
+            instance_subclass.aggregate_built_form_attributes()
+            instance_subclass.update_or_create_flat_built_form()
+
+        if str(instance_subclass.__class__.__name__) in ['Building', 'BuildingType']:
+            for parent_built_form in self.get_aggregate_built_forms():
+                logger.info("Signal: updating parent objects of [{0}] {1}" .format(self.__class__.__name__, self))
+
+                percent_set = parent_built_form.get_percent_set()
+
+                if percent_set and percent_set.all():
+                    subclassed_placetype = parent_built_form.resolve_built_form(parent_built_form)
+                    subclassed_placetype.aggregate_built_form_attributes()
+                    subclassed_placetype.update_or_create_flat_built_form()
+
+        if str(instance_subclass.__class__.__name__) in ['Crop', 'CropType']:
+            for parent_built_form in self.get_aggregate_built_forms():
+                logger.info("Signal: updating parent objects of [{0}] {1}" .format(self.__class__.__name__, self))
+
+                percent_set = parent_built_form.get_percent_set()
+
+                if percent_set and percent_set.all():
+                    subclassed_placetype = parent_built_form.resolve_built_form(parent_built_form)
+                    subclassed_placetype.aggregate_built_form_attributes()
+
+    # Flag to temporarily disable post-save publishing
+    # We disable it until all m2m attributes are saved, since post_save usually needs to compute from those attributes
+    _no_post_save_publishing = False
+
+    @classmethod
+    def pre_save(cls, user_id, **kwargs):
+        """
+            Disable post-save publishing for BuiltForms when they save.
+            We want to do post_save publishing after nested toMany instances save (e.g. PrimaryComponentPercent)
+        """
+        BuiltForm._no_post_save_publishing = True
+
+    @classmethod
+    def post_save(cls, user_id, objects, **kwargs):
+        """
+            Explicitly resave to kick of post-save publishing
+        """
+        BuiltForm._no_post_save_publishing = False
+        # Save to kick off the post save processing
+        for obj in objects:
+            obj.save()
 
 def update_or_create_built_form_medium(medium_key, color):
     # Create the BuiltForm's Medium if needed
@@ -251,15 +357,3 @@ def dump_built_forms():
         except Exception, E:
             print E
 
-
-def resolve_attributes_for_components(sender, **kwargs):
-    built_form = kwargs['instance']
-    try:
-        built_form = built_form.aggregate()
-    except Exception, E:
-        print Exception, E
-    built_form.aggregate_built_form_attributes()
-
-
-def on_collection_modify(sender, **kwargs):
-    resolve_attributes_for_components(sender, **kwargs)

@@ -10,19 +10,58 @@
 Footprint.BuiltFormColorPickerView = SC.View.design({
     childViews: ['colorPreviewCV', 'colorPreview1CV', 'colorPreview2CV', 'hslSlidersCV', 'cssTextCV'],
     classNames: ['demo-content'],
-    layout: { left: 30, width: 600, height: 260, top: 250 },
-    selection: null,
 
+    medium: null,
+    mediumContent: null,
+    mediumContentBinding: SC.Binding.oneWay('*medium.content'),
+    mediumContentDidChange: function() {
+        var cssText = this.getPath('mediumContent.fill.color') || null;
+        // Use setIfChanged to prevent infinite loops in this dependency circle
+        this.get('color').setIfChanged('cssText', cssText);
+    }.observes('mediumContent'),
     color: null,
-    colorBinding: SC.Binding.oneWay('*selection.medium').transform(function(medium) {
-        if (medium)
-            return medium.getPath('content.fill.color');
-        return '#4682B4'
-    }),
+
+    cssText: null,
+    cssTextBinding: SC.Binding.oneWay('.color.cssText'),
+    cssTextDidChange: function() {
+        if (!this.get('medium')) return;
+        var cssText = this.getPath('color.cssText'),
+            currentCssText = this.getPath('mediumContent.fill.color');
+        if ((cssText || '').toUpperCase() !== (this.getPath('mediumContent.fill.color') || '').toUpperCase()) {
+            var mediumContent = this.get('mediumContent');
+            if (!mediumContent) return null;
+            mediumContent = SC.clone(mediumContent, YES);
+            mediumContent.fill.color = cssText;
+            this.getPath('medium').setIfChanged('content', mediumContent);
+        }
+    }.observes('.color.cssText'),
+
+    init: function() {
+      this.color = SC.Color.create();
+      return sc_super();
+    },
+    destroy: function() {
+      this.color.destroy();
+      return sc_super();
+    },
+
+    brighterColor: function() {
+      var color = this.get('color'),
+          ret = color.mult(1.25);
+
+      return ret.set('a', 1);
+    }.property('cssText').cacheable(),
+
+    darkerColor: function() {
+      var color = this.get('color'),
+          ret = color.mult(0.75);
+
+      return ret.set('a', 1);
+    }.property('cssText').cacheable(),
 
     colorPreviewCV: SC.View.design({
       classNames: ['color-preview'],
-      backgroundColorBinding: SC.Binding.oneWay('.parentView.color'),
+      backgroundColorBinding: SC.Binding.oneWay('.parentView.color.validCssText'),
 
       displayProperties: ['backgroundColor'],
 
@@ -31,26 +70,24 @@ Footprint.BuiltFormColorPickerView = SC.View.design({
 
     colorPreview1CV: SC.ImageButtonView.design({
       action: function() {
-        var brighterColor = Footprint.mainViewController.get('brighterColor');
-
-        Footprint.mainViewController.set('hue', brighterColor.get('hue'));
-        Footprint.mainViewController.set('saturation', brighterColor.get('saturation'));
-        Footprint.mainViewController.set('luminosity', brighterColor.get('luminosity'));
+        var brighterColor = this.parentView.get('brighterColor');
+        this.parentView.color.set('cssText', brighterColor.get('cssText'));
       },
-      backgroundColorBinding: SC.Binding.oneWay('Footprint.mainViewController.brighterCssText'),
+      isEnabledBinding: SC.Binding.oneWay('.parentView.color.isError').not(),
+      backgroundColorBinding: SC.Binding.oneWay('.parentView*brighterColor.validCssText'),
+      displayProperties: ['backgroundColor'],
       classNames: ['color-sub-preview'],
       layout: { border: 2, left: 20, top: 20, width: 20, height: 20 }
     }),
 
     colorPreview2CV: SC.ImageButtonView.design({
       action: function() {
-        var darkerColor = Footprint.mainViewController.get('darkerColor');
-
-        Footprint.mainViewController.set('hue', darkerColor.get('hue'));
-        Footprint.mainViewController.set('saturation', darkerColor.get('saturation'));
-        Footprint.mainViewController.set('luminosity', darkerColor.get('luminosity'));
+        var darkerColor = this.parentView.get('darkerColor');
+        this.parentView.color.set('cssText', darkerColor.get('cssText'));
       },
-      backgroundColorBinding: SC.Binding.oneWay('Footprint.mainViewController.darkerCssText'),
+      isEnabledBinding: SC.Binding.oneWay('.parentView.color.isError').not(),
+      backgroundColorBinding: SC.Binding.oneWay('.parentView*darkerColor.validCssText'),
+      displayProperties: ['backgroundColor'],
       classNames: ['color-sub-preview'],
       layout: { border: 2, left: 158, top:105, width: 20, height: 20 }
     }),
@@ -58,6 +95,8 @@ Footprint.BuiltFormColorPickerView = SC.View.design({
     hslSlidersCV: SC.View.design({
       childViews: ['hTitle', 'hCV', 'hValueCV', 'sTitle', 'sCV', 'sValueCV', 'lTitle', 'lCV', 'lValueCV'],
       layout: { top: 10, right: 15, left:190, height:130 },
+
+      isEnabledBinding: SC.Binding.oneWay('.parentView.color.isError').not(),
 
       hTitle: SC.LabelView.design({
         classNames: ['slider-title'],
@@ -70,12 +109,12 @@ Footprint.BuiltFormColorPickerView = SC.View.design({
         minimum: 0,
         maximum: 359,
         step: 1,
-        valueBinding: SC.Binding.from('Footprint.mainViewController.hue')
+        valueBinding: SC.Binding.from('.parentView.parentView.color.hue')
       }),
       hValueCV: SC.LabelView.design({
         classNames: ['slider-value'],
         layout: { right: 10, width: 35, height: 24, top: 0 },
-        valueBinding: SC.Binding.oneWay('Footprint.mainViewController.hue').
+        valueBinding: SC.Binding.oneWay('.parentView.parentView.color.hue').
           transform(function(hue) {
             return parseInt(hue, 10) + '°';
           })
@@ -90,12 +129,12 @@ Footprint.BuiltFormColorPickerView = SC.View.design({
       sCV: SC.SliderView.design({
         layout: { left: 50, right: 50, height: 24, top: 35 },
         step: 0.01,
-        valueBinding: SC.Binding.from('Footprint.mainViewController.saturation')
+        valueBinding: SC.Binding.from('.parentView.parentView.color.saturation')
       }),
       sValueCV: SC.LabelView.design({
         classNames: ['slider-value'],
         layout: { right: 10, width: 35, height: 24, top: 35 },
-        valueBinding: SC.Binding.oneWay('Footprint.mainViewController.saturation').
+        valueBinding: SC.Binding.oneWay('.parentView.parentView.color.saturation').
           transform(function(saturation) {
             return parseInt(saturation * 100, 10) + '%';
           })
@@ -110,12 +149,12 @@ Footprint.BuiltFormColorPickerView = SC.View.design({
       lCV: SC.SliderView.design({
         layout: { left: 50, right: 50, height: 24, top: 70 },
         step: 0.01,
-        valueBinding: SC.Binding.from('Footprint.mainViewController.luminosity')
+        valueBinding: SC.Binding.from('.parentView.parentView.color.luminosity')
       }),
       lValueCV: SC.LabelView.design({
         classNames: ['slider-value'],
         layout: { right: 10, width: 35, height: 24, top: 70 },
-        valueBinding: SC.Binding.oneWay('Footprint.mainViewController.luminosity').
+        valueBinding: SC.Binding.oneWay('.parentView.parentView.color.luminosity').
           transform(function(luminosity) {
             return parseInt(luminosity * 100, 10) + '%';
           })
@@ -140,6 +179,6 @@ Footprint.BuiltFormColorPickerView = SC.View.design({
 //            return this.get('newColor')
 //           }.property('parentColor').cacheable()
 
-       valueBinding: SC.Binding.oneWay('Footprint.mainViewController.cssText')
+       valueBinding: SC.Binding.from('.parentView.color.cssText')
     })
 })

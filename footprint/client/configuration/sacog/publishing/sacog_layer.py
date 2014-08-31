@@ -1,14 +1,12 @@
+from footprint.client.configuration.default.publishing.default_layer import built_form_template_context_dict
 from footprint.client.configuration.fixture import LayerConfigurationFixture
 from footprint.client.configuration.mixins.publishing.layer_primary_base import primary_base_template_context_dict
+from footprint.client.configuration.sacog.config_entity.sacog_region import SacogDbEntityKey
 from footprint.main.models.config.scenario import BaseScenario, FutureScenario, Scenario
-from footprint.main.models.keys.keys import Keys
 from footprint.main.models.presentation.presentation_configuration import LayerConfiguration
 from footprint.client.configuration.sacog.built_form.sacog_land_use_definition import SacogLandUseDefinition
 
-
-
 __author__ = 'calthorpe_associates'
-
 
 class SacogLayerConfigurationFixture(LayerConfigurationFixture):
     def layer_libraries(self, layers=None):
@@ -20,7 +18,7 @@ class SacogLayerConfigurationFixture(LayerConfigurationFixture):
             # Only used by BaseScenarios
             LayerConfiguration(
                 scope=BaseScenario.__name__,
-                db_entity_key=Keys.DB_ABSTRACT_SACOG_EXISTING_LAND_USE_PARCEL_SOURCE,
+                db_entity_key=SacogDbEntityKey.EXISTING_LAND_USE_PARCEL_SOURCE,
                 visible=True,
                 visible_attributes=['land_use_definition__id'],
                 column_alias_lookup=dict(land_use_definition__id='land_use_definition_id'),
@@ -30,7 +28,7 @@ class SacogLayerConfigurationFixture(LayerConfigurationFixture):
             LayerConfiguration(
                 # Show in both base and future Scenarios!
                 scope=FutureScenario.__name__,
-                db_entity_key=Keys.DB_ABSTRACT_SACOG_EXISTING_LAND_USE_PARCEL_SOURCE,
+                db_entity_key=SacogDbEntityKey.EXISTING_LAND_USE_PARCEL_SOURCE,
                 visible=False,
                 visible_attributes=['land_use_definition__id'],
                 column_alias_lookup=dict(land_use_definition__id='land_use_definition_id'),
@@ -39,22 +37,14 @@ class SacogLayerConfigurationFixture(LayerConfigurationFixture):
             ),
             LayerConfiguration(
                 scope=Scenario.__name__,
-                db_entity_key=Keys.DB_ABSTRACT_STREAM_FEATURE,
+                db_entity_key=SacogDbEntityKey.STREAM,
                 visible=False,
                 visible_attributes=['wkb_geometry'],
                 template_context_dict={'attributes': {'wkb_geometry': {'unstyled': True}}}
             ),
             LayerConfiguration(
                 scope=Scenario.__name__,
-                db_entity_key=Keys.DB_ABSTRACT_VERNAL_POOL_FEATURE,
-                visible=False,
-                visible_attributes=['wkb_geometry'],
-                template_context_dict={'attributes': {'wkb_geometry': {'unstyled': True}}}
-            ),
-
-            LayerConfiguration(
-                scope=Scenario.__name__,
-                db_entity_key=Keys.DB_ABSTRACT_WETLAND_FEATURE,
+                db_entity_key=SacogDbEntityKey.VERNAL_POOL,
                 visible=False,
                 visible_attributes=['wkb_geometry'],
                 template_context_dict={'attributes': {'wkb_geometry': {'unstyled': True}}}
@@ -62,15 +52,23 @@ class SacogLayerConfigurationFixture(LayerConfigurationFixture):
 
             LayerConfiguration(
                 scope=Scenario.__name__,
-                db_entity_key=Keys.DB_ABSTRACT_HARDWOOD_FEATURE,
+                db_entity_key=SacogDbEntityKey.WETLAND,
                 visible=False,
                 visible_attributes=['wkb_geometry'],
                 template_context_dict={'attributes': {'wkb_geometry': {'unstyled': True}}}
             ),
 
+            # LayerConfiguration(
+            #     scope=Scenario.__name__,
+            #     db_entity_key=SacogDbEntityKey.HARDWOOD,
+            #     visible=False,
+            #     visible_attributes=['wkb_geometry'],
+            #     template_context_dict={'attributes': {'wkb_geometry': {'unstyled': True}}}
+            # ),
+
             LayerConfiguration(
                 scope=Scenario.__name__,
-                db_entity_key=Keys.DB_ABSTRACT_LIGHT_RAIL_FEATURE,
+                db_entity_key=SacogDbEntityKey.LIGHT_RAIL,
                 visible=False,
                 visible_attributes=['line'],
                 template_context_dict={'attributes': {'line': {'unstyled': True}}}
@@ -78,7 +76,7 @@ class SacogLayerConfigurationFixture(LayerConfigurationFixture):
 
             LayerConfiguration(
                 scope=Scenario.__name__,
-                db_entity_key=Keys.DB_ABSTRACT_LIGHT_RAIL_STOPS_FEATURE,
+                db_entity_key=SacogDbEntityKey.LIGHT_RAIL_STOPS,
                 visible=False,
                 visible_attributes=['color'],
                 template_context_dict={'attributes': {'color': {'unstyled': True}}}
@@ -86,7 +84,7 @@ class SacogLayerConfigurationFixture(LayerConfigurationFixture):
 
             LayerConfiguration(
                 scope=Scenario.__name__,
-                db_entity_key=Keys.DB_ABSTRACT_LIGHT_RAIL_STOPS_ONE_MILE_FEATURE,
+                db_entity_key=SacogDbEntityKey.LIGHT_RAIL_STOPS_ONE_MILE,
                 visible=False,
                 visible_attributes=['wkb_geometry'],
                 template_context_dict={'attributes': {'wkb_geometry': {'unstyled': True}}}
@@ -94,7 +92,7 @@ class SacogLayerConfigurationFixture(LayerConfigurationFixture):
 
             LayerConfiguration(
                 scope=Scenario.__name__,
-                db_entity_key=Keys.DB_ABSTRACT_LIGHT_RAIL_STOPS_HALF_MILE_FEATURE,
+                db_entity_key=SacogDbEntityKey.LIGHT_RAIL_STOPS_HALF_MILE,
                 visible=False,
                 visible_attributes=['wkb_geometry'],
                 template_context_dict={'attributes': {'wkb_geometry': {'unstyled': True}}}
@@ -102,7 +100,7 @@ class SacogLayerConfigurationFixture(LayerConfigurationFixture):
 
             LayerConfiguration(
                 scope=Scenario.__name__,
-                db_entity_key=Keys.DB_ABSTRACT_LIGHT_RAIL_STOPS_QUARTER_MILE_FEATURE,
+                db_entity_key=SacogDbEntityKey.LIGHT_RAIL_STOPS_QUARTER_MILE,
                 visible=False,
                 visible_attributes=['wkb_geometry'],
                 template_context_dict={'attributes': {'wkb_geometry': {'unstyled': True}}}

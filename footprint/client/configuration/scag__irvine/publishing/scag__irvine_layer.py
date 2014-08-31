@@ -19,7 +19,7 @@ class ScagIrvineLayerConfigurationFixtures(LayerConfigurationFixture):
         return self.parent_fixture.layers() + [
             LayerConfiguration(
                 scope=BaseScenario.__name__,
-                db_entity_key=Keys.DB_ABSTRACT_SCAG_EXISTING_LAND_USE_PARCEL_SOURCE,
+                db_entity_key=Key.EXISTING_LAND_USE_PARCEL_SOURCE,
                 visible=False,
                 visible_attributes=['land_use_definition__id'],
                 column_alias_lookup=dict(land_use_definition__id='land_use_defintion_id'),
@@ -28,7 +28,7 @@ class ScagIrvineLayerConfigurationFixtures(LayerConfigurationFixture):
             ),
             LayerConfiguration(
                 scope=BaseScenario.__name__,
-                db_entity_key=Keys.DB_ABSTRACT_GENERAL_PLAN_FEATURE,
+                db_entity_key=Key.GENERAL_PLAN,
                 visible=False,
                 visible_attributes=['land_use_definition__id'],
                 column_alias_lookup=dict(land_use_definition__id='land_use_defintion_id'),
@@ -37,7 +37,7 @@ class ScagIrvineLayerConfigurationFixtures(LayerConfigurationFixture):
             ),
             LayerConfiguration(
                 scope=BaseScenario.__name__,
-                db_entity_key=Keys.DB_ABSTRACT_PRIMARY_SPZ_SOURCE,
+                db_entity_key=Key.PRIMARY_SPZ_SOURCE,
                 visible=True,
                 visible_attributes=['spzid'],
                 template_context_dict={'attributes': {'spzid': {'unstyled': True}}}
@@ -45,49 +45,49 @@ class ScagIrvineLayerConfigurationFixtures(LayerConfigurationFixture):
             # The following are scoped for both Scenario subclasses
             LayerConfiguration(
                 scope=Scenario.__name__,
-                db_entity_key=Keys.DB_ABSTRACT_JURISDICTION_BOUNDARY,
+                db_entity_key=Key.JURISDICTION_BOUNDARY,
                 visible=True,
                 visible_attributes=['wkb_geometry'],
                 template_context_dict={'attributes': {'wkb_geometry': {'unstyled': True}}}
             ),
             LayerConfiguration(
                 scope=Scenario.__name__,
-                db_entity_key=Keys.DB_ABSTRACT_SPHERE_OF_INFLUENCE,
+                db_entity_key=Key.SPHERE_OF_INFLUENCE,
                 visible=False,
                 visible_attributes=['wkb_geometry'],
                 template_context_dict={'attributes': {'wkb_geometry': {'unstyled': True}}}
             ),
             LayerConfiguration(
                 scope=Scenario.__name__,
-                db_entity_key=Keys.DB_ABSTRACT_FLOODPLAIN,
+                db_entity_key=Key.FLOODPLAIN,
                 visible=False,
                 visible_attributes=['wkb_geometry'],
                 template_context_dict={'attributes': {'wkb_geometry': {'unstyled': True}}}
             ),
             LayerConfiguration(
                 scope=Scenario.__name__,
-                db_entity_key=Keys.DB_ABSTRACT_TIER1_TAZ,
+                db_entity_key=Key.TIER1_TAZ,
                 visible=False,
                 visible_attributes=['wkb_geometry'],
                 template_context_dict={'attributes': {'wkb_geometry': {'unstyled': True}}}
             ),
             LayerConfiguration(
                 scope=Scenario.__name__,
-                db_entity_key=Keys.DB_ABSTRACT_TIER2_TAZ,
+                db_entity_key=Key.TIER2_TAZ,
                 visible=False,
                 visible_attributes=['wkb_geometry'],
                 template_context_dict={'attributes': {'wkb_geometry': {'unstyled': True}}}
             ),
             LayerConfiguration(
                 scope=Scenario.__name__,
-                db_entity_key=Keys.DB_ABSTRACT_PARKS_OPEN_SPACE,
+                db_entity_key=Key.PARKS_OPEN_SPACE,
                 visible=False,
                 visible_attributes=['wkb_geometry'],
                 template_context_dict={'attributes': {'wkb_geometry': {'unstyled': True}}}
             ),
             LayerConfiguration(
                 scope=Scenario.__name__,
-                db_entity_key=Keys.DB_ABSTRACT_TRANSIT_AREAS,
+                db_entity_key=Key.TRANSIT_AREAS,
                 visible=False,
                 visible_attributes=['wkb_geometry'],
                 template_context_dict={'attributes': {'wkb_geometry': {'unstyled': True}}}

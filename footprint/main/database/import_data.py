@@ -23,16 +23,13 @@ import re
 import stat
 import os
 from celery.utils.functional import uniq
-from django.db import connections, connection, transaction
 
 import psycopg2
-from django.conf import settings
 from footprint.common.utils.postgres_utils import pg_connection_parameters, build_postgres_conn_string
 
 from footprint.main.lib.functions import if_cond_raise, map_dict, filter_dict
 from footprint.main.models.database.information_schema import InformationSchema, sync_geometry_columns, verify_srid
 
-# from calthorpe.main.publishing.geoserver import validate_geoserver_configuration
 from footprint.main.utils.uf_toolbox import drop_table
 from footprint.main.utils.utils import database_settings, execute_piped_with_stdin, execute_with_stdin, chop_geom, postgres_url_to_connection_dict, file_url_to_path, os_user
 from django.conf import settings
@@ -47,7 +44,7 @@ class ImportData(object):
     def create_target_db_string(self):
         self.target_database_connection = "-h {0} -p {1} --user {2} {3}".format(
             self.target_database['HOST'],
-            self.target_database['PORT'] or 5432,
+            getattr(self.target_database, 'PORT', 5432),
             self.target_database['USER'],
             self.target_database['NAME'])
         logger.info("Using target database connection: {0}".format(self.target_database_connection))
@@ -134,7 +131,7 @@ class ImportData(object):
                 # Create a command that pipes shp2pgsql to psql
                 logger.debug("verifying SRID {0}".format(db_entity.srid))
                 srid = verify_srid(db_entity.srid)
-                shp_to_psql_command = '/usr/lib/postgresql/9.1/bin/shp2pgsql -s {srid} -g wkb_geometry -I {shapefile_path}'.format(
+                shp_to_psql_command = "/usr/lib/postgresql/9.1/bin/shp2pgsql -W 'latin1' -s {srid} -g wkb_geometry -I {shapefile_path}".format(
                     shapefile_path=shape_file_path, srid=srid.srid) + ' | /usr/bin/psql {0} -q'.format(self.target_database_connection)
                 results = self.command_execution.run(shp_to_psql_command,
                                                      pipe_commands=False,
@@ -143,9 +140,7 @@ class ImportData(object):
                 generated_name = os.path.splitext(os.path.basename(shape_file_path))[0]
                 move_to_schema = "alter table public.{1} set schema {0};".format(db_entity.schema, generated_name)
                 rename = "alter table {0}.{1} rename to {2};".format(db_entity.schema, generated_name, db_entity.key)
-                spatial_index = '''create index {0}_{1}_geom_idx on {0}.{1} using GIST (wkb_geometry);'''.format(db_entity.schema, db_entity.key)
                 drop_constraint = '''alter table {0}.{1} drop constraint enforce_srid_wkb_geometry'''.format(db_entity.schema, db_entity.key)
-                reproject = '''update {0}.{1} set wkb_geometry = st_SetSRID(st_transform(wkb_geometry, 4326),4326)'''.format(db_entity.schema, db_entity.key)
 
                 conn = psycopg2.connect(**pg_connection_parameters(settings.DATABASES['default']))
                 conn.set_isolation_level(psycopg2.extensions.ISOLATION_LEVEL_AUTOCOMMIT)
@@ -154,9 +149,7 @@ class ImportData(object):
                 cursor.execute(move_to_schema)
                 logger.debug("Renaming shapefile table: %s" % rename)
                 cursor.execute(rename)
-                cursor.execute(spatial_index)
                 cursor.execute(drop_constraint)
-                cursor.execute(reproject)
 
                 # Remove the temp public table from public if exists after the run
                 drop_table(re.match('file://(?P<path>.+)/(?P<filename>.+).shp', db_entity.url).groupdict()['filename'])
@@ -165,7 +158,10 @@ class ImportData(object):
                 connection_dict = postgres_url_to_connection_dict(db_entity.url)
                 # The import database currently stores tables as public.[config_entity.key]_[feature_class._meta.db_table (with schema removed)][_sample (for samples)]
                 # We always use the table name without the word sample for the target table name
-                source_table = "{0}_{1}_{2}".format(config_entity.key, db_entity.table, 'sample') if settings.USE_SAMPLE_DATA_SETS or self.test else "{0}_{1}".format(config_entity.key, db_entity.table)
+                source_table = "{0}_{1}_{2}".format(
+                    config_entity.import_key or config_entity.key, db_entity.table, 'sample') if \
+                    settings.USE_SAMPLE_DATA_SETS or self.test else \
+                    "{0}_{1}".format(config_entity.import_key or config_entity.key, db_entity.table)
                 table = db_entity.table
                 self._dump_tables_to_target('-t %s' % source_table, source_schema='public', target_schema=db_entity.schema, source_table=source_table, target_table=table, connection_dict=connection_dict)
 
@@ -176,6 +172,8 @@ class ImportData(object):
                 transform_to_4326 = '''update "{schema}"."{table}"
                 set wkb_geometry = st_setSRID(st_transform(wkb_geometry, 4326), 4326);'''.format
                 cursor.execute(transform_to_4326(schema=db_entity.schema, table=db_entity.table))
+                spatial_index = '''create index {0}_{1}_geom_idx on {0}.{1} using GIST (wkb_geometry);'''.format(db_entity.schema, db_entity.key)
+                cursor.execute(spatial_index)
                 # If we imported the table successfully
                 if InformationSchema.objects.table_exists(db_entity.schema, db_entity.table):
                     # Tell PostGIS about the new geometry column or the table

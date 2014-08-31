@@ -3,27 +3,131 @@ sc_require('models/name_mixin');
 sc_require('models/tags_mixin');
 sc_require('models/medium_models');
 
+function aliasProperty(property) {
+    return function (propKey, value) {
+        if (value) {
+            this.set(property, value)
+        }
+        return this.get(property)
+    }.property(property).cacheable();
+}
+
+
+Footprint.ComponentPercentMixin = {
+    component_class: SC.Record.attr(String),
+    container_class: SC.Record.attr(String),
+
+    // Walk like a duck
+    hasComponentPercents: YES,
+
+    subclassedComponent: function(propKey, value) {
+        if (value) {
+            this.set('component', value);
+        }
+        return this.get('store').find(
+            SC.objectForPropertyPath('Footprint.%@'.fmt(this.get('component_class'))),
+            this.readAttribute(this.get('componentField')));
+    }.property(),
+
+    subclassedContainer: function(propKey, value) {
+        if (value) {
+            this.set('component', value);
+        }
+        return this.get('store').find(
+            SC.objectForPropertyPath('Footprint.%@'.fmt(this.get('container_class'))),
+            this.readAttribute(this.get('containerField')));
+    }.property()
+};
+
+
+Footprint.BuildingAttributesMixin = {
+    building_attribute_set: SC.Record.toOne("Footprint.BuildingAttributeSet", {isMaster: YES}),
+    isUrban: YES
+};
+
+Footprint.AgricultureAttributesMixin = {
+    agriculture_attribute_set: SC.Record.toOne("Footprint.AgricultureAttributeSet", {isMaster: YES}),
+    isAgriculture: YES
+};
+
+Footprint.BuiltFormAggregateMixin = {
+    mediumStatusObserver: function() {
+        if (this.get('status') === SC.Record.READY_CLEAN &&
+            this.getPath('medium.status') === SC.Record.READY_DIRTY) {
+            this.get('store').writeStatus(this.get('storeKey'), SC.Record.READY_DIRTY);
+        }
+    }.observes('*medium.status')
+};
+
+Footprint.AgricultureAttributeSet = Footprint.Record.extend({
+    crop_yield: SC.Record.attr(Number),
+    unit_price: SC.Record.attr(Number),
+    cost: SC.Record.attr(Number),
+    water_consumption: SC.Record.attr(Number),
+    labor_input: SC.Record.attr(Number),
+    truck_trips: SC.Record.attr(Number),
+
+    _cloneProperties:function() {
+        return [];
+    },
+
+    // This instructs the clone operation not to wait for these properties to load
+    _nestedProperties: function() {
+        return []
+    },
+
+    _copyProperties: function() {
+        // Copy read-only property. It won't be saved but makes cloning look nicer
+        return [];
+    }
+});
+
 Footprint.BuildingAttributeSet = Footprint.Record.extend({
-    flat_building_densities: SC.Record.toOne("Footprint.FlatBuiltForm", {nested: YES}),
-    building_uses: SC.Record.toMany('Footprint.BuildingUsePercent', {nested: YES}),
-    parking_spaces: SC.Record.attr(Number),
-    parking_structure_square_feet: SC.Record.attr(Number),
+    building_use_percents: SC.Record.toMany('Footprint.BuildingUsePercent', {nested: YES}),
+    lot_size_square_feet: SC.Record.attr(Number),
     floors: SC.Record.attr(Number),
     total_far: SC.Record.attr(Number),
-    gross_population_density: SC.Record.attr(Number),
-    household_density: SC.Record.attr(Number),
-    impervious_roof_percent: SC.Record.attr(Number),
-    impervious_hardscape_percent: SC.Record.attr(Number),
-    pervious_hardscape_percent: SC.Record.attr(Number),
-    softscape_and_landscape_percent: SC.Record.attr(Number),
+    average_parking_space_square_feet: SC.Record.attr(Number),
+    surface_parking_spaces: SC.Record.attr(Number),
+    above_ground_structured_parking_spaces: SC.Record.attr(Number),
+    below_ground_structured_parking_spaces: SC.Record.attr(Number),
+    surface_parking_square_feet: SC.Record.attr(Number),
+    building_footprint_square_feet: SC.Record.attr(Number),
+    hardscape_other_square_feet: SC.Record.attr(Number),
+    irrigated_softscape_square_feet: SC.Record.attr(Number),
+    nonirrigated_softscape_square_feet: SC.Record.attr(Number),
     irrigated_percent: SC.Record.attr(Number),
-    hardscape_percent: SC.Record.attr(Number),
+    vacancy_rate: SC.Record.attr(Number),
+    household_size: SC.Record.attr(Number),
     residential_irrigated_square_feet: SC.Record.attr(Number),
     commercial_irrigated_square_feet: SC.Record.attr(Number),
-    residential_average_lot_size: SC.Record.attr(Number),
     gross_net_ratio: SC.Record.attr(Number),
     intersection_density: SC.Record.attr(Number),
-    combined_pop_emp_density: SC.Record.attr(Number)
+
+    /***
+     * Returns the BuildingUsePercent matching the BuildingUseDefinition, if it exists
+     * @param buildingUseDefinition
+     * @returns A BuildingUsePercent instance, or undefined
+     */
+    buildingUsePercentOfBuildingUseDefinition: function(buildingUseDefinition) {
+        return (this.get('building_use_percents') || []).find(function(buildingUsePercent) {
+            return buildingUsePercent.getPath('building_use_definition')==buildingUseDefinition;
+        });
+    },
+
+    _cloneProperties:function() {
+        return ['building_use_percents'];
+    },
+
+    // This instructs the clone operation not to wait for these properties to load
+    _nestedProperties: function() {
+        return ['building_use_percents']
+    },
+
+    _copyProperties: function() {
+        // Copy read-only property. It won't be saved but makes cloning look nicer
+        return [];
+    }
 });
 
 Footprint.BuildingUseDefinition = Footprint.Record.extend({
@@ -31,40 +135,92 @@ Footprint.BuildingUseDefinition = Footprint.Record.extend({
 });
 
 Footprint.BuildingUsePercent = Footprint.Record.extend({
-    building_use_definition: SC.Record.toOne("Footprint.BuildingUseDefinition", {nested: YES}),
+    building_attribute_set: SC.Record.toOne("Footprint.BuildingAttributeSet", {isMaster:NO}),
+    building_use_definition: SC.Record.toOne("Footprint.BuildingUseDefinition", {isMaster:NO}),
     percent: SC.Record.attr(Number),
-    vacancy_rate: SC.Record.attr(Number),
-    household_size: SC.Record.attr(Number),
     efficiency: SC.Record.attr(Number),
     square_feet_per_unit: SC.Record.attr(Number),
     floor_area_ratio: SC.Record.attr(Number),
     unit_density: SC.Record.attr(Number),
     gross_built_up_area: SC.Record.attr(Number),
-    net_built_up_area: SC.Record.attr(Number)
+    net_built_up_area: SC.Record.attr(Number),
+    building_use_definition_name: function() {
+        return this.getPath('building_use_definition.name');
+    }.property('building_use_definition').cacheable(),
+
+    /***
+     * Reports whether or not the BuildingUsePercent is a top-level instance
+     */
+    isTopLevel: function() {
+        return this.get('building_use_definition') && !this.getPath('building_use_definition.category')
+    }.property('building_use_definition').cacheable(),
+
+    /***
+     * All BuildingUsePercents of the Building, via BuildingAttributeSet
+     */
+    buildingUsePercents: function() {
+        return this.getPath('building_attribute_set.building_use_percents');
+    }.property().cacheable(),
+
+    /***
+     * Convenience property to resolve the parent BuildingUsePercent for non-top-level instances
+     * @returns {*}
+     */
+    parentBuildingUsePercent: function() {
+        if (this.get('isTopLevel'))
+            return null;
+        // Find the BuildingUsePercent of the parent BuildingUseDefinition, if it exists
+        return this.get('building_attribute_set').buildingUsePercentOfBuildingUseDefinition(this.getPath('building_use_definition.category'));
+    }.property('isTopLevel', 'building_use_definition').cacheable(),
+
+
+    _copyProperties: function() {
+        return ['building_use_definition'];
+    },
+    _skipProperties: function() {
+        return ['building_attribute_set'];
+    },
+    _cloneSetup: function(sourceRecord, parentRecord) {
+        this.set('building_attribute_set', parentRecord ?
+            parentRecord : // set to cloned BuildingAttributeSet--cloning a parent instance (i.e. the BuiltForm)
+            sourceRecord.get('building_attribute_set')); // cloning just this instance--set to the source's property
+    }
 });
 
 
 Footprint.BuiltForm = Footprint.Record.extend(
-    Footprint.Name,
-    Footprint.Tags, {
 
+    Footprint.Name,
+    Footprint.Key,
+    Footprint.Tags, {
     medium: SC.Record.toOne("Footprint.Medium", {}),
     media: SC.Record.toMany("Footprint.Medium", {}),
-    building_attribute_set: SC.Record.toOne("Footprint.BuildingAttributeSet", {isMaster: YES}),
+    // flat_building_densities is readonly
+    flat_building_densities: SC.Record.toOne("Footprint.FlatBuiltForm", {isMaster: NO}),
+
     // The examples used by the visualizer
     examples: SC.Record.toMany("Footprint.BuiltFormExample"),
+    origin_instance: SC.Record.toOne('Footprint.BuiltForm', { isMaster: YES}),
+    built_form_sets: SC.Record.toMany("Footprint.BuiltFormSet", { isMaster: NO }), // no inverse set on purpose, leave independent
+    // Unique class key prefix. Override
+    keyPrefix:null,
 
-    // Save all of these records after the main record
+    // Used to turn off BuiltForm post-save publishing when the ComponentPercents need to kick it off instead
+    no_post_save_publishing: SC.Record.attr(Boolean),
+
+    // Save all of these records before the main record. The BuiltForm references them, not the other way around
     _saveBeforeProperties: function() {
-        return ['medium', 'building_attribute_set'] //, 'examples', 'media']
+        return ['medium', 'examples', 'media']
     },
 
+    // These are all be unique to the cloned BuiltForm
     _cloneProperties: function () {
-        return ['medium', 'building_attribute_set'] //, 'examples', 'media'];
+        return ['medium', 'examples', 'media'];
     },
 
+    // These are copied by reference to the cloned BuiltForm
     _copyProperties: function () {
-        return ['tags']
+        return ['tags', 'built_form_sets']
     },
 
     _skipProperties: function() {
@@ -79,25 +235,28 @@ Footprint.BuiltForm = Footprint.Record.extend(
     _mapAttributes: {
         key: function (record, key, random) {
             return record.get('origin_instance') ?
-                'new_%@_%@'.fmt(key, random) :
-                'new_%@'.fmt(random);
+                '%@_%@'.fmt(key, random) :
+                '%@'.fmt(random);
         },
         name: function (record, name, random) {
             return record.get('origin_instance') ?
-                'New %@ %@'.fmt(name, random) :
-                'New %@'.fmt(random);
+                '%@ %@'.fmt(name, random) :
+                '%@'.fmt(random);
         }
-    },
-
+    }
+});
+SC.mixin(Footprint.BuiltForm, {
+    friendlyName: function() {
+        return 'Built Forms';
+    }
 });
 
 Footprint.BuiltFormSet = Footprint.Record.extend(
+
     Footprint.Key,
     Footprint.Name, {
 
         built_forms: SC.Record.toMany("Footprint.BuiltForm", {
-            nested: NO,
-            inverse: "built_form_set",
             isMaster: YES
         }),
 
@@ -124,6 +283,8 @@ Footprint.BuiltFormSet = Footprint.Record.extend(
     });
 
 Footprint.FlatBuiltForm = Footprint.Record.extend({
+    // FlatBuildForm uses the built_form_id as its pk. It lacks its own.
+    primaryKey: 'built_form_id',
     key: SC.Record.attr(Number),
     intersection_density: SC.Record.attr(Number),
     built_form_type: SC.Record.attr(String),
@@ -142,48 +303,268 @@ Footprint.FlatBuiltForm = Footprint.Record.extend({
     retail_density: SC.Record.attr(Number),
     industrial_density: SC.Record.attr(Number),
     residential_density: SC.Record.attr(Number),
-    agricultural_density: SC.Record.attr(Number)
+    agricultural_density: SC.Record.attr(Number),
+    combined_pop_emp_density: SC.Record.attr(Number)
 });
 
 
 Footprint.PrimaryComponent = Footprint.BuiltForm.extend({
-    primary_component_percent_set: SC.Record.toMany('Footprint.PrimaryComponentPercent', {isMaster: NO}),
-    _skipProperties: function () {
-        return (sc_super() || []).concat(['primary_component_percent_set']);
+    // The PlaceTypeComponents that use the PrimaryComponent, modeled in PrimaryComponentPercents that reference
+    // the percent relationship between each PlaceTypeComponent and this PrimaryComponent
+    // This is not Editable
+    primary_component_percent_set: SC.Record.toMany('Footprint.PrimaryComponentPercent', {
+        isMaster: NO,
+        nested: YES}),
+    hasContainerComponentPercents: YES,
+    // Generic alias
+    container_component_percents: function() {
+        return this.get('primary_component_percent_set');
+    }.property('primary_component_percent_set').cacheable(),
+
+    _copyProperties: function() {
+        // Copy read-only property. It won't be saved but makes cloning look nicer
+        return sc_super().concat(['primary_component_percent_set']);
     }
 });
 
-Footprint.PrimaryComponentPercent = Footprint.Record.extend({
-    primary_component: SC.Record.toOne("Footprint.PrimaryComponent", {nested: NO, inverse:'primary_component_percent_set'}),
-    percent: SC.Record.attr(Number)
+Footprint.PrimaryComponent.isPolymorphic = YES
+
+Footprint.PrimaryComponentPercent = Footprint.Record.extend(Footprint.ComponentPercentMixin, {
+    // TODO using subclasses
+    primary_component: SC.Record.toOne("Footprint.PrimaryComponent", {softInverse:'primary_component_percent_set'}),
+    //component: aliasProperty('primary_component'),
+    componentField: 'primary_component',
+
+    placetype_component: SC.Record.toOne("Footprint.PlacetypeComponent", {softInverse:'primary_component_percents'}),
+    //container: aliasProperty('plactype_component'),
+    containerField: 'placetype_component',
+
+    percent: SC.Record.attr(Number),
+
+    _copyProperties: function() {
+        return sc_super() || [];
+    },
+    _skipProperties: function() {
+        return (sc_super() || []).concat(['primary_component', 'placetype_component']);
+    },
+    _cloneSetup: function(sourceRecord, parentRecord) {
+        // If we are cloning an entire PlacetypeComponent, not just the PrimaryComponentPercent
+        // set the placetype_component to the parentRecord, which is the cloned PlacetypeComponent
+        // Otherwise copy the sourceRecord's property
+        this.set('placetype_component', parentRecord ? parentRecord : sourceRecord.get('subclassedContainer'));
+        this.set('primary_component', sourceRecord.get('subclassedComponent'));
+    }
 });
 
-Footprint.PlacetypeComponent = Footprint.BuiltForm.extend({
-    primary_component_percents: SC.Record.toMany('Footprint.PrimaryComponentPercent', {nested: YES}),
-    placetype_component_percent_set: SC.Record.toMany('Footprint.PlacetypeComponentPercent', {isMaster: NO}),
-    _copyProperties: function () {
+Footprint.PlacetypeComponentCategory = Footprint.Record.extend({
+    name: SC.Record.attr(String),
+    description: SC.Record.attr(String)
+});
+
+Footprint.PlacetypeComponent = Footprint.BuiltForm.extend(F.BuiltFormAggregateMixin, {
+    // The PrimaryComponents contained in the PlacetypeComponent by percent mix.
+    // This is Editable
+    primary_component_percents: SC.Record.toMany('Footprint.PrimaryComponentPercent', {
+        nested: YES,
+        softInverse:'placetype_component'
+    }),
+    component_percents: function(propKey, value) {
+        if (value) {
+            this.set('primary_component_percents', value)
+        }
+        return this.get('primary_component_percents')
+    }.property('primary_component_percents').cacheable(),
+
+    // The PlaceTypes that use the PlacetypeComponent, modeled in PlacetypeComponentPercents that reference
+    // the percent relationship between each Placetype and this PlacetypeComponent
+    // This is not Editable
+    placetype_component_percent_set: SC.Record.toMany('Footprint.PlacetypeComponentPercent', {
+        nested: YES,
+        isMaster: NO
+    }),
+    hasContainerComponentPercents: YES,
+    // Generic alias
+    container_component_percents: function() {
+        return this.get('placetype_component_percent_set');
+    }.property('placetype_component_percent_set').cacheable(),
+
+    component_category: SC.Record.toOne('Footprint.PlacetypeComponentCategory'),
+
+    _cloneProperties: function () {
         return (sc_super() || []).concat(['primary_component_percents']);
     },
-    _skipProperties: function () {
-        return (sc_super() || []).concat(['placetype_component_percent_set']);
+    _nestedProperties: function () {
+        return (sc_super() || []).concat(['primary_component_percents']);
+    },
+    _copyProperties: function() {
+        // Copy read-only property. It won't be saved but makes cloning look nicer
+        return (sc_super() || []).concat(['placetype_component_percent_set', 'component_category']);
+    }
+});
+Footprint.PlacetypeComponent.isPolymorphic = YES
+
+Footprint.PlacetypeComponentPercent = Footprint.Record.extend(Footprint.ComponentPercentMixin, {
+
+    placetype_component: SC.Record.toOne("Footprint.PlacetypeComponent", {
+        softInverse:'placetype_component_percent_set'
+    }),
+    //component: aliasProperty('placetype_component'),
+    componentField: 'placetype_component',
+
+    placetype: SC.Record.toOne("Footprint.Placetype", {
+        softInverse:'placetype_component_percents'
+    }),
+    //container: aliasProperty('placetype'),
+    containerField: 'placetype',
+
+    percent: SC.Record.attr(Number),
+
+    _copyProperties: function() {
+        return sc_super() | [];
+    },
+    _skipProperties: function() {
+        return ['placetype', 'placetype_component'];
+    },
+    _cloneSetup: function(sourceRecord, parentRecord) {
+        // If we are cloning an entire Placetype, not just the PlacetypeComponentPercent
+        // set the placetype to the parentRecord, which is the cloned Placetype.
+        // Otherwise copy the sourceRecord's property
+        this.set('placetype', parentRecord ? parentRecord : sourceRecord.get('subclassedContainer'));
+        this.set('placetype_component', sourceRecord.get('subclassedComponent'));
     }
 });
 
-Footprint.PlacetypeComponentPercent = Footprint.Record.extend({
-    placetype_component: SC.Record.toOne("Footprint.PlacetypeComponent", {nested: NO, inverse:'placetype_component_percent_set'}),
-    percent: SC.Record.attr(Number)
-});
 
+Footprint.Placetype = Footprint.BuiltForm.extend(F.BuiltFormAggregateMixin, {
+    // The PlacetypeComponents contained in the Placetype by percent mix
+    placetype_component_percents: SC.Record.toMany('Footprint.PlacetypeComponentPercent', {
+        nested:YES,
+        softInverse:'placetype'
+    }),
+    component_percents: function(propKey, value) {
+        if (value) {
+            this.set('placetype_component_percents', value)
+        }
+        return this.get('placetype_component_percents')
+    }.property('placetype_component_percents').cacheable(),
 
-Footprint.Placetype = Footprint.BuiltForm.extend({
-    placetype_component_percents: SC.Record.toMany('Footprint.PlacetypeComponentPercent', {nested: YES}),
-    _copyProperties: function () {
+    _cloneProperties: function () {
+        return (sc_super() || []).concat(['placetype_component_percents']);
+    },
+    _nestedProperties: function () {
         return (sc_super() || []).concat(['placetype_component_percents']);
     }
 });
 
-Footprint.BuiltFormExample = Footprint.Record.extend({
+Footprint.Placetype.isPolymorphic = YES;
+
+Footprint.BuiltFormExample = F.Record.extend({
     url_aerial: SC.Record.attr(String),
     url_street: SC.Record.attr(String),
-    content: SC.Record.attr(Object)
+    content: SC.Record.attr(Object),
+    /**
+     * Since keys need to be unique when cloning, we generate unique key
+     */
+    _mapAttributes: {
+        key:function(record, key, random) {
+            return '%@__%@'.fmt(key, random);
+        }
+    }
 });
+
+Footprint.Building = Footprint.PrimaryComponent.extend(F.BuildingAttributesMixin,{
+    keyPrefix: 'b__',
+    buildingAttributeSetStatusObserver: function() {
+        if (this.get('status') === SC.Record.READY_CLEAN &&
+            this.getPath('building_attribute_set.status') === SC.Record.READY_DIRTY) {
+            this.get('store').writeStatus(this.get('storeKey'), SC.Record.READY_DIRTY);
+        }
+    }.observes('*building_attribute_set.status'),
+
+    _saveBeforeProperties: function () {
+        return (sc_super() || []).concat(['building_attribute_set']);
+    },
+    // These are all be unique to the cloned BuiltForm
+    _cloneProperties: function () {
+        return (sc_super() || []).concat(['building_attribute_set', 'flat_building_densities']);
+    },
+    _copyProperties: function() {
+        // Copy read-only property. It won't be saved but makes cloning look nicer
+        return (sc_super() || []).concat(['flat_building_densities']);
+    }
+});
+
+Footprint.BuildingType = Footprint.PlacetypeComponent.extend(F.BuildingAttributesMixin,
+    {keyPrefix: 'bt__',
+    _saveBeforeProperties: function () {
+        return (sc_super() || []).concat(['building_attribute_set']);
+    },
+    // These are all be unique to the cloned BuiltForm
+    _cloneProperties: function () {
+        return (sc_super() || []).concat(['building_attribute_set', 'flat_building_densities']);
+    },
+    _copyProperties: function() {
+        // Copy read-only property. It won't be saved but makes cloning look nicer
+        return (sc_super() || []).concat(['flat_building_densities']);
+    }
+});
+
+Footprint.UrbanPlacetype = Footprint.Placetype.extend(F.BuildingAttributesMixin, {
+    keyPrefix: 'pt__',
+    _saveBeforeProperties: function () {
+        return (sc_super() || []).concat(['building_attribute_set']);
+    },
+    // These are all be unique to the cloned BuiltForm
+    _cloneProperties: function () {
+        return (sc_super() || []).concat(['building_attribute_set', 'flat_building_densities']);
+    },
+    _copyProperties: function() {
+        // Copy read-only property. It won't be saved but makes cloning look nicer
+        return (sc_super() || []).concat(['flat_building_densities']);
+    }
+});
+
+
+Footprint.Crop = Footprint.PrimaryComponent.extend(F.AgricultureAttributesMixin, {
+    keyPrefix: 'c__',
+
+    agricultureAttributeSetStatusObserver: function() {
+        if (this.get('status') === SC.Record.READY_CLEAN &&
+            this.getPath('agriculture_attribute_set.status') === SC.Record.READY_DIRTY) {
+            this.get('store').writeStatus(this.get('storeKey'), SC.Record.READY_DIRTY);
+        }
+    }.observes('*agriculture_attribute_set.status'),
+
+    _saveBeforeProperties: function () {
+        return (sc_super() || []).concat(['agriculture_attribute_set']);
+    },
+    // These are all be unique to the cloned BuiltForm
+    _cloneProperties: function () {
+        return (sc_super() || []).concat(['agriculture_attribute_set']);
+    }
+});
+
+Footprint.CropType = Footprint.PlacetypeComponent.extend(F.AgricultureAttributesMixin, {
+    keyPrefix: 'ct__',
+    _saveBeforeProperties: function () {
+        return (sc_super() || []).concat(['agriculture_attribute_set']);
+    },
+    // These are all be unique to the cloned BuiltForm
+    _cloneProperties: function () {
+        return (sc_super() || []).concat(['agriculture_attribute_set']);
+    }
+
+});
+
+Footprint.LandscapeType = Footprint.Placetype.extend(F.AgricultureAttributesMixin, {
+    keyPrefix: 'lt__',
+    _saveBeforeProperties: function () {
+        return (sc_super() || []).concat(['agriculture_attribute_set']);
+    },
+    // These are all be unique to the cloned BuiltForm
+    _cloneProperties: function () {
+        return (sc_super() || []).concat(['agriculture_attribute_set']);
+    }
+
+});
+

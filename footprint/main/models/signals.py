@@ -16,8 +16,11 @@
 # Contact: Joe DiStefano (joed@calthorpe.com), Calthorpe Associates.
 # Firm contact: 2095 Rose Street Suite 201, Berkeley CA 94709.
 # Phone: (510) 548-6800. Web: www.calthorpe.com
+from django.db.models.signals import post_save, pre_delete, m2m_changed
 
 from django.dispatch import Signal
+from footprint.main.models.config.config_entity import ConfigEntity
+from footprint.main.utils.utils import has_explicit_through_class
 
 
 __author__ = 'calthorpe_associates'
@@ -44,7 +47,7 @@ def items_changed(attribute):
             for donee in donees:
                 manager = getattr(donee, attribute)
                 if len(manager.all()) > 0:
-                    added = getattr(donor, attribute).filter(pk__in=kwargs['pk_set'])
+                    added = getattr(donor, attribute).filter(pk__in=kwargs['pk_set'], deleted=False)
                     donee._add(attribute, *added)
         elif action=='pre_remove':
             # If the donee instance's related list is nonempty, remove any that the donor removed (empty ones will get
@@ -52,7 +55,7 @@ def items_changed(attribute):
             for donee in donees:
                 manager = getattr(donee, attribute)
                 if len(manager.all()) > 0:
-                    removed = manager.filter(pk__in=kwargs['pk_set'])
+                    removed = manager.filter(pk__in=kwargs['pk_set'], deleted=False)
                     donee._remove(attribute, *removed)
         elif action=='pre_clear':
             # If the donee instance's related list is nonempty, remove all those of the donor (empty ones will get the
@@ -93,16 +96,14 @@ def through_item_changed(sender, attribute, action, **kwargs):
             else:
                 donee._remove(attribute, through_instance)
 
-# TODO I'm suspicious of performance issues. So leaving these out until really needed.
-# They will be needed as soon as we create new DbEntities at the project level, because
-# the scenarios need to adopt them
-# for attribute in ConfigEntity.INHERITABLE_COLLECTIONS:
-#     through_class = getattr(ConfigEntity, attribute).through
-#     # Listen to each through class for changes
-#     if has_explicit_through_class(ConfigEntity, attribute):
-#         # through_item_added won't actually do anything unless the item is new kwargs['created']==True
-#         post_save.connect(through_item_added(attribute), sender=through_class, weak=False)
-#         pre_delete.connect(through_item_deleted(attribute), sender=through_class, weak=False)
-#     else:
-#         m2m_changed.connect(items_changed(attribute), sender=through_class, weak=False)
+# Wire it up
+for attribute in ConfigEntity.INHERITABLE_COLLECTIONS:
+    through_class = getattr(ConfigEntity, attribute).through
+    # Listen to each through class for changes
+    if has_explicit_through_class(ConfigEntity, attribute):
+        # through_item_added won't actually do anything unless the item is new kwargs['created']==True
+        post_save.connect(through_item_added(attribute), sender=through_class, weak=False)
+        pre_delete.connect(through_item_deleted(attribute), sender=through_class, weak=False)
+    else:
+        m2m_changed.connect(items_changed(attribute), sender=through_class, weak=False)
 

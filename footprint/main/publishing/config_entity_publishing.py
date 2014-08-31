@@ -1,6 +1,6 @@
 # UrbanFootprint-California (v1.0), Land Use Scenario Development and Modeling System.
 #
-# Copyright (C) 2013 Calthorpe Associates
+# Copyright (C) 2014 Calthorpe Associates
 #
 # This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, version 3 of the License.
 #
@@ -13,9 +13,10 @@ import logging
 from django.contrib.auth.models import User
 from django.db.models.signals import pre_save, post_save
 from django.dispatch import Signal
-# from memory_profiler import profile
+from footprint.main.models.category import Category
 from footprint.main.models.config.global_config import GlobalConfig
 from footprint.main.models.config.config_entity import ConfigEntity
+from footprint.main.publishing.crud_key import CrudKey
 from footprint.main.publishing.publishing import post_save_publishing
 from footprint.main.models.config.scenario import FutureScenario, BaseScenario
 from footprint.main.models.config.project import Project
@@ -43,24 +44,25 @@ post_save_config_entity_layers = Signal(providing_args=[])
 # Signal for all publishers that can run after data importing
 post_save_config_entity_imports = Signal(providing_args=[])
 # Signal for all publishers that should run after analytic modules run
-post_save_config_entity_analytic_run = Signal(providing_args=[])
+post_save_config_entity_analysis_module = Signal(providing_args=[])
+
 
 def post_save_config_entity_initial_publishers(cls):
     """
         DbEntity publishing, Analysis Module publishing, and BuiltForm publishing can happen in parallel as soon
         as a config_entity is saved
     """
-    post_save_config_entity_initial.connect(analysis_module_publishing.on_config_entity_post_save_analysis_modules, cls, True, "analysis_module_on_config_entity_post_save")
-
     post_save_config_entity_initial.connect(built_form_publishing.on_config_entity_post_save_built_form, cls, True, "built_form_publishing_on_config_entity_post_save")
 
     post_save_config_entity_initial.connect(policy_publishing.on_config_entity_post_save_policy, cls, True, "policy_publishing_on_config_entity_post_save")
+
 
 def post_save_config_entity_built_form_publishers(cls):
     """
         DBEntity publishing can happen after built_forms
     """
     post_save_config_entity_built_forms.connect(db_entity_publishing.on_config_entity_post_save_db_entity, cls, True, "db_entity_on_config_entity_post_save")
+
 
 def post_save_config_entity_db_entities_publishers(cls):
     """
@@ -72,9 +74,11 @@ def post_save_config_entity_db_entities_publishers(cls):
 
 def post_save_config_entity_import_publishers(cls):
     """
-        Result publishing can run after Data Import publishing
+        Result and AnalysisModule publishing can run after Data Import publishing
     """
     post_save_config_entity_imports.connect(result_publishing.on_config_entity_post_save_result, cls, True, "result_on_config_entity_post_save")
+    post_save_config_entity_imports.connect(analysis_module_publishing.on_config_entity_post_save_analysis_modules, cls, True, "analysis_module_on_config_entity_post_save")
+
 
 def post_save_config_entity_layers_publishers(cls):
     """
@@ -87,7 +91,7 @@ def post_save_config_entity_analytic_runs_publishers(cls):
         Tilestache also runs after analytic runs to clear the cache
         TODO this should be refined.
     """
-    post_save_config_entity_analytic_run.connect(tilestache_publishing.on_post_analytic_run_tilestache, cls, True, "tilestache_on_post_analytic_run")
+    post_save_config_entity_analysis_module.connect(tilestache_publishing.on_post_analytic_run_tilestache, cls, True, "tilestache_on_post_analytic_run")
 
 # Register receivers for only the lineage classes of Scenario subclasses
 for cls in [FutureScenario, BaseScenario, Project, Region, GlobalConfig]:
@@ -148,7 +152,6 @@ def on_config_entity_pre_save(sender, **kwargs):
             instance.bounds = instance.parent_config_entity.bounds
 
 @receiver_subclasses(post_save, ConfigEntity, "config_entity_post_save")
-#@profile
 def on_config_entity_post_save(sender, **kwargs):
     """
         Create the ConfigEntity's database schema on initial save.
@@ -158,9 +161,13 @@ def on_config_entity_post_save(sender, **kwargs):
         post_save_config_entity_initial (see dependent_signal_paths)
         :param sender:
         :param kwargs:
+            instance - the ConfigEntity
+            created - True if the instance was just created
+            sync - True if the instance should be synced to the configuration
         :return:
     """
     config_entity = kwargs['instance']
+    crud_type = CrudKey.resolve_crud(**kwargs)
 
     for child_config_entity in config_entity.children():
         # Do any needed syncing of config_entity_children
@@ -176,8 +183,15 @@ def on_config_entity_post_save(sender, **kwargs):
         # processings, such as rekeying the scenario so it doesn't conflict with new scenario keys
         return
 
-    if kwargs.get('created', None) and config_entity.origin_config_entity:
-        config_entity.add_categories(*config_entity.origin_config_entity.categories.all())
+    if CrudKey.CLONE == crud_type:
+        config_entity.add_categories(*config_entity.origin_instance.categories.all())
+    elif CrudKey.CREATE == crud_type:
+        # Unless preconfigured, set the basic category based on type
+        if config_entity.categories.count() == 0:
+            category = Category.objects.update_or_create(
+                key='category',
+                value='Future' if isinstance(config_entity, FutureScenario) else 'Base')[0]
+            config_entity.add_categories(category)
 
     # TODO The default user here should be the admin, and in fact all config_entity instances
     # should simply have to have a creator
@@ -195,4 +209,5 @@ def on_config_entity_post_save(sender, **kwargs):
         instance=config_entity,
         signal_proportion_lookup=signal_proportion_lookup,
         dependent_signal_paths=dependent_signal_paths,
-        signal_prefix='post_save_config_entity')
+        signal_prefix='post_save_config_entity',
+        crud_type=crud_type)

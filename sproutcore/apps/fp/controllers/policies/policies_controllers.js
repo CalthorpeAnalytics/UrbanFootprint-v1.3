@@ -12,9 +12,6 @@ sc_require('controllers/tree_controller');
  */
 Footprint.policyCategoriesTreeContent = Footprint.TreeContent.create({
 
-    // The content exists in the context of a ConfigEntity. I'm not sure if this matters yet.
-    configEntityBinding: SC.Binding.oneWay('Footprint.scenarioActiveController.content'),
-
     // The container object holding nodes
     nodeSetBinding: SC.Binding.oneWay('Footprint.policySetActiveController.content'),
     // The nodes of the tree

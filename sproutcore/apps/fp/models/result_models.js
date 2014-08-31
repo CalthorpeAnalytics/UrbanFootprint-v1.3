@@ -2,7 +2,7 @@
 /*
 * UrbanFootprint-California (v1.0), Land Use Scenario Development and Modeling System.
 * 
-* Copyright (C) 2013 Calthorpe Associates
+* Copyright (C) 2014 Calthorpe Associates
 * 
 * This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, version 3 of the License.
 * 
@@ -17,6 +17,9 @@ sc_require('models/presentation_medium_model');
 
 // Result is a subclass class that supports charts and grids
 Footprint.Result = Footprint.PresentationMedium.extend({
+    presentation: SC.Record.toOne("Footprint.ResultLibrary", {
+        isMaster: NO
+    })
 });
 
 // A grid (table) result based on a data table, view, or query
@@ -30,8 +33,8 @@ Footprint.LayerChart = Footprint.Result.extend();
 Footprint.ResultLibrary = Footprint.Presentation.extend({
     // We currently use the results attribute instead of presentation_media. In theory Sproutcore supports subclassing on nested records, so we should be able to use the presentation_media attribute instead of results. A Result is a subclass of PresentationMedium
     results: SC.Record.toMany("Footprint.Result", {
-        nested:NO,
-        isMaster:YES
+        isMaster:YES,
+        inverse: 'presentation'
     }),
 
     _copyProperties: function () {

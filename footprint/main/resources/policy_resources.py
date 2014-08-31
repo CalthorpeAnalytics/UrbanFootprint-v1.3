@@ -17,7 +17,7 @@
 # Phone: (510) 548-6800. Web: www.calthorpe.com
 from tastypie.fields import ToManyField
 from tastypie.resources import ModelResource
-from footprint.main.models import PolicySet
+from footprint.main.models.config.policy_set import PolicySet
 from footprint.main.models.config.policy import Policy
 from footprint.main.resources.footprint_resource import FootprintResource
 from footprint.main.resources.tag_resource import TagResource

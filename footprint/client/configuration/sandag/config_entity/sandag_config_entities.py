@@ -2,11 +2,10 @@ from footprint.client.configuration.fixture import ConfigEntitiesFixture, Medium
 from footprint.client.configuration.default.config_entity.default_config_entities import ConfigEntityMediumKey
 from footprint.main.models.config.scenario import BaseScenario, FutureScenario
 from django.conf import settings
+from footprint.main.models.category import Category
 
 __author__ = 'calthorpe_associates'
 from django.contrib.gis.geos import MultiPolygon, Polygon
-from footprint.main.mixins.category import Category
-
 
 
 class SandagConfigEntitiesFixture(ConfigEntitiesFixture):
@@ -28,17 +27,13 @@ class SandagConfigEntitiesFixture(ConfigEntitiesFixture):
 
     def projects(self, region=None):
         return [
-
             {
                 'key': 'sandag',
                 'name': 'SANDAG Scenarios',
                 'description': "The San Diego Region",
                 'base_year': 2012,
                 'region_index': 0,
-                'media': [
-                    MediumFixture(key=ConfigEntityMediumKey.Fab.ricate('sandag_logo'), name='Sandag Logo',
-                                  url='/static/client/{0}/logos/sandag.png'.format(settings.CLIENT))
-                ],
+                'media': [],
                 'bounds': MultiPolygon([Polygon(
                     (
                         # TODO: decide if this needs updating or if it's taken care of by the project method
@@ -52,9 +47,13 @@ class SandagConfigEntitiesFixture(ConfigEntitiesFixture):
                 )])
             }
         ]
+                        # MediumFixture(key=ConfigEntityMediumKey.Fab.ricate('sandag_logo'), name='Sandag Logo',
+                        #           url='/static/client/{0}/logos/sandag.png'.format(settings.CLIENT))
 
     def scenarios(self, project=None, class_scope=None):
         return self.matching_scope([
+
+
             {
                 'class_scope': BaseScenario,
                 'key': '{0}_base'.format(project.key),
@@ -76,7 +75,16 @@ class SandagConfigEntitiesFixture(ConfigEntitiesFixture):
                 'selections': dict(),
                 'categories': [Category(key='category', value='Future')]
             },
-
+            {
+                'class_scope': FutureScenario,
+                'key': '{0}_scenario_a'.format(project.key),
+                'scope': project.schema(),
+                'name': 'Scenario A',
+                'description': '{0} Future Scenario Alternative A for {1}'.format('2050', project.name),
+                'year': 2050,
+                'selections': dict(),
+                'categories': [Category(key='category', value='Future')]
+            },
             {
                 'class_scope': FutureScenario,
                 'key': '{0}_scenario_b'.format(project.key),
@@ -87,6 +95,7 @@ class SandagConfigEntitiesFixture(ConfigEntitiesFixture):
                 'selections': dict(),
                 'categories': [Category(key='category', value='Future')]
             },
+
             {
                 'class_scope': FutureScenario,
                 'key': '{0}_scenario_c'.format(project.key),

@@ -1,6 +1,6 @@
 # UrbanFootprint-California, Scenario Planning Model
 # 
-# Copyright (C) 2012-2013 Calthorpe Associates
+# Copyright (C) 2012-2014 Calthorpe Associates
 # 
 # This program is free software: you can redistribute it and/or modify it under the terms of the
 # GNU General Public License as published by the Free Software Foundation, version 3 of the License.
@@ -143,7 +143,7 @@ def recreate_django():
     )
     run_as_postgres(cmd)
 
-    postgresql_role_ensure('calthorpe', '[PASSWORD]', superuser=True, createdb=True, createrole=True,
+    postgresql_role_ensure('calthorpe', '[ your password ]', superuser=True, createdb=True, createrole=True,
                            inherit=True, login=True)
     postgresql_database_ensure('urbanfootprint', owner='calthorpe', template='template_postgis')
 
@@ -190,7 +190,8 @@ def recreate_dev(init=True):
         Make sure complete migration scripts exist prior to running this
     :return:
     """
-
+    start = datetime.datetime.now()
+    print start
     if '127.0.0.1' not in env.hosts and not getattr(env, 'allow_remote_recreate', False):
         raise Exception("recreate_dev is not allowed for non-localhosts for security purposes")
     if not getattr(env, 'allow_remote_recreate', False):
@@ -211,10 +212,13 @@ def recreate_dev(init=True):
 
         if init is True:
             manage_py('footprint_init')
+    try:
 
-    clear_tilestache_cache()
-
-
+        clear_tilestache_cache()
+    except:
+        pass
+    end = datetime.datetime.now()
+    elapsed = end - start
 @task
 def clear_tilestache_cache():
     sudo('rm -rf /tmp/stache/*')
@@ -258,17 +262,22 @@ def deploy(upgrade_env=True):
 
     set_paths()
     directory_permissions()
-    with cd(PROJ_ROOT):
+    with cd('/srv/calthorpe/urbanfootprint/'):
         sudo('find . -name \'*.pyc\' -delete')
+        sudo('git config --global user.name {0}'.format(env.deploy_user))
+        sudo('git stash', user=env.deploy_user)
         sudo('git pull', user=env.deploy_user)
+        sudo('git submodule update', user=env.deploy_user)
 
         #with cd('/srv/calthorpe/urbanfootprint'):
         #with settings(warn_only=True):
         #    sudo('su {0} -c "git rm -r --cached ."'.format(env.deploy_user))
         #    sudo('su {0} -c "rm -rf /srv/calthorpe/urbanfootprint/calthorpe/server/calthorpe/main/sproutcore/frameworks/sc-table"'.format(env.deploy_user))
-        #    sudo('su {0} -c "git submodule add https://github.com/jslewis/sctable.git /srv/calthorpe/urbanfootprint/calthorpe/server/calthorpe/main/sproutcore/frameworks/sc-table"'.format(env.deploy_user))
+        #    sudo('su {0} -c "git submodule add https://github.com/jslewis/sctable.git /srv/calthorpe/urb
+        # anfootprint/calthorpe/server/calthorpe/main/sproutcore/frameworks/sc-table"'.format(env.deploy_user))
         #sudo('su {0} -c "git submodule init"'.format(env.deploy_user))
         #sudo('su {0} -c "git submodule update"'.format(env.deploy_user))
+    with cd(PROJ_ROOT):
 
         if (upgrade_env == True):
             virtualenv('pip install -U -r ' + PROJ_ROOT + '/pip-req.txt')

@@ -1,7 +1,7 @@
 /*
  * UrbanFootprint-California (v1.0), Land Use Scenario Development and Modeling System.
  *
- * Copyright (C) 2013 Calthorpe Associates
+ * Copyright (C) 2014 Calthorpe Associates
  *
  * This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, version 3 of the License.
  *
@@ -13,24 +13,30 @@
  */
 
 /***
- * LoadingRecordsState takes an activeRecord and loads all childRecords in parallel.
+ * LoadingRecordsState takes an content and loads all childRecords in parallel.
  * Upon completion it sends didLoadRecords
  * @type {*}
  */
 Footprint.LoadingRecordsState = SC.State.extend({
-    doCancel: function() {
-        // Leave the modal crud state which was showing the pane
-        this.gotoState('modalState.readyState');
-        return NO;
-    },
     enterState:function(context) {
         this._context = context;
-        var content = context.get('activeRecord') ?
-            (context.get('activeRecord').isEnumerable ? context.get('activeRecord') : [context.get('activeRecord')]) :
-            [];
+        if (this._context.getPath('content.length')==0) {
+            // I don't think should ever happen
+            Footprint.statechart.sendEvent('didLoadRecords', this._context);
+            return;
+        }
+
+        // Due to a bug in calling retrieveRecords with nestedStores, we get
+        // all the parent store records and access their properties. This
+        // success in loading the records in the parent store and updating the nested store versions.
+        var mainStore = context.getPath('content.firstObject.store.parentStore');
+        var mainStoreContent = context.get('content').map(function(record) {
+            return mainStore.materializeRecord(record.get('storeKey'));
+        });
 
         // This returns a flattened list of pairs of child attributes in the form
-        var childRecordPairs = $.shallowFlatten(content.map(function(record) {
+        //{key:property_string, value:property value}
+        var childRecordPairs = $.shallowFlatten(mainStoreContent.map(function(record) {
             return record.loadAttributes();
         }));
         this._childRecords = childRecordPairs.mapProperty('value');
@@ -52,8 +58,8 @@ Footprint.LoadingRecordsState = SC.State.extend({
             }
         }, this);
         if (this._childRecordsQueue.length == 0) {
-            // ON all ready
-            Footprint.statechart.sendEvent('didLoadRecords');
+            Footprint.statechart.sendEvent('didLoadRecords', this._context);
         }
     }
 });
+

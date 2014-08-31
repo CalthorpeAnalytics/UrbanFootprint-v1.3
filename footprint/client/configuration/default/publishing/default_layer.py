@@ -1,19 +1,24 @@
+import logging
 from footprint.client.configuration.fixture import LayerConfigurationFixture, RegionFixture, GlobalConfigFixture, project_specific_project_fixtures, project_specific_scenario_fixtures
 from footprint.client.configuration.default.default_mixin import DefaultMixin
+from footprint.main.models.geospatial.db_entity_keys import DbEntityKey
 from footprint.main.publishing.layer_initialization import LayerLibraryKey, LayerMediumKey, LayerSort, LayerTag
 from footprint.main.publishing.tilestache_style_configuration import create_style_template, create_template_context_dict_for_parent_model
 from footprint.client.configuration.utils import resolve_fixture
 from footprint.main.lib.functions import flat_map, flatten, unique, merge
-from footprint.main.models import BuiltForm, Scenario, Medium, LayerSelection
+from footprint.main.models.built_form.built_form import BuiltForm
+from footprint.main.models.config.scenario import Scenario
+from footprint.main.models.presentation.medium import Medium
+from footprint.main.models.presentation.layer_selection import LayerSelection
 from footprint.main.models.config.scenario import FutureScenario, BaseScenario
 from footprint.main.models.geospatial.feature import Feature
-from footprint.main.models.keys.keys import Keys
 from footprint.main.models.presentation.presentation_configuration import LayerConfiguration, PresentationConfiguration, ConfigurationData
 from footprint.main.models.tag import Tag
 from footprint import settings
 
 __author__ = 'calthorpe_associates'
 
+logger = logging.getLogger(__name__)
 
 class DefaultLayerConfigurationFixtures(DefaultMixin, LayerConfigurationFixture):
     def layer_libraries(self, layers=None):
@@ -51,7 +56,7 @@ class DefaultLayerConfigurationFixtures(DefaultMixin, LayerConfigurationFixture)
                          # Iterate through all project-specific scenario configs
                          project_specific_scenario_fixtures()
                      ])),
-            lambda db_entity_setup: db_entity_setup['key'])
+            lambda db_entity: db_entity.key)
 
     def background_layers(self):
         """
@@ -61,14 +66,14 @@ class DefaultLayerConfigurationFixtures(DefaultMixin, LayerConfigurationFixture)
         """
         # Find all unique db_entity setups that have the url property
         db_entity_setups = filter(
-            lambda db_entity_setup: db_entity_setup.get('url', None),
+            lambda db_entity: db_entity.url,
             self.all_remote_db_entity_setups())
         return map(
-            lambda db_entity_setup: LayerConfiguration(
+            lambda db_entity: LayerConfiguration(
                 scope=Scenario.__name__,
                 layer_library_key=LayerLibraryKey.DEFAULT,
-                db_entity_key=db_entity_setup['key'],
-                visible=db_entity_setup['key']=='google_map',
+                db_entity_key=db_entity.key,
+                visible=db_entity.key=='google_map',
                 tags=[Tag.objects.get(tag=LayerTag.BACKGROUND_IMAGERY)],
                 sort_priority=LayerSort.BACKGROUND),
             db_entity_setups)
@@ -78,23 +83,23 @@ class DefaultLayerConfigurationFixtures(DefaultMixin, LayerConfigurationFixture)
             Returns LayerConfigurations that are scoped to a certain LayerLibrary key
         :return:
         """
+        db_entity_key = DbEntityKey.Fab.ricate
 
         return self.matching_scope(self.background_layers() + [
             # The following layers are Used by both BaseScenario and FutureScenario
             LayerConfiguration(
-                scope=FutureScenario.__name__,
+                scope=Scenario.__name__,
                 layer_library_key=LayerLibraryKey.DEFAULT,
-                db_entity_key=Keys.DB_ABSTRACT_DEVELOPABLE,
+                db_entity_key=DbEntityKey.DEVELOPABLE,
                 visible=False,
                 visible_attributes=['developable_index'],
-                tags=[Tag.objects.get(tag=LayerTag.DEFAULT)],
                 template_context_dict={'attributes': {'developable_index': {'unstyled': True}}},
                 sort_priority=LayerSort.BASE
             ),
             LayerConfiguration(
                 scope=Scenario.__name__,
                 layer_library_key=LayerLibraryKey.DEFAULT,
-                db_entity_key=Keys.DB_ABSTRACT_CENSUS_TRACT,
+                db_entity_key=db_entity_key('census_tract'),
                 visible=False,
                 # TODO why style tract codes?
                 visible_attributes=['tract'],
@@ -105,8 +110,8 @@ class DefaultLayerConfigurationFixtures(DefaultMixin, LayerConfigurationFixture)
             LayerConfiguration(
                 scope=Scenario.__name__,
                 layer_library_key=LayerLibraryKey.DEFAULT,
-                db_entity_key=Keys.DB_ABSTRACT_CENSUS_BLOCKGROUP,
-                visible=False, #Temp
+                db_entity_key=db_entity_key('census_blockgroup'),
+                visible=False,
                 visible_attributes=['blockgroup'],
                 tags=[Tag.objects.get(tag=LayerTag.DEFAULT)],
                 # TODO why style blockgroup codes?
@@ -116,7 +121,7 @@ class DefaultLayerConfigurationFixtures(DefaultMixin, LayerConfigurationFixture)
             LayerConfiguration(
                 scope=Scenario.__name__,
                 layer_library_key=LayerLibraryKey.DEFAULT,
-                db_entity_key=Keys.DB_ABSTRACT_CENSUS_BLOCK,
+                db_entity_key=db_entity_key('census_block'),
                 visible=False,
                 visible_attributes=['block'],
                 tags=[Tag.objects.get(tag=LayerTag.DEFAULT)],
@@ -127,7 +132,7 @@ class DefaultLayerConfigurationFixtures(DefaultMixin, LayerConfigurationFixture)
             LayerConfiguration(
                 scope=Scenario.__name__,
                 layer_library_key=LayerLibraryKey.DEFAULT,
-                db_entity_key=Keys.DB_ABSTRACT_CPAD_HOLDINGS_FEATURE,
+                db_entity_key=DbEntityKey.CPAD_HOLDINGS,
                 visible=False,
                 visible_attributes=['wkb_geometry'],
                 tags=[Tag.objects.get(tag=LayerTag.DEFAULT)],
@@ -137,60 +142,63 @@ class DefaultLayerConfigurationFixtures(DefaultMixin, LayerConfigurationFixture)
             LayerConfiguration(
                 scope=Scenario.__name__,
                 layer_library_key=LayerLibraryKey.DEFAULT,
-                db_entity_key=Keys.DB_ABSTRACT_BASE_FEATURE,
+                db_entity_key=DbEntityKey.BASE,
                 visible=False,
                 visible_attributes=['built_form__id'],
                 column_alias_lookup=dict(built_form__id='built_form_id'),
-                tags=[Tag.objects.get(tag=LayerTag.DEFAULT)],
                 template_context_dict=built_form_template_context_dict(),
                 sort_priority=LayerSort.BASE
             ),
-
-            # The following are only used by FutureScenario
+            LayerConfiguration(
+                scope=Scenario.__name__,
+                layer_library_key=LayerLibraryKey.DEFAULT,
+                db_entity_key=DbEntityKey.VMT,
+                visible=False,
+                visible_attributes=['vmt_daily_per_hh'],
+                tags=[Tag.objects.get(tag=LayerTag.DEFAULT)],
+                template_context_dict={'attributes': {'vmt_daily_per_hh': {'unstyled': True}}},
+                sort_priority=LayerSort.FUTURE+4
+            ),
+            LayerConfiguration(
+                scope=Scenario.__name__,
+                db_entity_key=DbEntityKey.BASE_AGRICULTURE,
+                visible=False,
+                visible_attributes=['built_form__id'],
+                column_alias_lookup=dict(built_form__id='built_form_id'),
+                built_form_set_key='sacog_rucs',
+                template_context_dict=built_form_template_context_dict(),
+                sort_priority=LayerSort.FUTURE+4
+            ),
             LayerConfiguration(
                 scope=FutureScenario.__name__,
                 layer_library_key=LayerLibraryKey.DEFAULT,
-                db_entity_key=Keys.DB_ABSTRACT_FUTURE_SCENARIO_FEATURE,
-                visible=True,
+                db_entity_key=DbEntityKey.INCREMENT,
+                visible=False,
                 visible_attributes=['built_form__id'],
-                # The SQL column returned is normally builform_id, so alias it to our expected attribute string
                 column_alias_lookup=dict(built_form__id='built_form_id'),
-                tags=[Tag.objects.get(tag=LayerTag.DEFAULT)],
                 template_context_dict=built_form_template_context_dict(),
                 sort_priority=LayerSort.FUTURE+1
             ),
             LayerConfiguration(
                 scope=FutureScenario.__name__,
                 layer_library_key=LayerLibraryKey.DEFAULT,
-                db_entity_key=Keys.DB_ABSTRACT_INCREMENT_FEATURE,
-                visible=False,
-                visible_attributes=['land_development_category'],
-                tags=[Tag.objects.get(tag=LayerTag.DEFAULT)],
-                template_context_dict={'attributes': {'land_development_category': {'unstyled': True}}},
-                sort_priority=LayerSort.FUTURE+3
-            ),
-
-            LayerConfiguration(
-                scope=FutureScenario.__name__,
-                layer_library_key=LayerLibraryKey.DEFAULT,
-                db_entity_key=Keys.DB_ABSTRACT_END_STATE_FEATURE,
-                visible=False,
+                db_entity_key=DbEntityKey.END_STATE,
+                visible=True,
                 visible_attributes=['built_form__id'],
                 column_alias_lookup=dict(built_form__id='built_form_id'),
-                tags=[Tag.objects.get(tag=LayerTag.DEFAULT)],
                 template_context_dict=built_form_template_context_dict(),
                 sort_priority=LayerSort.FUTURE+2
             ),
-
             LayerConfiguration(
-                scope=Scenario.__name__,
-                layer_library_key=LayerLibraryKey.DEFAULT,
-                db_entity_key=Keys.DB_ABSTRACT_VMT_FEATURE,
+                scope=FutureScenario.__name__,
+                db_entity_key=DbEntityKey.FUTURE_AGRICULTURE,
                 visible=False,
-                visible_attributes=['vmt_daily_per_hh'],
-                tags=[Tag.objects.get(tag=LayerTag.DEFAULT)],
-                template_context_dict={'attributes': {'vmt_daily_per_hh': {'unstyled': True}}},
-                sort_priority=LayerSort.FUTURE+4
+                visible_attributes=['built_form__id'],
+                column_alias_lookup=dict(built_form__id='built_form_id'),
+                built_form_set_key='sacog_rucs',
+                template_context_dict=built_form_template_context_dict(),
+                sort_priority=LayerSort.FUTURE+3
+
             )
         ], class_scope=self.config_entity and self.config_entity.__class__)
 
@@ -233,7 +241,7 @@ class DefaultLayerConfigurationFixtures(DefaultMixin, LayerConfigurationFixture)
             )
         ], class_scope=self.config_entity and self.config_entity.__class__)
 
-    def update_or_create_media(self):
+    def update_or_create_media(self, db_entity_keys=None):
         """
             Iterates through the LayerConfiguration and creates Template instances for each that contain default
             styling for the configured attributes
@@ -257,7 +265,9 @@ class DefaultLayerConfigurationFixtures(DefaultMixin, LayerConfigurationFixture)
                 "layer",
                 LayerConfigurationFixture,
                 client_scenario.schema)
-            return client_fixture.layers() + client_fixture.import_layer_configurations()
+            # Filter by db_entity key if db_entity_keys are specified
+            return filter(lambda layer_configuration: layer_configuration.db_entity_key in db_entity_keys if db_entity_keys else True,
+                          client_fixture.layers() + client_fixture.import_layer_configurations())
 
         # Get a flat unique list of layer configurations for all client scenario fixtures
         layer_configurations = unique(
@@ -269,8 +279,11 @@ class DefaultLayerConfigurationFixtures(DefaultMixin, LayerConfigurationFixture)
         # Create a default Medium for any layer that doesn't need a Template
         Medium.objects.update_or_create(key=LayerMediumKey.DEFAULT)
 
+        logger.debug("Start Default Layer Initialization. Processing Layer Configurations")
         for layer_configuration in layer_configurations:
+            logger.debug("Default Layer Initialization. Processing Layer of db_entity_key %s" % layer_configuration.db_entity_key)
             if layer_configuration.style_class or feature_class_lookup.get(layer_configuration.db_entity_key):
+                logger.debug("Creating style template for layer of db_entity_key %s" % layer_configuration.db_entity_key)
                 create_style_template(
                     layer_configuration.template_context_dict,
                     layer_configuration.db_entity_key,
@@ -282,24 +295,25 @@ class DefaultLayerConfigurationFixtures(DefaultMixin, LayerConfigurationFixture)
                     layer_configuration.style_class or feature_class_lookup.get(layer_configuration.db_entity_key),
                     *layer_configuration.visible_attributes)
 
-        # Creates the Template for LayerSelection instances
-        styled_class = LayerSelection
-        # This is a magic attribute of tilestache indicating the features that match a query
-        # TODO we don't style layer selections with cartocss.
-        # Is this being used on the front end with css/polymaps?
-        styled_attribute = 'selected'
-        default_context = {
-            'htmlClass': None,
-            'attributes': {
-                styled_attribute: {
-                    'equals': {
-                        'TRUE': {"fill": {"color": 'yellow', "opacity": .8},
-                                 "outline": {"color": "red"}, },
-                    },
+        if not db_entity_keys:
+            # Creates the Template for LayerSelection instances
+            styled_class = LayerSelection
+            # This is a magic attribute of tilestache indicating the features that match a query
+            # TODO we don't style layer selections with cartocss.
+            # Is this being used on the front end with css/polymaps?
+            styled_attribute = 'selected'
+            default_context = {
+                'htmlClass': None,
+                'attributes': {
+                    styled_attribute: {
+                        'equals': {
+                            'TRUE': {"outline": {"color": "#3cff00"}, },
+                        },
+                    }
                 }
             }
-        }
-        create_style_template(default_context, None, styled_class, styled_attribute)
+            create_style_template(default_context, None, styled_class, styled_attribute)
+        logger.debug("End Default Layer Initialization")
 
 
 def built_form_template_context_dict():

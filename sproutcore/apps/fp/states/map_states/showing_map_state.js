@@ -5,20 +5,33 @@
 Footprint.ShowingMapState = SC.State.design({
 
     /***
-     * Fired when a Scenario becomes active and the layers are ready
-     * @param context
+     * Fired when a Scenario becomes active and the layers and all of their dependencies are ready
      */
-    layersDidChange: function(context) {
-        if (Footprint.mapController.get('isReady')) {
-            SC.Timer.schedule({target: this, action: "doProcessLayers", interval: 1000})
-        }
+    layerDependenciesDidLoad: function() {
+        this.gotoState('layersAreReadyForMapState');
         return NO;
     },
 
+    /***
+     * Fired when the user changes the selection or order of visible map layers.
+     */
+    visibleLayersDidChange: function() {
+        this.invokeOnce('doScheduleMapUpdate');
+    },
+
+    // If we're ready, and there isn't already a timer ticking, schedule a map update.
+    doScheduleMapUpdate: function() {
+        if (!Footprint.mapController.get('isReady'))
+            // If map or layers are not ready
+            return;
+        if (!this._updateTimer) {
+            this._updateTimer = SC.Timer.schedule({target: this, action: "doProcessLayers", interval: 500})
+        }
+    },
+
     doProcessLayers: function() {
-        Footprint.mapLayerGroupsController.layersWillChange();
+        this._updateTimer = null;
         Footprint.mapLayerGroupsController.updateMapLayerGroups();
-        Footprint.mapLayerGroupsController.mapLayerGroupsDidUpdate();
         this.invokeNext(function() {
             // Once everything is ready, set layer visibility
             Footprint.mapController.set('mapLayersNeedZoomUpdate', YES);
@@ -123,12 +136,44 @@ Footprint.ShowingMapState = SC.State.design({
     },
 
     substatesAreConcurrent: YES,
+    mapState: SC.State.extend({
 
-    // The entry to showingMapState. This is probably a good time to tell the mapController that it's ready
-    // to show the maps
-    enterState: function() {
-        Footprint.mapController.get('readyToCreateMap', YES);
-    },
+        scenariosDidChange: function(context) {
+            // Changing projects and scenario is the same to the map for now
+            this.scenarioDidChange(context);
+            return NO;
+        },
+        layersDidChange: function(context) {
+            return NO;
+        },
+        scenarioDidChange: function(context) {
+            // The map controller is not ready until the layers are ready
+            Footprint.mapController.set('readyToCreateMapLayers', NO);
+            // Catch a scenario change by leaving going to readyState
+            this.gotoState('%@.readyState'.fmt(this.get('fullPath')), context);
+            return NO;
+        },
+
+        initialSubstate: 'readyState',
+        readyState: SC.State,
+
+        enterState: function() {
+            Footprint.mapController.setIfChanged('readyToCreateMap', YES);
+        },
+        exitState: function() {
+            // Exit only happens with application unload
+            Footprint.mapController.setIfChanged('readyToCreateMap', NO);
+        },
+
+        layersAreReadyForMapState: SC.State.extend({
+            enterState: function() {
+                // If it's our first time loading layers, allow initial map creation to happen
+                Footprint.mapController.setIfChanged('readyToCreateMapLayers', YES);
+                Footprint.mapLayerGroupsController.clearMapLayers();
+                Footprint.statechart.sendAction('doScheduleMapUpdate');
+            }
+        })
+    }),
 
     // All the substates for handling feature selection and updating the selection on the server. This state
     // is always active and ready to accept a new selection drawn or queried by the user (unless the active layerSelection is loading).

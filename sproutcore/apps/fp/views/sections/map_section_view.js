@@ -5,6 +5,7 @@ sc_require('views/presentation/map/map_controls');
 sc_require('views/presentation/map/map_painting');
 sc_require('views/presentation/map/map_styling');
 sc_require('views/presentation/map/map_tools');
+sc_require('views/sections/tool_section_view');
 
 $(function() {
     window.po = org.polymaps;
@@ -26,7 +27,7 @@ $.ajaxSetup({
 Footprint.MapSectionView = SC.View.extend(Footprint.MapControls, Footprint.MapPainting, SC.ActionSupport, {
 
     classNames: 'footprint-map-section-view'.w(),
-    childViews: 'mapView searchView rezoomToProjectExtentView overlayView'.w(),
+    childViews: 'mapView mapToolsView overlayView'.w(),
     icon: sc_static('footprint:images/zoom_to_extent.png'),
 
     /***
@@ -52,6 +53,9 @@ Footprint.MapSectionView = SC.View.extend(Footprint.MapControls, Footprint.MapPa
     activeLayerGroup: null,
     activeLayerGroupBinding: SC.Binding.oneWay('Footprint.mapLayerGroupsController.activeLayerGroup'),
 
+    layerGroup: null,
+    layerGroupBinding: SC.Binding.oneWay('Footprint.mapController.content'),
+
     /***
      * The polymaps map instance attached to the map div element
     */
@@ -68,8 +72,11 @@ Footprint.MapSectionView = SC.View.extend(Footprint.MapControls, Footprint.MapPa
         map.container().setAttribute("width", "100%");
         map.container().setAttribute("height", "100%");
 
+        // Create compass
+        var compass = po.compass();
+        map.add(compass);
+
         // Enable drag and mouse wheel
-        map.add(po.compass(map));
         map.add(po.drag(map));
         map.add(po.wheel(map));
 
@@ -81,9 +88,7 @@ Footprint.MapSectionView = SC.View.extend(Footprint.MapControls, Footprint.MapPa
         //this.set('configuredCenter', this.get('mapInitialCenter'));
         this.onProjectActiveControllerStatus();
         Footprint.mapController.set('content', map);
-        this.invokeNext(function() {
-            Footprint.mapController.set('isReady', YES);
-        })
+        Footprint.mapController.set('compass', compass);
     },
 
     /***
@@ -137,15 +142,21 @@ Footprint.MapSectionView = SC.View.extend(Footprint.MapControls, Footprint.MapPa
     },
 
     overlayView: Footprint.OverlayView.extend({
-        contentBinding: SC.Binding.oneWay('Footprint.layerCategoriesTreeController.nodes'),
-        statusBinding:SC.Binding.oneWay('Footprint.layerCategoriesTreeController.status')
+        contentBinding:SC.Binding.oneWay('Footprint.dbEntityInterestsAndLayersController.content'),
+        statusBinding:SC.Binding.oneWay('Footprint.dbEntityInterestsAndLayersController.status')
+    }),
+
+    mapToolsView: Footprint.ToolSectionView.extend({
+       classNames: ['footprint-tool-section-view', 'toolbar'],
+       layout: {top: 0, height: 25}
     }),
 
     mapView: SC.View.extend({
         classNames: 'footprint-map'.w(),
-        layout: {left: 0, top: 0, right: 0, bottom: 0},
-        readyToCreateMap: null,
-        readyToCreateMapBinding: SC.Binding.oneWay('Footprint.mapController.readyToCreateMap'),
+        layout: {left: 0, top: 25, right: 0, bottom: 0},
+        readyToCreateMap: NO,
+        // We can create the map when the mapController indicates and the project is bound--the latter is needed for extents.
+        readyToCreateMapBinding: SC.Binding.and('Footprint.mapController.readyToCreateMap', '.project'),
         /***
          * Create the map after this layer becomes ready
          */
@@ -164,68 +175,6 @@ Footprint.MapSectionView = SC.View.extend(Footprint.MapControls, Footprint.MapPa
         }
     }),
 
-    searchView: SC.TextFieldView.extend({
-        classNames: 'footprint-map-search-view'.w(),
-        layout: {centerX:0, width:200, top: 5, height:26},
-
-        // This example adds a search box to a map, using the
-        // Google Places autocomplete feature. People can enter geographical searches.
-        // The search box will return a pick list containing
-        // a mix of places and predicted search terms.
-        // render: function(context) {
-        //     var context = context.begin();
-        //     context.push('<input id="target" type="text" placeholder="Search Box">');
-        //     context.end();
-        // },
-
-        // update: function() {
-        // },
-
-        didCreateLayer: function() {
-
-            // Create the search box and link it to the UI element.
-            var $input = this.$input(),
-                input = $input[0];
-
-            $input.attr('placeholder', 'Search Map');
-
-            try {
-                var searchBox = new google.maps.places.SearchBox(input);
-                var self = this.get('parentView');
-                // Listen for the event fired when the user selects an item from the
-                // pick list. Retrieve the matching places for that item.
-                google.maps.event.addListener(searchBox, 'places_changed', function() {
-                    var places = searchBox.getPlaces();
-
-                    var place = places[0];
-                    if (place) {
-                        self.get('map').center({lat:place.geometry.location.lat(), lon:place.geometry.location.lng()});
-                    }
-                });
-            }
-            catch(e) {
-                logWarning("Google Search Box failed to load");
-            }
-
-            // Bias the SearchBox results towards places that are within the bounds of the
-            // current map's viewport.
-            // TODO need map integration first
-            /*
-            google.maps.event.addListener(map, 'bounds_changed', function() {
-                var bounds = map.getBounds();
-                searchBox.setBounds(bounds);
-            });
-            */
-        }
-    }),
-
-    rezoomToProjectExtentView: SC.ButtonView.extend({
-        classNames: 'footprint-map footprint-map-rezoom-to-extent-button'.w(),
-        layout: {left: 27, top: 135, height: 24, width: 20},
-        icon: sc_static('footprint:images/zoom_to_extent.png'),
-        title: null,
-        action: 'zoomToProjectExtent'
-    }),
 
     /***
      * Call this when the activeLayerSelection bounds has been updated to wait for a server update to complete
@@ -294,6 +243,7 @@ Footprint.MapSectionView = SC.View.extend(Footprint.MapControls, Footprint.MapPa
         }
     }.observes('Footprint.mapController.layerNeedsRefresh'),
 
+
     /***
      * The initial center of the map, calculated based on the bounds of the content
      * For some reason polymaps needs an initial center in order to set extents.
@@ -332,7 +282,7 @@ Footprint.MapSectionView = SC.View.extend(Footprint.MapControls, Footprint.MapPa
      * The zoom range of the map
      */
     mapZoomRange: function() {
-        return [10, 18];
+        return [8, 18];
     }.property().cacheable(),
 
     /***

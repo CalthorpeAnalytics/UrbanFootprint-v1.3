@@ -17,7 +17,7 @@
 # Phone: (510) 548-6800. Web: www.calthorpe.com
 
 from django.conf.urls import patterns, include, url
-from django.contrib import admin, admindocs
+from django.contrib import admin
 from django.conf import settings
 from django.views.generic import RedirectView
 

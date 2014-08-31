@@ -2,7 +2,7 @@
 /*
 * UrbanFootprint-California (v1.0), Land Use Scenario Development and Modeling System.
 * 
-* Copyright (C) 2013 Calthorpe Associates
+* Copyright (C) 2014 Calthorpe Associates
 * 
 * This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, version 3 of the License.
 * 
@@ -21,7 +21,8 @@ Footprint.LayerLibrary = Footprint.Presentation.extend({
     // so we should be able to use the presentation_media attribute instead of results.
     // A Result is a subclass of PresentationMedium
     layers: SC.Record.toMany("Footprint.Layer", {
-        isMaster:YES
+        isMaster:YES,
+        inverse: 'presentation'
     }),
 
     _copyProperties: function () {
@@ -43,11 +44,32 @@ Footprint.Layer = Footprint.PresentationMedium.extend({
     // current layer_selection of the origin_instance
     create_from_selection: SC.Record.attr(Boolean),
 
+    // NOTE: These properties are read-only, and permanently cached. If background-ness is ever editable,
+    // or if layer tags are ever not nested, they will have to be reimplemented.
+    isBackgroundLayer: function() {
+        return this.get('tags').getEach('tag').contains('background_imagery');
+    }.property('status').cacheable(),
+    isForegroundLayer: function() {
+        return !this.get('isBackgroundLayer');
+    }.property('status').cacheable(),
+
     _skipProperties: function() {
         return ['origin_instance'];
     },
 
     _cloneSetup: function(sourceRecord) {
         this.set('origin_instance', sourceRecord);
+    },
+
+    /***
+     * CRUDing a Layer is really about CRUDING the more fundamental DbEntityInterest
+     * The DbEntityInterest is that record that actually tracks save progress.
+     * We currently save the Layer as the main record with a reference to DbEntityInterest,
+     * but that will need to be changed. Plus we might need to replace DbEntityInterest with DbEntity!
+     * @returns {*|Array|The|Mixed|String|Array|Object}
+     * @private
+     */
+    _recordForCrudUpdates: function() {
+        return this.get('db_entity_interest')
     }
 });

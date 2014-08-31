@@ -16,7 +16,7 @@
 # Firm contact: 2095 Rose Street Suite 201, Berkeley CA 94709.
 # Phone: (510) 548-6800. Web: www.calthorpe.com
 from footprint.main.lib.functions import remove_keys
-from footprint.main.models import Medium
+from footprint.main.models.presentation.medium import Medium
 from footprint.main.resources.pickled_dict_field import PickledDictField
 from footprint.main.resources.footprint_resource import FootprintResource
 
@@ -24,10 +24,6 @@ __author__ = 'calthorpe_associates'
 
 class MediumResource(FootprintResource):
     content = PickledDictField(attribute='content', null=True, blank=True, default=lambda:{})
-
-    # def dehydrate_content(self, bundle):
-    #     # Remove data that isn't needed by the API
-    #     return remove_keys(bundle.data['content'], ['attributes'])
 
     class Meta(FootprintResource.Meta):
         always_return_data = True

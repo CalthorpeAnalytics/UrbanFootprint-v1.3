@@ -7,6 +7,8 @@
  */
 
 
+
+
 Footprint.EditableBuiltFormTopView = SC.View.extend({
     classNames: ['footprint-built-form-top-view'],
     childViews:'nameTitleView contentView'.w(),
@@ -14,17 +16,16 @@ Footprint.EditableBuiltFormTopView = SC.View.extend({
     content: null,
     titleValue: null,
 
-    layout: {left: 330, height:70, top: 0, width: 650},
-
-
     nameTitleView: SC.LabelView.extend({
+       classNames: ['footprint-bold-title-view'],
        valueBinding: SC.Binding.oneWay('.parentView.titleValue'),
        fontWeight: 700,
-       layout: {left: 30, width: 100, height:24, top: 18}
+       layout: {left: 25, width: 100, height:24, top: 10}
     }),
+
     contentView: Footprint.EditableModelStringView.extend({
-       valueBinding: SC.Binding.oneWay('.parentView*content.name'),
-       layout: {left: 150, width: 300, height:35, top: 15},
-       backgroundColor: '#F8F8F8'
-    }),
+       classNames: ['footprint-editable-content-view'],
+       valueBinding: SC.Binding.from('.parentView*content.name'),
+       layout: {left: 30, height:20, top: 30, width: 450}
+    })
 })

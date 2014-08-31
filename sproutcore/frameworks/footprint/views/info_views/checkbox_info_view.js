@@ -2,7 +2,7 @@
  /* 
 * UrbanFootprint-California (v1.0), Land Use Scenario Development and Modeling System.
 * 
-* Copyright (C) 2013 Calthorpe Associates
+* Copyright (C) 2014 Calthorpe Associates
 * 
 * This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, version 3 of the License.
 * 
@@ -17,13 +17,13 @@ Footprint.CheckboxInfoView = SC.View.extend({
     childViews: 'checkboxView titleView'.w(),
     title: 'Title',
     value:null,
-    titleLayout: { bottom:.0, height:.4},
-    buttonLayout: { top:.02, left:.35, width:.32, height:.4 },
+    titleLayout: { left:35, top:3},
+    buttonLayout: { top:1, left:13, width:20, height:20},
 
     titleView: SC.LabelView.design({
         classNames: ['footprint-checkbox-item-title'],
         layoutBinding: SC.Binding.oneWay('.parentView.titleLayout'),
-        textAlign: SC.ALIGN_CENTER,
+        textAlign: SC.ALIGN_LEFT,
         valueBinding: SC.Binding.oneWay('.parentView.title')
     }),
     checkboxView: SC.CheckboxView.design({

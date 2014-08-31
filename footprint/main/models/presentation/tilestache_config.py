@@ -22,13 +22,29 @@ __author__ = 'calthorpe_associates'
 from django.db import models
 from picklefield import PickledObjectField
 
+class TileStacheLayer(models.Model):
+    """
+        Key-value pairs for the TileStacheConfig.config instance
+    """
+    # The layer key
+    key = models.CharField(max_length=200)
+    # A pickled Tilestache CoreLayer
+    value = PickledObjectField()
+
+    class Meta(object):
+        app_label = 'main'
+
 class TileStacheConfig(models.Model):
     """
         Represents the TileStache config dictionary, stored in the config field
     """
     objects = GeoInheritanceManager()
     name = models.CharField(max_length=50, default='default')
+    # A TileStache.Config.Configuration instance
     config = PickledObjectField()
+    # These layers are used to create the config.
+    # They are manyToMany so that multiple processes can write layers without overwriting each other when they save the config
+    layers = models.ManyToManyField(TileStacheLayer)
     enable_caching = models.NullBooleanField(default=True)
 
     class Meta(object):

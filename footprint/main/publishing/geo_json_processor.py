@@ -22,7 +22,7 @@ from footprint.main.models.geospatial.feature_class_creator import FeatureClassC
 from django.contrib.gis.geos import GEOSGeometry
 from jsonify.templatetags.jsonify import jsonify
 from django.conf import settings
-from footprint.main.publishing.data_import_publishing import create_and_population_associations
+from footprint.main.publishing.data_import_publishing import create_and_populate_relations
 from footprint.main.publishing.import_processor import ImportProcessor
 from footprint.main.utils.dynamic_subclassing import create_tables_for_dynamic_classes
 
@@ -52,22 +52,22 @@ class GeoJsonProcessor(ImportProcessor):
         feature_class_creator = FeatureClassCreator(config_entity, db_entity)
         # find all unique properties
         feature_class_configuration = feature_class_creator.feature_class_configuration_from_geojson_introspection(data)
-        feature_class_creator.merge_feature_class_configuration_into_db_entity(feature_class_configuration)
-        feature_class = feature_class_creator.dynamic_feature_class(base_only=True)
+        feature_class_creator.update_db_entity(feature_class_configuration)
+        feature_class = feature_class_creator.dynamic_model_class(base_only=True)
         # Create our base table. Normally this is done by the import, but we're just importing into memory
         create_tables_for_dynamic_classes(feature_class)
         # Now write each feature to our newly created table
         for feature in map(lambda feature: self.instantiate_sub_class(feature_class, feature), data.features):
             feature.save()
         # Create the rel table too
-        rel_feature_class = feature_class_creator.dynamic_feature_class()
+        rel_feature_class = feature_class_creator.dynamic_model_class()
         create_tables_for_dynamic_classes(rel_feature_class)
         if InformationSchema.objects.table_exists(db_entity.schema, db_entity.table):
             # Tell PostGIS about the new geometry column or the table
             sync_geometry_columns(db_entity.schema, db_entity.table)
 
         # Create association classes and tables and populate them with data
-        create_and_population_associations(config_entity, db_entity)
+        create_and_populate_relations(config_entity, db_entity)
 
     def instantiate_sub_class(self, feature_class, feature):
         """

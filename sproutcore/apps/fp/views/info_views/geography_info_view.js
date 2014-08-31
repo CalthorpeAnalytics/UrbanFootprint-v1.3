@@ -19,6 +19,7 @@ Footprint.GeographyInfoView = Footprint.InfoView.extend({
 
     title:'Geography',
     contentView: Footprint.EditableModelStringView.extend({
+        classNames: ['footprint-editable-content-view'],
         valueBinding: parentViewPath(2, '*content.bounds')
     })
 });

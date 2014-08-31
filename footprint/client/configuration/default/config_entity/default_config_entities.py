@@ -1,6 +1,6 @@
 # UrbanFootprint-California (v1.0), Land Use Scenario Development and Modeling System.
 #
-# Copyright (C) 2013 Calthorpe Associates
+# Copyright (C) 2014 Calthorpe Associates
 #
 # This program is free software: you can redistribute it and/or modify it under the terms of the
 # GNU General Public License as published by the Free Software Foundation, version 3 of the License.
@@ -43,26 +43,26 @@ class DefaultConfigEntitiesFixture(DefaultMixin, ConfigEntitiesFixture):
         return self.matching_keys([], project_key=project.key if project else None, class_scope=class_scope)
 
     # Fixtures for testing import/cloning
-    def import_scenarios(self, origin_config_entity):
+    def import_scenarios(self, origin_instance):
         return self.matching_scope([
             dict(
                 class_scope=FutureScenario,
-                key=origin_config_entity.key[0:10:]+'_future_clone',
-                name=origin_config_entity.name[0:10]+' Future Clone',
-                parent_config_entity=origin_config_entity.parent_config_entity,
-                origin_config_entity=origin_config_entity,
-                bounds=origin_config_entity.bounds,
-                description=origin_config_entity.description+' Future Clone',
-                year=origin_config_entity.year
+                key=origin_instance.key[0:10:]+'_future_clone',
+                name=origin_instance.name[0:10]+' Future Clone',
+                parent_config_entity=origin_instance.parent_config_entity,
+                origin_instance=origin_instance,
+                bounds=origin_instance.bounds,
+                description=origin_instance.description+' Future Clone',
+                year=origin_instance.year
             ),
             dict(
                 class_scope=BaseScenario,
-                key=origin_config_entity.key[0:10]+'_base_clone',
-                name=origin_config_entity.name[0:10]+' Base Clone',
-                parent_config_entity=origin_config_entity.parent_config_entity,
-                origin_config_entity=origin_config_entity,
-                bounds=origin_config_entity.bounds,
-                description=origin_config_entity.description+' Base Clone',
-                year=origin_config_entity.year
+                key=origin_instance.key[0:10]+'_base_clone',
+                name=origin_instance.name[0:10]+' Base Clone',
+                parent_config_entity=origin_instance.parent_config_entity,
+                origin_instance=origin_instance,
+                bounds=origin_instance.bounds,
+                description=origin_instance.description+' Base Clone',
+                year=origin_instance.year
             )
-        ], class_scope=origin_config_entity.__class__)
+        ], class_scope=origin_instance.__class__)

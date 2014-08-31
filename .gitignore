@@ -17,8 +17,19 @@ pip-log.txt
 .coverage
 .tox
 nosetests.xml
-calthorpe/server/calthorpe/reports/
+calthorpe/server/footprint/reports/
+
 tmp
+# things to exclude from the public release
+*.pem
+calthorpe/server/footprint/local_settings.py*
+!calthorpe/server/footprint/local_settings.py.sample
+
+calthorpe/server/calthorpe/footprint/engines/*
+!calthorpe/server/calthorpe/footprint/engines/models/*
+!calthorpe/server/calthorpe/footprint/engines/__init__.py
+!calthorpe/server/calthorpe/footprint/engines/uf_toolbox.py
+
 
 # Translations
 *.mo
@@ -53,3 +64,4 @@ tmp/
 newrelic.ini
 
 *.idea
+builds/

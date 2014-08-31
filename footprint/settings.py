@@ -18,7 +18,7 @@ DEV = True
 # Firm contact: 2095 Rose Street Suite 201, Berkeley CA 94709.
 # Phone: (510) 548-6800. Web: www.calthorpe.com
 
-
+PYTHON_INTERPRETER='/srv/calthorpe_env/bin/python'
 # celery generic
 CELERY_TASK_RESULT_EXPIRES = 18000  # 5 hours.
 CELERY_RESULT_PERSISTENT = True
@@ -98,7 +98,7 @@ DATABASES = {
         HOST='localhost',
         NAME='sample_data',
         USER='calthorpe',
-        PASSWORD='[PASSWORD]'
+        PASSWORD='[ your password ]'
     )
 }
 CALTHORPE_ENGINE_PATH = os.path.join(ROOT_PATH, 'engines')
@@ -232,6 +232,8 @@ THIRD_PARTY_APPS = (
     'inflection',
     'guppy',
     'sarge',
+    'rawpaginator',
+    'fabtools'
 )
 
 PROJECT_APPS = (
@@ -330,7 +332,7 @@ from celery.schedules import crontab
 
 CELERYBEAT_SCHEDULE = {
     'run_cleanup_database': {
-        'task': 'footprint.main.tasks.cleanup_export_job',
+        'task': 'footprint.tasks.cleanup_export_job',
         'schedule': crontab(minute='0,20,40'),
         'args': (),
         'kwargs': {'fail_silently': False},
@@ -347,7 +349,7 @@ CELERY_RESULT_BACKEND = "redis://localhost:6379/0"
 CELERY_REDIS_HOST = "localhost"
 CELERY_REDIS_PORT = 6379
 CELERY_REDIS_DB = 0
-CELERY_USER = 'calthorpe'
+# CELERY_USER = 'calthorpe'
 CELERY_GROUP = 'www-data'
 
 CELERY_TIMEZONE = TIME_ZONE
@@ -386,8 +388,8 @@ except ImportError:
 REQUIRED_SHAPEFILE_TYPES = ['.shp', '.shx', '.dbf']
 OPTIONAL_SHAPEFILE_TYPES = ['.prj']
 EXTRA_SHAPEFILE_TYPES = ['.sbn', '.sbx', '.fbn', '.fbx', '.ain', '.aih', '.ixs', '.mxs', '.atx', '.shp.xml', '.cpg']
-
-SHAPEFILE_TYPES = REQUIRED_SHAPEFILE_TYPES + OPTIONAL_SHAPEFILE_TYPES + EXTRA_SHAPEFILE_TYPES
+OTHER_ALLOWED_TYPES = ['.pdf', '.txt']
+SHAPEFILE_TYPES = REQUIRED_SHAPEFILE_TYPES + OPTIONAL_SHAPEFILE_TYPES + EXTRA_SHAPEFILE_TYPES + OTHER_ALLOWED_TYPES
 
 STATICFILES_DIRS = (
     os.path.join(PROJECT_ROOT, 'footprint/main/samples'),

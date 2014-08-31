@@ -1,7 +1,7 @@
 /*
  * UrbanFootprint-California (v1.0), Land Use Scenario Development and Modeling System.
  *
- * Copyright (C) 2013 Calthorpe Associates
+ * Copyright (C) 2014 Calthorpe Associates
  *
  * This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, version 3 of the License.
  *
@@ -50,18 +50,10 @@ Footprint.LayerSelectionIsReadyState = Footprint.RecordsAreReadyState.extend({
      * @param context
      */
     doUpdateLayerSelection: function(context) {
+        // Clear the features
+        Footprint.featuresActiveController.set('content', null);
         this.updateRecords(context);
     },
-
-    /***
-     * Clears the selection and saves the clear layerSelection to the server
-     */
-    doClearSelection: function() {
-        // Clear the filter unless the modal feature pane is up. This should be moved somewhere called less
-        Footprint.statechart.sendAction('doClearQueryAttributes');
-        this.clearRecords(self._context);
-    },
-
 
     /***
      * Creates an update context for layer_selections. Since layer_selections are updated by query form and selecting
@@ -73,7 +65,7 @@ Footprint.LayerSelectionIsReadyState = Footprint.RecordsAreReadyState.extend({
     },
 
     /***
-     * Creates an clear painting context for the selected features and the controller settings.
+     * Creates an clear painting context for clearing the selected features
      */
     clearContext: function(context) {
         var recordContext = SC.ObjectController.create({
@@ -89,9 +81,14 @@ Footprint.LayerSelectionIsReadyState = Footprint.RecordsAreReadyState.extend({
      * @param view
      */
     doStartSelection: function() {
-        this.setBounds();
-        // Clear the filter unless the modal feature pane is up. This should be moved somewhere called less
-        Footprint.statechart.sendAction('doClearFilterUnlessModal');
+
+        if (Footprint.mapToolsController.get('activePaintTool') &&
+            Footprint.mapToolsController.get('activePaintTool').isValidGeometry()) {
+
+            this.setBounds();
+            // Clear the filter unless the modal feature pane is up. This should be moved somewhere called less
+            Footprint.statechart.sendAction('doClearFilterUnlessModal');
+        }
     },
 
     /***
@@ -113,14 +110,35 @@ Footprint.LayerSelectionIsReadyState = Footprint.RecordsAreReadyState.extend({
      * The closed geometry of the final shape is assigned to the activeLayerSelection.bounds
      * @param view
      */
-    doEndSelection: function() {
+    doEndSelection: function(event) {
         // Set the bounds to a new SC.Object so that we can observe changes in the UI
-        this.setBounds();
+        var eventType = event.metaKey || event.AltKey ? 'add' : 'replace';
+        this.setBounds(eventType);
         // Pass the desire to end on the context
         Footprint.statechart.sendAction('doTestSelectionChange', SC.ObjectController.create(
             {content:this._context.get('content'), selectionWantsToEnd:YES})
         );
     },
+    /***
+     * Clears the selection and saves the clear layerSelection to the server
+     */
+    doClearSelection: function() {
+        // Clear the active tools geometry
+        var activePaintTool = Footprint.mapToolsController.get('activePaintTool');
+        if (activePaintTool) {
+            activePaintTool.clear();
+        }
+        this._context.set('bounds', null);
+        // Set the bounds to the cleared geometry
+        // Clear the filter unless the modal feature pane is up.
+        Footprint.statechart.sendAction('doClearFilterUnlessModal');
+        // Pass the desire to end on the context
+        Footprint.statechart.sendAction('doTestSelectionChange', SC.ObjectController.create(
+            {content:this._context.get('content'), selectionWantsToEnd:YES})
+        );
+    },
+
+
 
     // Stores the most recently selected bounds so that when a new doTestSelectionChange happens we
     // can check to see if the bounds actually changed
@@ -154,14 +172,21 @@ Footprint.LayerSelectionIsReadyState = Footprint.RecordsAreReadyState.extend({
 
     /***
      * Set the bounds to the painted geometry
-     * @param bounds
+     * @param eventType: 'add' or 'replace'. 'replace' is the default.
      */
-    setBounds: function() {
+    setBounds: function(eventType) {
+        eventType = eventType || 'replace';
         if (!Footprint.mapToolsController.get('activePaintTool')) {
             logWarning('No active paint tool. This should not happen');
             return;
         }
-        var bounds = SC.Object.create(Footprint.mapToolsController.get('activePaintTool').geometry());
+        var tool = Footprint.mapToolsController.get('activePaintTool')
+        var bounds = SC.Object.create(
+            tool.geometry()
+            //eventType == 'add' && Footprint.layerSelectionActiveController.get('bounds') ?
+            //    tool.appendGeometry(Footprint.layerSelectionActiveController.get('bounds')),
+            //    tool.geometry()
+        );
         this._context.set('bounds', bounds);
     },
 
@@ -292,6 +317,12 @@ Footprint.LayerSelectionIsReadyState = Footprint.RecordsAreReadyState.extend({
         Footprint.toolController.set('selectorIsEnabled', YES);
     },
 
+    exitState: function() {
+        this._nestedStore.destroy();
+        this._nestedStore = null;
+        Footprint.layerSelectionEditController.set('content', null);
+    },
+
     /***
      * Override the parent state's readyState to advance us to the selectedFeaturesState whenever there are features
      * in the layerSelection
@@ -306,21 +337,12 @@ Footprint.LayerSelectionIsReadyState = Footprint.RecordsAreReadyState.extend({
             }
             else {
                 // Set it to empty so the query info window shows no results
-                Footprint.featuresActiveController.set('content', []);
+                Footprint.featuresActiveController.set('content', null);
                 // Still go to the featuresAreReadyState so that we can support undo/redo
                 this.gotoState('featuresAreReadyState', Footprint.featuresActiveController);
             }
         }
     }),
-
-    exitState: function() {
-        if (this._nestedStore)
-            this._nestedStore.destroy();
-        this._nestedStore = null;
-        this._content = null
-        Footprint.layerSelectionEditController.set('content', null);
-        this._context = null;
-    },
 
     // TODO Overrriding parent version to force action handling
     updatingState: Footprint.RecordUpdatingState.extend({
@@ -397,7 +419,7 @@ Footprint.LayerSelectionIsReadyState = Footprint.RecordsAreReadyState.extend({
 
             didLoadEvent:'featuresDidLoad',
             loadingController:Footprint.featuresActiveController,
-            setLoadingControllerDirectly: NO,
+            setLoadingControllerDirectly: YES,
 
             enterState: function(context) {
                 sc_super();
@@ -419,9 +441,26 @@ Footprint.LayerSelectionIsReadyState = Footprint.RecordsAreReadyState.extend({
                 }));
             },
             featuresDidLoad: function() {
+                if (Footprint.featuresActiveController.get('length') != Footprint.layerSelectionActiveController.getPath('features.length') &&
+                    Footprint.featuresActiveController.get('length') == 1000 &&
+                    Footprint.layerSelectionActiveController.getPath('features.length') < 1000) {
+                    this.gotoState('errorState');
+                    return;
+                }
                 // Look over all in-flight saves. If any of them include features that overlap with the current set:
                 this.gotoState('featuresAreReadyState', Footprint.featuresActiveController);
-            }
+            },
+            errorState: SC.State.extend({
+                enterState: function() {
+                    SC.AlertPane.error({
+                        message: 'Returned features do not match the selected features',
+                        description: 'This might happen if the same user selects features on two browsers at the same time, or if a software error occurs. Contact the system admin if this keeps happening',
+                        buttons: [{
+                            title: 'OK'
+                        }]
+                    })
+                }
+            })
         }),
 
         featuresAreReadyState: SC.State.plugin('Footprint.FeaturesAreReadyState')

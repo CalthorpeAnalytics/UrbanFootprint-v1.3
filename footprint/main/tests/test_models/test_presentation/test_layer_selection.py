@@ -1,6 +1,6 @@
 # UrbanFootprint-California (v1.0), Land Use Scenario Development and Modeling System.
 #
-# Copyright (C) 2013 Calthorpe Associates
+# Copyright (C) 2014 Calthorpe Associates
 #
 # This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, version 3 of the License.
 #
@@ -42,7 +42,7 @@ class TestLayerSelection(unittest.TestCase):
         # Fetch a Default Layer Library instance
         layer_library = LayerLibrary.objects.get(key=Keys.LAYER_LIBRARY_DEFAULT, config_entity=scenario)
         # Fetch the layer that displays FutureScenarioFeature DbEntity
-        layer = layer_library.presentationmedium_set.filter(db_entity_key=Keys.DB_ABSTRACT_FUTURE_SCENARIO_FEATURE).all().select_subclasses()[0]
+        layer = layer_library.presentationmedium_set.filter(db_entity_key=DbEntityKey.FUTURE_SCENARIO).all().select_subclasses()[0]
         # Create the LayerSelection dynamic subclass
         layer_selection_class = get_or_create_dynamic_layer_selection_class_and_table(layer)
 

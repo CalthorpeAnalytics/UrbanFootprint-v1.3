@@ -2,7 +2,7 @@
 /*
 *UrbanFootprint-California (v1.0), Land Use Scenario Development and Modeling System.
 *
-*Copyright (C) 2013 Calthorpe Associates
+*Copyright (C) 2014 Calthorpe Associates
 *
 *This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, version 3 of the License.
 *
@@ -22,6 +22,9 @@ Footprint.SelectInfoView = Footprint.InfoView.extend({
      * The content is the list of items to select from
      */
     content:null,
+    // Defaults to content.status. Optionally override to someone else's status
+    status: null,
+
     selection: null,
     recordType:null,
     itemTitleKey:null,
@@ -34,9 +37,21 @@ Footprint.SelectInfoView = Footprint.InfoView.extend({
     nullTitle: '----',
     // Max height of the panel popup
     maxHeight: 72,
+    contentLayout: {},
 
     contentView: Footprint.LabelSelectView.extend({
+        layoutBinding: SC.Binding.oneWay('.parentView.contentLayout'),
         contentBinding: SC.Binding.oneWay('.parentView.content'),
+        isEnabledBinding: SC.Binding.oneWay('.parentView.isEnabled'),
+
+        contentStatus: null,
+        contentStatusBinding: SC.Binding.oneWay('*content.status'),
+        parentViewStatus: null,
+        parentViewStatusBinding: SC.Binding.oneWay('*parentView.status'),
+        status: function() {
+            return this.get('parentViewStatus') || this.get('contentStatus');
+        }.property('parentViewStatus', 'contentStatus').cacheable(),
+
         selectionBinding: '.parentView.selection',
         isSelectableBinding: '.parentView.isSelectable',
         recordTypeBinding: SC.Binding.oneWay('.parentView.recordType'),

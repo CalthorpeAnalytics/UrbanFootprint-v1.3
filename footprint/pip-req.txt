@@ -1,10 +1,10 @@
-Django==1.4.10
+Django<1.5
 South==0.8.4
 psycopg2==2.4.5
 django-grappelli==2.4.2
-celery[redis]==3.1.6
+celery[redis]<3.2
 flower>=0.6,<0.7
-django-celery
+#django-celery
 
 #https://github.com/muhuk/cuisine-postgresql/issues/1 cuisine-postgresql needs to be before Fabric
 cuisine
@@ -17,8 +17,7 @@ wadofstuff-django-serializers==1.1.0
 cElementTree
 sphinx-me==0.1.2
 PIL==1.1.7
-ModestMaps==1.4.1
-TileStache==1.49.8
+TileStache
 python-memcached==1.48
 Shapely==1.2.16
 django-reversion==1.7.1
@@ -42,6 +41,7 @@ uuid
 boto
 inflection==0.2.0
 sarge
+git+git://github.com/seamusmb/django-paginator-rawqueryset.git
 
 # testing packages
 coverage==3.6
@@ -51,7 +51,7 @@ django-jenkins==0.14.0
 behave
 django-extensions==1.1.1
 django-nose==1.1
-pygraphviz==1.2
+#pygraphviz==1.2
 # Memory Profiler and reqs
 psutil
 matplotlib

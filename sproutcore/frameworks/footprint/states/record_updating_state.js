@@ -1,7 +1,7 @@
 /*
 * UrbanFootprint-California (v1.0), Land Use Scenario Development and Modeling System.
 * 
-* Copyright (C) 2013 Calthorpe Associates
+* Copyright (C) 2014 Calthorpe Associates
 * 
 * This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, version 3 of the License.
 * 
@@ -151,12 +151,11 @@ Footprint.RecordUpdatingState = SC.State.extend({
             // Set attributes of record based on the key/value pairs stored with it
             // If the records were already modified then the context won't contain any attributes
             var record = recordContext.get('record');
-            record.constructor.allRecordAttributeProperties().forEach(function(attr) {
-                var value = recordContext.get(attr);
-                if (value !== undefined)
-                    record.set(attr, value);
-
-            }, this);
+            var updateHash = filter_keys(recordContext, record.constructor.allRecordAttributeProperties(), 'object');
+            record.setIfChanged(updateHash);
+            // SC doesn't call recordDidChange when you go from A to B and then back to B on a set attribute
+            // Seems to be a bug. Call manually instead
+            record.recordDidChange();
         }, this);
     },
 

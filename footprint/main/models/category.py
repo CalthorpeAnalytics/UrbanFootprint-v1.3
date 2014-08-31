@@ -20,13 +20,12 @@ from footprint.main.managers.geo_inheritance_manager import GeoInheritanceManage
 
 __author__ = 'calthorpe_associates'
 
+
 class Category(models.Model):
     objects = GeoInheritanceManager()
 
     key = models.CharField(max_length=100, null=False)
     value = models.CharField(max_length=100, null=False)
+
     class Meta:
-        app_label='main'
-
-
-
+        app_label = 'main'

@@ -20,8 +20,9 @@ import random
 from time import sleep
 from nose import with_setup
 from footprint.main.initialization.data_provider import DataProvider
-from footprint.main.models.analysis_module.core_module.core import Core
-from footprint.main.models.application_initialization import application_initialization
+from footprint.main.models.analysis_module.core_module.scenario_updater_tool import Core
+from footprint.main.models.application_initialization import application_initialization, \
+    update_or_create_config_entities
 from footprint.main.models.keys.keys import Keys
 from footprint.main.tests.test_models.test_config_entity.test_config_entity import TestConfigEntity
 
@@ -32,6 +33,7 @@ class TestCore(TestConfigEntity):
     def setup(self):
         super(TestCore, self).__init__()
         application_initialization()
+        update_or_create_config_entities()
 
     def teardown(self):
         super(TestCore, self).__init__()
@@ -44,7 +46,7 @@ class TestCore(TestConfigEntity):
         """
         scenarios = DataProvider().scenarios()
         scenario = scenarios[0]
-        scenario_built_form_feature_manager = scenario.feature_class_of_db_entity_key('scenario_built_form_layer').objects
+        scenario_built_form_feature_manager = scenario.db_entity_feature_class('scenario_built_form_layer').objects
         built_form_set = scenario.selected_built_form_set()
         built_form_ids = map(lambda built_form: built_form.id, built_form_set.built_form_definitions.all())
 
@@ -53,19 +55,18 @@ class TestCore(TestConfigEntity):
         # Dirty up the features
         for scenario_built_form_feature_manager in scenario_built_form_feature_manager.all():
             scenario_built_form_feature_manager.built_form_id = random.choice(built_form_ids)
-            scenario_built_form_feature_manager.dirty = True
         scenario_built_form_feature_manager.save()
 
         core = Core.objects.get(config_entity=scenario)
         timestamp = datetime.now()
-        core.start()
+        core.start(ids=map(lambda obj: obj.id, scenario_built_form_feature_manager.all()))
         sleep(3)
 
         # Make sure we have values for all the analysis table classes
-        for db_entity_key in [Keys.DB_ABSTRACT_GROSS_INCREMENT_FEATURE, Keys.DB_ABSTRACT_INCREMENT_FEATURE,
-                              Keys.DB_ABSTRACT_END_STATE_FEATURE]:
+        for db_entity_key in [Keys.DB_ABSTRACT_GROSS_INCREMENT_FEATURE, DbEntityKey.INCREMENT,
+                              DbEntityKey.END_STATE]:
             db_entity = scenario.selected_db_entity(db_entity_key)
-            FeatureClass = scenario.feature_class_of_db_entity_key(db_entity_key)
+            FeatureClass = scenario.db_entity_feature_class(db_entity_key)
             # Assert that the correct number of rows exist
             assert (FeatureClass.objects.count() == length)
             # Assert that all rows were updated

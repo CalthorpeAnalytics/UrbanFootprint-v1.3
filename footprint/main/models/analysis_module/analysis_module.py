@@ -10,47 +10,293 @@
 #
 # Contact: Joe DiStefano (joed@calthorpe.com), Calthorpe Associates. Firm contact: 2095 Rose Street Suite 201, Berkeley CA 94709. Phone: (510) 548-6800. Web: www.calthorpe.com
 from datetime import datetime
+import logging
+from string import capitalize
+import traceback
 from django.contrib.auth.models import User
 from django.db import models
 from django.db.models import DateField
+from django.utils.timezone import utc
 from picklefield import PickledObjectField
+import sys
+from footprint.celery import app
+from footprint.common.utils.websockets import send_message_to_client
+from footprint.main.lib.functions import remove_keys, merge
+from footprint.main.managers.geo_inheritance_manager import GeoInheritanceManager
+from footprint.main.mixins.deletable import Deletable
+from footprint.main.mixins.name import Name
+from footprint.main.mixins.shared_key import SharedKey
+from footprint.main.models.tasks.async_job import Job
 from footprint.main.models.config.config_entity import ConfigEntity
+from footprint.main.models.analysis_module.analysis_tool import AnalysisTool
+from footprint.main.models.keys.keys import Keys
+from footprint.main.utils.utils import resolve_module_attr, full_module_path
+
+logger = logging.getLogger(__name__)
 
 __author__ = 'calthorpe_associates'
 
-class AnalysisModule(models.Model):
+class AnalysisModule(SharedKey, Name, Deletable):
+    """
+        No longer abstract. This is a single concrete class.
+    """
 
-    config_entity = models.ForeignKey(ConfigEntity, null=False)
-    # Stores the last celery_task
-    celery_task = PickledObjectField(null=True)
-    previous_celery_task = PickledObjectField(null=True)
+    objects = GeoInheritanceManager()
+    class Meta(object):
+        abstract = False
+        app_label = 'main'
+
     started = DateField(null=True)
     completed = DateField(null=True)
     failed = DateField(null=True)
-    user = models.ForeignKey(User, null=True)
 
-    def start(self):
+    # The user who created the db_entity
+    creator = models.ForeignKey(User, null=True, related_name='analysis_module_creator')
+    # The user who last updated the db_entity
+    updater = models.ForeignKey(User, null=True, related_name='analysis_module_updater')
+
+    config_entity = models.ForeignKey(ConfigEntity, null=False)
+    analysis_tools = models.ManyToManyField(AnalysisTool)
+
+    # Flag used to temporarily disable running the task on post_save when the instance is updated
+    _no_post_save_task_run = False
+    _no_post_save_task_run_global = False
+
+    # The AnalysisModuleConfiguration.configuration
+    configuration = PickledObjectField(null=True, default=lambda: {})
+
+    def __getattr__(self, attr_name):
         """
-            Runs the module in celery
-            NOT working yet, use method override
-        :return:
+            Delegate names to the configuration dict
         """
-        self.previous_celery_task = self.celery_task
-        self.celery_task = self.task_class()
-        # Call run
-        self.celery_task.apply_async(kwargs=dict(
-            analysis_module_id=self.id,
-            analysis_module_class=self.__class__))
+        if attr_name in self.configuration.keys():
+            # Configuration value exists
+            return self.configuration[attr_name]
+        elif attr_name in AnalysisModuleConfiguration.CONFIGURATION_KEYS:
+            # Configuration key valid but value is not defined
+            return None
+        else:
+            raise AttributeError(attr_name)
+
+    @property
+    def analysis_module_configuration(self):
+        """
+            Restores the AnalysisModuleConfiguration that created this AnalysisModule
+        """
+        return AnalysisModuleConfiguration(merge(self.configuration, dict(name=self.name, description=self.description,
+                                                                          key=self.key)))
+
+    # The most recent run of the celery task
+    celery_task = None
+
+    _started = False
+    def init(self):
+        for analysis_tool_configuration in self.analysis_module_configuration.analysis_tools:
+            analysis_tool_class = resolve_module_attr(analysis_tool_configuration.get('class_name'))
+            analysis_tool_class._no_post_save_publishing = True
+            analysis_tool, created, updated = analysis_tool_class.objects.update_or_create(
+                config_entity=self.config_entity,
+                key=analysis_tool_configuration['key'],
+                defaults=remove_keys(analysis_tool_configuration, ['key', 'class_name'])
+            )
+            analysis_tool.initialize(created)
+            analysis_tool_class._no_post_save_publishing = False
+            if not analysis_tool in self.analysis_tools.all():
+                self.analysis_tools.add(analysis_tool)
+
+    def start(self, **kwargs):
+        self._started = True
+        config_entity = self.config_entity.subclassed_config_entity
+        logger.debug('Starting AnalysisModule %s Started for ConfigEntity %s' % (self.name, config_entity.name))
+        job = Job.objects.create(
+            type=self.key,
+            status="New",
+            user=self.updater
+        )
+        job.save()
+        self.started = job.created_on
+        self.save()
+        # Task will use a new version of the instance so set this one to False
+        self._started = False
+
+        self.celery_task = analysis_module_task.apply_async(
+            args=[job, self.updater, config_entity.id, self.key, kwargs],
+            soft_time_limit=3600,
+            time_limit=3600,
+            countdown=1
+        )
+
+        job = Job.objects.get(hashid=job.hashid)
+        job.task_id = self.celery_task.id
 
     def cancel_and_restart(self):
         pass
 
     def status(self):
-        return self.celery_task.status
+        return self.celery_task.status if self.celery_task else None
 
     def time_since_completion(self):
-        return datetime.utcnow() - self.completed
+        return datetime.utcnow() - self.celery_task.completed if self.celery_task else None
+
+@app.task
+def analysis_module_task(job, user, config_entity_id, key, kwargs):
+
+    config_entity = ConfigEntity.objects.get(id=config_entity_id).subclassed_config_entity
+    analysis_module = AnalysisModule.objects.get(config_entity=config_entity, key=key)
+    # Set again for new instance
+    analysis_module._started = True
+
+    try:
+        # TODO progress calls should be moved to each module so the status bar increments on the clien
+        # logger.debug('AnalysisModule %s Started for ConfigEntity %s with kwarg keys' % (analysis_module.name, config_entity.name, ', '.join(kwargs or dict().keys())))
+        send_message_to_client(user.id, dict(
+            event='postSavePublisherStarted'.format(capitalize(key)),
+            job_id=str(job.hashid),
+            config_entity_id=config_entity.id,
+            id=analysis_module.id,
+            class_name='AnalysisModule',
+            key=analysis_module.key))
+
+        # Call each tool's update method
+        for analysis_tool in analysis_module.analysis_tools.all().select_subclasses():
+            analysis_tool.update(analysis_module=analysis_module, user=user, job=job, key=key, **kwargs)
+
+        # Call the post save publisher
+        from footprint.main.publishing.config_entity_publishing import post_save_config_entity_analysis_module
+        post_save_config_entity_analysis_module.send(sender=config_entity.__class__, config_entity=config_entity, analysis_module=analysis_module)
+
+        logger.debug('AnalysisModule %s Completed for ConfigEntity %s' % (analysis_module.name, config_entity.name))
+        logger.debug('Sending message to client postSavePublisherCompleted to user %s for module %s and config entity %s' % \
+                     (user.username, analysis_module.name, config_entity.name))
+        send_message_to_client(user.id,
+                               dict(event='postSavePublisherCompleted',
+                                    job_id=str(job.hashid),
+                                    config_entity_id=config_entity.id,
+                                    id=analysis_module.id,
+                                    class_name='AnalysisModule',
+                                    key=analysis_module.key)
+        )
+        analysis_module.completed = datetime.utcnow().replace(tzinfo=utc)
+        analysis_module.save()
+        analysis_module._started = False
+    except Exception, e:
+        try:
+            analysis_module.failed = datetime.utcnow().replace(tzinfo=utc)
+            analysis_module.save()
+        finally:
+            analysis_module._started = False
+
+        exc_type, exc_value, exc_traceback = sys.exc_info()
+        readable_exception = traceback.format_exception(exc_type, exc_value, exc_traceback)
+        logger.error(readable_exception)
+        send_message_to_client(user.id,
+                               dict(event='postSavePublisherFailed',
+                                    job_id=str(job.hashid),
+                                    config_entity_id=config_entity.id,
+                                    id=analysis_module.id,
+                                    class_name='AnalysisModule',
+                                    key=analysis_module.key
+                               )
+        )
+        raise Exception(readable_exception)
+    finally:
+        job.ended_on = datetime.utcnow().replace(tzinfo=utc)
+        job.save()
+
+
+class AnalysisModuleKey(Keys):
+    class Fab(Keys.Fab):
+        @classmethod
+
+        def prefix(cls):
+            return None
+
+    # Predefined keys for convenience
+    SCENARIO_BUILDER = Fab.ricate('core')
+    ENVIRONMENTAL_CONSTRAINT = Fab.ricate('environmental_constraint')
+    ENVIRONMENTAL_CONSTRAINT_INITIALIZER = Fab.ricate('environmental_constraint_initializer')
+    FISCAL = Fab.ricate('fiscal')
+    VMT = Fab.ricate('vmt')
+    ENERGY = Fab.ricate('energy')
+    WATER = Fab.ricate('water')
+    AGRICULTURE = Fab.ricate('agriculture')
+
+
+class AnalysisModuleConfiguration(object):
+    """
+        A flexible configuration class for AnalysisModule dynamic subclasses.
+        This is roughly parallel to a DbEntity. DbEntity has feature_class_configuration to configure the dynamic class
+        and this has configuration.
+    """
+    def __init__(self, configuration):
+
+        self.abstract_class_name = full_module_path(configuration['abstract_class']) if \
+                                configuration.get('abstract_class') else \
+                                configuration.get('abstract_class_name', full_module_path(AnalysisModule))
+        self.configuration = remove_keys(configuration, ['key', 'name', 'description'])
+        self.name = configuration.get('name')
+        self.description = configuration.get('description')
+        self.key = configuration.get('key')
+        self.analysis_tools = configuration.get('analysis_tools', [])
+        super(AnalysisModuleConfiguration, self).__init__()
+
+
+    # Describes how to configure the features of the table
+    configuration = PickledObjectField(null=True, default=lambda: {})
+
+    # These are the keys allowed in the configuration. They can be changed at any time
+    CONFIGURATION_KEYS = [
+        'key',
+        'name',
+        'description',
+        'initializer_task_name',
+        'task_name',
+        'analysis_tools'
+        # Class-level attributes.
+        'class_attrs',
+        # Indicates that the AnalysisModuleConfiguration was generated and not for a pre-configured AnalysisModule
+        'generated'
+    ]
+
+    def __getattr__(self, attr_name):
+        """
+            Delegate names to the configuration dict
+        """
+        if attr_name in self.configuration.keys():
+            # Configuration value exists
+            return self.configuration[attr_name]
+        elif attr_name in self.CONFIGURATION_KEYS:
+            # Configuration key valid but value is not defined
+            return None
+        else:
+            raise AttributeError(attr_name)
 
     class Meta(object):
-        abstract = True
+        abstract = False
         app_label = 'main'
+
+    @classmethod
+    def analysis_module_configuration(cls, config_entity, **kwargs):
+        if not config_entity:
+            return cls.abstract_analysis_module_configuration(**kwargs)
+
+        configuration = merge(
+            remove_keys(kwargs, ['class_scope']),
+            dict(generated=False))
+
+        return AnalysisModuleConfiguration(configuration)
+
+    @classmethod
+    def abstract_analysis_module_configuration(cls, **kwargs):
+        """
+            Abstract version of the configuration for use when no ConfigEntity is specified
+        """
+
+        configuration = merge(
+            remove_keys(kwargs, ['class_scope']),
+            dict(
+                class_attrs={'key': kwargs['key']},
+                generated=False))
+
+        return AnalysisModuleConfiguration(configuration)
+

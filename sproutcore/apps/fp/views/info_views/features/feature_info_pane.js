@@ -1,7 +1,7 @@
 /*
  * UrbanFootprint-California (v1.0), Land Use Scenario Development and Modeling System.
  *
- * Copyright (C) 2013 Calthorpe Associates
+ * Copyright (C) 2014 Calthorpe Associates
  *
  * This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, version 3 of the License.
  *
@@ -28,6 +28,10 @@ Footprint.FeatureInfoPane = Footprint.InfoPane.extend({
     // context passed in upon creation. This may contain 'nowShowing'
     context: null,
 
+    // Indicates that this pane can be closed whenever another modal wants to open.
+    // This is a non-modal pane, thus it's possible to open something else in the meantime.
+    closeForNewModal: YES,
+
     recordType: null,
     recordTypeBinding: SC.Binding.oneWay('Footprint.layerActiveController.featureRecordType'),
     content:null,
@@ -44,11 +48,21 @@ Footprint.FeatureInfoPane = Footprint.InfoPane.extend({
     /***
      * This checks context for nowShowing. You can override this property with a hard-coded nowShowing
      */
-    nowShowing:function() {
-        return this.getPath('context.nowShowing') || 'Footprint.FeatureSummaryInfoView';
+    nowShowing: function(key, value) {
+        // Getter
+        if (value === undefined) {
+            return this._nowShowing || this.getPath('context.nowShowing') || 'Footprint.FeatureSummaryInfoView';
+        }
+        // Setter
+        else {
+            this._nowShowing = value;
+            return value;
+        }
     }.property('context').cacheable(),
 
     contentView: SC.TabView.design({
+        selectSegmentWhenTriggeringAction: YES,
+
         content: null,
         contentBinding: SC.Binding.oneWay('.parentView.content'),
         selection: null,

@@ -55,7 +55,7 @@ pre_delete.connect(on_scenario_pre_delete, sender=Scenario)
 
 # TODO not sure what this was for
 def get_project_options(project):
-    return {'base_year_grid'    : project.resolve_db_entity(Keys.DB_ABSTRACT_BASE_FEATURE),
+    return {'base_year_grid'    : project.resolve_db_entity(DbEntityKey.BASE),
             'base_year'         : project.base_year,
             'vmt_geography_type': 'taz',
             'vmt_geographies'   : project.resolve_db_entity(Keys.DB_ENTITY_VMT_GEOGRAPHIES),
@@ -77,10 +77,10 @@ def get_engine_options(scenario):
         # scenario profile
         'use_hhsize_factor'         : False,
         'pop_control'               : None,
-        'base_year_grid'            : scenario.resolve_db_entity(Keys.DB_ABSTRACT_BASE_FEATURE),
+        'base_year_grid'            : scenario.resolve_db_entity(DbEntityKey.BASE),
         'developable_acres_grid'    : scenario.resolve_db_entity(Keys.DB_ABSTRACT_DEVELOPABLE),
         'horiz_developable_grid'    : scenario.resolve_db_entity(Keys.DB_ABSTRACT_HORIZON_DEVELOPABLE),
-        'horiz_year_pt_grid'        : scenario.resolve_db_entity(Keys.DB_ABSTRACT_FUTURE_SCENARIO_FEATURE),
+        'horiz_year_pt_grid'        : scenario.resolve_db_entity(DbEntityKey.FUTURE_SCENARIO),
         'canvas_schema'             : settings.CANVAS_SCHEMA,
         'loaded_parcels'            : scenario.resolve_db_entity(Keys.DB_ABSTRACT_LOADED_PARCELS),
         'parcel_portions'           : scenario.resolve_db_entity(Keys.DB_ENTITY_PARCEL_PORTIONS),

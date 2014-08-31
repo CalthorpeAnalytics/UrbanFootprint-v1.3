@@ -4,6 +4,7 @@
  */
 Footprint.FeaturesAreReadyState = Footprint.RecordsAreReadyState.extend({
 
+    baseRecordType: Footprint.Feature,
     recordsDidUpdateEvent: 'featuresDidUpdate',
     recordsDidFailToUpdateEvent: 'featuresDidFailToUpdate',
     updateAction: 'doFeaturesUpdate',
@@ -11,7 +12,7 @@ Footprint.FeaturesAreReadyState = Footprint.RecordsAreReadyState.extend({
     // TODO these are just the attributes we update when painting.
     // Obviously if editing full features is enabled, more attributes have to be undoable
     // In that case its probably easiest to know all attributes and try to undo all of them.
-    undoAttributes: ['built_form', 'dev_pct', 'density_pct', 'total_redev'],
+    undoAttributes: ['built_form', 'dev_pct', 'density_pct', 'clear_base_flag', 'gross_net_pct', 'redevelopment_flag'],
     /***
      *
      * The undoManager for the features of the current layerSelection
@@ -44,18 +45,6 @@ Footprint.FeaturesAreReadyState = Footprint.RecordsAreReadyState.extend({
                 recordType:Footprint.featuresActiveController.get('recordType'),
                 infoPane: 'Footprint.FeatureInfoPane',
                 nowShowing:'Footprint.FeatureSummaryInfoView',
-                recordsEditController:Footprint.featuresEditController
-            })
-        );
-    },
-
-    /***
-     * Just clears the bounds without saving
-    doFeatureEdit: function() {
-        this.statechart.sendAction('doUpdateRecord',
-            SC.ObjectController.create({
-                recordType:Footprint.featuresActiveController.get('recordType'),
-                nowShowing:'Footprint.FeatureEditInfoView',
                 recordsEditController:Footprint.featuresEditController
             })
         );
@@ -96,6 +85,11 @@ Footprint.FeaturesAreReadyState = Footprint.RecordsAreReadyState.extend({
         sc_super()
     },
 
+    exitState: function() {
+        this._nestedStore.destroy();
+        this._neetedStore = null;
+    },
+
     /***
      * Creates an active painting context for the selected features and the controller settings
      */
@@ -104,7 +98,9 @@ Footprint.FeaturesAreReadyState = Footprint.RecordsAreReadyState.extend({
             built_form: Footprint.builtFormActiveController.get('content'),
             dev_pct: Footprint.paintingController.get('developmentPercent'),
             density_pct: Footprint.paintingController.get('densityPercent'),
-            total_redev: Footprint.paintingController.get('isFullRedevelopment')
+            clear_base_flag: Footprint.paintingController.get('isClearBase'),
+            redevelopment_flag: Footprint.paintingController.get('isRedevelopment'),
+            gross_net_pct: Footprint.paintingController.get('grossNetPercent')
         });
         return this.createModifyContext(recordContext, context);
     },
@@ -117,7 +113,9 @@ Footprint.FeaturesAreReadyState = Footprint.RecordsAreReadyState.extend({
             built_form: null,
             dev_pct: 1,
             density_pct: 1,
-            total_redev: NO
+            gross_net_pct: 1,
+            clear_base_flag: NO,
+            redevelopment_flag: NO
         });
         return this.createModifyContext(recordContext,
             this._context || SC.ObjectController.create({content:this._content}));

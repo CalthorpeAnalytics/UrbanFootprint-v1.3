@@ -1,7 +1,7 @@
 /*
  * UrbanFootprint-California (v1.0), Land Use Scenario Development and Modeling System.
  *
- * Copyright (C) 2013 Calthorpe Associates
+ * Copyright (C) 2014 Calthorpe Associates
  *
  * This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, version 3 of the License.
  *
@@ -13,6 +13,7 @@
  */
 
 sc_require('views/info_views/query_info_view');
+sc_require('views/info_views/feature_table_info_view');
 
 /***
  * The pane used to edit the settings of a new or existing Feature and the DbEntity to which it is associated (if any). The saving order of this will have to first save a created DbEntity and then the Feature if a DbEntity is being created here
@@ -28,7 +29,9 @@ Footprint.FeatureQueryInfoView = SC.View.extend({
     summaryContent: null,
 
     // TODO ideally these are in the declaration of the view subclass
-    contentBinding: SC.Binding.oneWay('.parentView.parentView.content'),
+    contentBinding: SC.Binding.oneWay('Footprint.featuresActiveController.content'),
+    status: null,
+    statusBinding: SC.Binding.oneWay('Footprint.featuresActiveController.status'),
     recordTypeBinding: SC.Binding.oneWay('.parentView.parentView.recordType'),
     selectionBinding: '.parentView.parentView.selection',
 
@@ -41,6 +44,7 @@ Footprint.FeatureQueryInfoView = SC.View.extend({
     contentView: Footprint.ContentView.extend({
         childViews: 'queryView resultsView summaryResultsView commitButtonsView bufferView'.w(),
         contentBinding: SC.Binding.oneWay('.parentView.content'),
+        statusBinding: SC.Binding.oneWay('.parentView.status'),
         selection: null,
         selectionBinding: '.parentView.selection',
 
@@ -57,52 +61,23 @@ Footprint.FeatureQueryInfoView = SC.View.extend({
         queryView: Footprint.QueryInfoView.extend({
             layout: {top:10, height: 110},
             contentBinding: SC.Binding.oneWay('.parentView.layerSelection'),
+            featuresStatus: null,
+            featuresStatusBinding: SC.Binding.oneWay('Footprint.featuresActiveController.status'),
+            layerSelectionStatus: null,
+            layerSelectionStatusBinding: SC.Binding.oneWay('*content.status'),
+            // For now don't let the user change any query options until everything is loaded
+            isEnabled: function() {
+                return (!(this.get('featuresStatus') & SC.Record.BUSY)) && (this.get('layerSelectionStatus') & SC.Record.READY);
+            }.property('layerSelectionStatus', 'featuresStatus').cacheable(),
+
             recordTypeBinding: SC.Binding.oneWay('.parentView.recordType')
         }),
 
-        resultsView: Footprint.TableInfoView.extend({
-            classNames: "footprint-query-info-results-view".w(),
-            layout: {top: 125, bottom:.05, left:0, right:0.4},
-            title: function() {
-                return '%@ Query or Selection Results'.fmt(
-                    this.getPath('content.length')!=null ? this.getPath('content.length') : 'Loading');
-            }.property('content').cacheable(),
+        resultsView: Footprint.FeatureTableInfoView.extend({
             contentBinding: SC.Binding.oneWay('.parentView.content'),
-            contentStatus:null,
-            contentStatusBinding: SC.Binding.oneWay('*content.status'),
-
+            statusBinding: SC.Binding.oneWay('.parentView.status'),
             selectionBinding: '.parentView.selection',
-            layerSelection: null,
-            layerSelectionBinding: SC.Binding.oneWay('.parentView.layerSelection'),
-            layerSelectionStatus: null,
-            layerSelectionStatusBinding: SC.Binding.oneWay('*layerSelection.status'),
-
-            // The overlay is visible if either feature of layerSelection status is BUSY
-            overlayStatus: function() {
-                return Math.max(this.get('contentStatus'), this.get('layerSelectionStatus'));
-            }.property('contentStatus', 'layerSelectionStatus').cacheable(),
-
-            columns: function() {
-                if (!(this.get('layerSelectionStatus') & SC.Record.READY))
-                    return [];
-                var layerSelection = this.get('layerSelection');
-                return (layerSelection.get('result_fields') || []).map(function(field) {
-                    return layerSelection.getPath('result_field_title_lookup.%@'.fmt(field));
-                });
-            }.property('layerSelectionStatus').cacheable(),
-            mapProperties: function() {
-                if (!(this.get('layerSelectionStatus') & SC.Record.READY))
-                    return SC.Object.create();
-                return mapToSCObject(
-                    Footprint.layerSelectionEditController.getPath('result_fields') || [],
-                    function(field) {
-                        return [Footprint.layerSelectionEditController.getPath('result_field_title_lookup.%@'.fmt(field)), field];
-                    },
-                    this
-                );
-            }.property('layerSelectionStatus').cacheable(),
-            // Enable the zoom to selection button
-            zoomToSelectionIsVisible: YES
+            layerSelectionBinding: SC.Binding.oneWay('.parentView.layerSelection')
         }),
 
         summaryResultsView: Footprint.TableInfoView.extend({
@@ -110,27 +85,25 @@ Footprint.FeatureQueryInfoView = SC.View.extend({
             layout: {top: 125, bottom:.05, left:0.62, right: 0},
             title: 'Feature Summary',
             contentBinding: SC.Binding.oneWay('.parentView.summaryContent'),
-
             layerSelection: null,
             layerSelectionBinding: SC.Binding.oneWay('.parentView.layerSelection'),
-            layerSelectionStatus: null,
-            layerSelectionStatusBinding: SC.Binding.oneWay('*layerSelection.status'),
+            statusBinding: SC.Binding.oneWay('*layerSelection.status'),
 
             // The overlay is visible if layerSelection status is BUSY
             overlayStatus: function() {
-                return this.get('layerSelectionStatus');
-            }.property('layerSelectionStatus').cacheable(),
+                return this.get('status');
+            }.property('status').cacheable(),
 
             columns: function() {
-                if (!(this.get('layerSelectionStatus') & SC.Record.READY))
+                if (!(this.get('status') & SC.Record.READY))
                     return [];
                 var layerSelection = this.get('layerSelection');
                 return (layerSelection.get('summary_fields') || []).map(function(field) {
                     return layerSelection.getPath('summary_field_title_lookup.%@'.fmt(field));
                 });
-            }.property('layerSelectionStatus').cacheable(),
+            }.property('status').cacheable(),
             mapProperties: function() {
-                if (!(this.get('layerSelectionStatus') & SC.Record.READY))
+                if (!(this.get('status') & SC.Record.READY))
                     return SC.Object.create();
                 return mapToSCObject(
                     Footprint.layerSelectionEditController.getPath('summary_fields') || [],
@@ -139,7 +112,7 @@ Footprint.FeatureQueryInfoView = SC.View.extend({
                     },
                     this
                 );
-            }.property('layerSelectionStatus').cacheable(),
+            }.property('status').cacheable(),
             selectionBinding: '.parentView.summarySelection',
             countBinding: SC.Binding.oneWay('.parentView.summaryContent').lengthOf()
         }),

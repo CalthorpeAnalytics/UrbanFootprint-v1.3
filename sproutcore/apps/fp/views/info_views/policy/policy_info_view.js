@@ -14,7 +14,7 @@
  */
 
 sc_require('views/info_views/geography_info_view');
-sc_require('views/info_views/tags_info_view');
+sc_require('views/info_views/editable_tags_view');
 sc_require('views/info_views/medium_info_view');
 sc_require('views/sections/analytic_section_view');
 
@@ -29,7 +29,7 @@ Footprint.PolicyInfoView = Footprint.InfoPane.extend({
     layout: { top:0, left: 0, width:400, height:400 },
 
     recordType: Footprint.Policy,
-    refreshTarget: Footprint.AnalyticSectionView,
+    refreshTarget: Footprint.AnalysisModuleSectionView,
     controllers: Footprint.policyControllers,
 
     contentView: SC.View.extend({
@@ -53,6 +53,7 @@ Footprint.PolicyInfoView = Footprint.InfoPane.extend({
 
             title: 'Value',
             contentView: Footprint.EditableModelStringView.extend({
+                classNames: ['footprint-editable-content-view'],
                 layout: {left: .2, width: .8},
                 valueBinding: parentViewPath(2,'*content.value')
             })

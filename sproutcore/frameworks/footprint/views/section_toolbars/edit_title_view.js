@@ -1,7 +1,7 @@
 /*
  * UrbanFootprint-California (v1.0), Land Use Scenario Development and Modeling System.
  *
- * Copyright (C) 2013 Calthorpe Associates
+ * Copyright (C) 2014 Calthorpe Associates
  *
  * This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, version 3 of the License.
  *
@@ -15,7 +15,7 @@
 sc_require('views/section_toolbars/edit_button_view');
 sc_require('views/section_toolbars/title_view');
 
-icon: sc_static('fp:images/section_toolbars/pulldown.png'),Footprint.EditTitleView = Footprint.TitleView.extend({
+Footprint.EditTitleView = Footprint.TitleView.extend({
     classNames: "footprint-edit_title-view".w(),
     childViews: 'labelView editView'.w(),
     layout: {left: 0, width: .9},
@@ -24,11 +24,12 @@ icon: sc_static('fp:images/section_toolbars/pulldown.png'),Footprint.EditTitleVi
     menuItems: null,
     controlSize: null,
     content: null,
+    //icon: sc_static('fp:images/section_toolbars/pulldown.png'),
     icon: null,
     title: null,
 
     editView: Footprint.EditButtonView.extend({
-        layout: {right: 6, width: 26},
+        layout: {left: 2, width: 26},
         layoutBinding: SC.Binding.oneWay('.parentView.editViewLayout'),
         contentBinding: SC.Binding.oneWay('.parentView.content'),
         recordTypeBinding: SC.Binding.oneWay(parentViewPath(1, '.recordType')),

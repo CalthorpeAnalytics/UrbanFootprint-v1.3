@@ -28,8 +28,6 @@ Footprint.builtFormCategoriesTreeController = Footprint.TreeController.create({
      * @type {*|void
      */
     content: Footprint.TreeContent.create({
-        // Respond to configEntity changes
-        configEntityBinding: SC.Binding.oneWay('Footprint.scenarioActiveController.content'),
         // The container object holding nodes
         nodeSetBinding: SC.Binding.oneWay('Footprint.builtFormSetActiveController.content'),
         // The nodes of the tree
@@ -39,12 +37,12 @@ Footprint.builtFormCategoriesTreeController = Footprint.TreeController.create({
         // The property of the keyObject to use for a name. Here it the 'tag' property of Tag
         keyNameProperty:'tag',
         // Options for sorting the BuiltForms
-        sortProperties: ['building_attribute_set.combined_pop_emp_density','name'],
+        sortProperties: ['flat_building_densities.combined_pop_emp_density','name'],
         // Reverse sorting for appropriate keys
-        reverseSortDict: {'building_attribute_set.combined_pop_emp_density': YES},
+        reverseSortDict: {'flat_building_densities.combined_pop_emp_density': YES},
 
         /**
-         * The keys of the tree, currentaly all tags in the system, to which BuiltForms might associate
+         * The keys of the tree, currently all tags in the system, to which BuiltForms might associate
          * TODO these tags should be limited to those used by BuiltForms
         */
         keyObjectsBinding: 'Footprint.builtFormTagsController.content',
@@ -128,6 +126,7 @@ Footprint.buildingsController = SC.ArrayController.create(SC.SelectionSupport, F
     }.property('sourceSelection', 'controller').cacheable()
 });
 
+
 /***
  * Nested store version of the buildings for editing. The selection is bound oneWay to the main controller, so that
  * when the main controller selection changes, this one updates its corresponding record
@@ -136,10 +135,43 @@ Footprint.buildingsEditController = Footprint.EditArrayController.create({
     allowsEmptySelection:NO,
     sourceController: Footprint.buildingsController,
     isEditable:YES,
-    recordType: Footprint.PrimaryComponent,
+    recordType: Footprint.Building,
     orderBy: ['name ASC']
 });
 
+/***
+ * A flat list of all Crop records
+ * @type {SelectionSupport}
+ */
+Footprint.cropsController = SC.ArrayController.create(SC.SelectionSupport, Footprint.RecordControllerChangeSupport, {
+    allowsEmptySelection:YES,
+    orderBy: ['name ASC'],
+    contentDidChangeEvent: 'cropControllerDidChange',
+    selectedItemDidChangeEvent: 'selectedCropControllerDidChange',
+    sourceSelection: null,
+    sourceSelectionBinding: SC.Binding.oneWay('Footprint.builtFormCategoriesTreeController.selection'),
+    selection: function() {
+        if (!this.get("sourceSelection") || !this.get('content'))
+            return;
+        var builtForms = this.get('sourceSelection').filter(function(builtForm) {
+            return this.get('content').contains(builtForm);
+        }, this);
+        var selectionSet = SC.SelectionSet.create();
+        selectionSet.addObjects(builtForms);
+        return selectionSet;
+    }.property('sourceSelection', 'controller').cacheable()
+});
+/***
+ * Nested store version of the buildings for editing. The selection is bound oneWay to the main controller, so that
+ * when the main controller selection changes, this one updates its corresponding record
+ */
+Footprint.cropsEditController = Footprint.EditArrayController.create({
+    allowsEmptySelection:NO,
+    sourceController: Footprint.cropsController,
+    isEditable:YES,
+    recordType: Footprint.Crop,
+    orderBy: ['name ASC']
+});
 /***
  * A flat list of all BuildingType records
  * @type {SelectionSupport}
@@ -169,12 +201,48 @@ Footprint.buildingTypesController = SC.ArrayController.create(SC.SelectionSuppor
  */
 Footprint.buildingTypesEditController = Footprint.EditArrayController.create({
     allowsEmptySelection:NO,
+    updateSummaryAttributes: NO,
     sourceController: Footprint.buildingTypesController,
     isEditable:YES,
-    recordType: Footprint.PlacetypeComponent,
+    recordType: Footprint.BuildingType,
     orderBy: ['name ASC']
 });
+/***
+ * A flat list of all BuildingType records
+ * @type {SelectionSupport}
+ */
+Footprint.cropTypesController = SC.ArrayController.create(SC.SelectionSupport, Footprint.RecordControllerChangeSupport, {
+    allowsEmptySelection:YES,
+    orderBy: ['name ASC'],
+    contentDidChangeEvent: 'cropTypesControllerDidChange',
+    selectedItemDidChangeEvent: 'selectedCropTypesControllerDidChange',
+    sourceSelection: null,
+    sourceSelectionBinding: SC.Binding.oneWay('Footprint.builtFormCategoriesTreeController.selection'),
+    selection: function() {
+        if (!this.get("sourceSelection") || !this.get('content'))
+            return;
+        var builtForms = this.get('sourceSelection').filter(function(builtForm) {
+            return this.get('content').contains(builtForm);
+        }, this);
+        var selectionSet = SC.SelectionSet.create();
+        selectionSet.addObjects(builtForms);
+        return selectionSet;
+    }.property('sourceSelection', 'controller')
+});
 
+/***
+ * Nested store version of the buildingTypes for editing. The selection is bound oneWay to the main controller, so that
+ * when the main controller selection changes, this one updates its corresponding record
+ */
+
+Footprint.cropTypesEditController = Footprint.EditArrayController.create({
+    allowsEmptySelection:NO,
+    updateSummaryAttributes: NO,
+    sourceController: Footprint.cropTypesController,
+    isEditable:YES,
+    recordType: Footprint.CropType,
+    orderBy: ['name ASC']
+});
 /***
  * A flat list of all PlaceType records
  * @type {SelectionSupport}
@@ -204,10 +272,106 @@ Footprint.placetypesController = SC.ArrayController.create(SC.SelectionSupport, 
  */
 Footprint.placetypesEditController = Footprint.EditArrayController.create({
     allowsEmptySelection:NO,
+    updateSummaryAttributes: NO,
     sourceController: Footprint.placetypesController,
     isEditable:YES,
-    recordType: Footprint.Placetype,
+    recordType: Footprint.UrbanPlacetype,
+    orderBy: ['name ASC']
+});
+/***
+ * A flat list of all PlaceType records
+ * @type {SelectionSupport}
+ */
+Footprint.landscapeTypesController = SC.ArrayController.create(SC.SelectionSupport, Footprint.RecordControllerChangeSupport, {
+    allowsEmptySelection:YES,
+    orderBy: ['name ASC'],
+    contentDidChangeEvent: 'landscapeTypesControllerDidChange',
+    selectedItemDidChangeEvent: 'selectedLandscapeTypesControllerDidChange',
+    sourceSelection: null,
+    sourceSelectionBinding: SC.Binding.oneWay('Footprint.builtFormCategoriesTreeController.selection'),
+    selection: function() {
+        if (!this.get("sourceSelection") || !this.get('content'))
+            return;
+        var builtForms = this.get('sourceSelection').filter(function(builtForm) {
+            return this.get('content').contains(builtForm);
+        }, this);
+        var selectionSet = SC.SelectionSet.create();
+        selectionSet.addObjects(builtForms);
+        return selectionSet;
+    }.property('sourceSelection', 'controller')
+});
+
+/***
+ * Nested store version of the placeTypes for editing. The selection is bound oneWay to the main controller, so that
+ * when the main controller selection changes, this one updates its corresponding record
+ */
+Footprint.landscapeTypesEditController = Footprint.EditArrayController.create({
+    allowsEmptySelection:NO,
+    updateSummaryAttributes: NO,
+    sourceController: Footprint.landscapeTypesController,
+    isEditable:YES,
+    recordType: Footprint.LandscapeType,
     orderBy: ['name ASC']
 });
 
+/***
+ * Holds all the available BuildingUseDefinitions. Since they are a tree structure via the category property,
+ * we add the categories and leaves property to limit them to those who have/don't have a category (parent node) defined, respectively
+ */
+Footprint.buildingUseDefinitionsController = SC.ArrayController.create({
+    allowsEmptySelection:YES,
+    orderBy: ['name ASC']
+//    contentDidChangeEvent: 'buildingUseControllerDidChange',
+//    selectedItemDidChangeEvent: 'selectedBuildingUseControllerDidChange',
+//    sourceSelection: null,
+//    sourceSelectionBinding: SC.Binding.oneWay('Footprint.builtFormCategoriesTreeController.selection'),
+//    selection: function() {
+//        if (!this.get("sourceSelection") || !this.get('content'))
+//            return;
+//        var builtForms = this.get('sourceSelection').filter(function(builtForm) {
+//            return this.get('content').contains(builtForm);
+//        }, this);
+//        var selectionSet = SC.SelectionSet.create();
+//        selectionSet.addObjects(builtForms);
+//        return selectionSet;
+//    }.property('sourceSelection', 'controller').cacheable()
+});
+
+
+
+Footprint.buildingUseDefinitionsEditController = Footprint.EditArrayController.create({
+    allowsEmptySelection:NO,
+    sourceController: Footprint.buildingUseDefinitionsController,
+    isEditable:YES,
+    recordType: Footprint.BuildingUseDefinition,
+    orderBy: ['name ASC']
+});
+
+/***
+ * This just stores the current editing built form recordType in its content
+ */
+Footprint.builtFormEditRecordTypeController = SC.ObjectController.create();
+
+Footprint.buildingUseDefinitionsTreeController = Footprint.TreeController.create({
+    /***
+     *
+     * Organizes the BuildingUsePercents by their BuildingUseDefinition
+     * @type {*|void
+     */
+    content: Footprint.TreeContent.create({
+        // All the category BuildingUseDefinitions.
+        keyObjectsBinding: 'Footprint.buildingUseDefinitionsController.categories',
+        // The nodes of the tree. In this case all leaf BuildingUseDefinitions
+        nodesBinding: SC.Binding.oneWay('Footprint.buildingUseDefinitionsController.leaves'),
+
+        // The path from the node to its category
+        keyProperty:'category',
+        // The property of the keyObject to use for a name. Since we use nodeValueLookup to make our node values BuildingUsePercents,
+        // this property is relative to the BuildingUsePercent instance
+        keyNameProperty:'name',
+        // Options for sorting the BuildingUseDefinitions within each category
+        sortProperties: ['name'],
+        reverseNodeSetSortDict: {name: YES}
+    })
+});
 

@@ -81,9 +81,9 @@ Footprint.LoadingScenarioDependenciesState = Footprint.LoadingConcurrentDependen
     loadingScenarioCategoriesState:SC.State.plugin('Footprint.LoadingScenarioCategoriesState'),
     loadingBuiltFormTagsState:SC.State.plugin('Footprint.LoadingBuiltFormTagsState'),
     loadingLayerTagsState:SC.State.plugin('Footprint.LoadingLayerTagsState'),
-    //loadingPresentationsState:SC.State.plugin('Footprint.LoadingPresentationsState'),
-    //loadingBuiltFormSetsState:SC.State.plugin('Footprint.LoadingBuiltFormSetsState'),
-    loadingPolicySetsState:SC.State.plugin('Footprint.LoadingPolicySetsState')
+    loadingBuildingUseDefinitionsState:SC.State.plugin('Footprint.LoadingBuildingUseDefinitionsState'),
+    loadingBehaviorsState:SC.State.plugin('Footprint.LoadingBehaviorsState'),
+    loadingIntersectionsState:SC.State.plugin('Footprint.LoadingIntersectionsState')
 });
 
 Footprint.LoadingScenariosState = Footprint.LoadingConfigEntityState.design({

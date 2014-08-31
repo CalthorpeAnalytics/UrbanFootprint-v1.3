@@ -53,10 +53,7 @@ Footprint.SingleSelectionSupport = {
         if (value !== undefined) {
             this.selectObject(value);
         }
-        else {
-            var selection = this.get('selection');
-            return selection._objects ? selection._objects[0] : null;
-        }
+        return this.getPath('selection.firstObject');
     }.property('selection').cacheable()
 };
 
@@ -203,20 +200,27 @@ Footprint.EditArrayController = Footprint.ArrayController.extend(Footprint.EditC
     // content will be null whenever parentEntityKey is specified but parentRecord is null.
     parentEntityKey: null,
     parentRecord: null,
+    /***
+     * Set by the Crud stat when saving starts and ends
+     */
+    isSaving: NO,
+    conditions: 'deleted != YES',
 
     content: function() {
         var nestedStore = this.get('nestedStore'),
             parentRecord = this.get('parentRecord'),
-            recordType = this.get('recordType'),
             parentEntityKey = this.get('parentEntityKey');
+
+        var recordType = typeof this.get('recordType') === 'string' ?
+            SC.objectForPropertyPath(this.get('recordType')) : this.get('recordType');
+
         if (!nestedStore || !recordType || (parentEntityKey && !parentRecord))
             return null;
         return this.get('nestedStore').find(SC.Query.local(recordType, this.get('parentEntityKey') ? {
-                conditions: '%@ = {parentConfigEntity} AND deleted != YES'.fmt(parentEntityKey),
-                parentConfigEntity: this.get('nestedStore').materializeRecord(
-                    parentRecord.get('storeKey'))
+                conditions: '%@ $ {parentRecord} AND deleted != YES'.fmt(parentEntityKey),
+                parentRecord: this.get('nestedStore').find(parentRecord.constructor, parentRecord.get('id'))
             } : {
-                conditions: 'deleted != YES'
+                conditions: this.get('conditions')
             }
         ));
     }.property('recordType', 'nestedStore', 'parentRecord').cacheable()

@@ -2,7 +2,7 @@
 /*
 * UrbanFootprint-California (v1.0), Land Use Scenario Development and Modeling System.
 * 
-* Copyright (C) 2013 Calthorpe Associates
+* Copyright (C) 2014 Calthorpe Associates
 * 
 * This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, version 3 of the License.
 * 
@@ -71,39 +71,42 @@ Footprint.SocketIOState = SC.State.design({
                 });
             }
 
-            // send auth message
-            this.socket.emit('calthorpe_auth', $.toJSON({ userid: 1 }));
+            if (this.timer)
+                timer.invalidate();
+            // Ping the server every hundred seconds until our socket io is better set up in the future
+            // This is just debugging info so we know we are still connected
+            this.timer = SC.Timer.schedule({
+              target: this,
+              action: 'calthorpeAuth',
+              interval: 100000,
+              repeats: YES
+            });
         }
-
     }.observes('.socket'),
+
+    /***
+     * Ping to the server
+     */
+    calthorpeAuth: function() {
+        // send auth message
+        this.socket.emit(
+            'calthorpe_auth',
+            $.toJSON({
+                userid:F.userController.getPath('firstObject.id')
+            }));
+    },
 
     calthorpeAuthResult: function(message) {
         SC.Logger.debug("SocketIO authorization result: %@".fmt(message.msg.status));
     },
 
     /***
-     * Run when the core analytic module completes
-     * @param message contains a config_entity_id to indicate the completed scenario
-     */
-    analyticModuleCoreCompleted: function(message) {
-        SC.Logger.debug('Core Complete for Scenario: %@'.fmt(message))
-        Footprint.statechart.sendEvent('analysisDidComplete', SC.Object.create(message));
-    },
-    /***
-     * Run when the base module completes
-     * @param message contains a config_entity_id to indicate the completed project
-     */
-    analyticModulBaseCompleted: function(message) {
-        var project = Footprint.store.find(Footprint.Project, message.config_entity_id);
-        SC.Logger.debug('Base Complete for Project: %@'.fmt(project))
-    },
-    /***
      * Run when an export completes. Fetches the url to commence download
      * @param message
      */
     layerExportCompleted: function(message) {
         var api_key = Footprint.userController.getPath('content.firstObject.api_key');
-        var request_url = "%@/get_export_result/%@/".fmt(api_key, message.job_id);
+        var request_url = "%@%@/get_export_result/%@/".fmt(Footprint.isDevelopment ? 'footprint/' : '', api_key, message.job_id);
 //        $('#download').attr()
 
         window.location.assign(request_url);

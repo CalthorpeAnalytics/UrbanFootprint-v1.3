@@ -25,7 +25,8 @@ class BuiltFormKeys(object):
     BUILDINGTYPE_MIXED_USE = 'Mixed Use'
     BUILDINGTYPE_INSTITUTIONAL = 'Institutional'
     BUILDINGTYPE_BLANK = 'Blank'
-    BUILDINGTYPE_AGRICULTURAL = 'Agricultural'
+    BUILDINGTYPE_AGRICULTURAL = 'Agriculture'
+
 
     RESIDENTIAL_BUILDINGTYPE_CATEGORIES = [
         BUILDINGTYPE_RESIDENTIAL, BUILDINGTYPE_DETACHED_RESIDENTIAL,
@@ -56,6 +57,7 @@ class BuiltFormKeys(object):
     MULTIFAMILY_5P = 'Multifamily 5 Plus'
     LARGE_LOT_SINGLE_FAMILY = 'Single Family Large Lot'
     SMALL_LOT_SINGLE_FAMILY = 'Single Family Small Lot'
+    SINGLE_FAMILY = 'Single Family'
 
     MULTIFAMILY_AND_ATTACHED = [ATTACHED_RESIDENTIAL, MULTIFAMILY_2_TO_4, MULTIFAMILY_5P]
     DETACHED_RESIDENTIAL = [LARGE_LOT_SINGLE_FAMILY, SMALL_LOT_SINGLE_FAMILY]
@@ -63,30 +65,50 @@ class BuiltFormKeys(object):
     RESIDENTIAL_CATEGORY = 'Residential'
     RETAIL_CATEGORY = 'Retail'
     OFFICE_CATEGORY = 'Office'
+    PUBLIC_CATEGORY = 'Public'
     INDUSTRIAL_CATEGORY = 'Industrial'
-    AGRICULTURAL_CATEGORY = 'Agricultural'
-    MILITARY_CATEGORY = 'Armed Forces'
+    AGRICULTURE_CATEGORY = 'Agriculture'
+    MILITARY_CATEGORY = 'Military'
+
 
     RESIDENTIAL_SUBCATEGORIES = MULTIFAMILY_AND_ATTACHED + DETACHED_RESIDENTIAL
     ALL_RESIDENTIAL_USES = MULTIFAMILY_AND_ATTACHED + DETACHED_RESIDENTIAL + [RESIDENTIAL_CATEGORY]
 
     TOP_LEVEL_EMPLOYMENT_CATEGORIES = [RETAIL_CATEGORY,
                                        OFFICE_CATEGORY,
-                                       INDUSTRIAL_CATEGORY,
-                                       AGRICULTURAL_CATEGORY,
-                                       MILITARY_CATEGORY]
+                                       INDUSTRIAL_CATEGORY]
 
-    RETAIL_SUBCATEGORIES = ['Retail Services', 'Restaurant', 'Accommodation', 'Arts Entertainment', 'Other Services']
-    OFFICE_SUBCATEGORIES = ['Office Services', 'Public Admin', 'Education Services', 'Medical Services']
-    INDUSTRIAL_SUBCATEGORIES = ['Manufacturing', 'Wholesale', 'Transport Warehouse', 'Construction Utilities']
-    AGRICULTURAL_SUBCATEGORIES = ['Agriculture', 'Extraction']
+    RETAIL_SUBCATEGORIES = [
+        'Retail Services',
+        'Restaurant',
+        'Accommodation',
+        'Arts Entertainment',
+        'Other Services'
+    ]
 
+    OFFICE_SUBCATEGORIES = [
+        'Office Services',
+        'Public Admin',
+        'Education Services',
+        'Medical Services'
+    ]
+
+    INDUSTRIAL_SUBCATEGORIES = [
+        'Manufacturing',
+        'Wholesale',
+        'Transport Warehouse',
+        'Construction Utilities',
+        'Agriculture',
+        'Extraction',
+        'Armed Forces'
+    ]
+
+    COMMERCIAL_SUBCATEGORIES = RETAIL_SUBCATEGORIES + OFFICE_SUBCATEGORIES + INDUSTRIAL_SUBCATEGORIES
     BUILDING_USE_DEFINITION_METACATEGORIES = [
         RESIDENTIAL_CATEGORY,
         OFFICE_CATEGORY,
         RETAIL_CATEGORY,
-        INDUSTRIAL_CATEGORY,
-        AGRICULTURAL_CATEGORY
+        INDUSTRIAL_CATEGORY
     ]
 
     BUILDING_USE_DEFINITION_CATEGORIES = {
@@ -106,10 +128,10 @@ class BuiltFormKeys(object):
         'Transport Warehouse': INDUSTRIAL_CATEGORY,
         'Construction Utilities': INDUSTRIAL_CATEGORY,
 
-        'Agriculture': AGRICULTURAL_CATEGORY,
-        'Extraction': AGRICULTURAL_CATEGORY,
+        'Agriculture': INDUSTRIAL_CATEGORY,
+        'Extraction': INDUSTRIAL_CATEGORY,
 
-        'Armed Forces': MILITARY_CATEGORY,
+        'Armed Forces': INDUSTRIAL_CATEGORY,
 
         LARGE_LOT_SINGLE_FAMILY: RESIDENTIAL_CATEGORY,
         SMALL_LOT_SINGLE_FAMILY: RESIDENTIAL_CATEGORY,
@@ -117,6 +139,7 @@ class BuiltFormKeys(object):
         MULTIFAMILY_2_TO_4: RESIDENTIAL_CATEGORY,
         MULTIFAMILY_5P: RESIDENTIAL_CATEGORY,
     }
+
     BUILDINGTYPE_SOURCE_ID_LOOKUP = {
         'by_name': {
             'Airport': {'fp_id': None, 'source_id': 62},

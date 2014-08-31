@@ -31,7 +31,11 @@ Footprint.TreeItem = SC.Object.extend({
     treeItemIsExpanded: YES,
     treeItemChildren: function(){
         return this.get('nodes');
-    }.property('nodes')
+    }.property('nodes'),
+
+    toString: function() {
+        return "%@:\n%@".fmt(sc_super(), this.toStringAttributes('keyObject keyNameProperty name'.w()));
+    }
 });
 
 /**
@@ -41,43 +45,34 @@ Footprint.TreeItem = SC.Object.extend({
 Footprint.TreeContent = SC.Object.extend({
     /***
      * Subclasses must set or bind the following properties, unless the derivitive properties are set, as described:
+    */
+
+    /***
+     * The unique key objects used by the the TreeController. These are model instances that have a string property that label the top-level tree nodes
      */
+    keyObjects: null,
+    keyObjectsStatus:null,
+    keyObjectsStatusBinding: '*keyObjects.status',
 
-    // The configEntity that is in scope. This will update all the controller properties whenever set or reset
-    configEntity: null,
-    // The configEntity property path to access the nodeSet that contains the nodes
-    // Leave null if their is no set class and/or you set the nodes property directly
+    // The container object holding the nodes. Used with keyProperty to get the nodes
+    nodeSet: null,
+    // The property of node that resolves keyObject that matches one of keyObjects
     keyProperty:null,
-    // The property of the keyObject that access its name
+    // The property of the nodes that access their name for display
     keyNameProperty:null,
+    // Override to a return a function that resolves the node to a value for the tree
+    // Normally the value of the tree will be the node itself
+    nodeValueLookup: null,
 
-    init: function() {
-        sc_super();
-        if (this.get('nodeSetProperty'))
-            this.bind('nodeSet', '*configEntity.%@'.fmt(this.get('nodeSetProperty')));
-        if (this.get('nodesProperty'))
-            this.bind('nodes', '*nodeSet.%@'.fmt(this.get('nodesProperty')));
-    },
+    // The nodes of the tree.
+    nodes:null,
+    nodesStatus:null,
+    nodesStatusBinding:SC.Binding.oneWay('*nodes.status'),
 
     // Start the tree expanded
     treeItemIsExpanded: YES,
     // The name of the root element
     name: "root",
-    // Set to the configEntity's nodeSetProperty whenever the confgEntity is updated, or can be set/bound directly instead
-    nodeSet: null,
-
-    // The nodes of the tree. Set the nodesProperty or bind nodes
-    nodes:null,
-    nodesStatus:null,
-    nodesStatusBinding:SC.Binding.oneWay('*nodes.status'),
-
-    /***
-     * The unique key objects used by the the TreeController. These are model instances that have a string property that label the top-level tree nodes
-     * These are only used to populate a select view that lets a user assign an existing key to a node.
-     */
-    keyObjects: null,
-    keyObjectsStatus:null,
-    keyObjectsStatusBinding: '*keyObjects.status',
 
     /***
      * Default sorting properties for the nodeSet level of tree controllers
@@ -108,23 +103,28 @@ Footprint.TreeContent = SC.Object.extend({
      */
     tree:function() {
         var self = this;
+        var keyObjects = this.get('keyObjects');
         return $.mapToCollectionsObjectWithObjectKeys(
             self.get('nodes') || [],
             function(node) { // create 'keys' attributes
                 var list = arrayOrItemToArray(node.getPath(self.get('keyProperty'))).filter(
-                    function(key) {
+                    function(keyObject) {
                         // only accept the key objects that match keyObjects
                         // This allows us to filter out keyObjects of the nodes that we don't care about
                         // For instance, with Scenarios we only care about Category instances whose key property is
                         // 'category'
-                        return this.get('keyObjects').contains(key);
+                        // Use id comparison since we traditionally load the full set as non-nested and the attribute
+                        // version as nested. Comparing nested to non-nested records no longer works
+                        return keyObjects.mapProperty('id').contains(keyObject.get('id'));
                     },
                     self
                 );
                 return list.length > 0 ? list : arrayOrItemToArray(self.get('undefinedKeyObject'));
             },
-            function(node) { // create 'values' attributes
-                return node;
+            function(node) {
+                // create 'values' attributes. These are the node themselves, unless a nodeValueLookup function is defined,
+                // in which case we pass the node to the function it returns
+                return self.nodeValueLookup ? self.nodeValueLookup(node) : node;
             },
             function(keyObject) { // stringify keys
                 return keyObject.getPath(self.get('keyNameProperty'));
@@ -170,6 +170,6 @@ Footprint.TreeContent = SC.Object.extend({
     }.property('treeItemChildren').cacheable(),
 
     toString: function() {
-        return "%@:\n%@".fmt(sc_super(), this.toStringAttributes('nodeSetProperty nodeSet nodes keyProperty keyObjects keyNameProperty tree treeItemChildren'.w()));
+        return "%@:\n%@".fmt(sc_super(), this.toStringAttributes('nodeSet nodes keyProperty keyObjects keyNameProperty tree treeItemChildren'.w()));
     }
 });

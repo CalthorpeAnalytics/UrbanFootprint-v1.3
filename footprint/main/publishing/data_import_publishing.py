@@ -3,21 +3,26 @@ import logging
 import re
 import traceback
 from django.contrib.gis.db import models
+from django.core.paginator import Paginator
 from django.db.models.fields.related import ReverseManyRelatedObjectsDescriptor
-from django.db import connections, connection, transaction
+from django.db.models.query import RawQuerySet
+from rawpaginator.paginator import RawQuerySetPaginator
 from south.utils.datetime_utils import datetime
 import sys
 from footprint import settings
-from footprint.common.utils.postgres_utils import build_postgres_conn_string, pg_connection_parameters
+from footprint.common.utils.postgres_utils import pg_connection_parameters
 from footprint.main.database.import_data import ImportData
-from footprint.main.lib.functions import map_property, merge, map_dict, map_to_dict, filter_dict, map_dict_to_dict, deep_merge
+from footprint.main.lib.functions import map_property, merge, map_dict, map_to_dict, filter_dict, map_dict_to_dict, deep_merge, compact, \
+    accumulate
 
-from footprint.main.models.config.config_entity import ConfigEntity
 from footprint.main.models.config.project import Project
+from footprint.main.models.geospatial.db_entity_keys import DbEntityKey
 
 from footprint.main.models.geospatial.feature_class_creator import FeatureClassCreator
+from footprint.main.models.geospatial.intersection import IntersectionKey
 from footprint.main.publishing.import_processor import ImportProcessor
-from footprint.main.utils.dynamic_subclassing import create_tables_for_dynamic_classes, drop_tables_for_dynamic_classes, resolve_field, create_join, ManyJoinRelationship, SingleJoinRelationship
+from footprint.main.utils.dynamic_subclassing import create_tables_for_dynamic_classes, drop_tables_for_dynamic_classes, resolve_field, create_join, ManyJoinRelationship, SingleJoinRelationship, \
+    dynamic_model_table_exists
 from footprint.main.utils.utils import parse_schema_and_table, get_property_path, resolve_module_attr
 from footprint.main.models.database.information_schema import InformationSchema, sync_geometry_columns
 from footprint.uf_tools import dictfetchall
@@ -29,7 +34,6 @@ logger = logging.getLogger(__name__)
 UF_GEOMETRY_ID = 'uf_geometry_id'
 UF_GEOMETRY_ID_TYPE = 'varchar'
 
-#@profile
 def on_config_entity_post_save_data_import(sender, **kwargs):
     """
         Import the data for all DbEntities (if needed) of the ConfigEntity
@@ -40,12 +44,9 @@ def on_config_entity_post_save_data_import(sender, **kwargs):
     """
     config_entity = kwargs['instance']
     logger.debug("\t\tHandler: on_config_entity_post_save_data_import. ConfigEntity: %s" % config_entity.name)
-    if ConfigEntity._heapy:
-        ConfigEntity.dump_heapy()
 
     process_db_entities(**kwargs)
 
-#@profile
 def on_db_entity_post_save_data_import(sender, **kwargs):
     """
         On DbEntity save import its data
@@ -55,11 +56,13 @@ def on_db_entity_post_save_data_import(sender, **kwargs):
     """
 
     db_entity_interest = kwargs['instance']
+    if db_entity_interest.deleted:
+        # Nothing to do for deleted instances
+        return
+
     config_entity = db_entity_interest.config_entity
     db_entity = db_entity_interest.db_entity
     logger.debug("\t\tHandler: on_db_entity_post_save_data_import. DbEntity: %s" % db_entity.full_name)
-    if ConfigEntity._heapy:
-        ConfigEntity.dump_heapy()
 
     process_db_entity(
         config_entity,
@@ -82,15 +85,34 @@ def process_db_entities(**kwargs):
     limited_db_entity_keys = kwargs.get('db_entity_keys', None)
 
     db_entities = filter(lambda db_entity: (not limited_db_entity_keys or db_entity.key in limited_db_entity_keys) and not db_entity.is_clone, config_entity.owned_db_entities())
+
+    def db_entity_priority(db_entity):
+        # Scores the DbEntity to make sure primary geographies get the lowest (best) score, and that DbEntities with
+        # dependencies to others score below those others
+        related_sum = accumulate(
+            lambda sum, db_entity: sum+db_entity_priority(db_entity),
+            0,
+            config_entity.computed_db_entities(
+                # Find the key of any related DbEntities
+                key__in=compact(map_property((get_property_path(db_entity, 'feature_class_configuration.related_fields') or {}).values(), 'related_key')))
+        )
+        # Higher score is lower priority
+        # primary is most important, followed by sum of related db_entities, followed by id
+        return 10e16 * (0 if get_property_path(db_entity, 'feature_class_configuration.primary_geography') else 1) + \
+               10e8*related_sum + \
+               db_entity.id
+
+    # Sort so primary_geographies are processed first
+    # We also need to make sure that any DbEntity that has a relation to another is processed after the latter
     for db_entity in sorted(
             db_entities,
-            key=lambda db_entity: 0 if \
-                db_entity.feature_class_configuration and db_entity.feature_class_configuration.get('primary_geography') else \
-                1):
+            key=db_entity_priority):
+        feature_class_configuration = FeatureClassCreator(config_entity, db_entity)
         # TODO this filter is just here to block remote urls of background layers
         # It doesn't really make much sense otherwise, although we do have to import from somewhere
-        # It certainly doesn't make sense in the clone case put clones copy their source's urls
-        if db_entity.importable:
+        # It certainly doesn't make sense in the clone case have clones copy their source's urls
+        # reimportable is True except for db_entities that got their data from uploading, which means no source is available after creation
+        if db_entity.importable and (db_entity.reimportable or (feature_class_configuration.has_dynamic_model_class() and not dynamic_model_table_exists(feature_class_configuration.dynamic_model_class()))):
             process_db_entity(
                 config_entity,
                 db_entity,
@@ -113,7 +135,7 @@ def process_db_entity(config_entity, db_entity,  **kwargs):
     """
 
 
-    custom_import_processor = db_entity.feature_class_configuration.get('data_importer', None) if db_entity.feature_class_configuration else None
+    custom_import_processor = db_entity.feature_class_configuration.data_importer if db_entity.feature_class_configuration else None
     import_processor = kwargs.get('import_processor',
                                   (resolve_module_attr(custom_import_processor) if \
                                      custom_import_processor else \
@@ -122,13 +144,13 @@ def process_db_entity(config_entity, db_entity,  **kwargs):
     logger.debug("\t\t\tData Import Publishing. Processor: %s DbEntity: %s" % (
         import_processor.__class__.__name__, db_entity.full_name))
 
-    if config_entity.origin_config_entity and FeatureClassCreator(config_entity, db_entity).feature_class_is_ready:
-        # If there is an origin_config_entity we override our importing and clone from the origin if this isn't a newly imported layer
+    if config_entity.origin_instance and FeatureClassCreator(config_entity, db_entity).dynamic_model_class_is_ready:
+        # If there is an origin_instance we override our importing and clone from the origin if this isn't a newly imported layer
         # feature_class_is_ready indicates that tit has already been imported
         # The db_entity configured to import from another db_entity's class instance objects
-        logger.debug("\t\t\t\tCloning DbEntity: %s" % db_entity.full_name)
+        logger.debug("\t\t\t\tCloning DbEntity: %s of ConfigEntity %s from that of ConfigEntity %s" % (db_entity.full_name, config_entity.name, config_entity.origin_instance.name))
         import_processor.cloner(config_entity, db_entity)
-    elif db_entity.feature_class_configuration and db_entity.feature_class_configuration.get('import_from_db_entity_key', None):
+    elif db_entity.feature_class_configuration and db_entity.feature_class_configuration.import_from_db_entity_key:
         # Copy data from a peer table
         # The db_entity configured to import from another db_entity's class instance objects
         logger.debug("\t\t\t\tPeer Importing DbEntity: %s" % db_entity.full_name)
@@ -138,17 +160,6 @@ def process_db_entity(config_entity, db_entity,  **kwargs):
         # The table data needs to be imported from a seed table in the public schema
         logger.debug("\t\t\t\tSource Importing DbEntity: %s" % db_entity.full_name)
         import_processor.importer(config_entity, db_entity)
-
-
-def on_db_entity_save(sender, **kwargs):
-    """
-    respond to whenever a db entity is added or updated
-    :return:
-    """
-    db_entity = kwargs['instance']
-    if not db_entity._no_post_post_save:
-        # Do updates here
-        pass
 
 
 class DefaultImportProcessor(ImportProcessor):
@@ -173,7 +184,7 @@ class DefaultImportProcessor(ImportProcessor):
         # Once the db_entity feature data is present in the system, get or create the feature_class_configuration and
         # pouplate association tables
         # Use the feature_class configuration to create the feature_class. Otherwise inspect the imported table to create it
-        if db_entity.feature_class_configuration and not db_entity.feature_class_configuration.get('generated', False):
+        if db_entity.feature_class_configuration and not db_entity.feature_class_configuration.generated:
             # Nothing to do
             pass
         else:
@@ -182,10 +193,10 @@ class DefaultImportProcessor(ImportProcessor):
             # Find fields by introspecting the imported table
             feature_class_configuration = feature_class_creator.feature_class_configuration_from_introspection()
             # Add these fields to the feature_class_configuration
-            feature_class_creator.merge_feature_class_configuration_into_db_entity(feature_class_configuration)
+            feature_class_creator.update_db_entity(feature_class_configuration)
 
         # Create association classes and tables and populate them with data
-        create_and_population_associations(config_entity, db_entity)
+        create_and_populate_relations(config_entity, db_entity)
 
     def peer_importer(self, config_entity, db_entity, import_from_origin=False, source_queryset=None):
         """
@@ -201,42 +212,53 @@ class DefaultImportProcessor(ImportProcessor):
         """
         source_db_entity_key = db_entity.origin_instance.key if \
             import_from_origin else \
-            db_entity.feature_class_configuration.get('import_from_db_entity_key')
+            db_entity.feature_class_configuration.import_from_db_entity_key
         # Custom import field names. Normally not needed
-        import_fields = db_entity.feature_class_configuration.get('import_fields', [])
+        import_fields = db_entity.feature_class_configuration.import_fields or []
         source_db_entity = config_entity.computed_db_entities().get(key=source_db_entity_key)
-        source_feature_class = config_entity.feature_class_of_db_entity_key(source_db_entity_key)
-        feature_class = config_entity.feature_class_of_db_entity_key(db_entity.key)
+        source_feature_class = config_entity.db_entity_feature_class(source_db_entity_key)
+        feature_class = config_entity.db_entity_feature_class(db_entity.key)
         if not InformationSchema.objects.table_exists(db_entity.schema, db_entity.table):
             # Create the feature_class table and its base class if they don't yet exist
             create_tables_for_dynamic_classes(feature_class.__base__, feature_class)
 
         # Import the data from the source feature class
-        _peer_or_clone_table_import(feature_class, source_feature_class,
-                                    source_queryset=source_queryset,
-                                    import_fields=import_fields,
-                                    import_ids_only=db_entity.feature_class_configuration.get('import_ids_only', None))
-        # Add and fill the association tables based on the origin db_entity
-        create_and_population_associations_from_clone_source(config_entity, db_entity, source_db_entity=source_db_entity, source_queryset=source_queryset)
+        if not db_entity.feature_class_configuration.empty_table:
+            _peer_or_clone_table_import(feature_class, source_feature_class,
+                                        source_queryset=source_queryset,
+                                        import_fields=import_fields,
+                                        import_ids_only=db_entity.feature_class_configuration.import_ids_only)
+        # Add and optionally fill the association tables based on the origin db_entity
+        create_and_populate_associations_from_clone_source(
+            config_entity, db_entity, source_db_entity=source_db_entity, source_queryset=source_queryset, no_populate=db_entity.feature_class_configuration.empty_table)
 
     def cloner(self, config_entity, db_entity):
         """
-            Clones data from the config_entity's origin_config_entity. We only do this if the db_entity
+            Clones data from the config_entity's origin_instance. We only do this if the db_entity
             is owned by the config_entity. In other words if we're a Scenario don't copy Project or Region
-            scoped db_entities.
+            scoped db_entities. They will be adopted by the cloned Scenario from the Project
         :param config_entity:
         :param db_entity_key:
         :param import_fields. Optional limited fields to import. If None it imports all fields.
         :return:
         """
 
+        # Never clone a DbEntity belonging to a parent ConfigEntity, or a DbEntity
+        # whose feature_class_configuration belongs to a peer DbEntity, as is the case
+        # for Result DbEntity instances
         if config_entity.db_entity_owner(db_entity) != config_entity:
+            logger.debug("\t\t\t\tSkipping Clone of DbEntity %s because it is not owned by ConfigEntity: %s, rather parent ConfigEntity %s" % \
+                         (db_entity.full_name, config_entity.name, config_entity.db_entity_owner(db_entity).name))
+            return
+        if db_entity.feature_class_configuration.feature_class_owner:
+            logger.debug("\t\t\t\tSkipping Clone of DbEntity %s because it does not own the feature_class, rather it is owned by DbEntity %s" % \
+                         (db_entity.full_name, db_entity.feature_class_configuration.feature_class_owner))
             return
 
-        destination_feature_class = config_entity.feature_class_of_db_entity_key(db_entity.key)
-        source_feature_class = config_entity.origin_config_entity.feature_class_of_db_entity_key(db_entity.key)
+        destination_feature_class = config_entity.db_entity_feature_class(db_entity.key)
+        source_feature_class = config_entity.origin_instance.db_entity_feature_class(db_entity.key)
         # Custom import field names. Normally not needed
-        import_fields = db_entity.feature_class_configuration.get('import_fields', [])
+        import_fields = db_entity.feature_class_configuration.import_fields or []
 
         if not InformationSchema.objects.table_exists(db_entity.schema, db_entity.table):
             # Create the destination_feature_class table and its base class if they don't yet exist
@@ -245,8 +267,8 @@ class DefaultImportProcessor(ImportProcessor):
         # Copy the data from the source_feature_class
         _peer_or_clone_table_import(destination_feature_class, source_feature_class, import_fields)
         # Add and fill the association tables based on the origin db_entity
-        source_db_entity = config_entity.origin_config_entity.computed_db_entities().get(key=db_entity.key)
-        create_and_population_associations_from_clone_source(config_entity, db_entity, source_db_entity=source_db_entity)
+        source_db_entity = config_entity.origin_instance.computed_db_entities().get(key=db_entity.key)
+        create_and_populate_associations_from_clone_source(config_entity, db_entity, source_db_entity=source_db_entity)
 
 def add_primary_key_if_needed(db_entity):
     """
@@ -254,21 +276,21 @@ def add_primary_key_if_needed(db_entity):
         a different primary_key than our preferred one, rename it
     """
 
-    primary_key = db_entity.feature_class_configuration.get('primary_key', 'id')
-    InformationSchema.add_column_conditionally(
+    InformationSchema.create_primary_key_column_from_another_column(
         db_entity.schema,
         db_entity.table,
-        primary_key,
-        db_entity.feature_class_configuration.get('primary_key_type', 'integer'),
-        primary_key=True,
-        create_primary_key_duplicate_column='id' if db_entity.feature_class_configuration.get('primary_key',
-                                                                                                  None) else None)
+        from_column=db_entity.feature_class_configuration.primary_key, #TODO rename primary_key
+        # We always want our primary_key to be id
+        primary_key_column='id')
+
 def create_and_populate_geography_associations(db_entity, feature_class):
+
+
     # By default create geography associations
     geography_class = FeatureClassCreator(feature_class.config_entity, db_entity).dynamic_geography_class()
     # Create the geography class table if not already created
     create_tables_for_dynamic_classes(geography_class)
-    if db_entity.feature_class_configuration.get('primary_geography', None):
+    if db_entity.feature_class_configuration.primary_geography:
         # If the table contains primary geographies, get or create a dynamic subclass of
         # Geography to fill the table with the geographies.
         # We use the source_table_id column of the Geography table to guarantee uniqueness of the rows,
@@ -276,12 +298,13 @@ def create_and_populate_geography_associations(db_entity, feature_class):
         update_or_create_primary_geographies(db_entity, feature_class)
         # Since we're joining on the feature class relations table, use the parent field for the source table id
         # to uniquely identify each row along with source_table_id
-    if db_entity.feature_class_configuration.get('primary_geography', None) or \
-            get_property_path(db_entity.feature_class_configuration, 'intersection.type') == 'attribute':
+    if db_entity.feature_class_configuration.primary_geography or \
+            get_property_path(db_entity, 'feature_behavior.intersection.join_type') == 'attribute':
         # For classes whose primary key MATCHES a primary_geography feature class
-
-        source_db_entity = db_entity if db_entity.feature_class_configuration.get('primary_geography', None) else \
-            feature_class.config_entity.computed_db_entities(key=get_property_path(db_entity.feature_class_configuration, 'intersection.db_entity_key'))[0]
+        # TODO BASE should not automatically be the source db_entity to attribute joins It should be based on the table that has 'base/primary' behavior
+        source_db_entity = db_entity if \
+            db_entity.feature_class_configuration.primary_geography else \
+            feature_class.config_entity.computed_db_entities(key=DbEntityKey.BASE)[0]
 
         parent_field = feature_class._meta.parents.values()[0]
         related_field_configuration = dict(
@@ -302,13 +325,13 @@ def create_and_populate_geography_associations(db_entity, feature_class):
         # Perform the intersection based on the configuration. The intersection dict has type and to keys
         # Type is the type of intersection for the main class and to holds the type of intersection for the primary
         # geographies to which where joining. Either can be point or centroid
-        intersection = db_entity.feature_class_configuration.get('intersection', None)
+        intersection = db_entity.feature_behavior.intersection
         if not intersection:
-            raise Exception("Expected key intersection not configured for feature_class_configuration of db_entity %s" % db_entity)
+            raise Exception("Expected key intersection not configured for feature_behavior of db_entity %s" % db_entity)
         intersection_types = dict(centroid='ST_Centroid({0})', polygon='{0}')
         custom_join = r'ON ST_Intersects({frm}, {to})'.format(
-            frm=intersection_types[intersection['type']].format('\g<1>'),
-            to=intersection_types[intersection.get('to', 'polygon')].format('\g<2>')
+            frm=intersection_types[intersection.from_type].format('\g<1>'),
+            to=intersection_types[intersection.to_type or IntersectionKey.POLYGON].format('\g<2>')
         )
 
         populate_many_relation(feature_class, 'geographies', related_field_configuration,
@@ -316,13 +339,17 @@ def create_and_populate_geography_associations(db_entity, feature_class):
                              join_on_base=True)
 
 
-def create_and_population_associations(config_entity, db_entity):
+def create_and_populate_relations(config_entity, db_entity):
     """
         Creates all association classes and tables and populates the tables according to the DbEntity feature_class_configuration
     :param db_entity: The DbEntity whose feature_class associations are to be populated
     :return:
     """
-    feature_class = FeatureClassCreator(config_entity, db_entity).dynamic_feature_class()
+
+    logger.debug("\t\t\tData Import Publishing. Creating and populating relations for DbEntity: %s" % (
+        db_entity.full_name))
+
+    feature_class = FeatureClassCreator(config_entity, db_entity).dynamic_model_class()
     # Create the feature_class relation table if it doesn't exist. The base table will be created by the import process
     create_tables_for_dynamic_classes(feature_class)
 
@@ -330,18 +357,29 @@ def create_and_population_associations(config_entity, db_entity):
     # This populates the feature_class's rel table no matter what so that it can be used below
     single_related_field_configurations = filter_dict(
         lambda related_field_name, related_field_configuration: related_field_configuration['single'],
-        db_entity.feature_class_configuration.get('related_fields', {}))
+        db_entity.feature_class_configuration.related_fields or {})
     populate_single_relations(feature_class, single_related_field_configurations)
 
+    # Don't run this unless we have the feature_behavior, since it defines how these associations are populated
+    if not db_entity.feature_behavior:
+        raise Exception("Feature Behavior is not yet defined on db_entity %s" % db_entity.full_name)
+    create_and_populate_associations(config_entity, db_entity)
+
+def create_and_populate_associations(config_entity, db_entity):
     # Populate the Geography table of the config_entity schema for db_entities marked feature_class_configuration.primary_geography
     # Also create and populate the Feature to Geography through classes and tables. These through tables will associate with any
     # rows in the Geogrpahy table that they match by intersection (or by attribute match if the through class associates a primary geogrpahy DbEntity)
+
+    logger.debug("\t\t\tData Import Publishing. Creating and populating associations for DbEntity: %s" % (
+        db_entity.full_name))
+
+    feature_class = FeatureClassCreator(config_entity, db_entity).dynamic_model_class()
     create_and_populate_geography_associations(db_entity, feature_class)
 
     # Each field_name in the mapping indicates a mapping from the associated class to the local class
     for relation_field_name, related_field_configuration in filter_dict(
             lambda related_field_name, related_field_configuration: not related_field_configuration['single'],
-            db_entity.feature_class_configuration.get('related_fields', {})):
+            db_entity.feature_class_configuration.related_fields or {}):
         # Each field_name in the mapping indicates a mapping from the associated class to the local class
         # For ForeignKey relationships, the feature_class table holding the relationships is populated
         populate_many_relation(feature_class,
@@ -364,6 +402,7 @@ def populate_single_relations(feature_class, related_field_configurations, query
     :param custom_join:
     :return:
     """
+
     # Quit if the feature_class relationships table is already populated
     if feature_class.objects.count() > 0:
         return
@@ -375,7 +414,7 @@ def populate_single_relations(feature_class, related_field_configurations, query
             SingleJoinRelationship(feature_class, related_field_name, related_field_configuration,
                                    query=None, filter_dict=None, extra=None, custom_join=None,
                                    # Join on the base class of the related class if its a feature relationship
-                                   join_related_on_base=related_field_configuration.get('related_db_entity_key', False) and True)],
+                                   join_related_on_base=related_field_configuration.get('related_key', False) and True)],
         related_field_configurations)
 
     parent_field = feature_class._meta.parents.values()[0]
@@ -464,19 +503,37 @@ def populate_many_relation(feature_class, related_field_name, related_field_conf
     if relationship.through_class.objects.count() > 0:
         return
 
-    results = get_related_results(feature_class, relationship)
-    # Formulate a lambda that maps the two through class column names to each result.
-    result_lambda = lambda result: {
-        relationship.through_class_self_column_name: result['id'],
-        relationship.through_class_related_column_name: result['related_pk']}
+    queryset = get_related_results(
+        feature_class,
+        relationship,
+        return_queryset=True,
+        field_names=['related_pk', 'pk'])
 
-    # Finally populate the through class table with the pk of the main class and related class
-    relationship.through_class.objects.bulk_create(map(
-        lambda result: relationship.through_class(**result_lambda(result)), results)
+    through_table_columns = [
+        # TODO this order corresponds with the order of the queryset selection. It shouldn't be so arbitrary
+        relationship.through_class_related_column_name,
+        relationship.through_class_self_column_name]
+    insert_sql = 'insert into {through_table} ({through_table_columns}) {select_query}'.format(
+        through_table=relationship.through_class._meta.db_table,
+        through_table_columns=','.join(through_table_columns),
+        select_query=queryset.query.sql if isinstance(queryset, RawQuerySet) else queryset.query
     )
+    logger.info("\t\t\tPopulating through table {through_table} between {feature_class_table} and {related_class_table}".format(
+        through_table=relationship.through_class._meta.db_table,
+        feature_class_table=feature_class._meta.db_table,
+        related_class_table=relationship.related_class._meta.db_table
+    ))
+    logger.debug("\t\t\tUsing insert sql: {insert_sql}".format(insert_sql=insert_sql))
 
+    conn = psycopg2.connect(**pg_connection_parameters(settings.DATABASES['default']))
+    conn.set_isolation_level(psycopg2.extensions.ISOLATION_LEVEL_AUTOCOMMIT)
+    cursor = conn.cursor()
+    result = cursor.execute(insert_sql)
 
-def get_related_results(feature_class, relationship):
+def get_paginated_related_results(feature_class, relationship, page_size=10000):
+    return get_related_results(feature_class, relationship, paginate=True, page_size=page_size)
+
+def get_related_results(feature_class, relationship, paginate=False, page_size=10000, return_queryset=False, field_names=None):
     if relationship.source_class_join_field_name and relationship.related_class_join_field_name:
         # The field name on the main class and related class are specified. Resolve and join.
         source_field = resolve_field(feature_class, relationship.source_class_join_field_name)
@@ -495,7 +552,11 @@ def get_related_results(feature_class, relationship):
             [{feature_class}]".format(feature_class=feature_class))
 
     # If specified, add a filter with any extra filter options passed in.
-    filtered_selections = selections.filter(**relationship.filter_dict) if relationship.filter_dict else selections
+    filtered_selections = selections.filter(**relationship.filter_dict) if relationship.filter_dict else selections.order_by('pk')
+    # Only order by if results are paginated
+    filtered_selections = filtered_selections.order_by('pk') if paginate else filtered_selections
+    # If specified, limit the fields
+    filtered_selections = filtered_selections.values(*field_names) if field_names else filtered_selections
     if relationship.custom_join:
         # If we defined a custom join, we replace the join generated by the query. Capture the two table.column parts
         # and format the custom join with them.
@@ -507,13 +568,20 @@ def get_related_results(feature_class, relationship):
         # Excecute the updated query and put the results in dicts
         conn = psycopg2.connect(**pg_connection_parameters(settings.DATABASES['default']))
         conn.set_isolation_level(psycopg2.extensions.ISOLATION_LEVEL_AUTOCOMMIT)
-        cursor = conn.cursor()
-        cursor.execute(replacement_query)
-        results = dictfetchall(cursor)
+        if paginate:
+            return RawQuerySetPaginator(selections.model.objects.raw(replacement_query), page_size)
+        if return_queryset:
+            return selections.model.objects.raw(replacement_query)
+        else:
+            cursor = conn.cursor()
+            return dictfetchall(cursor)
     else:
-        results = filtered_selections.values()
-    return results
-
+        if paginate:
+            return Paginator(filtered_selections, page_size)
+        if return_queryset:
+            return filtered_selections
+        else:
+            return filtered_selections.values()
 
 def update_or_create_primary_geographies(db_entity, feature_class):
     """
@@ -565,6 +633,7 @@ def update_or_create_primary_geographies(db_entity, feature_class):
     if result:
         raise result
 
+
 def _peer_or_clone_table_import(destination_feature_class, source_feature_class, source_queryset=None, import_fields=None, import_ids_only=False):
     """
         Handles the details of clone_table_import and peer_table_import
@@ -601,6 +670,7 @@ def _peer_or_clone_table_import(destination_feature_class, source_feature_class,
                                import_fields=import_fields,
                                map_primary_key=True,
                                import_ids_only=import_ids_only)
+
 
 def _base_or_main_table_import(destination_feature_class, source_feature_class,
                                source_queryset=None,
@@ -663,7 +733,8 @@ def _base_or_main_table_import(destination_feature_class, source_feature_class,
         # Get default values for the columns NOT in columns
         default_column_string, column_defaults_string = _get_default_columns_and_values(destination_feature_class, columns, skip_primary_key=map_primary_key)
         select_queryset = (source_queryset or source_feature_class.objects).values(*updated_source_field_names).query
-        select_queryset_with_defaults = str(select_queryset).replace(' FROM', ', {column_defaults_string} FROM'.format(column_defaults_string=column_defaults_string) if column_defaults_string else ' FROM')
+        select_queryset_with_defaults = str(select_queryset).replace(' FROM', ', {column_defaults_string} FROM'.format(
+            column_defaults_string=column_defaults_string) if column_defaults_string else ' FROM')
 
         sql = 'insert into {feature_class_table}({destination_column_string} {default_columns_string}) ' \
               '{select_queryset}'.format(
@@ -679,7 +750,8 @@ def _base_or_main_table_import(destination_feature_class, source_feature_class,
         cursor = conn.cursor()
         cursor.execute(sql)
 
-def create_and_population_associations_from_clone_source(config_entity, db_entity, source_db_entity=None, source_queryset=None):
+
+def create_and_populate_associations_from_clone_source(config_entity, db_entity, source_db_entity=None, source_queryset=None, no_populate=False):
     """
         Creates all association classes and tables and populates the tables according to the DbEntity feature_class_configuration.
         Note that this is only needed for ManyToMany fields, since ForeignKey fields have no association table.
@@ -687,14 +759,15 @@ def create_and_population_associations_from_clone_source(config_entity, db_entit
     :param config_entity
     :param db_entity: The DbEntity whose feature_class associations are to be populated
     :param source_db_entity: An optional source DbEntity for the case of a peer_import or clone. This will serv
-    :param source_queryset: Optional queryset of the source_feature_class used to limit the associations created. This defaults
-    to all features (source_feature_class.objects.all())
+    :param source_queryset: Optional queryset of the source_feature_class used to limit the associations created.
+    :param no_populate: Default False, if True do not fill the table, just create it
+        This defaults to all features (source_feature_class.objects.all())
     :return:
     """
     destination_feature_class_creator = FeatureClassCreator(config_entity, db_entity)
-    destination_feature_class = destination_feature_class_creator.dynamic_feature_class()
+    destination_feature_class = destination_feature_class_creator.dynamic_model_class()
     source_feature_class_creator = FeatureClassCreator(config_entity, source_db_entity)
-    source_feature_class = source_feature_class_creator.dynamic_feature_class()
+    source_feature_class = source_feature_class_creator.dynamic_model_class()
 
     # Force modeling of the geography classes if not already
     source_feature_class_creator.dynamic_geography_class()
@@ -702,20 +775,17 @@ def create_and_population_associations_from_clone_source(config_entity, db_entit
 
     # Do a simple copy from the source on the geographies and all many related fields defined on the destination
     # Note that no population of ForeignKey fields happens here, since that data is stored in the feature_class rel table
-    for related_field_name, related_field_configuration in\
-        merge(
+    for related_field_name, related_field_configuration in merge(
             {'geographies':
                 dict(source=
                     dict(
-                        related_class_name=
-                            source_feature_class_creator.dynamic_geography_class_name(),
+                        related_class_name=source_feature_class_creator.dynamic_geography_class_name(),
                         related_class_join_field_name='wkb_geometry',
                         source_class_join_field_name='geometry',
                     ),
                     destination=
                     dict(
-                        related_class_name=
-                            destination_feature_class_creator.dynamic_geography_class_name(),
+                        related_class_name=destination_feature_class_creator.dynamic_geography_class_name(),
                         related_class_join_field_name='wkb_geometry',
                         source_class_join_field_name='geometry',
                     ),
@@ -723,42 +793,55 @@ def create_and_population_associations_from_clone_source(config_entity, db_entit
             },
             map_dict_to_dict(
                 lambda related_field_name, source_related_field_configuration:
-                    [related_field_name, dict(source=source_related_field_configuration, destination=source_related_field_configuration)],
+                    [related_field_name, dict(source=source_related_field_configuration,
+                                              destination=source_related_field_configuration)],
                 filter_dict(
                     lambda related_field_name, related_field_configuration: not related_field_configuration.get('single', None),
-                    db_entity.feature_class_configuration.get('related_fields', {})
+                    db_entity.feature_class_configuration.related_fields or {}
                 )
             )
         ).items():
 
         # Contruct a class instance that models the ManyToMany relationship through the related field for the source class
         source_relationship = ManyJoinRelationship(source_feature_class, related_field_name, related_field_configuration['source'])
-        # Fetch the source through instances limited to the features in the destination
-        source_instances = source_relationship.through_class.objects.filter(
-            **{'{0}__pk__in'.format(source_relationship.through_class_self_field.name):destination_feature_class.objects.values_list('id', flat=True)})
         # Contruct a class instance that models the ManyToMany relationship through the related field for the destination class
         relationship = ManyJoinRelationship(destination_feature_class, related_field_name, related_field_configuration['destination'])
-        # Create the through class table if not already created
         create_tables_for_dynamic_classes(relationship.through_class)
-        if relationship.through_class.objects.count() > 0:
+        if relationship.through_class.objects.count() > 0 or no_populate:
             # Already populated this through class table
             continue
-        # Map the source results to the destination result attribute names
-        # Take advantage of the fact that the pks on the source_feature_class and destination_feature_class are identical
-        # TODO that might be problematic
-        # TODO this does a lookup on every related instance that I'd like to avoid by doing a bulk select first (using an annotation on source_instances above)
-        feature_lookup = map_to_dict(
-            lambda feature: [feature.id, feature],
-            destination_feature_class.objects.all())
 
-        result_lambda = lambda source_instance: {
-            relationship.through_class_self_field.name: feature_lookup[getattr(source_instance, source_relationship.through_class_self_column_name)],
-            relationship.through_class_related_field.name: getattr(source_instance, source_relationship.through_class_related_field.name)
-        }
-        relationship.through_class.objects.bulk_create(map(
-            lambda source_instance: relationship.through_class(**result_lambda(source_instance)), source_instances)
+        # Fetch the source through instance queryset limited to the features in the destination
+        queryset = source_relationship.through_class.objects
+        if destination_feature_class.objects.count() != source_feature_class.objects.count():
+            queryset = queryset.filter(
+                **{'{0}__pk__in'.format(source_relationship.through_class_self_field.name):destination_feature_class.objects.values_list('id', flat=True)}
+            )
+        queryset = queryset.values(
+            source_relationship.through_class_related_field.name,
+            source_relationship.through_class_self_field.name
         )
 
+        through_table_columns = [
+            # TODO this order corresponds with the order of the queryset selection. It shouldn't be so arbitrary
+            relationship.through_class_related_column_name,
+            relationship.through_class_self_column_name]
+        insert_sql = 'insert into {through_table} ({through_table_columns}) {select_query}'.format(
+            through_table=relationship.through_class._meta.db_table,
+            through_table_columns=','.join(through_table_columns),
+            select_query=queryset.query.sql if isinstance(queryset, RawQuerySet) else queryset.query
+        )
+        logger.info("\t\t\tPopulating through table {through_table} between {feature_class_table} and {related_class_table}".format(
+            through_table=relationship.through_class._meta.db_table,
+            feature_class_table=destination_feature_class._meta.db_table,
+            related_class_table=relationship.related_class._meta.db_table
+        ))
+        logger.debug("\t\t\tUsing insert sql: {insert_sql}".format(insert_sql=insert_sql))
+
+        conn = psycopg2.connect(**pg_connection_parameters(settings.DATABASES['default']))
+        conn.set_isolation_level(psycopg2.extensions.ISOLATION_LEVEL_AUTOCOMMIT)
+        cursor = conn.cursor()
+        result = cursor.execute(insert_sql)
 
 def _get_default_columns_and_values(feature_class, columns=[], skip_primary_key=False):
     """
@@ -810,18 +893,18 @@ class DeleteImportProcessor(ImportProcessor):
             return
 
         try:
-            feature_class = FeatureClassCreator(config_entity, db_entity).dynamic_feature_class()
+            feature_class = FeatureClassCreator(config_entity, db_entity).dynamic_model_class()
 
             related_field_through_classes = map_dict(
                 lambda name, related_descriptor: related_descriptor.through,
                 filter_dict(lambda name, related_descriptor:
                             isinstance(related_descriptor, ReverseManyRelatedObjectsDescriptor),
                             FeatureClassCreator(config_entity, db_entity).related_descriptors()))
-            db_entity.feature_class_configuration.get('related_fields')
             drop_tables_for_dynamic_classes(*
-            ([FeatureClassCreator(config_entity, db_entity).dynamic_geography_class()] if isinstance(config_entity, Project) else []) +
-            [feature_class.geographies.through] +
-            related_field_through_classes)
+                ([FeatureClassCreator(config_entity, db_entity).dynamic_geography_class()] if isinstance(config_entity, Project) else []) +
+                [feature_class.geographies.through] +
+                related_field_through_classes)
+
             drop_tables_for_dynamic_classes(
                 feature_class,
                 feature_class.__base__

@@ -1,6 +1,6 @@
 # UrbanFootprint-California (v1.0), Land Use Scenario Development and Modeling System.
 #
-# Copyright (C) 2013 Calthorpe Associates
+# Copyright (C) 2014 Calthorpe Associates
 #
 # This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, version 3 of the License.
 #
@@ -66,10 +66,6 @@ class CensusBlock(Feature):
     pop_grad_degree_rate = models.DecimalField(max_digits=14, decimal_places=6, default=0)
     pop_employed_rate = models.DecimalField(max_digits=14, decimal_places=6, default=0)
     pop_unemployed_rate = models.DecimalField(max_digits=14, decimal_places=6, default=0)
-
-    @classmethod
-    def dynamic_fields(cls):
-        return dict(census_blockgroup=dict(field_class_name='django.db.models.ForeignKey'))
 
     class Meta:
         abstract = True

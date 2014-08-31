@@ -2,7 +2,7 @@
 /*
 * UrbanFootprint-California (v1.0), Land Use Scenario Development and Modeling System.
 * 
-* Copyright (C) 2013 Calthorpe Associates
+* Copyright (C) 2014 Calthorpe Associates
 * 
 * This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, version 3 of the License.
 * 
@@ -22,6 +22,7 @@ Footprint.YearItemView = Footprint.InfoView.extend({
     classNames: "footprint-year-item-view".w(),
     title:'Year',
     contentView: Footprint.EditableModelStringView.extend({
+        classNames: ['footprint-editable-content-view'],
         layout: {left: .21, width: .75},
         valueBinding: '.parentView.value'
     })

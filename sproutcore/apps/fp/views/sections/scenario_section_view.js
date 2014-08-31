@@ -12,14 +12,13 @@ Footprint.ScenarioSectionView = SC.View.extend({
         contentBinding: SC.Binding.oneWay('Footprint.scenarioCategoriesTreeController'),
         statusBinding:SC.Binding.oneWay('Footprint.scenarioCategoriesTreeController.status')
     }),
-
     toolbarView: Footprint.ScenarioToolbarView.extend({
-        layout: { height: 24},
+        layout: { height: 17},
         controller: Footprint.projectsController
     }),
-
     listView: SC.ScrollView.extend({
         layout: { top: 18 },
+
         contentView: SC.SourceListView.extend({
             isEnabledBinding: SC.Binding.oneWay('.content').bool(),
             rowHeight: 20,
@@ -56,7 +55,7 @@ Footprint.ScenarioSectionView = SC.View.extend({
             }),
             exampleView: SC.View.extend(SC.Control, {
                 classNames: ['sc-list-item-view', 'footprint-scenario-item'],
-                childViews: 'nameView progressOverlayView populationView dwellingUnitsView employmentView'.w(),
+                childViews: 'progressOverlayView nameView populationView dwellingUnitsView employmentView'.w(),
 
                 // The view that can be edited by double-clicking
                 editableChildViewKey: 'nameView',
@@ -68,13 +67,10 @@ Footprint.ScenarioSectionView = SC.View.extend({
                     layout: {left: 0, right:270, top: 1},
                     valueBinding: SC.Binding.oneWay('.parentView*content.name')
                 }),
-
-                progressOverlayView: Footprint.ProgressOverlayForMainStoreView.extend({
-                    layout: { left:.5, right: 270, width:.5, centerY: 0, height: 16},
-                    mainStoreContentBinding: SC.Binding.oneWay('.parentView.content'),
-                    nestedStoreContentArrayBinding: SC.Binding.oneWay('.parentView.editControllerContent')
+                progressOverlayView: Footprint.ProgressOverlayView.extend({
+                    layout: { left:0, right: 270, centerY: 0, height: 16},
+                    contentBinding: SC.Binding.oneWay('.parentView.content')
                 }),
-
                 // TODO these will be dynamic based on the Result(s) with type 'analytic_bars'
                 // TODO Find the first Result with result_type=='analytic_bars'. Assume the result has the following
                 // attribute keys

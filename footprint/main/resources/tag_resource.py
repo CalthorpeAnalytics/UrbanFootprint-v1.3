@@ -17,6 +17,7 @@
 # Phone: (510) 548-6800. Web: www.calthorpe.com
 from tastypie.resources import ModelResource
 from footprint.main.models.tag import Tag
+from footprint.main.resources.footprint_resource import FootprintResource
 
 __author__ = 'calthorpe_associates'
 
@@ -24,6 +25,6 @@ class TagResource(ModelResource):
     """
         When tags are returned as ToMany properties of other classes, like DbEntity, they are simplified to an array of strings. I'm not sure what format they should be for individual requests. Maybe only lists should be supported
     """
-    class Meta:
+    class Meta(FootprintResource.Meta):
         always_return_data = True
         queryset = Tag.objects.all()

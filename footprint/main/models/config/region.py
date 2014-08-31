@@ -27,7 +27,7 @@ class Region(ConfigEntity):
 
     def __init__(self, *args, **kwargs):
         super(Region, self).__init__(*args, **kwargs)
-        self.parent_config_entity = self.parent_config_entity or global_config_singleton()
+        self.parent_config_entity = global_config_singleton()
 
     def save(self, force_insert=False, force_update=False, using=None):
         super(Region, self).save(force_insert, force_update, using)

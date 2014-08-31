@@ -16,15 +16,15 @@
 # Contact: Joe DiStefano (joed@calthorpe.com), Calthorpe Associates.
 # Firm contact: 2095 Rose Street Suite 201, Berkeley CA 94709.
 # Phone: (510) 548-6800. Web: www.calthorpe.com
+from footprint.main.models.keys.analysis_field_keys import AnalysisFieldKeys
 from footprint.main.models.keys.built_form_keys import BuiltFormKeys
-from footprint.main.models.keys.db_entity_keys import DbEntityKeys
 from footprint.main.models.keys.srs_keys import SRSKeys
 from footprint.main.models.keys.template_keys import TemplateKeys
 
 __author__ = 'calthorpe_associates'
 
 
-class Keys(DbEntityKeys, BuiltFormKeys, TemplateKeys, SRSKeys):
+class Keys(BuiltFormKeys, TemplateKeys, SRSKeys, AnalysisFieldKeys):
     """
         Keys representing names by which to identity Policies, DBEntities, DbEntityInterests, Media, and Media content types.
         These values could be represented as instantiations of a reference table, but for now this is adequate. Some of these will also be represented as classes, which might cause the key to be embedded in the class definition instead.
@@ -48,6 +48,13 @@ class Keys(DbEntityKeys, BuiltFormKeys, TemplateKeys, SRSKeys):
             return "__".join(cls.prefixes() + [key])
 
         @classmethod
+        def remove(cls, fabricated_key):
+            """
+                Removes the prefix from a Fab.ricate'd key
+            """
+            return fabricated_key.split('__')[-1]
+
+        @classmethod
         def prefixes(cls):
             prefix = cls.prefix()
             return super(Keys.Fab, cls).prefixes() if hasattr(super(Keys.Fab, cls), 'prefixes') else [] + [
@@ -66,14 +73,8 @@ class Keys(DbEntityKeys, BuiltFormKeys, TemplateKeys, SRSKeys):
     def prefix(cls):
         return cls.Fab.prefix()
 
+    #TODO Move these to subclasses
     POLICY_TRANSIT = 'transit'
-
-    CONTENT_TYPE_XML = 'xml',
-    CONTENT_TYPE_SLD = 'sld'
-    CONTENT_TYPE_PNG = 'png'
-    CONTENT_TYPE_PYTHON = 'python'
-    CONTENT_TYPE_CSS = 'css'
-    CONTENT_TYPE_JSON = 'json'
 
     INTEREST_OWNER = 'owner'  # Ownership of a DBEntity
     INTEREST_DEPENDENT = 'dependent'  # State of ConfigEntity is invalidated when db_entity changes
@@ -104,3 +105,4 @@ class Keys(DbEntityKeys, BuiltFormKeys, TemplateKeys, SRSKeys):
     STYLE_BUILT_FORM = 'built_form_cartoCSS'
 
 
+    DB_PLACETYPES = 'placetypes'

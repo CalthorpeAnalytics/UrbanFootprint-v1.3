@@ -23,8 +23,8 @@ class Project(ConfigEntity):
         self.srid = settings.DEFAULT_SRID
 
     def recalculate_bounds(self):
-        authority_feature_classes = [self.feature_class_of_db_entity_key(db_entity.key)
-                              for db_entity in self.computed_db_entities() if db_entity.extent_authority]
+        authority_feature_classes = [self.db_entity_feature_class(db_entity.key)
+                                     for db_entity in self.computed_db_entities() if db_entity.extent_authority]
         extents = []
         for authority_feature_class in authority_feature_classes:
             all_features = authority_feature_class.objects.all()

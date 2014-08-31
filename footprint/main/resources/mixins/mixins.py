@@ -15,7 +15,8 @@
 # Contact: Joe DiStefano (joed@calthorpe.com), Calthorpe Associates.
 # Firm contact: 2095 Rose Street Suite 201, Berkeley CA 94709.
 # Phone: (510) 548-6800. Web: www.calthorpe.com
-from tastypie.fields import ToManyField, NOT_PROVIDED
+from django.db.models import fields
+from tastypie.fields import ToManyField, NOT_PROVIDED, DateTimeField, BooleanField, ToOneField
 from tastypie.resources import ModelResource
 from footprint.main.lib.functions import map_to_keyed_collections, flatten, map_to_dict, merge, unique, flat_map_values, get_first
 from footprint.main.models import ResultLibrary, LayerLibrary
@@ -33,13 +34,15 @@ class ToManyCustomAddField(ToManyField):
 
     def __init__(self, to, attribute, related_name=None, default=NOT_PROVIDED,
                  null=False, blank=False, readonly=False, full=False,
-                 unique=False, help_text=None, add=None):
+                 unique=False, help_text=None, add=None, remove=None):
         super(ToManyCustomAddField, self).__init__(
             to, attribute, related_name=related_name, default=default,
             null=null, blank=blank, readonly=readonly, full=full,
             unique=unique, help_text=help_text
         )
         self.add = add
+        # Optional. The add might handle removing existing instances that aren't passed in to add
+        self.remove = remove
 
 
 class SubclassRelatedResourceMixin(object):
@@ -52,8 +55,10 @@ class SubclassRelatedResourceMixin(object):
         Instantiates the related resource. Override this method to subclass according to the related instance, rather
         than just using the to class of the Field
         """
-        related_resource_class = get_first(filter(lambda resource_class: issubclass(related_instance.__class__, resource_class._meta.object_class),
-                                  self.to_class().__class__.__subclasses__()), None)
+        related_resource_class = get_first(filter(
+            # Check for object_class since some of our dynamic resources lack one
+            lambda resource_class: resource_class._meta.object_class and issubclass(related_instance.__class__, resource_class._meta.object_class),
+            self.to_class().__class__.__subclasses__()), None)
         related_resource = related_resource_class() if related_resource_class else self.to_class()
 
         if related_resource._meta.api_name is None:
@@ -79,40 +84,52 @@ class ToManyCustomAddFieldWithSubclasses(SubclassRelatedResourceMixin, ToManyCus
 class BuiltFormSetsResourceMixin(ModelResource):
     built_from_sets_query = lambda bundle: bundle.obj.computed_built_form_sets()
     add_built_form_sets = lambda bundle, *built_form_sets: bundle.obj.add_built_form_sets(*built_form_sets)
-    built_form_sets = ToManyCustomAddField('footprint.main.resources.built_form_resources.BuiltFormSetResource', attribute=built_from_sets_query, add=add_built_form_sets, full=False, null=True)
+    remove_built_form_sets = lambda bundle, *built_form_sets: bundle.obj.remove_built_form_sets(*built_form_sets)
+    built_form_sets = ToManyCustomAddField(
+        'footprint.main.resources.built_form_resources.BuiltFormSetResource',
+        attribute=built_from_sets_query,
+        add=add_built_form_sets,
+        remove=remove_built_form_sets,
+        full=False,
+        null=True)
 
 class PolicySetsResourceMixin(ModelResource):
     policy_sets_query = lambda bundle: bundle.obj.computed_policy_sets()
     add_policy_sets = lambda bundle, *policy_sets: bundle.obj.add_policy_sets(*policy_sets)
-    policy_sets = ToManyCustomAddField(PolicySetResource, attribute=policy_sets_query, add=add_policy_sets, full=False, null=True)
+    remove_policy_sets = lambda bundle, *policy_sets: bundle.obj.remove_policy_sets(*policy_sets)
+    policy_sets = ToManyCustomAddField(
+        PolicySetResource,
+        attribute=policy_sets_query,
+        add=add_policy_sets,
+        remove=remove_policy_sets,
+        full=False,
+        null=True)
 
 class DbEntityResourceMixin(ModelResource):
     db_entity_interests_query = lambda bundle: bundle.obj.computed_db_entity_interests()
     add_db_entity_interests = lambda bundle, *db_entity_interests: bundle.obj.add_db_entity_interests(*db_entity_interests)
-    db_entity_interests = ToManyCustomAddField('footprint.main.resources.db_entity_resources.DbEntityInterestResource', attribute=db_entity_interests_query, add=add_db_entity_interests, full=False, null=True)
+    remove_db_entity_interests = lambda bundle, *db_entity_interests: bundle.obj.remove_db_entity_interests(*db_entity_interests)
+    db_entity_interests = ToManyCustomAddField(
+        'footprint.main.resources.db_entity_resources.DbEntityInterestResource',
+        attribute=db_entity_interests_query,
+        add=add_db_entity_interests,
+        remove=remove_db_entity_interests,
+        full=False,
+        null=True)
 
 class PresentationResourceMixin(ModelResource):
     # Select the subclasses since we divide up Presentations by their subclass to help the API user and Sproutcore
     presentations_query = lambda bundle: bundle.obj.presentation_set.all().select_subclasses()
     # Read-only subclassed presentations
-    presentations = ToManyFieldWithSubclasses('footprint.main.resources.presentation_resources.PresentationResource', attribute=presentations_query, full=True, null=True, readonly=True)
+    presentations = ToManyFieldWithSubclasses('footprint.main.resources.presentation_resources.PresentationResource', attribute=presentations_query, null=True, readonly=True)
 
-    def map_uri_to_class_key(self, instances_by_id, uri):
-        instance = instances_by_id[uri.split('/')[-2]]
-        if isinstance(instance, ResultLibrary):
+    def map_uri_to_class_key(self, uri):
+        if 'result_library' in uri:
             return 'results'
-        if isinstance(instance, LayerLibrary):
+        if 'layer_library' in uri:
             return 'layers'
         else:
-            raise Exception("Unknown Presentation class {0}".format(instance.__class__.__name__()))
-
-    def map_instance_to_class_key(self, instance):
-        if isinstance(instance, ResultLibrary):
-            return 'results'
-        if isinstance(instance, LayerLibrary):
-            return 'layers'
-        else:
-            raise Exception("Unknown Presentation class {0}".format(instance.__class__.__name__()))
+            raise Exception("Unknown Presentation class for uri {0}".format(uri))
 
     def dehydrate_presentations(self, bundle):
         """
@@ -123,7 +140,7 @@ class PresentationResourceMixin(ModelResource):
         :param bundle:
         :return:
         """
-        return map_to_keyed_collections(lambda presentation: self.map_instance_to_class_key(presentation.obj), bundle.data['presentations'])
+        return map_to_keyed_collections(lambda presentation_uri: self.map_uri_to_class_key(presentation_uri), bundle.data['presentations'])
 
     def hydrate_presentations(self, bundle):
         """
@@ -162,15 +179,32 @@ def add_categories(bundle, *submitted_categories):
     except Exception, e:
         logger.critical(e.message)
 
-
 class CategoryResourceMixin(ModelResource):
     # Allow this to be null since categories are currently copied on the server when cloning.
     # They could easily be done on the client
-    categories = ToManyCustomAddField(CategoryResource, 'categories', null=True, full=True, add=add_categories)
+    categories = ToManyCustomAddField(
+        CategoryResource,
+        'categories',
+        null=True,
+        full=True,
+        # No need for remove. Categories clears itself on add, so any exiting categories are removed
+        add=add_categories
+    )
 
 
 class TagResourceMixin(ModelResource):
-    # TODO setting this read only because its causing permission problems on update!!!
-    tags = ToManyField(TagResource, 'tags', full=True, null=True, readonly=True)
+    tags = ToManyField(TagResource, 'tags', full=True, null=True)
 
+class TimestampResourceMixin(ModelResource):
+    created = DateTimeField(attribute='created', readonly=True)
+    updated = DateTimeField(attribute='updated', readonly=True)
+
+class PublisherControlMixin(ModelResource):
+    """
+        A simple flag to indicate that post publishing should be disabled.
+    """
+    no_post_save_publishing = BooleanField(attribute='no_post_save_publishing')
+
+class CloneableResourceMixin(ModelResource):
+    origin_instance = ToOneField('self', 'origin_instance', full=False, null=True)
 

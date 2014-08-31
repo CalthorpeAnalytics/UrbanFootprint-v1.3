@@ -1,5 +1,5 @@
 from model_utils.managers import InheritanceManager
-from footprint.main.models import BuiltForm
+from footprint.main.models.built_form.built_form import BuiltForm
 
 __author__ = 'calthorpe_associates'
 

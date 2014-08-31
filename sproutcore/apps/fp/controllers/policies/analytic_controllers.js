@@ -7,6 +7,6 @@
  */
 
 
-Footprint.showingAnalyticModuleController = SC.ObjectController.create({
+Footprint.showingAnalysisModuleController = SC.ObjectController.create({
     nowShowing: null
 });

@@ -2,7 +2,7 @@
 /*
 * UrbanFootprint-California (v1.0), Land Use Scenario Development and Modeling System.
 * 
-* Copyright (C) 2013 Calthorpe Associates
+* Copyright (C) 2014 Calthorpe Associates
 * 
 * This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, version 3 of the License.
 * 
@@ -222,7 +222,6 @@ Footprint.paintingController = SC.Object.create({
         if (layerGroup.raster.visible() === true) {
             layerGroup.selection_layer.reload();
         }
-
     },
 
     getInfoResponse: function(resultData) {
@@ -278,23 +277,6 @@ Footprint.paintingController = SC.Object.create({
             if ($.inArray(id, array) == -1) {return false}
             else {return true}
         })
-    },
-
-    selectionResponse: function(resultData) {
-
-        var activeLayerKey = Footprint.layerActiveController.get('content').toJSON().db_entity_key;
-        var layerGroup = Footprint.mapLayerGroups[activeLayerKey];
-
-        layerGroup.selection = resultData['selected_ids'];
-
-        if (layerGroup.vector.visible() === true) {
-            var parcels = d3.selectAll('.parcel_geometry');
-            selectFeaturesByIdArray(parcels, resultData['selected_ids'])
-        }
-
-        if (layerGroup.raster.visible() === true) {
-            layerGroup.selection_layer.reload();
-        }
     },
 
     switchSelection: function(f, event) {

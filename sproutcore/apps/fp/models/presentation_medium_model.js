@@ -16,13 +16,20 @@ Footprint.PresentationMedium = Footprint.Record.extend({
         nested: YES
     }),
     // Layers and Results are the primary users of DbEntityInterests. Hence they nest them and can edit them.
+    // We nest so that we can save them at the same time as layer creation.
+    // Thus we have to be careful when comparing them to the non-nested version of ConfigEntities (compare by id and not storeKey)
     db_entity_interest: SC.Record.toOne("Footprint.DbEntityInterest", {
-        nested: YES
     }),
     // This is what is actually owned by the PresentationMedium
     // DbEntityInterest is a property of presentation.config_entity but needs to be modeled
     // here so that it can be created and saved beforehand when new presentation_media are created
     db_entity_key: SC.Record.attr(String),
+    dbEntityInterestObserver: function() {
+        // Keep db_entity_key synced
+        if ((this.get('status') & SC.Record.READY) && this.getPath('db_entity_interest.db_entity.key'))
+            this.setIfChanged('db_entity_key', this.getPath('db_entity_interest.db_entity.key'));
+    }.observes('*db_entity_interest.db_entity.key'),
+
     medium_context: SC.Record.attr(Object),
     configuration: SC.Record.attr(Object),
     rendered_medium: SC.Record.attr(Object),
@@ -34,7 +41,7 @@ Footprint.PresentationMedium = Footprint.Record.extend({
     name: function(key, value) {
         // Getter
         if (value === undefined) {
-            var name = this.getPath('db_entity_interest.db_entity.name');
+            var name = this.getPath('dbEntity.name');
             return name;
         }
         // Setter
@@ -50,10 +57,15 @@ Footprint.PresentationMedium = Footprint.Record.extend({
                     this.setIfChanged('db_entity_key', db_entity_key);
             }
         }
-    }.property('status', 'db_entity_key').cacheable(),
+    }.property('status', 'db_entity_key', 'dbEntity').cacheable(),
+    dbEntity: null,
+    dbEntityBinding: SC.Binding.oneWay('*db_entity_interest.db_entity'),
 
-    visible: SC.Record.attr(Boolean, {defaultValue: YES}),
+    visible: SC.Record.attr(Boolean),
     solo: SC.Record.attr(Boolean, {defaultValue: NO}),
+    // Indicates that the layer is visible in the application.
+    // This differs from visible which indicates visible value from the server
+    // Whe we start saving visibility per user, this attribute will be saved to the user's settings
     applicationVisible: null,
     visibleObserver: function() {
         this.setIfChanged('applicationVisible', this.get('visible'))
@@ -74,8 +86,20 @@ Footprint.PresentationMedium = Footprint.Record.extend({
         }
     }.property('applicationVisible', 'solo').cacheable(),
 
-    sortPriority: function () {
-        return this.getPath('configuration.sort_priority') || 100;
+    sortPriority: function (key, value) {
+        // Getter.
+        if (value === undefined) {
+            return this.getPath('configuration.sort_priority') || null;
+        }
+        // Setter.
+        else {
+            var configuration = this.get('configuration');
+            if (configuration) {
+                configuration.sort_priority = value;
+                this.notifyPropertyChange('configuration');
+            }
+            return value;
+        }
     }.property('configuration'),
 
     _copyProperties: function () {
@@ -83,24 +107,13 @@ Footprint.PresentationMedium = Footprint.Record.extend({
     },
     _cloneProperties: function () {
         // medium is nested so needs clone but saves with the main record
-        // TODO medium is done on the server for now
-        return ['db_entity_interest']; //['medium'];
+        return ['db_entity_interest', 'medium'];
+    },
+    _nestedProperties: function() {
+        return ['medium'] ;
     },
     _saveBeforeProperties: function () {
-        return [];
-    },
-    _customCloneProperties: function () {
-        return {
-            /***
-             * When cloning a db_entity seek out the cloned config_entity of the cloned presentationMedium
-             * @param clonedPresentationMedium
-             * @param db_entity
-             * @returns {*}
-             */
-            //   'db_entity': function(clonedPresentationMedium, clonedPresentation, db_entity) {
-            //       return clonedPresentation.get('config_entity').db_entity_by_key(this.get('db_entity_key'));
-            //   }
-        };
+        return ['db_entity_interest'];
     },
 
     _mapAttributes: {
@@ -129,15 +142,12 @@ Footprint.PresentationMedium = Footprint.Record.extend({
         // This will be replaced by the server, but is required, so copy and null out
         // TODO cloneRecord should support a param to do a structural clone without copying primitive values
         this.set('medium', sourceRecord.get('medium').cloneRecord());
-        this.setPath('medium.key', null);
-        this.setPath('medium.name', null);
-        this.setPath('medium.description', null);
 
         // TODO these will be created by the server for now.
         // When we start doing a style editor these will need ot be exposed
         //this.set('configuration', sourceRecord.get('configuration'));
         //this.set('medium_configuration', sourceRecord.get('medium_configuration'));
-        this.set('db_entity_key', 'Layer_' + SC.DateTime.create().get('milliseconds'));
+        this.set('db_entity_key', this.getPath('db_entity_interest.db_entity.key'));
     },
 
 
@@ -159,5 +169,9 @@ Footprint.PresentationMedium = Footprint.Record.extend({
     }.property('db_entity_key').cacheable(),
 
     undoManager: null,
-    solo:null
+    solo:null,
+
+    isDeletable: function() {
+        return this.getPath('dbEntity.isDeletable');
+    }.property('db_entity').cacheable()
 });

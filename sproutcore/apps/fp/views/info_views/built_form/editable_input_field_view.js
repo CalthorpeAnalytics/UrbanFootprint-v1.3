@@ -1,88 +1,336 @@
-
-
-
-Footprint.editableInputFieldView = SC.View.extend({
+Footprint.EditableInputFieldView = SC.View.extend({
     classNames: ['footprint-editable-input-view'],
-    childViews:'NameTitleView ContentView'.w(),
-    value: null,
-    content: null,
-    layout: null,
-
-    NameTitleView: SC.LabelView.extend({
-        valueBinding: SC.Binding.oneWay('.parentView.value'),
-        layout: {left:.01, width:.59}
-    }),
-    ContentView: Footprint.EditableModelStringView.extend({
-        textAlign: SC.ALIGN_CENTER,
-        valueBinding: SC.Binding.oneWay('.parentView.content'),
-        layout: {left:.6},
-        hint: '--',
-        backgroundColor: '#F8F8F8'
-    })
-})
-
-
-Footprint.summaryFieldView = SC.View.extend({
-    classNames: ['footprint-summary-field-view'],
     childViews:'nameTitleView contentView'.w(),
-    value: null,
+    titles: null,
     content: null,
+    contentValueKey: null,
     layout: null,
-    rawData: null,
-    titleTextAlignment: null,
 
     nameTitleView: SC.LabelView.extend({
-        textAlignBinding: SC.Binding.oneWay('.parentView.titleTextAlignment'),
-        valueBinding: SC.Binding.oneWay('.parentView.value'),
-        layout: {width:.65},
-        backgroundColor: '#99CCFF'
+        classNames: ['footprint-editable-11font-title-view'],
+        valueBinding: SC.Binding.oneWay('.parentView.title'),
+        layout: {left:.01, width:.7}
     }),
-    contentView: SC.LabelView.extend({
+    contentView: Footprint.EditableModelStringView.extend({
         textAlign: SC.ALIGN_CENTER,
-        rawData: null,
-        rawDataBinding: SC.Binding.oneWay('.parentView.content'),
-        value: function(){
-            var value = this.get('rawData')
-            if (value)
-                return parseFloat(this.get('rawData')).toFixed(1);
-            return '--'
-        }.property('rawData').cacheable(),
-        layout: {left:.65},
-        hintEnabled: YES,
-        hint: '0',
-        backgroundColor: '#F8F8F8'
+        layout: {left:.7},
+        contentBinding: SC.Binding.oneWay('.parentView.content'),
+        contentValueKeyBinding: SC.Binding.oneWay('.parentView.contentValueKey'),
+        hint: '--',
+        backgroundColor: '#f0f8ff'
     })
 })
 
 
-Footprint.editableTableField= SC.View.extend({
-    classNames: ['footprint-editable-table-row-view'],
-    childViews:'NameTitleView ContentView'.w(),
+Footprint.LeftEditableInputFieldView = SC.View.extend({
+    childViews:'nameTitleView contentView'.w(),
+    titles: null,
+    decimalValue: null,
+    layout: null,
+    contentLayout: null,
+    contentLabel: null,
+    isPercent: NO,
+
+    nameTitleView: SC.LabelView.extend({
+        classNames: ['footprint-editable-title-view'],
+        valueBinding: SC.Binding.oneWay('.parentView.title'),
+        layout: {left:.38, width:.69}
+    }),
+    contentView: SC.View.extend({
+        classNames: ['footprint-editable-content-view'],
+        childViews:['editablePercentView', 'percentLabel'],
+        layoutBinding: SC.Binding.oneWay('.parentView.contentLayout'),
+        contentLabel: null,
+        contentLabelBinding: SC.Binding.oneWay('.parentView.contentLabel'),
+        content: null,
+        contentBinding: SC.Binding.from('.parentView.decimalValue'),
+        isPercent: null,
+        isPercentBinding: SC.Binding.from('.parentView.isPercent'),
+
+        editablePercentView: Footprint.EditableModelStringView.extend({
+            layout: {width:.75},
+            textAlign: SC.ALIGN_CENTER,
+            contentBinding: SC.Binding.from('.parentView.content'),
+            isPercent: null,
+            isPercentBinding: SC.Binding.from('.parentView.isPercent'),
+            value: function(propKey, value) {
+                if (this.get('isPercent')) {
+                    if (value) {
+                        // parse the float and round. This eliminates anything the user enters beyond 2 decimal places.
+                        var roundedValue = parseFloat(value).toFixed(0);
+                        // Parse the rounded value and divide to a decimal for setting
+                        this.set('content', parseFloat(roundedValue)/100);
+
+                        // Still return the percent with rounding
+                        return roundedValue;
+                    }
+                    else {
+                        // Multiply to a percent
+                        return (100*parseFloat(this.get('content'))).toFixed(0);
+                    }
+                }
+                else {
+                    if (value) {
+                        // parse the float and round. This eliminates anything the user enters beyond 2 decimal places.
+                        var roundedValue = parseFloat(value).toFixed(0);
+                        // Parse the rounded value and divide to a decimal for setting
+                        this.set('content', parseFloat(roundedValue));
+
+                        // Still return the percent with rounding
+                        return roundedValue;
+                    }
+                    else {
+                        // Multiply to a percent
+                        return (parseFloat(this.get('content'))).toFixed(0);
+                    }
+
+                }
+            }.property('content').cacheable(),
+
+            hint: '--'
+        }),
+        percentLabel: SC.LabelView.extend({
+            classNames: ['footprint-editable-title-view'],
+            layout: {left: .75, top: 1, bottom: 1},
+            textAlign: SC.ALIGN_CENTER,
+            valueBinding: SC.Binding.oneWay('.parentView.contentLabel'),
+            backgroundColor: '#f0f8ff'
+        })
+
+    })
+})
+
+
+Footprint.EditableUsePercentFieldView = SC.View.extend(SC.Control, {
+    classNames: ['footprint-editable-use-percent-field-view'],
+    childViews: ['removeButtonView', 'nameView', 'sqftUnitView', 'efficiencyView', 'percentView'],
+
     content: null,
+    decimalValue: null,
+
+    removeButtonView: Footprint.DeleteButtonView.extend({
+        layout: { left: 0, width: 16, centerY: 0, height: 16},
+        action: 'doRemoveRecord',
+        contentBinding: SC.Binding.oneWay('.parentView.content')
+    }),
+
+    nameView: SC.LabelView.extend({
+        layout: {width:190, top: 1, left: 26},
+        contentBinding: SC.Binding.oneWay('.parentView*content.building_use_definition'),
+        contentValueKey: 'name'
+    }),
+    sqftUnitView: Footprint.EditableModelStringView.extend({
+        classNames: ['footprint-editable-content-view'],
+        layout: {width: 100, left: 190, top: 1},
+        textAlign: SC.ALIGN_CENTER,
+        contentBinding: SC.Binding.from('.parentView.content'),
+        contentValueKey: 'square_feet_per_unit',
+        hint: '--'
+    }),
+    efficiencyView: Footprint.EditableModelStringView.extend({
+        classNames: ['footprint-editable-content-view'],
+        layout: {width: 100, left: 341, top: 1},
+        childViews:['editablePercentView', 'percentLabel'],
+        content: null,
+        contentBinding: SC.Binding.from('.parentView.content'),
+
+        editablePercentView: Footprint.EditableModelStringView.extend({
+            classNames: ['footprint-content-view'],
+            layout: {width: 84},
+            textAlign: SC.ALIGN_CENTER,
+            contentBinding: SC.Binding.from('.parentView*content.efficiency'),
+            value: function(propKey, value) {
+                if (value) {
+                    // parse the float and round. This eliminates anything the user enters beyond 2 decimal places.
+                    var roundedValue = parseFloat(value).toFixed(0);
+                    // Parse the rounded value and divide to a decimal for setting
+                    this.set('content', parseFloat(roundedValue)/100);
+
+                    // Still return the percent with rounding
+                    return roundedValue;
+                }
+                else {
+                    // Multiply to a percent
+                    return (100*parseFloat(this.get('content'))).toFixed(0);
+                }
+            }.property('content').cacheable(),
+
+            hint: '--'
+        }),
+        percentLabel: SC.LabelView.extend({
+            layout: {left: 84, top: 1, bottom: 1},
+            textAlign: SC.ALIGN_CENTER,
+            value: '%',
+            backgroundColor: '#f0f8ff'
+        })
+    }),
+
+    percentView: SC.View.extend({
+        layout: {width: 100, left: 490, top: 1},
+        classNames: ['footprint-editable-content-view'],
+        childViews:['editablePercentView', 'percentLabel'],
+        content: null,
+        contentBinding: SC.Binding.from('.parentView.decimalValue'),
+
+        editablePercentView: Footprint.EditableModelStringView.extend({
+            classNames: ['footprint-content-view'],
+            layout: {width: 84},
+            textAlign: SC.ALIGN_CENTER,
+            contentBinding: SC.Binding.from('.parentView.content'),
+            value: function(propKey, value) {
+                if (value) {
+                    // parse the float and round. This eliminates anything the user enters beyond 2 decimal places.
+                    var roundedValue = parseFloat(value).toFixed(0);
+                    // Parse the rounded value and divide to a decimal for setting
+                    this.set('content', parseFloat(roundedValue)/100);
+
+                    // Still return the percent with rounding
+                    return roundedValue;
+                }
+                else {
+                    // Multiply to a percent
+                    return (100*parseFloat(this.get('content'))).toFixed(0);
+                }
+            }.property('content').cacheable(),
+
+            hint: '--'
+        }),
+        percentLabel: SC.LabelView.extend({
+            layout: {left: 84, top: 1, bottom: 1},
+            textAlign: SC.ALIGN_CENTER,
+            value: '%',
+            backgroundColor: '#f0f8ff'
+        })
+    })
+})
+
+
+Footprint.EditableFieldView = SC.View.extend(SC.Control, {
+    classNames: ['footprint-editable-view'],
+    childViews:'nameTitleView contentView'.w(),
+    title: null,
+    content: null,
+    contentValueKey: null,
+    layout: null,
+
+    nameTitleView: SC.LabelView.extend({
+        classNames: ['footprint-editable-title-view'],
+        valueBinding: SC.Binding.oneWay('.parentView.title'),
+        layout: {height:0.4}
+    }),
+    contentView: Footprint.EditableModelStringView.extend({
+        classNames: ['footprint-editable-content-view'],
+        textAlign: SC.ALIGN_CENTER,
+        contentBinding: SC.Binding.oneWay('.parentView.content'),
+        contentValueKeyBinding: SC.Binding.oneWay('.parentView.contentValueKey'),
+        layout: {top:.4, width: 100},
+        hint: '--'
+    })
+})
+
+Footprint.EditableBottomLabelledView = SC.View.extend(SC.ContentDisplay, {
+    classNames: ['footprint-bottom-labelled-view'],
+    childViews:'nameTitleView contentView'.w(),
+    title: null,
+    content:null,
+    contentValueKey: null,
+    layout: null,
+
+    nameTitleView: SC.LabelView.extend({
+        classNames: ['footprint-editable-10font-title-view'],
+        textAlign: SC.ALIGN_CENTER,
+        valueBinding: SC.Binding.oneWay('.parentView.title'),
+        layout: {top:0.6}
+    }),
+    contentView: Footprint.EditableModelStringView.extend({
+        classNames: ['footprint-bottom-labelled-content-view'],
+        classNameBindings: ['positiveNegative:is-negative'],
+        positiveNegative: function() {
+            return this.get('value') < 0
+        }.property('value').cacheable(),
+        textAlign: SC.ALIGN_CENTER,
+        contentBinding: SC.Binding.oneWay('.parentView.content'),
+        contentValueKeyBinding: SC.Binding.oneWay('.parentView.contentValueKey'),
+        layout: {height:.5}
+    })
+})
+
+Footprint.NonEditableBottomLabelledView = SC.View.extend(SC.ContentDisplay, {
+    classNames: ['footprint-bottom-labelled-view'],
+    childViews:'nameTitleView contentView'.w(),
+    status: null,
+    title: null,
+    content:null,
+    contentValueKey: null,
+    layout: null,
+
+    nameTitleView: SC.LabelView.extend({
+        classNames: ['footprint-editable-10font-title-view'],
+        textAlign: SC.ALIGN_CENTER,
+        valueBinding: SC.Binding.oneWay('.parentView.title'),
+        layout: {top:0.6}
+    }),
+    contentView: SC.LabelView.extend({
+        classNames: ['footprint-noneditable-bottom-labelled-content-view'],
+        classNameBindings: ['positiveNegative:is-negative'],
+        positiveNegative: function() {
+            return this.get('value') < 0
+        }.property('value').cacheable(),
+        textAlign: SC.ALIGN_CENTER,
+        contentBinding: SC.Binding.oneWay('.parentView.content'),
+        contentValueKeyBinding: SC.Binding.oneWay('.parentView.contentValueKey'),
+        layout: {height:.5}
+    })
+})
+
+
+Footprint.EditableTableField= SC.View.extend({
+    classNames: ['footprint-editable-table-row-view'],
+    childViews:'nameTitleView contentView'.w(),
+    content: null,
+    contentValueKey: null,
     layout: null,
     title: null,
 
-    NameTitleView: SC.LabelView.extend({
+    nameTitleView: SC.LabelView.extend({
         valueBinding: SC.Binding.oneWay('.parentView.title'),
         layout: {left: 0, width: 0.8, height: 17},
         backgroundColor: '#E0E0E0'
     }),
-    ContentView: Footprint.EditableModelStringView.extend({
+    contentView: Footprint.EditableModelStringView.extend({
         textAlign: SC.ALIGN_CENTER,
-        valueBinding: SC.Binding.oneWay('.parentView.content'),
+        contentBinding: SC.Binding.oneWay('.parentView.content'),
+        contentValueKeyBinding: SC.Binding.oneWay('.parentView.contentValueKey'),
         layout: {left: 0.8, height: 17},
         hint: '--',
         backgroundColor: '#F8F8F8'
     })
 })
 
-
-Footprint.editableUseTypeRowView = SC.View.extend({
+Footprint.EditableBuildingUsePercentRowView = SC.View.extend({
     childViews:'useTypeNameView efficiencyView sqftUnitView'.w(),
     layout: null,
     use: null,
+    // The BuildingUsePercent array
+    content: null,
+    /***
+     * The parent buildingUsePercent whose values are shown in efficiencyValue and sqftValue
+     * When either of those values are updated, values are also set upon the children of the buildingUsePercent
+     */
+    buildingUsePercent: function() {
+        if (!this.get('content'))
+            return null;
+        var buildingUsePercent = this.get('content').filter(function(buildingUsePercent, i) {
+            return buildingUsePercent.getPath('building_use_definition.name') == category})[0];
+        if (!buildingUsePercent)
+            return null;
+        return buildingUsePercent;
+    }.property('content').cacheable(),
     efficiencyValue: null,
+    efficiencyValueBinding: SC.Binding.oneWay('.parentView.content').propertyTransform('efficiency', 'Residential'),
     sqftValue: null,
+    sqftValueBinding: SC.Binding.oneWay('.parentView.content').propertyTransform('square_feet_per_unit', 'Residential'),
+
 
     useTypeNameView: SC.LabelView.extend({
         valueBinding: SC.Binding.oneWay('.parentView.use'),
@@ -103,116 +351,34 @@ Footprint.editableUseTypeRowView = SC.View.extend({
         hint: '--',
         backgroundColor: '#F8F8F8'
     })
-})
+});
 
 
 
-Footprint.editableBuiltFormSourceListView = SC.View.extend(SC.Control, {
-    classNames: ['footprint-built-form-percent-list-scroll-view'],
-    layout: { height: 24 },
-    childViews: 'nameLabelView dwellingUnitLabelView employmentLabelView percentLabelView'.w(),
-    duValue: null,
-    empValue: null,
-    nameValue: null,
-    percentValue: null,
-
-    nameLabelView: SC.LabelView.extend({
-        layout: { left: 0, width:.69 },
-        valueBinding: SC.Binding.oneWay('.parentView.nameValue')
-
-    }),
-    dwellingUnitLabelView: SC.LabelView.extend({
-        layout: { left: 0.69, width:.08 },
-
-        rawData: null,
-        rawDataBinding: SC.Binding.oneWay('.parentView.duValue'),
-        value: function(){
-            return parseFloat(this.get('rawData')).toFixed(1);
-        }.property('rawData').cacheable(),
-        backgroundColor: '#F0F8FF',
-        textAlign: SC.ALIGN_CENTER
-    }),
-    employmentLabelView: SC.LabelView.extend({
-        layout: { left: 0.77, width:.08 },
-        rawData: null,
-        rawDataBinding: SC.Binding.oneWay('.parentView.empValue'),
-        value: function(){
-            return parseFloat(this.get('rawData')).toFixed(1);
-        }.property('rawData').cacheable(),
-        backgroundColor: '#F0F8FF',
-        textAlign: SC.ALIGN_CENTER
-    }),
-
-    percentLabelView: SC.LabelView.extend({
-        layout: { left: 0.85 },
-        rawData: null,
-        rawDataBinding: SC.Binding.oneWay('.parentView.percentValue'),
-        value: function(){
-            return parseFloat(this.get('rawData')).toFixed(2);
-        }.property('rawData').cacheable(),
-        backgroundColor: '#F0F8FF',
-        textAlign: SC.ALIGN_CENTER
-    })
-})
 
 
-Footprint.EditableBuildingUseFieldView = SC.View.extend({
-
-    classNames: ['footprint-editable-list-view'],
+Footprint.NonEditableValueBottomLabelledView = SC.View.extend(SC.ContentDisplay, {
+    classNames: ['footprint-bottom-labelled-view'],
     childViews:'nameTitleView contentView'.w(),
-    content: null,
+    status: null,
+    title: null,
+    value:null,
     layout: null,
-    buildingUseProperty: null,
-    category: null,
-
 
     nameTitleView: SC.LabelView.extend({
-        valueUpdateObserver: function () {
-            if (this.get('content')) {
-                this.setPath('parentView.parentView.layerNeedsUpdate', YES);
-                this.setPath('parentView.layerNeedsUpdate', YES);
-                this.set('layerNeedsUpdate', YES);
-            }
-        }.observes('.content'),
-        valueBinding: SC.Binding.oneWay('.parentView.category'),
-        layout: {left: 0, width: 0.8, height: 17}
+        classNames: ['footprint-editable-10font-title-view'],
+        textAlign: SC.ALIGN_CENTER,
+        valueBinding: SC.Binding.oneWay('.parentView.title'),
+        layout: {top:0.6}
     }),
     contentView: SC.LabelView.extend({
+        classNames: ['footprint-noneditable-bottom-labelled-content-view'],
+        classNameBindings: ['positiveNegative:is-negative'],
+        positiveNegative: function() {
+            return this.get('value') < 0
+        }.property('value').cacheable(),
         textAlign: SC.ALIGN_CENTER,
-        buildingUseProperty: null,
-        buildingUsePropertyBinding: SC.Binding.oneWay('.parentView.buildingUseProperty'),
-        category: null,
-        categoryBinding: SC.Binding.oneWay('.parentView.category'),
-        content: null,
-        contentBinding:SC.Binding.oneWay('.parentView.content'),
-        value: function(){
-            var buildingUseProperty = this.get('buildingUseProperty');
-            var category = this.get('category');
-            var content = this.get('content');
-            if (!content)
-                return '--';
-            var building_attribute_set = content.filter(function(building_use,i) {
-                return building_use.getPath('building_use_definition.name') == category})[0];
-            if (!building_attribute_set)
-                return '--'
-            return building_attribute_set.get(buildingUseProperty);
-        }.property('content', 'category', 'buildingUseProperty', 'building_use_definition.name').cacheable(),
-
-        layout: {left: 0.8, height: 17},
-        backgroundColor: '#F8F8F8',
-        classNameBindings: ['isEditable'], // adds the is-editable when isEditable is YES
-        isEditable:YES,
-        needsEllipsis:YES,
-        renderDelegateName:'ellipsesLabelRenderDelegate',
-        mouseDown: function(evt) {
-            // Capture the event if it's a double click and we are editable.
-            return this.get('isEditable') && evt.clickCount === 2;
-        }
+        valueBinding: SC.Binding.oneWay('.parentView.value'),
+        layout: {height:.5}
     })
 })
-
-
-
-
-
-

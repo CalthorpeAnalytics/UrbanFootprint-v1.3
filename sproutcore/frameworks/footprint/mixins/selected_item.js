@@ -2,7 +2,7 @@
  /* 
 * UrbanFootprint-California (v1.0), Land Use Scenario Development and Modeling System.
 * 
-* Copyright (C) 2013 Calthorpe Associates
+* Copyright (C) 2014 Calthorpe Associates
 * 
 * This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, version 3 of the License.
 * 
@@ -21,6 +21,6 @@ Footprint.SelectedItem = {
     content:null,
     selectedItem:null,
     selectedItemBinding:SC.Binding.oneWay('*controller.selection').transform(function(value) {
-        return value.firstObject();
+        return value ? value.firstObject() : null;
     })
 };

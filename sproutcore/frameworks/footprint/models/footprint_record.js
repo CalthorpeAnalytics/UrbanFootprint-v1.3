@@ -14,19 +14,25 @@
 
 sc_require('models/footprint_record_cloning');
 
-
 Footprint.Status = Footprint.Status || {}
 Footprint.Record = SC.Record.extend(Footprint.RecordCloning, {
     primaryKey: 'id',
 
     // Used a pseudo-status property to track that cloning of new record's child items are complete
     // Each cloned child item will receive this READY_NEW_CLONED status for its _status property
-    _status:null,
-    // Used to track progress of saving the record on the server. The value is between 0 and 1
+    _status: null,
+
+    // Used to track progress of saving the record on the server. The value is between 0 and 1.
     // This only applies to records like ConfigEntity which do postSave processing on the server
-    // When records are saved, their progress is set to 0, so saveInProgress will return true
-    // until post processing brings the value to 1
-    progress:null,
+    // When post-processing begins, their progress is set to 0, so saveInProgress will return true
+    // until post-processing events bring the value back to 1.
+    progress: function(propKey, value) {
+        if (typeof(value) !== 'undefined') {
+            Footprint.Record.progress.set(this.get('storeKey'), value);
+        }
+        return Footprint.Record.progress.get(this.get('storeKey'));
+    }.property(),
+
     saveInProgress: function() {
         return this.get('progress') != null && this.get('progress') >= 0 && this.get('progress') < 1;
     }.property("progress").cacheable(),
@@ -70,17 +76,13 @@ Footprint.Record = SC.Record.extend(Footprint.RecordCloning, {
     // Properties for cloneRecord to clone (recursive cloneRecord)
     // Order doesn't matter unless a _customCloneProperties function makes use of a newly cloned sibling item
     _cloneProperties:function() {return ''.w();},
+    // Use in conjunction with cloneProperties to prevent nested properties from being loaded prior to cloning (they are already loaded!)
+    _nestedProperties:function() {return ''.w();},
     // Properties that need a custom function to clone them.
-    // For toOne attributes the function receives as arguments the cloned record, the parent cloned record (or null) and the original property value.
-    // For toMany attributes the function is called for each item and receives as arguments the cloned record, the parent cloned record (or null), and the original item
+    // For toOne attributes the function receives as arguments the cloned record as this and the source record as an argument
+    // For toMany attributes the function is called for each cloned record as this and the source record as an argument
+    // The function must return a clone of the source record property value
     _customCloneProperties:function() { return {}; },
-
-    _singleNonMasterProperties: function() {
-        var self = this;
-        return $.grep(this.get('properties'), function(property) {
-            return self[property] && self[property].kindOf && self[property].kindOf(SC.SingleAttribute) && !self[property].isMaster;
-        });
-    },
 
     // Child attributes to save before saving this record
     _saveBeforeProperties: function() { return [] },
@@ -131,6 +133,14 @@ Footprint.Record = SC.Record.extend(Footprint.RecordCloning, {
 
     attributeKeys: function() {
         return $.map(this.attributes(), function(v,k) { return k;});
+    },
+    /***
+     * Some recordTypes, namely Layer, need to delegate to a more fundamental record for CRUD updates
+     * @returns: Normally returns this.
+     * @private
+     */
+    _recordForCrudUpdates: function() {
+        return this;
     }
 });
 
@@ -161,6 +171,14 @@ SC.mixin(Footprint.Record, {
         return null;
     },
 
+    /***
+     * Override with a friendly name to send to the UI
+     * @returns {*}
+     */
+    friendlyName: function() {
+        return null;
+    },
+
     infoPane: function() {
         return null;
     },
@@ -177,7 +195,6 @@ SC.mixin(Footprint.Record, {
         return parentRecordType.allRecordAttributeProperties ?
             filteredProperties.concat(parentRecordType.allRecordAttributeProperties()) :
             filteredProperties;
-
     },
 
     /***
@@ -186,7 +203,9 @@ SC.mixin(Footprint.Record, {
      */
     processDataHash: function(dataHash, record) {
         return dataHash;
-    }
+    },
+
+    progress: SC.Object.create()
 });
 
 

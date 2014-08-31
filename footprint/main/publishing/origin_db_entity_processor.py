@@ -1,11 +1,13 @@
 import logging
-from footprint.main.lib.functions import merge, remove_keys
-from footprint.main.models import Layer
-from footprint.main.models.database.information_schema import InformationSchema, sync_geometry_columns
+
+from footprint.main.lib.functions import merge
+from footprint.main.models.presentation.layer import Layer
+from footprint.main.models.database.information_schema import InformationSchema
 from footprint.main.models.presentation.layer_selection import get_or_create_dynamic_layer_selection_class_and_table
 from footprint.main.publishing.import_processor import ImportProcessor
 from footprint.main.models.geospatial.feature_class_creator import FeatureClassCreator
-from footprint.main.publishing.data_import_publishing import create_and_population_associations, add_primary_key_if_needed, DefaultImportProcessor
+from footprint.main.publishing.data_import_publishing import DefaultImportProcessor
+
 
 logger = logging.getLogger(__name__)
 
@@ -25,20 +27,24 @@ class OriginDbEntityProcessor(ImportProcessor):
         else:
             feature_class_creator = FeatureClassCreator(config_entity, db_entity)
             origin_feature_class_configuration = db_entity.origin_instance.feature_class_configuration
-            feature_class_configuration = merge(
+            # Create the new DbEntity FeatureClassConfiguration from the origin's. Pass in what has already been
+            # created for the new feature_class_configuration. This should have things like generated=True
+            feature_class_configuration = feature_class_creator.complete_or_create_feature_class_configuration(
                 origin_feature_class_configuration,
-                # override the origin configuration except for stuff that should mimic it
-                remove_keys(feature_class_creator.create_feature_class_configuration(), ['fields', 'intersection', 'abstract_class', 'source_from_origin_layer_selection']),
-                # Erase import configuration properties
-                dict(import_fields=[], import_ids_only=False))
+                **merge(db_entity.feature_class_configuration.__dict__, dict(generated=True)))
+            # Update the DbEntity
+            feature_class_creator.update_db_entity(feature_class_configuration)
 
-            feature_class_creator.merge_feature_class_configuration_into_db_entity(feature_class_configuration)
-            layer = Layer.objects.get(presentation__config_entity=config_entity, db_entity_key=db_entity.origin_instance.key)
-            if db_entity.feature_class_configuration.get('source_from_origin_layer_selection'):
-                layer_selection_class = get_or_create_dynamic_layer_selection_class_and_table(layer, True)
+            if feature_class_configuration.source_from_origin_layer_selection and \
+               feature_class_configuration.origin_layer_id:
+                # If desired, limit the layer clone to that of the source layer's current LayerSelection for the
+                # User doing the update
+                layer_selection_class = get_or_create_dynamic_layer_selection_class_and_table(
+                    Layer.objects.get(id=feature_class_configuration.origin_layer_id), True)
                 layer_selection = layer_selection_class.objects.get(user=user)
                 features = layer_selection.selected_features
             else:
+                # Leave blank to copy all features by default
                 features = None
 
             DefaultImportProcessor().peer_importer(config_entity, db_entity, import_from_origin=True, source_queryset=features)

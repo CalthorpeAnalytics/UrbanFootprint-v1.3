@@ -16,9 +16,11 @@
 # Firm contact: 2095 Rose Street Suite 201, Berkeley CA 94709.
 # Phone: (510) 548-6800. Web: www.calthorpe.com
 from django.dispatch import receiver
-from footprint.client.configuration.fixture import ResultConfigurationFixture
-from footprint.client.configuration.utils import resolve_fixture
-from footprint.main.models.geospatial.db_entity_configuration import db_entity_configuration_keys
+from inflection import titleize
+from footprint.main.models.geospatial.feature_behavior import FeatureBehavior
+from footprint.main.models.geospatial.db_entity import DbEntity
+from footprint.main.models.geospatial.behavior import BehaviorKey, Behavior
+from footprint.main.models.geospatial.feature_class_configuration import FeatureClassConfiguration
 from footprint.main.models.signals import initialize_media
 from footprint.main.lib.functions import dual_map_to_dict, map_to_dict, get_first, filter_keys, merge
 from footprint.main.models.presentation.medium import Medium
@@ -37,6 +39,9 @@ def initialize_result_media(sender, **kwargs):
     :param kwargs:
     :return:
     """
+    from footprint.client.configuration.fixture import ResultConfigurationFixture
+    from footprint.client.configuration.utils import resolve_fixture
+
     client_result = resolve_fixture(
         "publishing",
         "result",
@@ -70,6 +75,10 @@ class ResultKey(Keys):
     END_STATE_BARS = Fab.ricate('end_state_bars')
     FISCAL = Fab.ricate('fiscal')
     VMT = Fab.ricate('vmt')
+    ENERGY = Fab.ricate('energy')
+    WATER = Fab.ricate('water')
+    AGRICULTURE = Fab.ricate('agriculture')
+
 
 class ResultMediumKey(ResultKey):
     class Fab(Keys.Fab):
@@ -163,28 +172,47 @@ class ResultConfiguration(object):
         :return: Return the DbEntity
         """
 
+        # The Behavior keyspace
+        behavior_key = BehaviorKey.Fab.ricate
+        # Used to load Behaviors defined elsewhere
+        get_behavior = lambda key: Behavior.objects.get(key=behavior_key(key))
         return self.clone_db_entity_and_interest_for_result(
             config_entity,
             self.source_db_entity_key,
+            #TODO redo this whole flow in the new configuration style
             key=self.result_db_entity_key,
-            name=self.name,
-            query=self.create_query(self)
+            name=titleize(self.result_db_entity_key),
+            query=self.create_query(self),
+            feature_behavior=FeatureBehavior(
+                behavior=get_behavior('result')
+            )
         ).db_entity
 
     def clone_db_entity_and_interest_for_result(self, config_entity, reference_db_entity_key, **kwargs):
         """
             Clone the selected db_entity of key reference_db_entity and replace any of its attributes with those
-            specified in **kwargs. Normally **kwargs will contain a unique key, unless another version of the table
-            with the same key is desired, such a version that filters values by query, but that is probably a bad
-            practice. **kwargs must contain at least one a name to distinguish it from the source DbEntity
-        :param reference_db_entity_key: key of the DbEntity to clon
+            specified in **kwargs. **kwargs should contain a unique key property
+        :param reference_db_entity_key: key of the DbEntity to clone
         :param kwargs: replacement values containing at the very least 'key'
         :return: The DbEntityInterest which references the cloned db_entity
         """
-        db_entity = config_entity.computed_db_entities().get(key=reference_db_entity_key)
+        source_db_entity = config_entity.computed_db_entities().get(key=reference_db_entity_key)
         # Avoid circular reference
         from footprint.main.publishing.db_entity_publishing import clone_or_update_db_entity_and_interest
-        return clone_or_update_db_entity_and_interest(config_entity, db_entity, **merge(kwargs, dict(override_on_update=True)))
+
+        return clone_or_update_db_entity_and_interest(
+            config_entity,
+            source_db_entity,
+            DbEntity(**merge(
+                kwargs,
+                dict(
+                    feature_class_configuration=FeatureClassConfiguration(
+                        **merge(source_db_entity.feature_class_configuration.__dict__,
+                                dict(feature_class_owner=reference_db_entity_key))),
+                )
+            )),
+            override_on_update=True
+        )
 
     def create_column_to_label(self):
         """

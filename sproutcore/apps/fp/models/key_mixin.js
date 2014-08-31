@@ -19,7 +19,7 @@ Footprint.Key = {
         // For now only update the key if the record is new.
         // Updating the key on existing records is problematic, since it's a sort of id. Although this should work someday
         if (this.get('status') === SC.Record.READY_NEW) {
-            var key = (this.get('name') || '').dasherize().replace(/-/g, '_');
+            key = '%@%@'.fmt(this.get('keyPrefix') || '', (this.get('name') || '').dasherize().replace(/-/g, '_'));
             this.setIfChanged('key', key.substr(0,50));
         }
     }.observes('.name', '.status')

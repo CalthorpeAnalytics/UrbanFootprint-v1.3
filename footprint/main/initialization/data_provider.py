@@ -17,12 +17,12 @@
 # Phone: (510) 548-6800. Web: www.calthorpe.com
 
 from django.contrib.auth.models import User, Permission
-from nose.config import user_config_files
 from tastypie.models import ApiKey
-from footprint.client.configuration.fixture import BuiltFormFixture, ConfigEntitiesFixture, PolicyConfigurationFixture, InitFixture
+from footprint.client.configuration.fixture import ConfigEntitiesFixture, PolicyConfigurationFixture, InitFixture
 from footprint.client.configuration.utils import resolve_fixture
+from footprint.main.initialization.policy.policy_importer import PolicyImporter
 from footprint.main.lib.functions import remove_keys, get_single_value_or_create, merge, flat_map
-from footprint.main.models import Medium
+from footprint.main.models.presentation.medium import Medium
 from footprint.main.models.category import Category
 from footprint.main.models.config.project import Project
 from footprint.main.models.config.region import Region
@@ -46,6 +46,7 @@ class SQLImportError(Exception):
         super(SQLImportError, self).__init__(value)
 
 
+#TODO everything in this class should be move to a respective publisher
 class DataProvider(object):
     """
         This class loads test data from sources in the test_data directory.
@@ -54,32 +55,33 @@ class DataProvider(object):
     """
 
     def users(self):
-        for user_configuration in init_fixture.users:
+        for user_configuration in init_fixture.users():
             self.user(**user_configuration)
 
-    def user(self, username='test', password='test', email='testy@test.ca', api_key='TEST_API_KEY'):
+    def user(self, username=None, password=None, email=None, api_key=None):
         """
         Create a user.
         :return:
         """
-        username = 'test'
-        password = 'test'
-        email = 'testy@test.ta'
-
         def create():
-            user = User.objects.create_user(username, email, password)
-            # Make sure the user has permission to update everything for testing purposes
-            user.user_permissions.add(*list(Permission.objects.all()))
-            return user
-            # An api key is created upon creating a user
+            return User.objects.create_user(username, email, password)
 
+        logger.info("Updating or creating user %s" % username)
         user = get_single_value_or_create(User.objects.filter(username=username), create)
+        # Make sure the user has permission to update everything
+        # until we have more granular permission groups
+        new_permissions = set(Permission.objects.all())-set(user.user_permissions.all())
+        user.user_permissions.add(*new_permissions)
         api_key_instance = ApiKey.objects.get_or_create(user=user)[0]
         if api_key_instance.key != api_key:
             api_key_instance.key = api_key
             api_key_instance.save()
         return {'user': user, 'api_key': api_key_instance}
 
+    def behaviors(self):
+        """
+            Updates or creates all Behavior instances predefined.
+        """
 
     def scenarios(self, scenario_fixtures=None, project_fixtures=config_entities_fixture.projects(), **kwargs):
         """
@@ -135,7 +137,9 @@ class DataProvider(object):
                 category, created, updated = Category.objects.update_or_create(key=category.key, value=category.value)
                 scenario = scenarios_created_updated[i][0]
                 scenario.add_categories(category)
+                scenario._no_post_save_publishing=True
                 scenario.save()
+                scenario._no_post_save_publishing=False
 
         return map(lambda scenario_created_updated: scenario_created_updated[0], scenarios_created_updated)
 
@@ -170,11 +174,6 @@ class DataProvider(object):
             lambda project_dict: update_or_create_project(project_dict),
             project_fixtures)
 
-        for project, created, updated in projects_created_updated:
-
-            if created:
-                # Fire signals
-                project.save()
         return map(lambda project_created_updated: project_created_updated[0], projects_created_updated)
 
     def regions(self, region_fixtures=config_entities_fixture.regions(), **kwargs):
@@ -208,11 +207,6 @@ class DataProvider(object):
             lambda region_dict: update_or_create_region(region_dict),
             region_fixtures)
 
-        for region, created, updated in regions_tuple:
-            if created:
-                # Fire signals
-                region.save()
-
         return map(lambda region_tuple: region_tuple[0], regions_tuple)
 
     def import_table_name(self, db_entity):
@@ -224,5 +218,13 @@ class DataProvider(object):
         """
         full_table_name = db_entity.full_table_name
         return "{0}_{1}".format(full_table_name, 'sample') if settings.USE_SAMPLE_DATA_SETS else full_table_name
+
+
+    def policy(self, client='default'):
+
+        policy_importer = PolicyImporter()
+        policy_importer.load_residential_energy_baseline_csv(client)
+        policy_importer.load_commercial_energy_baseline_csv(client)
+        policy_importer.load_outdoor_water_baseline_csv(client)
 
 

@@ -25,6 +25,8 @@ from django.utils import simplejson
 from django.core.cache import cache
 from django.views.decorators.csrf import csrf_exempt
 from tastypie.models import ApiKey
+from footprint import settings
+
 
 class UploadFileForm(forms.Form):
     title = forms.CharField(max_length=50)
@@ -43,7 +45,7 @@ def upload(request):
     f = request.FILES.get('files[]', None)
     # We need the extension so we know what file type to load
     extension = os.path.splitext(f.name)[-1]
-    path = '/tmp/%s%s' % (upload_id, extension)
+    path = '%s%s%s' % (settings.TEMP_DIR, upload_id, extension)
     if not f:
         return HttpResponse()
     destination = open(path, 'wb+')

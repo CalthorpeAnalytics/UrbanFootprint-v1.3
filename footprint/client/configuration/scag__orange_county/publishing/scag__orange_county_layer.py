@@ -19,7 +19,7 @@ class ScagOrangeCountyLayerConfigurationFixtures(LayerConfigurationFixture):
             LayerConfiguration(
                 scope=Scenario.__name__,
                 layer_library_key=LayerLibraryKey.DEFAULT,
-                db_entity_key=Keys.DB_ABSTRACT_BASE_PARCEL_FEATURE,
+                db_entity_key=Key.BASE_PARCEL,
                 visible=False,
                 visible_attributes=['builtforms__builtform_id'],
                 tags=[Tag.objects.get(tag=LayerTag.DEFAULT)],
@@ -28,7 +28,7 @@ class ScagOrangeCountyLayerConfigurationFixtures(LayerConfigurationFixture):
             ),
             LayerConfiguration(
                 scope=Scenario.__name__,
-                db_entity_key=Keys.DB_ABSTRACT_TRANSIT_AREAS,
+                db_entity_key=Key.TRANSIT_AREAS,
                 visible=False,
                 visible_attributes=['wkb_geometry'],
                 template_context_dict={'attributes': {'wkb_geometry': {'unstyled': True}}}

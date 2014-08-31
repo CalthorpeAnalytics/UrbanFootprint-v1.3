@@ -1,0 +1,5 @@
+check process supervisord with pidfile /tmp/supervisord.pid
+  group supervisord
+  start program = "/usr/local/bin/supervisord -c /etc/supervisord/supervisord.conf"
+  stop  program = "/usr/local/bin/supervisorctl -c /etc/supervisord/supervisord.conf shutdown"
+  if 5 restarts within 5 cycles then timeout

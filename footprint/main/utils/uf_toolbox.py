@@ -18,9 +18,8 @@
 import string
 import subprocess, threading, Queue
 #from calthorpe.main.lib.functions import merge
-from django.db import transaction
+
 import psycopg2
-#from calthorpe.main.utils.utils import database_settings
 
 
 ##-----------------------------------------------
@@ -50,8 +49,8 @@ def queue_process():
     queue = Queue.Queue()
     return queue
 
-def execute_sql(pSQL):
 
+def execute_sql(pSQL):
 
     try:
         conn = psycopg2.connect(**pg_connection_parameters(settings.DATABASES['default']))
@@ -59,8 +58,6 @@ def execute_sql(pSQL):
         curs = conn.cursor()
     except Exception, E:
         print str(E)
-
-
 
     try:
         curs.execute(pSQL)
@@ -93,22 +90,22 @@ def copy_from_text_to_db(text_file, table_name):
 
 
 def report_sql_values(pSQL, fetch_type):
-    with transaction.commit_manually():
-        try:
-            conn = psycopg2.connect(**pg_connection_parameters(settings.DATABASES['default']))
-            conn.set_isolation_level(psycopg2.extensions.ISOLATION_LEVEL_AUTOCOMMIT)
-            curs = conn.cursor()
-        except Exception, E:
-            print str(E)
+    # with transaction.commit_manually():
+    try:
+        conn = psycopg2.connect(**pg_connection_parameters(settings.DATABASES['default']))
+        conn.set_isolation_level(psycopg2.extensions.ISOLATION_LEVEL_AUTOCOMMIT)
+        curs = conn.cursor()
+    except Exception, E:
+        print str(E)
 
-        try:
-            curs.execute(pSQL)
-        except Exception, E:
-            print str(E)
+    try:
+        curs.execute(pSQL)
+    except Exception, E:
+        print str(E)
 
-        Sql_Values = getattr(curs, fetch_type)()
-        conn.commit()
-        curs.close()
+    Sql_Values = getattr(curs, fetch_type)()
+    conn.commit()
+    curs.close()
     return Sql_Values
 
 
@@ -297,7 +294,7 @@ def drop_table(table_name):
     execute_sql(pSql)
 
 def truncate_table(table_name):
-    pSql = '''truncate table {0};'''.format(table_name)
+    pSql = '''truncate table {0} cascade;'''.format(table_name)
     execute_sql(pSql)
 
 #----------------------------------------------------------------------------------------
@@ -311,18 +308,20 @@ def count_cores():
     return cores
 
 
-def create_sql_calculations(table_fields, sql_format):
+def create_sql_calculations(table_fields, sql_format, default_query=''):
     sql_calculations = ''
-    for field in table_fields:
-        sql_calculations += sql_format.format(field)
-
-    return sql_calculations
+    if len(table_fields) > 0:
+        for field in table_fields:
+            sql_calculations += sql_format.format(field)
+        return sql_calculations
+    return default_query
 
 
 def create_sql_calculations_two_variables(table_fields, sql_query):
     sql_calculations = ''
-    for field in table_fields:
-        sql_calculations += sql_query.format(field[0], field[1])
+    if len(table_fields) > 0:
+        for field in table_fields:
+            sql_calculations += sql_query.format(field[0], field[1])
     return sql_calculations
 
 

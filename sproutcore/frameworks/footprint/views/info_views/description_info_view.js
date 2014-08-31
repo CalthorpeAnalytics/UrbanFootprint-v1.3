@@ -21,6 +21,7 @@ Footprint.DescriptionItemView = Footprint.InfoView.extend({
 
     title:'Description',
     contentView: Footprint.EditableModelStringView.extend({
+        classNames: ['footprint-editable-content-view'],
         layout: {left: .21, width: .75, height: 70},
         valueBinding: SC.Binding.oneWay('.parentView.description')
     })

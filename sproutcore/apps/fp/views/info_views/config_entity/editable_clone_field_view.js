@@ -13,16 +13,19 @@ Footprint.EditableCloneFieldView = SC.View.extend({
 
     value: null,
     title:null,
-    layout: null,
+    titleViewLayout: { height: 17 },
+    editableContentViewLayout: { top: 17, left: 15 },
+    isEditable: YES,
 
     titleView: SC.LabelView.extend({
-        layout: { height: 17 },
+        layoutBinding: SC.Binding.oneWay('.parentView.titleViewLayout'),
         valueBinding: SC.Binding.oneWay('.parentView.title')
     }),
 
     editableContentView: Footprint.EditableModelStringView.extend({
-        classNames:'footprint-editable-clone-field-content-view'.w(),
-        layout: { top: 17, left: 15 },
+        classNames:['footprint-editable-clone-field-content-view', 'footprint-editable-content-view'],
+        layoutBinding: SC.Binding.oneWay('.parentView.editableContentViewLayout'),
+        isEditableBinding: SC.Binding.oneWay('.parentView.isEditable'),
         valueBinding: '.parentView.value'
     })
 });

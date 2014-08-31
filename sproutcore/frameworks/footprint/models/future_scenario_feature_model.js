@@ -19,34 +19,20 @@ Footprint.FutureScenarioFeature = Footprint.Feature.extend({
     built_form: SC.Record.toOne("Footprint.BuiltForm", {
         isMaster: YES
     }),
+    built_form_key: SC.Record.attr(String),
+    clear_base_flag: SC.Record.attr(String),
     density_pct: SC.Record.attr(Number),
     dev_pct: SC.Record.attr(Number),
+    gross_net_pct: SC.Record.attr(Number),
     acres_parcel: SC.Record.attr(Number),
-    acres_parcel_res: SC.Record.attr(Number),
-    acres_parcel_res_detsf: SC.Record.attr(Number),
-    acres_parcel_res_detsf_sl: SC.Record.attr(Number),
-    acres_parcel_res_detsf_ll: SC.Record.attr(Number),
-    acres_parcel_res_attsf: SC.Record.attr(Number),
-    acres_parcel_res_mf: SC.Record.attr(Number),
-    acres_parcel_emp: SC.Record.attr(Number),
-    acres_parcel_emp_off: SC.Record.attr(Number),
-    acres_parcel_emp_ret: SC.Record.attr(Number),
-    acres_parcel_emp_ind: SC.Record.attr(Number),
-    acres_parcel_emp_ag: SC.Record.attr(Number),
-    acres_parcel_emp_mixed: SC.Record.attr(Number),
-    acres_parcel_mixed: SC.Record.attr(Number),
-    acres_parcel_mixed_w_off: SC.Record.attr(Number),
-    acres_parcel_mixed_no_off: SC.Record.attr(Number),
-    acres_parcel_no_use: SC.Record.attr(Number),
 
     hh: SC.Record.attr(Number),
     du: SC.Record.attr(Number),
-    du_detsf: SC.Record.attr(Number),
+
     du_detsf_sl: SC.Record.attr(Number),
     du_detsf_ll: SC.Record.attr(Number),
     du_attsf: SC.Record.attr(Number),
     du_mf: SC.Record.attr(Number),
-
 
     emp: SC.Record.attr(Number),
     emp_ret: SC.Record.attr(Number),
@@ -69,6 +55,23 @@ Footprint.FutureScenarioFeature = Footprint.Feature.extend({
     emp_agriculture: SC.Record.attr(Number),
     emp_extraction: SC.Record.attr(Number),
     emp_military: SC.Record.attr(Number),
+
+    acres_parcel_res: SC.Record.attr(Number),
+    acres_parcel_res_detsf_sl: SC.Record.attr(Number),
+    acres_parcel_res_detsf_ll: SC.Record.attr(Number),
+    acres_parcel_res_attsf: SC.Record.attr(Number),
+    acres_parcel_res_mf: SC.Record.attr(Number),
+    acres_parcel_emp: SC.Record.attr(Number),
+    acres_parcel_emp_off: SC.Record.attr(Number),
+    acres_parcel_emp_ret: SC.Record.attr(Number),
+    acres_parcel_emp_ind: SC.Record.attr(Number),
+    acres_parcel_emp_ag: SC.Record.attr(Number),
+    acres_parcel_emp_mixed: SC.Record.attr(Number),
+    acres_parcel_mixed: SC.Record.attr(Number),
+    acres_parcel_mixed_w_off: SC.Record.attr(Number),
+    acres_parcel_mixed_no_off: SC.Record.attr(Number),
+    acres_parcel_no_use: SC.Record.attr(Number),
+
 
     bldg_sqft_detsf_sl: SC.Record.attr(Number),
     bldg_sqft_detsf_ll: SC.Record.attr(Number),
@@ -98,26 +101,4 @@ Footprint.FutureScenarioFeature.mixin({
     excludeProperties: function () {
         return ['config_entity', 'wkb_geometry', 'geometry']
     }
-});
-
-
-
-Footprint.AnalyticResult = Footprint.Record.extend({
-    scenario: SC.Record.toOne('Footprint.Scenario', {isMaster: NO}),
-    population: SC.Record.attr(Number),
-    dwelling_units: SC.Record.attr(Number),
-    employment: SC.Record.attr(Number),
-    control_total: SC.Record.toMany('Footprint.ControlTotal', {isMaster: NO, nested: YES}),
-    dwelling_unit_data: SC.Record.toMany('Footprint.DwellingUnitDatum', {isMaster: YES, nested: YES})
-});
-
-Footprint.AnalysisModule = Footprint.Record.extend({
-    config_entity: SC.Record.toOne('Footprint.ConfigEntity', {isMaster: YES}),
-    celery_task: SC.Record.attr(Object),
-    previous_celery_task: SC.Record.attr(Object),
-    start: SC.Record.attr(Boolean)
-});
-
-Footprint.Core = Footprint.AnalysisModule.extend({
-
 });

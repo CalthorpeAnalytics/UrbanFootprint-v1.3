@@ -31,9 +31,10 @@ class DialUp(models.Model):
     office_employment = models.DecimalField(max_digits=3, decimal_places=2, default=0)
     retail_employment = models.DecimalField(max_digits=3, decimal_places=2, default=0)
     industrial_employment = models.DecimalField(max_digits=3, decimal_places=2, default=0)
+
     def __unicode__(self):
         return unicode("Global Dialup config for %s" % self.scenario.name)
 
     class Meta:
-        app_label='main'
+        app_label = 'main'
 

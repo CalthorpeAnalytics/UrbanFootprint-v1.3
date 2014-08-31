@@ -2,7 +2,7 @@
 /*
 * UrbanFootprint-California (v1.0), Land Use Scenario Development and Modeling System.
 * 
-* Copyright (C) 2013 Calthorpe Associates
+* Copyright (C) 2014 Calthorpe Associates
 * 
 * This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, version 3 of the License.
 * 
@@ -65,7 +65,16 @@ SC.Binding.lengthOf = function() {
     });
 };
 
+SC.Binding.isGreaterThan = function (minValue) {
+    return this.transform(function (value, binding) {
+        return (SC.typeOf(value) === SC.T_NUMBER) && (value > minValue);
+    });
+};
+
 SC.Binding.notContentKind = function(type) {
+    /***
+     * Returns true if the value is not a kindOf the type
+     */
     return this.transform(function(value, binding) {
         return !(value && value.kindOf(type));
     });
@@ -97,15 +106,15 @@ SC.Binding.defaultValue = function(defaultValue) {
     });
 };
 
-
-SC.Binding.buildingUseFilter = function(buildingUseProperty, category) {
-    return this.transform(function(value) {
-        if (!(value && value.getPath('building_uses')))
-            return '--';
-        var building_attribute_set = value.getPath('building_uses').filter(function(building_use, i) {
-            return building_use.getPath('building_use_definition.name') == category})[0];
-        if (!(building_attribute_set && building_attribute_set))
-            return '--'
-        return building_attribute_set && building_attribute_set.get(buildingUseProperty);
-    }.property('building_uses','building_use_definition').cacheable())
-};
+/*** Transforms a Footprint.BuildingUsePercent array to the BuildingUsePercent property value whose BuildingUseDefinition name matches the given category ***/
+SC.Binding.propertyTransform = function(property) {
+    return this.transform(function(obj) {
+        return obj && obj.getPath(property);
+    });
+}
+/*** Transforms the given list to true if it contains the given value ***/
+SC.Binding.contains = function(value) {
+    return this.transform(function(list) {
+        return list && list.contains(value)
+    })
+}

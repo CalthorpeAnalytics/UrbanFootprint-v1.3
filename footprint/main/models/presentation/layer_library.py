@@ -18,7 +18,6 @@
 # Phone: (510) 548-6800. Web: www.calthorpe.com
 from django.contrib.gis.db import models
 from footprint.main.managers.geo_inheritance_manager import GeoInheritanceManager
-from footprint.main.models.presentation.layer import Layer
 from footprint.main.models.presentation.presentation import Presentation
 
 __author__ = 'calthorpe_associates'

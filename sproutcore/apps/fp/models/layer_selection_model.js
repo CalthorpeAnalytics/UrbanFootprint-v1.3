@@ -31,7 +31,7 @@ Footprint.LayerSelection = Footprint.Record.extend({
     //result_field_title_lookup: SC.Record.attr(Object),
 
     // The summary results, and array of dicts that the API converts to SC.Objects on load
-    summary_results: SC.Record.attr(Array),
+    summary_results: SC.Record.toMany('Footprint.GenericObjects', {nested:YES}),
     // The summary fields of the summary query
     summary_fields: SC.Record.attr(Array),
     // The pretty version of those fields to display as column titles
@@ -39,7 +39,8 @@ Footprint.LayerSelection = Footprint.Record.extend({
     //summary_field_title_lookup: SC.Record.attr(Object),
 
     // Bounds are set to a geojson geometry to update the selection
-    bounds:SC.Record.attr(Object),
+    // BoundsDictionary is just a marker used to transform the json to an SC.Object
+    bounds:SC.Record.attr('Footprint.BoundsDictionary', {nested:YES}),
     boundsAsString: function() {
         // This does lat,lon | lat,lon rounded to four digits.
         // Assumes a single polygon in multi-polygons, hence the firstObject.firstObject
@@ -52,7 +53,8 @@ Footprint.LayerSelection = Footprint.Record.extend({
 
     // A dictionary of the raw query strings
     // This includes 'filter_string', 'aggregates_string', and 'group_by_string'
-    query_strings: SC.Record.attr(Object),
+    // QueryStringDictionary is just a marker used to transform the json to an SC.Object
+    query_strings: SC.Record.toOne('Footprint.QueryStringDictionary', {nested:YES}),
 
     // Holds the parsed filter token tree
     filter:SC.Record.attr(Object),
@@ -107,3 +109,46 @@ Footprint.LayerSelection.mixin({
     }
 });
 
+
+// Internal and not instantiated
+Footprint.QueryStringDictionary = Footprint.Record.extend({
+    filter_string: SC.Record.attr(String),
+    aggregates_string: SC.Record.attr(String),
+    group_by_string: SC.Record.attr(String)
+});
+SC.RecordAttribute.registerTransform(Footprint.QueryStringDictionary, {
+    to: function(obj, attr, recordType, parentRecord) {
+        return SC.Object.create(obj || {});
+    },
+    from: function(obj) {
+        return obj ? filter_keys(obj, Footprint.QueryStringDictionary.allRecordAttributeProperties(), 'object') : {};
+    },
+    observesChildren: [Footprint.QueryStringDictionary.allRecordAttributeProperties()]
+});
+// Internal and not instantiated
+Footprint.BoundsDictionary = Footprint.Record.extend({
+    coordinates: SC.Record.attr(Array),
+    type: SC.Record.attr(String)
+});
+SC.RecordAttribute.registerTransform(Footprint.BoundsDictionary, {
+    to: function(obj, attr, recordType, parentRecord) {
+        return SC.Object.create(obj || {});
+    },
+    from: function(obj) {
+        return obj ? filter_keys(obj, Footprint.BoundsDictionary.allRecordAttributeProperties(), 'object') : {};
+    },
+    observesChildren: [Footprint.BoundsDictionary.allRecordAttributeProperties()]
+});
+// Intenal, not instantiated
+Footprint.GenericObjects = Footprint.Record.extend();
+SC.RecordAttribute.registerTransform(Footprint.GenericObjects, {
+    to: function(obj, attr, recordType, parentRecord) {
+        return (obj || []).map(function(item) { return SC.Object.create(item || {})});
+    },
+    from: function(obj) {
+        // I'm not sure how to extract the original object out of the SC.Object.
+        return (obj || []).map(function(item) { return item; });
+    },
+    observesChildren: [Footprint.BoundsDictionary.allRecordAttributeProperties()]
+});
+Footprint.GenericObjects = Footprint.Record.extend()

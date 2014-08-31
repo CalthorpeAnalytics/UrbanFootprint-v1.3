@@ -17,17 +17,14 @@
 # Phone: (510) 548-6800. Web: www.calthorpe.com
 from tastypie.constants import ALL_WITH_RELATIONS, ALL
 from tastypie.fields import CharField
-from tastypie.resources import csrf_exempt
-from footprint.main.lib.functions import get_first
-
-from footprint.main.models import Project, Region, GlobalConfig, Scenario, ConfigEntity, Core
+from footprint.main.models import Project, Region, GlobalConfig, Scenario, ConfigEntity
 from footprint.main.models.config.scenario import BaseScenario, FutureScenario
 from footprint.main.resources.medium_resources import MediumResource
 from footprint.main.resources.model_dict_field import ModelDictField
-from footprint.main.resources.mixins.mixins import PolicySetsResourceMixin, BuiltFormSetsResourceMixin, DbEntityResourceMixin, PresentationResourceMixin, CategoryResourceMixin
+from footprint.main.resources.mixins.mixins import PolicySetsResourceMixin, BuiltFormSetsResourceMixin, DbEntityResourceMixin, PresentationResourceMixin, CategoryResourceMixin, \
+    CloneableResourceMixin
 from footprint.main.resources.footprint_resource import FootprintResource
 from tastypie import fields
-from footprint.main.utils.utils import foreign_key_field_of_related_class, has_explicit_through_class
 
 __author__ = 'calthorpe_associates'
 
@@ -49,9 +46,9 @@ class CustomModelDictField(ModelDictField):
 
 
 class ConfigEntityResource(FootprintResource, PolicySetsResourceMixin, BuiltFormSetsResourceMixin,
-                           DbEntityResourceMixin, PresentationResourceMixin, CategoryResourceMixin):
-    media = fields.ToManyField(MediumResource, 'media', full=False, null=True)
+                           DbEntityResourceMixin, PresentationResourceMixin, CategoryResourceMixin, CloneableResourceMixin):
 
+    media = fields.ToManyField(MediumResource, 'media', full=False, null=True)
     # Selections needs to be revisited, so it is readonly for now
     selections = CustomModelDictField(attribute='selections', null=False, blank=False, readonly=False)
     # These should never be written, they are calculated automatically
@@ -67,64 +64,8 @@ class ConfigEntityResource(FootprintResource, PolicySetsResourceMixin, BuiltForm
         if not bundle.obj.id:
             bundle.obj.creator = self.resolve_user(bundle.request.GET)
         bundle.obj.updater = self.resolve_user(bundle.request.GET)
-        return bundle
+        return super(ConfigEntityResource, self).hydrate(bundle)
 
-    def save_m2m(self, bundle):
-        """
-            Overrides the super method in order to handle saving many-to-many collection instances of an explicit through class. For some reason tastypie has no handling for this, but we want to deliver the through class instances to the user that have references to the related attribute (e.g. DbEntityInterest instances are delivered and each has a reference to DbEntity). We also want to allow the client to modify, add, and remove these instances. Thus we must intercept them here and save them properly. Tastypie assumes non-explict Through classes and just dumbly tries to add them to the related field with add(), which fails for explicitly through classes.
-        :param bundle:
-        :return:
-        """
-
-        # This is an exact copy of the super method up until the add() line
-        for field_name, field_object in self.fields.items():
-            if not getattr(field_object, 'is_m2m', False):
-                continue
-
-            if not field_object.attribute:
-                continue
-
-            if field_object.readonly:
-                continue
-
-            # Get the manager.
-            related_mngr = None
-
-            if isinstance(field_object.attribute, basestring):
-                related_mngr = getattr(bundle.obj, field_object.attribute)
-            elif callable(field_object.attribute):
-                related_mngr = field_object.attribute(bundle)
-
-            if not related_mngr:
-                continue
-
-                # This condition is an enhancement to thte super method. It allows an add method defined on the field to indicate how to add the many-to-many items
-                # We don't use this since our items are handled more carefully below
-                #if hasattr(related_mngr, 'clear'):
-                # Clear it out, just to be safe.
-            #    related_mngr.clear()
-
-            related_objs = []
-
-            # TODO handle remove and clear
-            if hasattr(field_object, 'add'):
-                # This condition is an enhancement to the super method. It allows an add method defined on the field to indicate how to add the many-to-many items
-                objs = map(lambda bundle: bundle.obj, bundle.data[field_name])
-                field_object.add(bundle, *objs)
-            else:
-                for related_bundle in bundle.data[field_name]:
-                    # This if statement is a change from the super method. If we are handling explict through instances we need to give the incoming instance a reference to the bundle.obj. The through instances are never dehydrated with this reference since it simply refers back to the container (bundle.data)
-                    if has_explicit_through_class(bundle.obj, field_object.instance_name):
-                        setattr(
-                            related_bundle.obj,
-                            # Figure out the correct field
-                            foreign_key_field_of_related_class(related_bundle.obj.__class__, bundle.obj.__class__).name,
-                            bundle.obj)
-                    related_bundle.obj.save()
-                    related_objs.append(related_bundle.obj)
-                    # This if statement is a change from the super method. If we are handling explict through instances the save above is adequate. We don't want to try to add the item to the manager.
-                if hasattr(related_mngr, 'add'):
-                    related_mngr.add(*related_objs)
 
     class Meta(FootprintResource.Meta):
         abstract = True
@@ -166,8 +107,6 @@ class ProjectResource(ConfigEntityResource):
 
 class ScenarioResource(ConfigEntityResource):
     parent_config_entity = fields.ToOneField(ProjectResource, 'parent_config_entity', full=False)
-    origin_config_entity = fields.ToOneField('self', 'origin_config_entity', full=False, null=True)
-    analysis_modules = CustomModelDictField(attribute='analysis_module', null=True, default=lambda: {})
 
     class Meta(ConfigEntityResource.Meta):
         abstract = False

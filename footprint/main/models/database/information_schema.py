@@ -19,16 +19,12 @@
 import urllib2
 from django.core.exceptions import ObjectDoesNotExist
 from django.db.backends.postgresql_psycopg2.introspection import DatabaseIntrospection
-from django.middleware import transaction
 import psycopg2
 from footprint import settings
 from footprint.common.utils.postgres_utils import pg_connection_parameters
-
 from footprint.main.managers.database.managers import InformationSchemaManager, PGNamespaceManager
 from django.db import models, connections, connection
 from footprint.main.utils.utils import parse_schema_and_table
-#TODO move this to utils
-from footprint.uf_tools import executeSQL_now
 from logging import getLogger
 logger = getLogger(__name__)
 __author__ = 'calthorpe_associates'
@@ -52,51 +48,53 @@ class InformationSchema(models.Model):
         return "{0}.{1}".format(self.table_schema, self.table_name)
 
     @classmethod
-    def add_column_conditionally(cls, schema, table, column_name, column_type, primary_key=False, create_primary_key_duplicate_column=None):
+    def create_primary_key_column_from_another_column(cls, schema, table, primary_key_column, from_column=None):
         """
             Adds the column of the given type to the given table if absent
         :param schema: The database schema name
         :param table: The table name
-        :param column_name: The name of the column
-        :param column_type: e.g. 'varchar'. This is not used by primary keys
-        :param primary_key: Default False, set True to make the new column the primary key
-        :param create_primary_key_duplicate_column: creates a primary key from this name based on column_name's values
-        :return: True if created, otherwise False
+        :param primary_key_column: Name of primary key column to create. If a primary key already exists it will be
+        renamed from this, unless from_column is specified, in which case the existing primary_key will lose its constraint
         """
         full_tablename = '"{schema}"."{table}"'.format(schema=schema, table=table)
         conn = psycopg2.connect(**pg_connection_parameters(settings.DATABASES['default']))
         conn.set_isolation_level(psycopg2.extensions.ISOLATION_LEVEL_AUTOCOMMIT)
         cursor = conn.cursor()
-        if not InformationSchema.objects.has_column(schema, table, create_primary_key_duplicate_column):
-            if not primary_key:
-                alter_source_id_sql = 'alter table {full_tablename} add column {column_name} {column_type};'.format(
-                    full_tablename=full_tablename, column_name=column_name, column_type=column_type)
+        if not InformationSchema.objects.has_column(schema, table, primary_key_column):
+            # Yes create a primary key
+            existing_primary_key = InformationSchema.get_primary_key_name(schema, table)
+            # Copy values from the from_column to the new primary_key_column
+            if existing_primary_key and not from_column:
+                # Rename the primary key to primary_key_column and end
+                alter_source_id_sql = 'alter table {full_tablename} rename column {existing_primary_key} to {primary_key_column}'.format(
+                    full_tablename=full_tablename, existing_primary_key=existing_primary_key, primary_key_column=primary_key_column)
                 cursor.execute(alter_source_id_sql)
-            else:
-                existing_primary_key = InformationSchema.get_primary_key_name(schema, table)
-                if existing_primary_key:
-                    # If a primary_key of a different name already exists, just rename it
-                    target_name = create_primary_key_duplicate_column or column_name
-                    if existing_primary_key != target_name:
-                        alter_source_id_sql = 'alter table {full_tablename} rename column {existing_primary_key} to {target_name}'.format(
-                            full_tablename=full_tablename, existing_primary_key=existing_primary_key, target_name=target_name)
-                        cursor.execute(alter_source_id_sql)
+                return
 
-                elif create_primary_key_duplicate_column:
-                    # Create a new primary key column, create_primary_key_duplicate_column, by copying the values from column_name and casting to integer
-                    create_column_sql = 'alter table {full_tablename} add column {duplicate_column_name} integer'.format(
-                        full_tablename=full_tablename, duplicate_column_name=create_primary_key_duplicate_column)
-                    update_sql = 'update {full_tablename} set {duplicate_column_name} = cast({column_name} AS integer)'.format(
-                        full_tablename=full_tablename, duplicate_column_name=create_primary_key_duplicate_column, column_name=column_name)
-                    alter_source_id_sql = 'alter table {full_tablename} add constraint {table}_{schema}_{duplicate_column_name}_pk primary key ({duplicate_column_name})'.format(
-                        full_tablename=full_tablename, table=table, schema=schema, column_name=column_name, duplicate_column_name=create_primary_key_duplicate_column)
-                    cursor.execute(create_column_sql)
-                    cursor.execute(update_sql)
-                    cursor.execute(alter_source_id_sql)
-                else:
-                    alter_source_id_sql = 'alter table {full_tablename} add column {column_name} serial primary key'.format(
-                        full_tablename=full_tablename, column_name=column_name)
-                    cursor.execute(alter_source_id_sql)
+            if from_column:
+                # Create a new primary key column without values
+                create_column_sql = 'alter table {full_tablename} add column {primary_key_column} integer'.format(
+                    full_tablename=full_tablename, primary_key_column=primary_key_column)
+                cursor.execute(create_column_sql)
+                # Copy values from the from_column, always casting to integer
+                update_sql = 'update {full_tablename} set {primary_key_column} = cast({from_column} AS integer)'.format(
+                    full_tablename=full_tablename, primary_key_column=primary_key_column, from_column=from_column)
+                cursor.execute(update_sql)
+            else:
+                # Populate with a serial primary key
+                alter_source_id_sql = 'alter table {full_tablename} add column {primary_key_column} serial primary key'.format(
+                    full_tablename=full_tablename, primary_key_column=primary_key_column)
+                cursor.execute(alter_source_id_sql)
+            # Drop the original_primary_key column if it exists
+            if existing_primary_key:
+                alter_source_id_sql = 'alter table {full_tablename} drop column {existing_primary_key}'.format(
+                    full_tablename=full_tablename, existing_primary_key=existing_primary_key)
+                cursor.execute(alter_source_id_sql)
+            if from_column:
+                # Create the primary key constraint if we haven't yet
+                alter_source_id_sql = 'alter table {full_tablename} add constraint {table}_{schema}_{primary_key_column}_pk primary key ({primary_key_column})'.format(
+                    full_tablename=full_tablename, table=table, schema=schema, primary_key_column=primary_key_column)
+                cursor.execute(alter_source_id_sql)
             return True
         return False
 

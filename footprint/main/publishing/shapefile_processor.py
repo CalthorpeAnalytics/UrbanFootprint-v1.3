@@ -2,11 +2,12 @@ import logging
 import stat
 from footprint.main.database.import_data import ImportData
 from footprint.main.models.database.information_schema import InformationSchema, sync_geometry_columns
+from footprint.main.models.keys.content_type_key import ContentTypeKey
 from footprint.main.publishing.import_processor import ImportProcessor
 import zipfile
 import os
 from footprint.main.models.geospatial.feature_class_creator import FeatureClassCreator
-from footprint.main.publishing.data_import_publishing import create_and_population_associations, add_primary_key_if_needed
+from footprint.main.publishing.data_import_publishing import create_and_populate_relations, add_primary_key_if_needed
 from django.conf import settings
 from footprint.main.utils.utils import timestamp
 
@@ -42,11 +43,11 @@ class ShapefileProcessor(ImportProcessor):
         feature_class_configuration = feature_class_creator.feature_class_configuration_from_introspection()
 
         # Merge the created feature_class_configuration with the on already defined for the db_entity
-        feature_class_creator.merge_feature_class_configuration_into_db_entity(feature_class_configuration)
+        feature_class_creator.update_db_entity(feature_class_configuration)
         logger.debug("Finished shapefile import for DbEntity: %s, feature_class_configuration: %s" % (db_entity, db_entity.feature_class_configuration))
 
         # Create association classes and tables and populate them with data
-        create_and_population_associations(config_entity, db_entity)
+        create_and_populate_relations(config_entity, feature_class_creator.db_entity)
 
 def unpack_shapefile(zip_archive, name, user):
     archive = zipfile.ZipFile(zip_archive, 'r')
@@ -94,6 +95,7 @@ def import_shapefile_to_db(config_entity, db_entity, shp):
     # Update the db_entity.url from the zip file url to the shapefile_path
     # This lets ImportData find it.
     db_entity.url = 'file://%s' % shapefile_path
+    db_entity.feature_class_configuration.import_file_type = ContentTypeKey.SHAPEFILE
     db_entity.save()
 
     ImportData(config_entity=config_entity, db_entity_key=db_entity.key).run()

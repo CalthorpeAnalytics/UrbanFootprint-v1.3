@@ -1,5 +1,7 @@
+import logging
 import os
 from inspect import getmro
+from footprint.main.models.keys.content_type_key import ContentTypeKey
 
 from footprint.main.publishing.layer_initialization import LayerMediumKey
 from footprint.main.lib.functions import map_to_dict
@@ -9,6 +11,7 @@ from django.conf import settings
 
 __author__ = 'calthorpe_associates'
 
+logger = logging.getLogger(__name__)
 
 def create_template_context_dict_for_parent_model(parent_model, color_resolver, related_field=None):
     """
@@ -166,11 +169,12 @@ def create_style_template(template_context_dict, db_entity_key, styled_class=Non
     # CpadHoldingsFeature just styles based on its geometry, so that class name here
     # will be used to find style files named CpadHoldingsFeature.*
     template_key = LayerMediumKey.Fab.ricate(styled_class.__name__ if styled_class else db_entity_key)
+    logger.debug("Creating template with attributes %s for db_entity_key %s" % (','.join(styled_attributes), db_entity_key))
     Template.objects.update_or_create(
         key=template_key,
         defaults={
             'name': template_key,
-            'content_type': Keys.CONTENT_TYPE_CSS,
+            'content_type': ContentTypeKey.CSS,
             'content': dict(
                 # Creates a dict(attribute1:dict(cartocss:a_cartocss_template, css:a_regular_css_template), ...)
                 attributes=map_to_dict(

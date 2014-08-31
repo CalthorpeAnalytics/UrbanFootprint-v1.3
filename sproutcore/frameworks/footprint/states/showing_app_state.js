@@ -1,7 +1,7 @@
 
 /*
  *UrbanFootprint-California (v1.0), Land Use Scenario Development and Modeling System.
- * *Copyright (C) 2013 Calthorpe Associates *
+ * *Copyright (C) 2014 Calthorpe Associates *
  *This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, version 3 of the License.
  *
  *This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
@@ -61,7 +61,9 @@ Footprint.ShowingAppState = SC.State.design({
     /***
      * The policies panel in the bottom-right
      scenario_in*/
-    showingAnalyticState:SC.State.plugin('Footprint.ShowingAnalyticState'),
+    showingAnalysisModulesState:SC.State.plugin('Footprint.ShowingAnalysisModulesState'),
+
+    showingCurrentAnalysisModuleState: SC.State.plugin('Footprint.ShowingAnalysisToolsState'),
 
     crudState:SC.State.plugin('Footprint.CrudState'),
 

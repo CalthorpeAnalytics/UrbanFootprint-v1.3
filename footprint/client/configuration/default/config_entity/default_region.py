@@ -14,13 +14,18 @@ class DefaultRegionFixture(DefaultMixin, RegionFixture):
         global_config_feature_class_lookup = client_global_config.feature_class_lookup()
         return merge(global_config_feature_class_lookup, {})
 
-    def default_db_entity_configurations(self):
+    def default_db_entities(self):
         """
-            Region define DbEntities specific to the region,
-        :return: a dictionary of
+            Region define DbEntities specific to the region.
+            Currently there are none.
         """
         remote_db_entity_setups = self.default_remote_db_entity_configurations()
         return remote_db_entity_setups
 
     def import_db_entity_configurations(self, **kwargs):
         return []
+
+    def default_behaviors(self, **kwargs):
+        # Delegate to global. This allows clients to define Behaviors at the Region scope
+        client_global_config = resolve_fixture("config_entity", "global_config", GlobalConfigFixture)
+        return client_global_config.default_behaviors(**kwargs)

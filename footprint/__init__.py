@@ -9,5 +9,5 @@ logger = logging.getLogger(__name__)
 #     env.host_string = 'localhost'
 #     env.user = 'calthorpe'
 #     env.sudo_user = 'calthorpe'
-#     env.password = '[PASSWORD]'
+#     env.password = '[ your password ]'
 #     sudo('supervisorctl restart celery_worker', tty=False)

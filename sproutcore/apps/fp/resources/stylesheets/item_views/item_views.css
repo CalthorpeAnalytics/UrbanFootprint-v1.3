@@ -12,13 +12,11 @@ $theme.footprint.footprint-label-select-view {
     }
 }
 
-$theme.footprint-info-pane {
-    $theme.footprint-editable-model-string-view.is-editable {
-        &.is-editable {
-            background-color: #f0f8ff;
-            border-color: #c3c3c3;
-            border-width: 2px;
-        }
+$theme.footprint-editable-model-string-view {
+    &.is-editable {
+        background-color: #f0f8ff;
+        border-color: #c3c3c3;
+        border-width: 2px;
     }
 }
 
@@ -26,10 +24,6 @@ $theme.footprint.sc-view.sc-pane.sc-panel.sc-palette.footprint-info-pane.opaque.
     background-color: #e1e4e1;
     border-color: #708090;
     border-width: 5px;
-}
-
-$theme.sc-split-divider-view {
-    background-color: #B0C4DE;
 }
 
 $theme.footprint-logo-section-view {
@@ -154,9 +148,22 @@ $theme.result-legend-view{
 
 }
 
-$theme.footprint-add-building-pane{
+$theme.footprint-add-building-pane {
+    .panel-background {
+        position: absolute;
+        left: 0px;
+        top: 0px;
+        bottom: 0px;
+        right: 0px;
+    }
+
     border-width: 3px;
     border-color: #505050;
+    border-radius: 10px
+}
+
+$theme.footprint-add-built-form-container-view {
+    border-radius: 10px
 }
 
 $theme.footprint-summary-field-view{
@@ -168,6 +175,12 @@ $theme.footprint-summary-field-view{
 $theme.footprint-editable-input-view{
     border-width: 1px;
     border-color: #C0C0C0;
+}
+
+$theme.footprint-source-content-info-title-view{
+    .footprint-editable-model-string-view{
+        font-style:italic;
+    }
 }
 
 $theme.footprint-editable-building-use-types-view{
@@ -206,9 +219,11 @@ $theme.footprint-layer-info-create-from-layer-selection-view {
 }
 
 $theme.footprint-editable-clone-field-content-view{
-    background-color: #f0f8ff;
-    border-width: 1px;
-    border-color: #B8B8B8 ;
+    &.is-editable {
+        background-color: #f0f8ff;
+        border-width: 1px;
+        border-color: #B8B8B8;
+    }
 }
 
 $theme.footprint-scenario-info-view, $theme.footprint-layer-info-view {
@@ -235,11 +250,6 @@ $theme.footprint-analytic-module-title-view{
     font-weight: bold;
 }
 
-$theme.footprint-manage-module-view{
-    background-color: #f0f8ff;
-    border-bottom: 1px;
-    border-color: black;
-}
 
 $theme.footprint-module-results-view{
     background-color: #f2f1ef;
@@ -251,11 +261,144 @@ $theme.footprint-top-labeled-result-view{
 
 $theme.footprint-top-labeled-result-value-view{
     background-color: whitesmoke;
+    border-width: 1px;
+    font-size: 11px;
+    border-color: #C0C0C0;
 }
 
 $theme.footprint-top-labeled-result-title-view{
     background-color: #C0C0C0;
 }
 $theme.footprint-top-labeled-result-title-space-view{
+    font-weight: bold;
+    background-color: #C0C0C0;
+    font-size: 9px;
+}
+
+$theme.footprint-top-labeled-result-subtitle-space-view{
+    font-weight: bold;
+    font-size: 9px;
+}
+
+$theme.footprint-editable-content-view{
+    &.is-editable {
+        border-radius: 1px;
+        background-color: #f0f8ff;
+        border-width: 1px;
+        border-color: #C0C0C0;
+    }
+}
+
+$theme.footprint-editable-title-view{
+    font-size: 9px;
+}
+
+$theme.footprint-bold-title-view{
+    font-weight: bold;
+    font-size: 11px;
+}
+
+$theme.footprint-bottom-labelled-content-view{
+    &.is-negative {
+        background-color: #FF3333;
+    }
+    border-radius: 1px;
+    background-color: #f0f8ff;
+    border-width: 1px;
+    border-color: #C0C0C0;
+}
+
+$theme.footprint-noneditable-bottom-labelled-content-view {
+
+    &.is-negative {
+        background-color: #FF3333;
+    }
+
+    border-radius: 1px;
+    background-color: #E0E0E0;
+    border-width: 1px;
+    border-color: #C0C0C0;
+
+}
+
+$theme.footprint-use-percent-title-view{
+    font-size: 11px;
+}
+$theme.footprint-building-footprint-view{
+    border-radius: 1px;
+    background-color: #EFEFF1;
+    border-bottom-width: 5px;
+    border-color: #72587F;
+}
+
+$theme.footprint-parking-sqft-view{
+    border-radius: 1px;
+    background-color: #EFEFF1;
+    border-bottom-width: 5px;
+    border-color: #B0B0B0;
+}
+
+$theme.footprint-other-hardscape-view{
+    border-radius: 1px;
+    background-color: #EFEFF1;
+    border-bottom-width: 5px;
+    border-color: #FFCC66;
+}
+
+$theme.footprint-non-irrigated-softscape-view{
+    border-radius: 1px;
+    background-color: #EFEFF1;
+    border-bottom-width: 5px;
+    border-color: #336633;
+}
+
+$theme.footprint-irrigated-softscape-view{
+    border-radius: 1px;
+    background-color: #EFEFF1;
+    border-bottom-width: 5px;
+    border-bottom-color: #33CC66;
+}
+$theme.footprint-editable-11font-title-view{
+    font-size: 11px;
+}
+
+$theme.footprint-editable-10font-title-view{
     font-size: 10px;
+}
+
+$theme.footprint-editable-9font-title-view{
+    font-size: 9px;
+}
+
+$theme.footprint-label-select-item-view{
+    background-color:#f0f8ff
+}
+
+$theme.footprint-editable-use-percent-field-view{
+    border-bottom-color: grey;
+    border-width: 1px;
+}
+
+$theme.footprint-tool-segmented-button-view {
+    .ace.sc-regular-size.sc-segment-view img.icon {
+        height: 18px;
+        width: 18px;
+        top: 2px;
+    }
+}
+
+$theme.footprint-active-built-form-medium{
+    border-radius: 2px;
+}
+
+
+$theme.footprint-active-built-form-name-view{
+    font-weight: bold;
+}
+
+
+$theme.footprint-tool-button-view {
+    .ace.sc-regular-size.button .sc-button-label {
+        left: -2px;
+    }
 }

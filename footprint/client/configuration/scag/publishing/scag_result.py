@@ -1,6 +1,6 @@
 # UrbanFootprint-California (v1.0), Land Use Scenario Development and Modeling System.
 #
-# Copyright (C) 2013 Calthorpe Associates
+# Copyright (C) 2014 Calthorpe Associates
 #
 # This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, version 3 of the License.
 #
@@ -31,7 +31,7 @@ class ScagResultConfigurationFixtures(ResultConfigurationFixture):
                     class_scope=BaseScenario,
                     result_type='analytic_bars',
                     result_library_key=ResultLibraryKey.DEFAULT,
-                    source_db_entity_key=Keys.DB_ABSTRACT_BASE_FEATURE,
+                    source_db_entity_key=DbEntityKey.BASE,
                     result_db_entity_key=ResultKey.Fab.ricate('base_bars'),
 
                     name='Base Results',

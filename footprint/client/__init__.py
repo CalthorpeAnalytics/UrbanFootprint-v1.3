@@ -1,6 +1,4 @@
-
-
-
+import footprint.client.configuration.utils
 from footprint.client.configuration.sacog.built_form.sacog_land_use import SacogLandUse
 from footprint.client.configuration.sacog.built_form.sacog_land_use_definition import SacogLandUseDefinition
 from footprint.client.configuration.sacog.base.sacog_existing_land_use_parcel_feature \
@@ -18,3 +16,7 @@ from footprint.client.configuration.sacog.base.sacog_light_rail_stops_half_mile_
     import SacogLightRailStopsHalfMileFeature
 from footprint.client.configuration.sacog.base.sacog_light_rail_stops_quarter_mile_feature \
     import SacogLightRailStopsQuarterMileFeature
+
+
+from footprint.client.configuration.sandag.base.sandag_2050_rtp_transit_network_feature import Sandag2050RtpTransitNetworkFeature
+from footprint.client.configuration.sandag.base.sandag_2050_rtp_transit_stop_feature import Sandag2050RtpTransitStopFeature

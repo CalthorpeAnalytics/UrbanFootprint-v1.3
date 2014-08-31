@@ -14,16 +14,14 @@ from django.template.defaultfilters import slugify
 from footprint.main.initialization.built_form.built_form_importer import BuiltFormImporter
 # from footprint.main.initialization.fixture import BuiltFormFixture
 from footprint.main.mixins.building_aggregate import BuildingAttributeAggregate
-from footprint.main.models.config.config_entity import ConfigEntity
 from footprint.main.models.application_initialization import initialize_table_definitions, initialize_global_config
 from footprint.main.models.built_form.primary_component import PrimaryComponent
 from footprint.main.models.built_form.placetype_component import PlacetypeComponent
-from footprint.main.models.built_form.placetype import Placetype
-from footprint.main.models.built_form.flat_built_forms import refresh_all_flat_built_forms
-from footprint.main.models.built_form.flat_built_forms import FlatBuiltForm
+from footprint.main.models.built_form.urban.urban_placetype import Placetype
+from footprint.main.models.built_form.flat_built_form import refresh_all_flat_built_forms
+from footprint.main.models.built_form.flat_built_form import FlatBuiltForm
 from footprint.main.models.config.global_config import global_config_singleton
 from footprint.main.models.keys.keys import Keys
-from footprint.main.publishing import built_form_publishing
 from footprint.main.utils.utils import update_and_return_dict
 from django.conf import settings
 
@@ -94,7 +92,7 @@ class TestBuiltFormExport(unittest.TestCase):
         buildingtype_names = list(set([item for sublist in buildingtype_names for item in sublist]))
         test_buildingtypes_dict['placetype_components'] = [
             buildingtype for buildingtype in self.built_forms_dict['placetype_components']
-            if buildingtype['building_attributes']['name'] in buildingtype_names]
+            if buildingtype['building_attribute_set']['name'] in buildingtype_names]
         test_buildings_dict = self.get_buildings_from_buildingtypes(buildingtype_names)
         test_buildingtypes_dict.update(test_buildings_dict)
 
@@ -105,7 +103,7 @@ class TestBuiltFormExport(unittest.TestCase):
         drop_values = ["primary_component_percents", "placetype_component_percents", "placetypes",
                        "sacog_placetypes", "building_percents"]
 
-        building_names = [building['building_attributes']['name'] for building in buildings_array]
+        building_names = [building['building_attribute_set']['name'] for building in buildings_array]
         for d in drop_values:
             buildings_dict[d] = {}
 
@@ -114,7 +112,7 @@ class TestBuiltFormExport(unittest.TestCase):
         ]
 
         buildings_dict['primary_components'] = [building for building in buildings_dict['primary_components']
-                                       if building['building_attributes']['name'] in building_names]
+                                       if building['building_attribute_set']['name'] in building_names]
 
         self.data_provider.persist_built_forms(buildings_dict)
         self.test_flat_built_form_values()
@@ -128,7 +126,7 @@ class TestBuiltFormExport(unittest.TestCase):
 
         test_buildingtypes_dict['placetype_components'] = buildingtype_array
 
-        buildingtype_names = [buildingtype['building_attributes']['name'] for buildingtype in buildingtype_array]
+        buildingtype_names = [buildingtype['building_attribute_set']['name'] for buildingtype in buildingtype_array]
 
         buildings_and_components_dict = self.get_buildings_from_buildingtypes(buildingtype_names)
 
@@ -145,7 +143,7 @@ class TestBuiltFormExport(unittest.TestCase):
             test_placetype_dict[d] = {}
         test_placetype_dict['placetypes'] = placetype_array
 
-        placetype_names = [placetype['building_attributes']['name'] for placetype in placetype_array]
+        placetype_names = [placetype['building_attribute_set']['name'] for placetype in placetype_array]
         components_dict = self.get_components_from_placetypes(placetype_names)
         test_placetype_dict.update(components_dict)
         self.data_provider.persist_built_forms(test_placetype_dict)
@@ -181,14 +179,14 @@ class TestBuiltFormExport(unittest.TestCase):
         self.test_building_export(buildings)
 
     def test_non_rural_employment_buildings(self):
-        buildingtypes = [buildingtype['building_attributes']['name'] for buildingtype in self.built_forms_dict['placetype_components']
-                         if buildingtype['building_attributes']['name'] != 'Rural Employment']
+        buildingtypes = [buildingtype['building_attribute_set']['name'] for buildingtype in self.built_forms_dict['placetype_components']
+                         if buildingtype['building_attribute_set']['name'] != 'Rural Employment']
         buildings = self.get_buildings_from_buildingtypes(buildingtypes)['primary_components']
         self.test_building_export(buildings)
 
     def test_non_rural_employment_buildingtypes(self):
         buildingtypes = [buildingtype for buildingtype in self.built_forms_dict['placetype_components']
-                         if buildingtype['building_attributes']['name'] != 'Rural Employment']
+                         if buildingtype['building_attribute_set']['name'] != 'Rural Employment']
         self.test_buildingtype_export(buildingtypes)
 
     def test_non_rural_employment_placetypes(self):
@@ -210,7 +208,7 @@ class TestBuiltFormExport(unittest.TestCase):
                      (Keys.INDUSTRIAL_CATEGORY, Keys.INDUSTRIAL_SUBCATEGORIES)
 
         for building in PrimaryComponent.objects.all():
-            building_uses = building.building_attributes.buildingusepercent_set.all()
+            building_uses = building.building_attribute_set.buildingusepercent_set.all()
             # checks that the major use categories have percents that are the sum of their subcategories
             for category, subcategory in categories:
                 subcategories = building_uses.filter(building_use_definition__name__in=subcategory)
@@ -287,7 +285,7 @@ class TestBuiltFormExport(unittest.TestCase):
 
         built_forms_dict = BuiltFormImporter().construct_built_forms('default')
         for placetype_dict in built_forms_dict['placetypes']:
-            name = placetype_dict['building_attributes'].pop('name', None)
+            name = placetype_dict['building_attribute_set'].pop('name', None)
 
             placetype, created, updated = Placetype.objects.update_or_create(
                 key='pt__' + slugify(name).replace('-', '_'),
@@ -295,7 +293,7 @@ class TestBuiltFormExport(unittest.TestCase):
                     name=name,
                     intersection_density=placetype_dict['intersection_density'])
             )
-            building_attributes_dict = placetype_dict['building_attributes']
+            building_attribute_set_dict = placetype_dict['building_attribute_set']
             placetype.update_or_create_built_form_examples(bf_examples.get(placetype.key) if bf_examples.get(placetype.key) else [])
 
     def test_built_form_exports(self):
@@ -321,7 +319,7 @@ class TestBuiltFormExport(unittest.TestCase):
     def create_component_debug_dict(self, components):
         return {component.component().name: OrderedDict(
             percent=component.percent,
-            uses=self.create_use_debug_dict(component.component().building_attributes.buildingusepercent_set.all()))
+            uses=self.create_use_debug_dict(component.component().building_attribute_set.buildingusepercent_set.all()))
             for component in components}
 
     def create_debug_dict(self, built_forms_dict):
@@ -333,7 +331,7 @@ class TestBuiltFormExport(unittest.TestCase):
 
         return {
             built_form.name: {
-                'uses': self.create_use_debug_dict(built_form.building_attributes.buildingusepercent_set.all()),
+                'uses': self.create_use_debug_dict(built_form.building_attribute_set.buildingusepercent_set.all()),
                 'components': self.create_component_debug_dict(built_form.get_all_components())
                 if isinstance(built_form, BuildingAttributeAggregate) else None
             } for built_form in built_forms
@@ -342,7 +340,7 @@ class TestBuiltFormExport(unittest.TestCase):
     def test_park_and_institutional(self):
         self.setup()
         placetypes = [placetype for placetype in self.built_forms_dict['placetypes']
-                      if placetype['building_attributes']['name'] in ['Parks & Open Space']]
+                      if placetype['building_attribute_set']['name'] in ['Parks & Open Space']]
         self.test_placetype_export(placetypes)
         debug_dict = self.create_debug_dict(Placetype.objects.all())
         pass
@@ -350,7 +348,7 @@ class TestBuiltFormExport(unittest.TestCase):
     def test_rural_residential_types(self):
         self.setup()
         buildingtypes = [buildingtype for buildingtype in self.built_forms_dict['placetype_components']
-                         if buildingtype['building_attributes']['name'] in ['Rural Ranchette', 'Rural Residential']]
+                         if buildingtype['building_attribute_set']['name'] in ['Rural Ranchette', 'Rural Residential']]
         self.test_buildingtype_export(buildingtypes)
 
         debug_dict = self.create_debug_dict(PlacetypeComponent.objects.all())
@@ -380,7 +378,7 @@ class TestBuiltFormExport(unittest.TestCase):
         return error_dict
 
     def test_sum_of_uses(self, built_form):
-        built_form_uses=list(built_form.building_attributes.buildingusepercent_set.all())
+        built_form_uses=list(built_form.building_attribute_set.buildingusepercent_set.all())
         sum_of_percents = sum([use.percent for use in built_form_uses])
         if not self.reasonably_close(sum_of_percents, 2):
             return dict(use_percent_totals=sum_of_percents,

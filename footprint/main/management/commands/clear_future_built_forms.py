@@ -41,7 +41,7 @@ class Command(BaseCommand):
         scenarios = FutureScenario.objects.filter(key__contains=options['scenario']) if options[
             'scenario'] else FutureScenario.objects.all()
         for scenario in scenarios:
-            future_scenario_feature_class = scenario.feature_class_of_db_entity_key(Keys.DB_ABSTRACT_FUTURE_SCENARIO_FEATURE)
+            future_scenario_feature_class = scenario.db_entity_feature_class(DbEntityKey.FUTURE_SCENARIO)
             for future_scenario_feature in future_scenario_feature_class.objects.exclude(built_form__isnull=True):
                 future_scenario_feature.built_form = None
                 future_scenario_feature.save()

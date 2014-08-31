@@ -26,10 +26,22 @@ from footprint.main.models.config.model_pickled_object_field import ModelPickled
 from footprint.main.models.config.model_pickled_object_field import SelectionModelsPickledObjectField
 
 import geospatial
+
+# These import statements are compulsory. Models will not be recognized without them
+# There are some tricks published online to import all classes dynamically, but doing so in
+# practice has yet been unsuccessful
+
+from footprint.main.models.geospatial.behavior import Behavior
+from footprint.main.models.analysis_module.analysis_module import AnalysisModule
+from footprint.main.models.analysis.agriculture_feature import AgricultureFeature
+
 from footprint.main.models.future.core_end_state_feature import CoreEndStateFeature
 from footprint.main.models.future.core_end_state_demographic_feature import CoreEndStateDemographicFeature
 from footprint.main.models.future.core_increment_feature import CoreIncrementFeature
 from footprint.main.models.analysis.fiscal_feature import FiscalFeature
+from footprint.main.models.analysis.energy_feature import EnergyFeature
+from footprint.main.models.analysis.water_feature import WaterFeature
+from footprint.main.models.analysis.land_consumption_feature import LandConsumptionFeature
 
 from footprint.main.models.analysis.vmt_features.vmt_feature import VmtFeature
 from footprint.main.models.analysis.vmt_features.vmt_quarter_mile_buffer_feature import VmtQuarterMileBufferFeature
@@ -37,41 +49,53 @@ from footprint.main.models.analysis.vmt_features.vmt_one_mile_buffer_feature imp
 from footprint.main.models.analysis.vmt_features.vmt_variable_buffer_feature import VmtVariableBufferFeature
 from footprint.main.models.analysis.vmt_features.vmt_feature import VmtFeature
 from footprint.main.models.analysis.vmt_features.vmt_trip_lengths_feature import VmtTripLengthsFeature
-
+from footprint.main.models.analysis.climate_zone_feature import ClimateZoneFeature
 from footprint.main.models.database.information_schema import PGNamespace
 
-# These import statements are compulsory. Models will not be recognized without them
-# There are some tricks published online to import all classes dynamically, but doing so in
-# practice has yet been unsuccessful
+from footprint.main.models.analysis.climate_zone_feature import ClimateZoneFeature
+
 from footprint.main.models.built_form.built_form import BuiltForm
 from footprint.main.models.geospatial.db_entity import DbEntity
+from footprint.main.models.geospatial.behavior import Behavior
+from footprint.main.models.geospatial.feature_behavior import FeatureBehavior
 from footprint.main.models.config.config_entity import ConfigEntity
-from footprint.main.models.analysis.energy_water_feature import EnergyWaterFeature
+
+from footprint.main.models.policy.energy.commercial_energy_baseline import CommercialEnergyBaseline
+from footprint.main.models.policy.energy.residential_energy_baseline import ResidentialEnergyBaseline
+from footprint.main.models.policy.water.evapotranspiration_baseline import EvapotranspirationBaseline
+
 from footprint.main.models.tasks.async_job import Job
 
 from footprint.main.models.base.base_feature import BaseFeature
-from footprint.main.models.base.developable_feature import DevelopableFeature
+from footprint.main.models.base.base_parcel_feature import BaseParcelFeature
+
+from footprint.main.models.base.default_developable_feature import DefaultDevelopableFeature
+from footprint.main.models.future.developable_feature import DevelopableFeature
 from footprint.main.models.presentation.layer import Layer
 from footprint.main.models.future.future_scenario_feature import FutureScenarioFeature
-from footprint.main.models.built_form.flat_built_forms import FlatBuiltForm
+from footprint.main.models.built_form.flat_built_form import FlatBuiltForm
 from footprint.main.models.base.census_blockgroup import CensusBlockgroup
 from footprint.main.models.base.census_block import CensusBlock
 from footprint.main.models.base.census_tract import CensusTract
 
-from footprint.main.models.analysis_module.analysis_module import AnalysisModule
-from footprint.main.models.analysis_module.celery_task import CeleryTask
-from footprint.main.models.analysis_module.core_module.core import Core
-from footprint.main.models.analysis_module.fiscal_module.fiscal import Fiscal
-from footprint.main.models.analysis_module.vmt_module.vmt import Vmt
 
-from footprint.main.models.built_form.building_attribute_set import BuildingAttributeSet
-from footprint.main.models.built_form.building_use_definition import BuildingUseDefinition
-from footprint.main.models.built_form.building_use_percent import BuildingUsePercent
 from footprint.main.models.built_form.primary_component import PrimaryComponent
 from footprint.main.models.built_form.primary_component_percent import PrimaryComponentPercent
 from footprint.main.models.built_form.placetype_component import PlacetypeComponent
 from footprint.main.models.built_form.placetype_component_percent import PlacetypeComponentPercent
 from footprint.main.models.built_form.placetype import Placetype
+
+from footprint.main.models.built_form.urban.urban_placetype import UrbanPlacetype
+from footprint.main.models.built_form.urban.building_attribute_set import BuildingAttributeSet
+from footprint.main.models.built_form.urban.building_use_definition import BuildingUseDefinition
+from footprint.main.models.built_form.urban.building_use_percent import BuildingUsePercent
+from footprint.main.models.built_form.urban.building import Building
+from footprint.main.models.built_form.urban.building_type import BuildingType
+
+from footprint.main.models.built_form.agriculture.crop import Crop
+from footprint.main.models.built_form.agriculture.crop_type import CropType
+from footprint.main.models.built_form.agriculture.landscape_type import LandscapeType
+from footprint.main.models.built_form.agriculture.agriculture_attribute_set import AgricultureAttributeSet
 
 from footprint.main.models.config.db_entity_interest import DbEntityInterest
 
@@ -96,7 +120,6 @@ from footprint.main.models.presentation.layer_chart import LayerChart
 from footprint.main.models.presentation.layer_library import LayerLibrary
 from footprint.main.models.presentation.map import Map
 from footprint.main.models.presentation.medium import Medium
-from footprint.main.models.presentation.painting import Painting
 from footprint.main.models.presentation.presentation import Presentation
 from footprint.main.models.presentation.presentation_medium import PresentationMedium
 from footprint.main.models.presentation.report import Report
@@ -109,3 +132,8 @@ from footprint.main.models.sort_type import SortType
 from footprint.main.models.presentation.layer_selection import LayerSelection
 from footprint.main.models.presentation.tilestache_config import TileStacheConfig
 
+from footprint.main.models.analysis_module.environmental_constraint_module.environmental_constraint_percent import \
+    EnvironmentalConstraintPercent
+from footprint.main.models.analysis_module.environmental_constraint_module.environmental_constraint_updater_tool import \
+    EnvironmentalConstraintUpdaterTool
+from footprint.main.models.analysis_module.environmental_constraint_module.environmental_constraint_union_tool import EnvironmentalConstraintUnionTool

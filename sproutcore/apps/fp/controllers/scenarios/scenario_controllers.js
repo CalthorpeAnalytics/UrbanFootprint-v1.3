@@ -60,7 +60,8 @@ Footprint.scenariosEditController = Footprint.EditArrayController.create({
     recordType: Footprint.Scenario,
     parentEntityKey: 'parent_config_entity',
     parentRecordBinding:'Footprint.projectActiveController.content',
-    nestedStore:null
+    nestedStore: null,
+    sortProperties: ['name']
 });
 
 Footprint.scenarioCategoriesController = SC.ArrayController.create(Footprint.ArrayContentSupport);
@@ -75,8 +76,6 @@ Footprint.scenarioCategoriesTreeController = Footprint.TreeController.create({
     allowsMultipleSelection: NO,
     allowsEmptySelection: NO,
     content: Footprint.TreeContent.create({
-        // Bind to the active project
-        configEntityBinding: 'Footprint.scenariosController.project',
 
         nodesBinding: 'Footprint.scenariosController.content',
 

@@ -3,7 +3,6 @@ __author__ = 'calthorpe_associates'
 from csvImporter.fields import CharField, FloatField, IntegerField
 from csvImporter.model import CsvModel
 
-__author__ = 'calthorpe_associates'
 
 class ImportPlacetypeComponent(CsvModel):
 #    BTID,Building_Type,
@@ -24,3 +23,51 @@ class ImportPlacetypeComponent(CsvModel):
         delimiter = ","
         has_header = True
 
+CROP_TYPES = {
+    "Tomato Rotation": {
+        "Alfalfa": .194,
+        "Beans": 0.003,
+        "Corn": 0.038,
+        "PTomatoes": .456,
+        "Safflower": .047,
+        "Sunflower": .066,
+        "Wheat": .196,
+    },
+    "Alfalfa Rotation": {
+        "Alfalfa": .596,
+        "Beans": 0.002,
+        "Corn": 0.066,
+        "Safflower": .033,
+        "Sunflower": .067,
+        "Wheat": .236,
+    },
+    "General Field Crops": {
+        "Alfalfa": .452,
+        "Beans": .009,
+        "Corn": .045,
+        "Safflower": .130,
+        "Sunflower": .093,
+        "Wheat": .271
+    },
+    "Grain/Other Vegetable Rotation":
+    {
+        "Alfalfa": .452,
+        "Beans": .009,
+        "Corn": .045,
+        "Safflower": .130,
+        "Sunflower": .093,
+        "Wheat": .271
+    },
+    "Rice Rotation": {
+        'Alfalfa': .038,
+        'Corn': .016,
+        'Wheat': .10,
+        'Safflower': .02,
+        'Sunflower': .003,
+        'Beans': .016,
+        'PTomatoes': .061,
+        'Rice': .608,
+        'Fallow': .118,
+        'Pasture/Rangeland': .2
+    }
+}

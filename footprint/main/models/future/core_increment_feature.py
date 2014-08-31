@@ -23,12 +23,15 @@ __author__ = 'calthorpe_associates'
 
 
 class CoreIncrementFeature(UpdatingFeature):
+    api_include = ['built_form_key', 'land_development_category', 'refill_flag', 'pop', 'hh', 'du', 'du_detsf', 'du_attsf', 'du_mf', 'emp', 'emp_ret', 'emp_off', 'emp_pub', 'emp_ind', 'emp_ag', 'emp_military']
+    built_form_key = models.CharField(max_length=100, default=None, null=True)
     land_development_category = models.CharField(max_length=20, default=None, null=True)
     refill_flag = models.IntegerField(null=True)
+
     pop = models.DecimalField(max_digits=14, decimal_places=4, default=0)
     hh = models.DecimalField(max_digits=14, decimal_places=4, default=0)
+
     du = models.DecimalField(max_digits=14, decimal_places=4, default=0)
-    emp = models.DecimalField(max_digits=14, decimal_places=4, default=0)
     du_detsf = models.DecimalField(max_digits=14, decimal_places=4, default=0)
     du_detsf_ll = models.DecimalField(max_digits=14, decimal_places=4, default=0)
     du_detsf_sl = models.DecimalField(max_digits=14, decimal_places=4, default=0)
@@ -38,32 +41,31 @@ class CoreIncrementFeature(UpdatingFeature):
     emp = models.DecimalField(max_digits=14, decimal_places=4, default=0)
 
     emp_ret = models.DecimalField(max_digits=14, decimal_places=4, default=0)
+    emp_off = models.DecimalField(max_digits=14, decimal_places=4, default=0)
+    emp_pub = models.DecimalField(max_digits=14, decimal_places=4, default=0)
+    emp_ind = models.DecimalField(max_digits=14, decimal_places=4, default=0)
+    emp_ag = models.DecimalField(max_digits=14, decimal_places=4, default=0)
+    emp_military = models.DecimalField(max_digits=14, decimal_places=4, default=0)
+
     emp_retail_services = models.DecimalField(max_digits=14, decimal_places=4, default=0)
     emp_restaurant = models.DecimalField(max_digits=14, decimal_places=4, default=0)
     emp_accommodation = models.DecimalField(max_digits=14, decimal_places=4, default=0)
     emp_arts_entertainment = models.DecimalField(max_digits=14, decimal_places=4, default=0)
     emp_other_services = models.DecimalField(max_digits=14, decimal_places=4, default=0)
 
-    emp_off = models.DecimalField(max_digits=14, decimal_places=4, default=0)
     emp_office_services = models.DecimalField(max_digits=14, decimal_places=4, default=0)
     emp_education = models.DecimalField(max_digits=14, decimal_places=4, default=0)
     emp_public_admin = models.DecimalField(max_digits=14, decimal_places=4, default=0)
     emp_medical_services = models.DecimalField(max_digits=14, decimal_places=4, default=0)
 
-    emp_ind = models.DecimalField(max_digits=14, decimal_places=4, default=0)
     emp_wholesale = models.DecimalField(max_digits=14, decimal_places=4, default=0)
     emp_transport_warehousing = models.DecimalField(max_digits=14, decimal_places=4, default=0)
     emp_manufacturing = models.DecimalField(max_digits=14, decimal_places=4, default=0)
     emp_utilities = models.DecimalField(max_digits=14, decimal_places=4, default=0)
     emp_construction = models.DecimalField(max_digits=14, decimal_places=4, default=0)
 
-    emp_ag = models.DecimalField(max_digits=14, decimal_places=4, default=0)
     emp_agriculture = models.DecimalField(max_digits=14, decimal_places=4, default=0)
     emp_extraction = models.DecimalField(max_digits=14, decimal_places=4, default=0)
-
-    emp_military = models.DecimalField(max_digits=14, decimal_places=4, default=0)
-
-
 
     class Meta(object):
         abstract = True

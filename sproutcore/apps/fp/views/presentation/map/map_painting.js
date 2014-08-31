@@ -25,7 +25,7 @@ Footprint.MapPainting = {
         this.resetCurrentSelectionTool();
         // Pop the compass back to the top of the stack.
         var map = Footprint.mapController.get('content'),
-            compass = po.compass(map);
+            compass = Footprint.mapController.get('compass');
         if (!map) throw new Error("HOW DID I GET HERE WITH NO MAP OH GOD");
         map.remove(compass);
         map.add(compass);

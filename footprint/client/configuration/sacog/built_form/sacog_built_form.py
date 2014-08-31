@@ -1,6 +1,6 @@
 # UrbanFootprint-California (v1.0), Land Use Scenario Development and Modeling System.
 #
-# Copyright (C) 2013 Calthorpe Associates
+# Copyright (C) 2014 Calthorpe Associates
 #
 # This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, version 3 of the License.
 #
@@ -9,7 +9,7 @@
 # You should have received a copy of the GNU General Public License along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 # Contact: Joe DiStefano (joed@calthorpe.com), Calthorpe Associates. Firm contact: 2095 Rose Street Suite 201, Berkeley CA 94709. Phone: (510) 548-6800. Web: www.calthorpe.com
-from django.core.management import call_command
+from django.contrib.auth.models import User
 from django.template.defaultfilters import slugify
 
 from footprint.client.configuration.fixture import BuiltFormFixture, LandUseSymbologyFixture
@@ -17,7 +17,10 @@ from footprint.client.configuration.sacog.built_form.sacog_land_use_definition i
 from footprint.client.configuration.sacog.built_form.sacog_land_use import SacogLandUse
 from footprint.client.configuration.utils import resolve_fixture
 from footprint.main.lib.functions import merge
-from footprint.main.models import PlacetypeComponent, PrimaryComponent, Placetype, Region
+from footprint.main.models import Region
+from footprint.main.models.built_form.urban.building_type import BuildingType
+from footprint.main.models.built_form.urban.urban_placetype import UrbanPlacetype
+from footprint.main.models.built_form.agriculture.crop_type import CropType
 from footprint.main.models.built_form.built_form import update_or_create_built_form_medium
 
 from footprint.local_settings import CLIENT
@@ -37,8 +40,11 @@ class SacogBuiltFormFixture(BuiltFormFixture):
 
             return map(
                 lambda land_use_definition: SacogLandUse.objects.update_or_create(
-                    key='sac_lu__' + slugify(land_use_definition.land_use).replace('-', ','),
+                    key='sac_lu__' + slugify(land_use_definition.land_use).replace('-', '_'),
                     defaults=dict(
+                        creator=User.objects.all()[0],
+                        updater=User.objects.all()[0],
+
                         name=land_use_definition.land_use,
                         land_use_definition=land_use_definition,
                         medium=update_or_create_built_form_medium(
@@ -66,28 +72,40 @@ class SacogBuiltFormFixture(BuiltFormFixture):
 
     def built_form_sets(self):
         return self.parent_fixture.built_form_sets() + self.matching_scope([
+            # dict(
+            #     scope=Region,
+            #     key='sacog_buildings',
+            #     name='SACOG Buildings',
+            #     description='Built Forms for SACOG',
+            #     attribute='building_attribute_set',
+            #     client='sacog',
+            #     clazz=Building,
+            # ),
             dict(
                 scope=Region,
-                key='sacog_buildings',
-                name='SACOG Buildings',
-                description='Built Forms for SACOG',
-                client='sacog',
-                clazz=PrimaryComponent,
-            ),
-            dict(
-                scope=Region,
-                key='sacog_buildingtypes',
+                key='sacog_building_type',
+                attribute='building_attribute_set',
                 name='SACOG Buildingtypes',
                 description='Built Forms for SACOG',
                 client='sacog',
-                clazz=PlacetypeComponent,
+                clazz=BuildingType,
             ),
             dict(
                 scope=Region,
-                key='sacog_placetypes',
+                key='sacog_urban_placetype',
                 name='SACOG Placetypes',
+                attribute='building_attribute_set',
                 description='Built Forms for SACOG',
                 client='sacog',
-                clazz=Placetype,
+                clazz=UrbanPlacetype,
+            ),
+            dict(
+                scope=Region,
+                key='sacog_rucs',
+                name='RUCS Types',
+                attribute='agriculture_attribute_set',
+                description='SACOG RUCS types',
+                client=False,
+                clazz=CropType,
             ),
         ], class_scope=self.config_entity and self.config_entity.__class__)

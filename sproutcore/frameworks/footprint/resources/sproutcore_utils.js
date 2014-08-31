@@ -12,6 +12,22 @@
  * Contact: Joe DiStefano (joed@calthorpe.com), Calthorpe Associates. Firm contact: 2095 Rose Street Suite 201, Berkeley CA 94709. Phone: (510) 548-6800. Web: www.calthorpe.com
  */
 
+/***
+ * Creates an alias to the property name held in the given property
+ * the given property must have a constant value
+ * @param property. For example 'property_field' which is the
+ * name of the property that has a constant value of the alias
+ * @returns {Function}
+ */
+function aliasProperty(property) {
+    return function (propKey, value) {
+        if (value) {
+            this.set(property, value)
+        }
+        return this.get(property)
+    }.property(property).cacheable();
+}
+
 function remove_keys_matching_object(obj, other_obj) {
     var keys = $.map(other_obj, function(v,k) {return k;});
     return remove_keys(obj, keys);
@@ -24,18 +40,32 @@ function remove_keys(obj, keys) {
     });
     return results;
 }
-function filter_keys(obj, keys) {
-    if (obj.kindOf)
+/***
+ * Convert obj to a new object with only the given keys
+ * If obj is a sproutcore object the result will be an SC.Object.
+ * Otherwise it will be a plain old js object. Use the optional
+ * resultType to force it one way of the other
+ * @param obj: object or SC.Object
+ * @param keys: keys to filter down to
+ * @param resultType: Optionally set to 'object' or SC.Object class to force the result type
+ * @returns {*}
+ */
+function filter_keys(obj, keys, resultType) {
+    if (obj.kindOf && (!resultType || resultType==SC.Object))
         return mapToSCObject(keys, function(key) {
             return obj.get(key) != undefined ? [key, obj.get(key)] : null;
         });
-    else {
-        var results = {}
-        $.each(obj, function(k,v) {
-            if (keys.contains(k))
-                results[k] = v;
+    else if (!resultType || resultType=='object') {
+        var results = {};
+        keys.forEach(function(key) {
+            if (typeof obj[key] != 'undefined') {
+                results[key] = obj[key];
+            }
         });
         return results;
+    }
+    else {
+        throw Error("Invalid value for resultType. Must be null, SC.Object, or 'object");
     }
 }
 
@@ -494,3 +524,22 @@ function mapProperties(content, keys) {
         });
     });
 }
+
+function mapPropertyPath(content, propertyPath) {
+    if (!propertyPath || propertyPath == '')
+        return content;
+    var segments = propertyPath.split('.');
+    return mapPropertyPath((content || []).mapProperty(segments[0]), segments.slice(1).join('.'));
+}
+
+/***
+ * Returns the value if not equal to null or undefined, otherwise return the default value
+ * @param value
+ */
+function passThroughNeitherNullNorUndefined(value, defaultValue) {
+    return value==null || typeof(value) == 'undefined' ? defaultValue : value
+}
+function neitherNullNorUndefined(value) {
+    return value !=null && typeof(value) != 'undefined';
+}
+

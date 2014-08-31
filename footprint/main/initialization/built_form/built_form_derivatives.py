@@ -1,27 +1,44 @@
 from footprint.main.lib.functions import map_to_dict
-from footprint.main.models.built_form.building_use_definition import BuildingUseDefinition
+from footprint.main.models.built_form.urban.building_use_definition import BuildingUseDefinition
 from footprint.main.models.keys.keys import Keys
 
 __author__ = 'calthorpe_associates'
 
 
 class BuiltFormDerivatives(object):
-    def construct_primary_component_percents(self, placetype_components, primary_components, client):
+    def construct_primary_component_percents(self, placetype_components, primary_component_percents, client):
         """
         :return: BuildingPercent objects (UrbanFootprint v0.1 Built Form default set)
         """
-        primary_components = []
-        import_primary_components = self.load_buildings_csv(client)
-        for import_primary_component in import_primary_components:
-            primary_component = dict(
-                primary_component_name=import_primary_component.name,
-                primary_component=import_primary_component,
-                placetype_component_name=import_primary_component.placetype_component,
-                placetype_component=placetype_components[import_primary_component.placetype_component],
-                percent=import_primary_component.percent_of_placetype_component
+        primary_component_percents = []
+
+        for import_building in self.load_buildings_csv(client):
+            primary_component_percent = dict(
+                type='building_type',
+                primary_component_name=import_building.name,
+                primary_component=import_building,
+                placetype_component_name=import_building.placetype_component,
+                placetype_component=placetype_components[import_building.placetype_component],
+                percent=import_building.percent_of_placetype_component
             )
-            primary_components.append(primary_component)
-        return primary_components
+            primary_component_percents.append(primary_component_percent)
+
+        for import_croptype, crops in self.load_croptypes(client).items():
+
+            for crop, percent in crops.items():
+                primary_component_percent = dict(
+                    type='crop_type',
+                    primary_component_name=crop,
+                    primary_component=crop,
+                    placetype_component_name=import_croptype,
+                    placetype_component=dict(
+                        color='', component_category=Keys.BUILDINGTYPE_AGRICULTURAL, name=import_croptype
+                    ),
+                    percent=percent
+                )
+                primary_component_percents.append(primary_component_percent)
+
+        return primary_component_percents
 
     def construct_building_use_percents(self, primary_components, client):
         """
@@ -34,32 +51,26 @@ class BuiltFormDerivatives(object):
             uses the building_use_category to populate the sub-categories of building uses with
             efficiency, square_feet_per_unit, and vacancy_rate
             """
-            if building_use == 'Armed Forces':
-                return None
+
             import_use_field = building_use.lower().replace(' ', '_')
             import_use_category_field = building_use_category.lower().replace(' ', '_')
             use_percent = getattr(import_primary_component, 'percent_{0}'.format(import_use_field))
             if use_percent > 0:
 
-                vacancy_rate = getattr(import_primary_component, 'vacancy_rate', 0)
                 efficiency = getattr(import_primary_component, '{0}_efficiency'.format(import_use_category_field), .85)
                 square_feet_per_unit = getattr(import_primary_component,
                                                '{0}_square_feet_per_unit'.format(import_use_category_field), 10000)
 
                 building_uses = dict(
-                    vacancy_rate=vacancy_rate,
                     building_use_definition=BuildingUseDefinition.objects.get_or_create(name=building_use)[0],
                     percent=use_percent,
                     efficiency=efficiency,
                     square_feet_per_unit=square_feet_per_unit,
                 )
 
-                if import_primary_component.household_size > 0:
-                    building_uses['household_size'] = import_primary_component.household_size
-
                 building_use_percent = dict(
                     built_form_dict=primary_component,
-                    built_form_name=primary_component['building_attributes']['name'],
+                    built_form_name=primary_component['building_attribute_set']['name'],
                     built_form_uses=building_uses
                 )
 
@@ -90,7 +101,7 @@ class BuiltFormDerivatives(object):
         placetype_component_dict = dict()
 
         for name, placetype in placetype_dict.items():
-            placetype_name = placetype['building_attributes']['name'].strip()
+            placetype_name = placetype['building_attribute_set']['name'].strip()
 
             for input_placetype_component in import_placetype_components:
 

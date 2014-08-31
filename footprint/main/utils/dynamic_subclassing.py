@@ -1,6 +1,6 @@
 # UrbanFootprint-California (v1.0), Land Use Scenario Development and Modeling System.
 #
-# Copyright (C) 2013 Calthorpe Associates
+# Copyright (C) 2014 Calthorpe Associates
 #
 # This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, version 3 of the License.
 #
@@ -26,7 +26,7 @@ from footprint.main.utils.utils import parse_schema_and_table, resolve_model, re
 
 logger = logging.getLogger(__name__)
 
-def dynamic_model_class(abstract_class, schema, table, class_name=None, class_attrs={}, fields={}, scope=None, related_class_lookup={}):
+def dynamic_model_class(abstract_class, schema, table, class_name=None, class_attrs={}, fields={}, scope=None, related_class_lookup={}, is_managed=True, cacheable=True):
     """
     :param abstract_class: The abstract class to subclass. This doesn't actually have to be abstract and could simply be object
     :param schema: The schema of the table.
@@ -36,6 +36,7 @@ def dynamic_model_class(abstract_class, schema, table, class_name=None, class_at
     :param fields: Model fields to add to the subclass, such as ForeignKey, ManyToMany, etc
     :param scope: Optional. A model instance which represents the scope of this subclass. The id is used to form the class name
     :param related_class_lookup: used in conjunction with class_attrs with the form attr__id. For instance, if a class_attr config_entity__id
+    :param is_managed: default True, set False to create an unmanaged Django class
     with value 56 is specified, related_class_lookup will be dict(config_entity='footprint.main.models.config.ConfigEntity') to
     specify what model class resolved the related id. The class then gets a getter property that returns the resolved version of the id.
     This is all to prevent storing the instance as a class attr, which is expensive to pickle elsewhere in the system.
@@ -45,7 +46,7 @@ def dynamic_model_class(abstract_class, schema, table, class_name=None, class_at
 
     computed_name = class_name or get_dynamic_model_class_name(abstract_class, scope.id if isinstance(scope, models.Model) else scope or '')
     # Return the model class if already created
-    resolved_model = resolve_model('main.%s' % computed_name)
+    resolved_model = resolve_model('main.%s' % computed_name) if cacheable else None
     if resolved_model:
         #logger.debug('Found model class {0}'.format(computed_name)
         return resolved_model
@@ -59,7 +60,7 @@ def dynamic_model_class(abstract_class, schema, table, class_name=None, class_at
        def __get__(self, cls, owner):
            return self.fget.__get__(None, owner)()
 
-    class FootprintMetaclass(abstract_class.__metaclass__):
+    class FootprintMetaclass(type(abstract_class)):
         """Create a metaclass that overrides the name of the class it creates based on the given table name"""
         def __new__(cls, name, bases, attrs):
 
@@ -105,6 +106,7 @@ def dynamic_model_class(abstract_class, schema, table, class_name=None, class_at
             # Set the table name
             db_table = '"{0}"."{1}"'.format(schema, table)
             app_label = 'main'
+            managed = is_managed
 
     return GenericModelClass
 
@@ -118,14 +120,16 @@ def get_dynamic_resource_class(super_class, model_class, fields={}, meta_fields=
     :return:
     """
     class_name = get_dynamic_resource_class_name(super_class, model_class)
-    try:
-        # Return the class if it was already created
-        modname = globals()['__name__']
-        existing_class = resolve_module_attr('%s.%s' % (modname, class_name))
-        if existing_class:
-            return existing_class
-    except:
-        pass
+    if not meta_fields.get('queryset'):
+        # Find the matching resource in the cache if there are no meta_fields that would mutate it
+        try:
+            # Return the class if it was already created
+            modname = globals()['__name__']
+            existing_class = resolve_module_attr('%s.%s' % (modname, class_name))
+            if existing_class:
+                return existing_class
+        except:
+            pass
 
     return ModelDeclarativeMetaclass(
         class_name,
@@ -140,11 +144,14 @@ def get_dynamic_resource_class(super_class, model_class, fields={}, meta_fields=
                         dict(
                             queryset=model_class.objects.all(),
                             abstract=False),
-                        meta_fields)
+                        meta_fields or {})
                 )
             )
         )
     )
+
+def dynamic_model_table_exists(model_class):
+    return InformationSchema.objects.table_exists(*parse_schema_and_table(model_class._meta.db_table))
 
 # From http://dynamic-models.readthedocs.org/en/latest/topics/database-migration.html#topics-database-migration
 def create_tables_for_dynamic_classes(*model_classes):
@@ -155,7 +162,7 @@ def create_tables_for_dynamic_classes(*model_classes):
     """
 
     for model_class in model_classes:
-        if InformationSchema.objects.table_exists(*parse_schema_and_table(model_class._meta.db_table)):
+        if dynamic_model_table_exists(model_class):
             continue
 
         info = "Model class table {model_class} doesn't exist -- creating it \n"

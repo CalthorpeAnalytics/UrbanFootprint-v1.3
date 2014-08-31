@@ -6,6 +6,10 @@ class SandagInitFixture(InitFixture):
     def import_database(self):
         return dict(
             host='10.0.0.133',
-            database='urbanfootprint_dev',
-            user='footprint',
-            password='[PASSWORD]')
+            database='sandag_urbanfootprint',
+            user='calthorpe',
+            password='[ your password ]')
+    def users(self):
+        return  self.parent_fixture.users() + [
+            # add users here
+        ]

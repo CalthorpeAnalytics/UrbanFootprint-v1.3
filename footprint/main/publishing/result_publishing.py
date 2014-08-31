@@ -17,12 +17,8 @@
 # Phone: (510) 548-6800. Web: www.calthorpe.com
 # from memory_profiler import profile
 import logging
-from footprint.client.configuration.fixture import ResultConfigurationFixture
-from footprint.client.configuration.utils import resolve_fixture
 from footprint.main.lib.functions import map_to_dict
-from footprint.main.models.config.config_entity import ConfigEntity
 from footprint.main.models.config.db_entity_interest import DbEntityInterest
-
 from footprint.main.models.config.scenario import Scenario
 from footprint.main.models.presentation.result_library import ResultLibrary
 from footprint.main.models.presentation.result import Result
@@ -39,18 +35,13 @@ def on_config_entity_post_save_result(sender, **kwargs):
     """
     config_entity = kwargs['instance']
     logger.debug("\t\tHandler: on_config_entity_post_save_result. ConfigEntity: %s" % config_entity.name)
-    if ConfigEntity._heapy:
-        ConfigEntity.dump_heapy()
     update_or_create_result_libraries(config_entity)
 
-#@profile
 def on_db_entity_post_save_result(sender, **kwargs):
     db_entity_interest = kwargs['instance']
     config_entity = db_entity_interest.config_entity
     db_entity = db_entity_interest.db_entity
-    logger.debug("\t\tHandler: on_db_entity_post_save_layer. DbEntity: %s" % db_entity.full_name)
-    if ConfigEntity._heapy:
-        ConfigEntity.dump_heapy()
+    logger.debug("\t\tHandler: on_db_entity_post_save_result. DbEntity: %s" % db_entity.full_name)
     update_or_create_result_libraries(config_entity, db_entity_keys=[db_entity.key])
 
 def update_or_create_result_libraries(config_entity, **kwargs):
@@ -67,6 +58,9 @@ def update_or_create_result_libraries(config_entity, **kwargs):
         return
 
     db_entity_keys = kwargs.get('db_entity_keys', None)
+
+    from footprint.client.configuration.fixture import ResultConfigurationFixture
+    from footprint.client.configuration.utils import resolve_fixture
 
     client_result = resolve_fixture(
         "publishing",
@@ -104,9 +98,10 @@ def update_or_create_result_libraries(config_entity, **kwargs):
         db_entity = result_config.update_or_create_db_entity(config_entity)
         # Make the db_entity the default selected one for its key
         config_entity.select_db_entity_of_key(db_entity.key, db_entity)
+        previous = config_entity._no_post_save_publishing
         config_entity._no_post_save_publishing = True
         config_entity.save()
-        config_entity._no_post_save_publishing = False
+        config_entity._no_post_save_publishing = previous
 
 
         # Test the query

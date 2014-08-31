@@ -15,6 +15,8 @@ def localhost(skip_ssh=False):
     env.user = env.deploy_user = 'calthorpe'
     env.deploy_user = 'calthorpe'
     env.virtualenv_directory = '/srv/calthorpe_env'
-    env.password = '[PASSWORD]'
+    env.password = '[ your password ]'
     env.DATA_DUMP_PATH = CALTHORPE_DATA_DUMP_LOCATION
     env.dev = True
+
+# Add remote servers here

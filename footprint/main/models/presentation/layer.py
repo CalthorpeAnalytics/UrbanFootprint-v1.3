@@ -18,23 +18,21 @@
 # Phone: (510) 548-6800. Web: www.calthorpe.com
 from django.db import models
 from django.db.models.fields.related import ForeignKey
-
 from footprint.main.managers.geo_inheritance_manager import GeoInheritanceManager
+from footprint.main.mixins.cloneable import Cloneable
 from footprint.main.mixins.name import Name
 from footprint.main.models.presentation.presentation_medium import PresentationMedium
 from footprint.main.models.tag import Tag
 
 __author__ = 'calthorpe_associates'
 
-class Layer(PresentationMedium, Name):
+class Layer(PresentationMedium, Name, Cloneable):
 
     """
         Relational data configured for display as a map layer
     """
     objects = GeoInheritanceManager()
 
-    # Reference to the origin of this layer if it was cloned
-    origin_instance = ForeignKey('Layer', null=True)
     # Indicates along with the origin_intance that the Layer is created from the origin_instance's selection
     create_from_selection = models.BooleanField(default=False)
 
@@ -48,6 +46,10 @@ class Layer(PresentationMedium, Name):
                 Tag.objects.update_or_create(
                     tag=self.presentation.config_entity.db_entity_owner(self.db_entity_interest.db_entity).key)[0]
             ])
+
+    @property
+    def full_name(self):
+        return '{0} of {1}'.format(self.name, self.presentation.config_entity.name)
 
     class Meta(object):
         app_label = 'main'

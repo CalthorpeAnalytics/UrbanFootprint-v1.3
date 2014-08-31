@@ -16,8 +16,10 @@ sc_require('models/config_entity_selections_mixin');
 sc_require('models/geographic_bounds_mixin');
 sc_require('models/name_mixin');
 sc_require('models/key_mixin');
+sc_require('models/deletable_mixin');
 sc_require('models/categories_mixin');
 sc_require('models/backup_properties_mixin');
+sc_require('models/analysis_module_model');
 
 /***
  * Creates a special equality operator $ to evaluate if two records have the same id to get around the query
@@ -42,13 +44,12 @@ Footprint.ConfigEntity = Footprint.Record.extend(
     Footprint.GeographicBounds,
     Footprint.Name,
     Footprint.Key,
+    Footprint.Deletable,
     Footprint.Categories,
     Footprint.BackupProperties, {
 
-    isPolymorphic: YES,
-    deleted: SC.Record.attr(Boolean),
     parent_config_entity: SC.Record.toOne('Footprint.ConfigEntity', { isMaster: YES}),
-    origin_config_entity: SC.Record.toOne('Footprint.ConfigEntity', { isMaster: YES}),
+    origin_instance: SC.Record.toOne('Footprint.ConfigEntity', { isMaster: YES}),
     media: SC.Record.toMany('Footprint.Medium', { nested: NO}),
 
     presentations: SC.Record.toOne("Footprint.PresentationTypes", {
@@ -99,6 +100,11 @@ Footprint.ConfigEntity = Footprint.Record.extend(
             return 'New %@ %@'.fmt(name, random);
         }
     },
+    _initialAttributes: {
+        name: function (record, random) {
+            return 'New %@'.fmt(random);
+        }
+    },
 
     // Even a newly created ConfigEntity needs a parent
     _createSetup: function(sourceRecord) {
@@ -107,11 +113,11 @@ Footprint.ConfigEntity = Footprint.Record.extend(
     },
     // Set the origin config_entity
     _cloneSetup: function(sourceRecord) {
-        this.set('origin_config_entity', sourceRecord);
+        this.set('origin_instance', sourceRecord);
     },
 
     _nonTransferableProperties: function () {
-        return ['origin_config_entity'];
+        return ['origin_instance'];
     },
 
     _saveAfterProperties: function() {
@@ -155,16 +161,6 @@ Footprint.ConfigEntity = Footprint.Record.extend(
             logWarning("Scenario %@ became DIRTY!".fmt(this));
         }
     }.observes('.status')
-});
-
-Footprint.ConfigEntity.mixin({
-    // Strip out stuff that shouldn't be saved to the server
-    processDataHash: function(dataHash, record) {
-        dataHash = $.extend({}, dataHash);
-        if (dataHash.analysis_modules)
-            delete dataHash.analysis_modules;
-        return dataHash;
-    }
 });
 
 Footprint.GlobalConfig = Footprint.ConfigEntity.extend({

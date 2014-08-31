@@ -28,6 +28,7 @@ from footprint.main.models.config.model_pickled_object_field import ModelPickled
 
 __author__ = 'calthorpe_associates'
 
+
 class PolicyLookup(object):
     def policy_by_key(self, key_path):
         """
@@ -52,9 +53,16 @@ class PolicyLookup(object):
         # If found, recurse on the remaining keys
         return child_policies[0].policy_by_key('.'.join(keys[1:]))
 
+
 class Policy(SharedKey, Name, Tags, PolicyLookup):
     """
-        A Policy is a loosely defined data structure. That represents a policy of a policy set. Policies may be shared across sets. Their semantic meaning may be determined by their shared key and they may be categorized by their tags. A policy has a range of possible values, anything from True/False to a number range or anything else that can be selected and have meaning. The range is serialized by the values attribute. Classes that have PolicySet attributes, namely ConfigEntity instances, should store the actual selected value of each Policy in a separate data structure ConfigEntity instances store policy settings in ConfigEntity.selections.policy_sets. See that attribute to understand how policy value selections are stored.
+        A Policy is a loosely defined data structure. That represents a policy of a policy set. Policies may be shared
+        across sets. Their semantic meaning may be determined by their shared key and they may be categorized by their
+        tags. A policy has a range of possible values, anything from True/False to a number range or anything else that
+        can be selected and have meaning. The range is serialized by the values attribute. Classes that have PolicySet
+        attributes, namely ConfigEntity instances, should store the actual selected value of each Policy in a separate
+        data structure ConfigEntity instances store policy settings in ConfigEntity.selections.policy_sets. See that
+        attribute to understand how policy value selections are stored.
 
     """
     schema = models.CharField(max_length=100, null=True)
@@ -77,7 +85,6 @@ class Policy(SharedKey, Name, Tags, PolicyLookup):
             child_policy.policies.add(*map(lambda child_policy_config:
                                            child_policy.update_or_create_policy(child_policy_config), policy_config['policies']))
         return child_policy
-
 
     class Meta(object):
         app_label = 'main'

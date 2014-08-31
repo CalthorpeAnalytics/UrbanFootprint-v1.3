@@ -16,7 +16,6 @@
 # Contact: Joe DiStefano (joed@calthorpe.com), Calthorpe Associates.
 # Firm contact: 2095 Rose Street Suite 201, Berkeley CA 94709.
 # Phone: (510) 548-6800. Web: www.calthorpe.com
-from django.contrib.auth.models import User
 from django.db import models
 from footprint.main.managers.geo_inheritance_manager import GeoInheritanceManager
 from footprint.main.models.geospatial.feature import PaintingFeature
@@ -29,8 +28,8 @@ class FutureScenarioFeature(PaintingFeature):
         instances of subclasses of this class correspond to geography rows of the canvas table
     """
     objects = GeoInheritanceManager()
-    total_redev = models.BooleanField(default=False)
 
+    built_form_key = models.CharField(max_length=100, default=None, null=True)
     refill_flag = models.BooleanField(default=False)
     intersection_density_sqmi= models.DecimalField(max_digits=14, decimal_places=4, default=0)
     acres_gross = models.DecimalField(max_digits=14, decimal_places=4, default=0)
@@ -51,6 +50,7 @@ class FutureScenarioFeature(PaintingFeature):
     acres_parcel_mixed = models.DecimalField(max_digits=14, decimal_places=4, default=0)
     acres_parcel_mixed_w_off = models.DecimalField(max_digits=14, decimal_places=4, default=0)
     acres_parcel_mixed_no_off = models.DecimalField(max_digits=14, decimal_places=4, default=0)
+    acres_parcel_no_use = models.DecimalField(max_digits=14, decimal_places=4, default=0)
 
     pop = models.DecimalField(max_digits=14, decimal_places=4, default=0)
     hh = models.DecimalField(max_digits=14, decimal_places=4, default=0)
@@ -73,6 +73,8 @@ class FutureScenarioFeature(PaintingFeature):
     emp_off = models.DecimalField(max_digits=14, decimal_places=4, default=0)
     emp_office_services = models.DecimalField(max_digits=14, decimal_places=4, default=0)
     emp_education = models.DecimalField(max_digits=14, decimal_places=4, default=0)
+
+    emp_pub = models.DecimalField(max_digits=14, decimal_places=4, default=0)
     emp_public_admin = models.DecimalField(max_digits=14, decimal_places=4, default=0)
     emp_medical_services = models.DecimalField(max_digits=14, decimal_places=4, default=0)
 
@@ -103,17 +105,6 @@ class FutureScenarioFeature(PaintingFeature):
     bldg_sqft_transport_warehousing = models.DecimalField(max_digits=14, decimal_places=4, default=0)
     commercial_irrigated_sqft = models.DecimalField(max_digits=14, decimal_places=4, default=0)
     residential_irrigated_sqft = models.DecimalField(max_digits=14, decimal_places=4, default=0)
-
-    @classmethod
-    def post_save(cls, user_id):
-        #TODO invalidate cache after painting
-        from footprint.main.models.analysis_module.core_module.core import Core
-        core = Core.objects.get(config_entity=cls.config_entity)
-        # Update the core user to the current user
-        if not core.user or core.user.id != user_id:
-            core.user = User.objects.get(id=user_id)
-            core.save()
-        core.start()
 
     class Meta(object):
         app_label = 'main'

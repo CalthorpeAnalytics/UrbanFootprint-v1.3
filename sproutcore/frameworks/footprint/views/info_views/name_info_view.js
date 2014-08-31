@@ -22,6 +22,7 @@ Footprint.NameInfoView = Footprint.InfoView.extend({
 
     title:'Name',
     contentView: Footprint.EditableModelStringView.extend({
+        classNames: ['footprint-editable-content-view'],
         layout: {left: .2, width: .8},
         valueBinding: parentViewPath(1, '.value'),
         isEditableBinding:SC.Binding.oneWay('.parentView.isEditable')

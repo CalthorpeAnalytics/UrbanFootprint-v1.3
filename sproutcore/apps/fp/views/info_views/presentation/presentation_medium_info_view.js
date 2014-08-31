@@ -14,7 +14,7 @@
  */
 
 sc_require('views/info_views/geography_info_view');
-sc_require('views/info_views/tags_info_view');
+sc_require('views/info_views/editable_tags_view');
 sc_require('views/info_views/medium_info_view');
 sc_require('views/info_views/query_info_view');
 sc_require('views/info_views/key_info_view');

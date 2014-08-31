@@ -1,6 +1,6 @@
 # UrbanFootprint-California (v1.0), Land Use Scenario Development and Modeling System.
 #
-# Copyright (C) 2013 Calthorpe Associates
+# Copyright (C) 2014 Calthorpe Associates
 #
 # This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, version 3 of the License.
 #
@@ -13,11 +13,7 @@ import inspect
 from django.utils import importlib
 import sys
 from footprint import settings
-
-
-def form_module_name(module, module_fragment, schema):
-    return '%s.%s.%s_%s' % (schema, module, schema, module_fragment) if module else \
-        '%s.%s_%s' % (schema, schema, module_fragment)
+from footprint.main.models.model_utils import form_module_name
 
 
 def resolve_client_module(module, module_fragment, schema=settings.CLIENT):

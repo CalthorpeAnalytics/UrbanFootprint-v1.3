@@ -8,11 +8,12 @@ from jsonify.templatetags.jsonify import jsonify
 from picklefield import PickledObjectField
 from footprint.main.lib.functions import flat_map, any_true, map_to_dict, dual_map_to_dict, map_dict, map_dict_value
 from footprint.main.managers.geo_inheritance_manager import GeoInheritanceManager
-from footprint.main.models.presentation.layer import Layer
+from footprint.main.models.geospatial.feature_class_creator import FeatureClassCreator
 from footprint.main.models.presentation.medium import Medium
-from footprint.main.utils.query_parsing import parse_query
+from footprint.main.models.presentation.layer import Layer
 from footprint.main.models.database.information_schema import InformationSchema
-from footprint.main.utils.dynamic_subclassing import dynamic_model_class, create_tables_for_dynamic_classes, drop_tables_for_dynamic_classes
+from footprint.main.utils.dynamic_subclassing import create_tables_for_dynamic_classes, drop_tables_for_dynamic_classes, dynamic_model_class
+from footprint.main.utils.query_parsing import parse_query, model_field_paths, related_field_paths
 from footprint.main.utils.utils import parse_schema_and_table, clear_many_cache_on_instance_field, normalize_null, get_property_path
 
 __author__ = 'calthorpe_associates'
@@ -28,12 +29,14 @@ class LayerSelection(models.Model):
         in this model instead features are simply cached in a pickedobjectfield.
     """
     objects = GeoInheritanceManager()
+    class Meta(object):
+        app_label = 'main'
+        # LayerSelection is subclassed dynamically per-Layer and are stored in the Layer's ConfigEntity's schema.
+        # They are per Layer because the feature toMany must be created dynamically to be specific to the Feature subclass
+        abstract = True
 
     # The user to whom the selection belongs
     user = models.ForeignKey(User)
-
-    # The layer which this LayerSelection represents
-    #layer = models.ForeignKey(Layer)
 
     # The geometry of the selection. If accumulating selections we can just add polygons together.
     geometry = models.GeometryField(null=True, default=DEFAULT_GEOMETRY)
@@ -52,7 +55,7 @@ class LayerSelection(models.Model):
     # to correctly create a ManyToMany dynamic field of a dynamic Feature subclass. The declaration works fine,
     # but resolving field names tends to run into problems with the name_map cache that Django uses to track field
     # relationships.
-    # This class is created dynamically in the dynamic class creation below
+    # This field is created dynamically in the dynamic class creation below
     #features=models.ManyToManyField(feature_class, through=dynamic_through_class, related_name=table_name)
 
     # The ordered list of field names matching the results
@@ -80,22 +83,53 @@ class LayerSelection(models.Model):
         else:
             return '_'.join(parts)
 
-    def update_features(self, query_result):
+    def update_features(self, query_set):
         """
-            Updates the features property ManyToMany with the features of the given QuerySet or results list
-        :param query_result:
+            Updates the features property ManyToMany with the features returned by self.create_query_set, whose
+            QuerySet is based upon the current values of the LayerSelection instance
+            :param query_set: The query_set from create_query_set or similar
         :return:
         """
         self.clear_features()
+        if not query_set:
+            # If none keep features clear and return
+            return
+        # Update the features based on the new query_set
         for layer_selection_feature in map(
             # Create the through class instance. In the future this will hold other info about the selection,
             # Such as the current state of variou attributes to allow undo/redo, etc
             lambda feature: self.features.through(
                     feature=feature,
                     layer_selection=self
-            ), query_result.all()):
+            ), query_set.all()):
             layer_selection_feature.save()
 
+    def resolve_related_models(self):
+        """
+            The array of relevant related_models based on self.joins, which contains 0 or more db_entity_keys
+        """
+        return map(lambda join: self.config_entity.db_entity_feature_class(join), self.joins or [])
+
+    def values_query_set(self, query_set=None):
+        """
+            Returns a ValuesQuerySet based on the query_set and the related_models.
+            The given query_set returns Feature class instances. We want the dictionaries with the related models
+            joined in
+            :param query_set. Optional instance QuerySet to use as the basis for producing the ValueQuerySet.
+            If omitted then create_query_set is used to generate it
+        """
+
+        feature_class = self.feature_class()
+        query_set = query_set or self.create_query_set(feature_class.objects)
+
+        # Combine the fields of the related models
+        related_models = self.resolve_related_models()
+        all_field_paths = model_field_paths(feature_class, fields=feature_class.limited_api_fields()) + flat_map(
+            lambda related_model: related_field_paths(feature_class.objects, related_model, fields=related_model.limited_api_fields()),
+            related_models)
+        # Create a feature class to represent
+        # Convert the queryset to values with all main and related field paths
+        return query_set.values(*all_field_paths)
 
     def clear_features(self):
         self.features.through.objects.all().delete()
@@ -167,7 +201,7 @@ class LayerSelection(models.Model):
     @property
     def selected_features(self):
         """
-            A parsed query from a tokenized python dict.
+            Returns all Feature instances in self.features
         :return:
         """
 
@@ -177,6 +211,20 @@ class LayerSelection(models.Model):
             # Fix a terrible Django manyToMany cache initialization bug by clearing the model caches
             clear_many_cache_on_instance_field(self.features)
             return self.features.all()
+
+    @property
+    def selected_features_or_values(self):
+        """
+            Returns either the instance-based query_set--selected_features or the values-based on--values_query_set.
+            The latter is returned if self.joins has items, meaning joins are required and we can't return the instances
+        """
+        return self.values_query_set() if self.joins and len(self.joins) > 0 else self.selected_features
+
+    def create_join_feature_class(self):
+        """
+            Make an unmanage Django model based on the joined fields
+        """
+        return FeatureClassCreator(self.config_entity, self.layer.db_entity_interest.db_entity).dynamic_join_model_class(self.resolve_related_models())
 
     @property
     def selection_extent(self):
@@ -207,9 +255,9 @@ class LayerSelection(models.Model):
         :return:
         """
         config_entity = self.__class__.config_entity
-        return config_entity.feature_class_of_db_entity_key(self.layer.db_entity_key)
+        return config_entity.db_entity_feature_class(self.layer.db_entity_key)
 
-    def create_query_set(self, query_set, previous_attributes={}):
+    def create_query_set(self, query_set):
         # Filter by bounds if present
         bounded_query_set = self.feature_class().objects.filter(wkb_geometry__intersects=self.geometry) \
             if self.geometry != DEFAULT_GEOMETRY else query_set
@@ -244,9 +292,13 @@ class LayerSelection(models.Model):
                             normalize_null(get_property_path(property_dict, property)),
                         properties)
 
-    class Meta(object):
-        app_label = 'main'
-        abstract = True
+    @classmethod
+    def post_save(self, user_id, objects, **kwargs):
+        """
+            This is called after a resource saves a layer_selection. We have no use for it at the moment
+        """
+        pass
+
 
 class LayerSelectionFeature(models.Model):
     objects = GeoInheritanceManager()
@@ -275,7 +327,7 @@ def get_or_create_dynamic_layer_selection_class_and_table(layer, no_table_creati
     config_entity = layer.presentation.subclassed_config_entity
     dynamic_class_name = 'LayerSelection{0}'.format(layer.id)
     try:
-        feature_class = config_entity.feature_class_of_db_entity_key(layer.db_entity_key)
+        feature_class = config_entity.db_entity_feature_class(layer.db_entity_key)
     except Exception:
         # For non feature db_entities, like google maps
         return None

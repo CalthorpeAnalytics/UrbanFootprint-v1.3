@@ -16,6 +16,8 @@
 sc_require('views/info_views/config_entity/editable_clone_field_view');
 sc_require('views/info_views/edit_records_select_view');
 sc_require('views/cancel_button_view');
+sc_require('views/save_overlay_view');
+sc_require('views/info_views/info_pane_crud_buttons_view');
 
 /***
  * The pane used to edit the settings of a new or existing PresentationMedium and the DbEntity to which it is associated (if any). The saving order of this will have to first save a created DbEntity and then the PresentationMedium if a DbEntity is being created here
@@ -27,16 +29,21 @@ Footprint.ScenarioInfoPane = SC.PanelPane.extend({
 
     recordType:Footprint.Scenario,
 
+    // Tells the pane elements that a save is underway, which disables user actions
+    isSaving: null,
+    isSavingBinding: SC.Binding.oneWay('Footprint.scenariosEditController.isSaving'),
+
     content: null,
-    contentBinding: SC.Binding.oneWay('Footprint.scenariosEditController.content'),
+    contentBinding: SC.Binding.oneWay('Footprint.scenariosEditController.arrangedObjects'),
     selection: null,
     selectionBinding: SC.Binding.from('Footprint.scenariosEditController.selection'),
 
     contentView: SC.View.extend({
         classNames:'footprint-info-content-view'.w(),
-        childViews:['titleView', 'scenarioSelectView', 'editableContentView', 'overlayView', 'scenarioButtonViews'],
+        childViews:['titleView', 'scenarioSelectView', 'editableContentView', 'infoPaneButtonsView', 'overlayView'],
         content: null,
         contentBinding: SC.Binding.oneWay('.parentView.content'),
+
         selection: null,
         selectionBinding: SC.Binding.from('.parentView.selection'),
 
@@ -48,15 +55,14 @@ Footprint.ScenarioInfoPane = SC.PanelPane.extend({
 
         scenarioSelectView: Footprint.EditRecordsSelectView.extend({
             contentBinding: SC.Binding.oneWay('.parentView.content'),
-            selectionBinding: SC.Binding.from('.parentView.selection')
+            selectionBinding: SC.Binding.from('.parentView.selection'),
+            deletableNameProperty: 'isDeletable'
         }),
 
-        overlayView: Footprint.OverlayView.extend({
-            layout: { top: 30, left: 245, bottom: 40, right: 20 },
-            testItems: YES,
-            contentBinding: SC.Binding.from('.parentView.content'),
-            statusBinding:SC.Binding.oneWay('*content.status')
+        overlayView: Footprint.SaveOverlayView.extend({
+            isVisibleBinding: SC.Binding.oneWay('.pane.isSaving')
         }),
+
         editableContentView: SC.View.extend({
             layout: { top: 30, left: 245, bottom: 40, right: 20 },
             classNames:'footprint-scenario-info-editable-content-view'.w(),
@@ -84,25 +90,13 @@ Footprint.ScenarioInfoPane = SC.PanelPane.extend({
             })
         }),
 
-        scenarioButtonViews: SC.View.extend({
+        infoPaneButtonsView: Footprint.InfoPaneCrudButtonsView.extend({
             layout: { bottom: 0, height: 30, left: 245, right: 20 },
-            childViews:['cancelButtonView', 'saveButtonView'],
-            content: null,
+            recordTypeName: 'Scenario',
             contentBinding: SC.Binding.oneWay('.parentView.content'),
-            // Disable buttons unless all items are READY
-            isEnabledBinding: SC.Binding.oneWay('.content').allMatchStatus(SC.Record.READY),
-
-            cancelButtonView: Footprint.CancelButtonView.extend({
-                layout: { bottom: 5, right: 130, height: 24, width: 80 },
-                calculatedStatusBinding: SC.Binding.oneWay('Footprint.scenariosEditController.calculatedStatus'),
-            }),
-            saveButtonView: SC.ButtonView.design({
-                layout: { bottom: 5, right: 0, height: 24, width: 120 },
-                content: null,
-                contentBinding: SC.Binding.oneWay('.parentView.content'),
-                title: 'Save All Changes',
-                action: 'doSave'
-            })
+            createButtonLayout: {bottom: 5, left: 0, height:24, width:120},
+            closeButtonLayout: { bottom: 5, right: 130, height: 24, width: 80 },
+            saveButtonLayout: { bottom: 5, right: 0, height: 24, width: 120 }
         })
     })
 });

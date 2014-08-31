@@ -2,7 +2,6 @@ import logging
 import os
 import shlex
 import shutil
-import subprocess
 import traceback
 
 from django.http import HttpResponse, HttpResponseNotFound, HttpResponseForbidden

@@ -11,4 +11,4 @@ class TestScagFootprintInit(TestClientFootprintInit):
         super(TestScagFootprintInit, self).test_init()
         #raise Exception(settings.CLIENT)
         call_command('footprint_init')
-        assert(Scenario.objects.all()[0].feature_class_of_db_entity_key(Keys.DB_ABSTRACT_PRIMARY_PARCEL_SOURCE).objects.count() > 0)
+        assert(Scenario.objects.all()[0].db_entity_feature_class(Keys.DB_ABSTRACT_PRIMARY_PARCEL_SOURCE).objects.count() > 0)

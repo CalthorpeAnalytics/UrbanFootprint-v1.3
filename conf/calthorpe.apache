@@ -1,0 +1,31 @@
+WSGIPythonHome /srv/calthorpe_env/
+
+#ExpiresActive on
+#ExpiresDefault "access plus 1 year"
+<VirtualHost *:80>
+	#ServerAdmin evan@calthorpe.com
+	ServerName 10.0.0.67
+	#ServerAlias www.footprint.calthorpe.com
+	WSGIPassAuthorization On
+
+	WSGIScriptAlias / /srv/calthorpe/urbanfootprint/calthorpe/server/conf/calthorpe.wsgi
+	Alias /media /srv/calthorpe_media
+	Alias /static /srv/calthorpe_static
+	Alias /urbanfootprint /srv/calthorpe_static/sc/build/static/footprint/en/test
+
+        #Alias /favicon.ico /srv/modewalk_static/images/favicon.ico
+
+	<Directory /srv/calthorpe/urbanfootprint >
+		Order allow,deny
+		Allow from all
+	</Directory>
+
+	ErrorLog /var/log/apache2/calthorpe.log
+
+	# Possible values include: debug, info, notice, warn, error, crit,
+	# alert, emerg.
+	LogLevel warn
+
+	CustomLog /var/log/apache2/calthorpe_access.log combined
+
+</VirtualHost>

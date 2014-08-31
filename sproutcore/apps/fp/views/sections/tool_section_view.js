@@ -11,232 +11,123 @@
  * Contact: Joe DiStefano (joed@calthorpe.com), Calthorpe Associates. Firm contact: 2095 Rose Street Suite 201, Berkeley CA 94709. Phone: (510) 548-6800. Web: www.calthorpe.com
  */
 
-Footprint.ToolSelectionStandardItems = ['Navigate', 'Box', 'Polygon', 'Identify', 'Query'];
+sc_require('views/tool_segmented_button_view');
+
+
 Footprint.ToolSectionView = SC.View.extend({
     classNames: "footprint-tool-section-view".w(),
-    childViews: 'toolbarView navigateAndSelectButtonView featurerBarView'.w(),
-
+    childViews: ['searchView', 'analysisProgressOverlayView', 'builtFormButtonView', 'selectStatusView', 'paintAndSelectButtonView'],
     /***
      * The delegate for the active configEntity, used to override settings
      */
     configEntityDelegate: null,
-
-    isEnabledBinding: SC.Binding.oneWay('Footprint.layerActiveController.status').matchesStatus(SC.Record.READY_CLEAN),
-
     /***
      * Bind this to the active layer in the layer library.
      * The active layer determines what tools are available
      */
+
     activeLayer: null,
     activeLayerBinding: SC.Binding.oneWay('Footprint.layerActiveController.content'),
     activeLayerStatus: null,
     activeLayerStatusBinding: SC.Binding.oneWay('Footprint.layerActiveController*content.status'),
 
-    /***
-     * Configuration of what tools should be available to each layer according to their db_entity_key
-     * TODO moved to a separate configuration that has client specific stuff.
-     */
-    layerLookup: SC.Object.create({
-        'future_scenario_feature': {
-            subtitle: 'Scenario Painting',
-            isEnabledItems:  Footprint.ToolSelectionStandardItems.concat(['Apply', 'Clear'])
+    selectStatusView: Footprint.OverlayView.extend({
+        layout: {left: 0, width:25, top:1, height: 26},
+        // The overlay is visible if either feature of layerSelection status is BUSY
+        featuresStatus:null,
+        featuresStatusBinding: SC.Binding.oneWay('Footprint.featuresActiveController.status'),
+        layerSelectionStatus: null,
+        layerSelectionStatusBinding: SC.Binding.oneWay('Footprint.layerSelectionEditController.status'),
+        status: function() {
+            return Math.max(this.get('featuresStatus'), this.get('layerSelectionStatus'));
+        }.property('featuresStatus', 'layerSelectionStatus').cacheable()
+    }),
+
+        // Shows post-save progress. The other overlay view is for saving
+    analysisProgressOverlayView: Footprint.ProgressOverlayForNestedStoreView.extend({
+        layout: {height: 16, top: 4, right: 5, width: 274},
+        nestedStoreContentBinding: SC.Binding.oneWay('Footprint.analysisModulesEditController*selection.firstObject')
+    }),
+
+    searchView: SC.TextFieldView.extend({
+        classNames: 'footprint-map-search-view'.w(),
+        layout: {left:28, width:200, top: 1, height:24},
+
+        // This example adds a search box to a map, using the
+        // Google Places autocomplete feature. People can enter geographical searches.
+        // The search box will return a pick list containing
+        // a mix of places and predicted search terms.
+        // render: function(context) {
+        //     var context = context.begin();
+        //     context.push('<input id="target" type="text" placeholder="Search Box">');
+        //     context.end();
+        // },
+
+        // update: function() {
+        // },
+
+        didCreateLayer: function() {
+
+            // Create the search box and link it to the UI element.
+            var $input = this.$input(),
+                input = $input[0];
+
+            $input.attr('placeholder', 'Search Map');
+
+            try {
+                var searchBox = new google.maps.places.SearchBox(input);
+                var self = this.get('parentView');
+                // Listen for the event fired when the user selects an item from the
+                // pick list. Retrieve the matching places for that item.
+                google.maps.event.addListener(searchBox, 'places_changed', function() {
+                    var places = searchBox.getPlaces();
+
+                    var place = places[0];
+                    if (place) {
+                        map = Footprint.mapController.get('content');
+                        if (map)
+                            map.center({lat:place.geometry.location.lat(), lon:place.geometry.location.lng()});
+                    }
+                });
+            }
+            catch(e) {
+                logWarning("Google Search Box failed to load");
+            }
+
+            // Bias the SearchBox results towards places that are within the bounds of the
+            // current map's viewport.
+            // TODO need map integration first
+            /*
+            google.maps.event.addListener(map, 'bounds_changed', function() {
+                var bounds = map.getBounds();
+                searchBox.setBounds(bounds);
+            });
+            */
         }
     }),
 
-    toolbarView: Footprint.TitleView.extend({
-        anchorLocation: SC.ANCHOR_TOP,
-        layout: { height: 18 },
-        classNames: "footprint-title-view".w(),
-        labelViewLayout: {left:0, right:0},
-        title:'Tools',
-        contentBinding:SC.Binding.oneWay('.parentView.activeLayer')
+    builtFormButtonView: SC.ButtonView.extend({
+        classNames: ['theme-button', 'theme-button-gray', 'label.sc-button-label', 'theme-button-tool-section'],
+        layout: {height: 21, top: 1, left:250, width: 30 },
+        icon: sc_static('images/built_form.png'),
+        action: 'doManageBuiltForms'
     }),
 
-    activeLayerConfig: function () {
-        if (this.get('activeLayerStatus') & SC.Record.READY)
-            return this.getPath('layerLookup.%@'.fmt(this.getPath('activeLayer.db_entity_key')));
-    }.property('activeLayer', 'activeLayerStatus').cacheable(),
-
-    /**
-     * Returns YES if the given item is configured for the active layer and the toolsController says its type is isEnabled
-     * @param item
-     * @returns {*|boolean|*}
-     */
-    isItemEnabled: function (item) {
-        var layerConfig = this.get('activeLayerConfig');
-        // Find the optional toolController boolean for this item type
-        var controllerEnabled = Footprint.toolController.get('%@IsEnabled'.fmt(item.get('type')));
-        // Return YES if the layerConfig (or default config) and tool enables the item
-        return (layerConfig ? layerConfig.isEnabledItems : Footprint.ToolSelectionStandardItems).contains(item.title) &&
-            (typeof(controllerEnabled) == 'undefined' || controllerEnabled);
-    },
-
-    navigateAndSelectButtonView: SC.SegmentedView.extend({
-        layout: { top: 18, height: 26 },
-        selectSegmentWhenTriggeringAction: YES,
-        itemActionKey: 'action',
-        itemTitleKey: 'title',
-        itemKeyEquivalentKey: 'keyEquivalent',
-        itemValueKey: 'title',
-        itemIsEnabledKey: 'isEnabled',
-
+    paintAndSelectButtonView: Footprint.ToolSegmentedButtonView.extend({
+        layout: {height: 26, right:300, width: 450, top: 1},
         rawItems: [
             // View and edit the selected item's attributes
-            SC.Object.create({ title: 'Navigate', keyEquivalent: 'ctrl_n', action: 'navigate', isEnabled: YES, type: 'navigator'}),
-            SC.Object.create({ title: 'Point', keyEquivalent: 'ctrl_p', action: 'paintPoint', isEnabled: NO, type: 'selector'}),
-            SC.Object.create({ title: 'Box', keyEquivalent: 'ctrl_b', action: 'paintBox', isEnabled: NO, type: 'selector'}),
-            SC.Object.create({ title: 'Polygon', keyEquivalent: 'ctrl_o', action: 'paintPolygon', isEnabled: NO, type: 'selector', isStatelessButton:YES}),
-            SC.Object.create({ title: 'Identify', keyEquivalent: 'ctrl_i', action: 'doFeatureIdentify', isEnabled: NO, type: 'featurer', isStatelessButton:YES}),
-            SC.Object.create({ title: 'Query', keyEquivalent: 'ctrl_q', action: 'doFeatureQuery', isEnabled: NO, type: 'selector', isStatelessButton:YES})
-            //{ title: 'Undo', keyEquivalent: ['ctrl_u'], action:'navigateOrSelectUndo', isEnabled:NO},
-            //{ title: 'Redo', keyEquivalent: ['ctrl_r'], action:'navigateOrSelectRedo', isEnabled:NO}
+            // View and edit the selected item's attributes
+            SC.Object.create({ icon: sc_static('images/zoom_to_extent.png'), action: 'zoomToProjectExtent', isEnabled: YES, type: 'navigator', isStatelessButton:YES}),
+            SC.Object.create({ icon: sc_static('images/pointer.png'), keyEquivalent: 'ctrl_n', action: 'navigate', isEnabled: YES, type: 'navigator'}),
+            SC.Object.create({ icon: sc_static('images/painter_point.png'), keyEquivalent: 'ctrl_p', action: 'paintPoint', isEnabled: NO, type: 'selector'}),
+            SC.Object.create({ icon: sc_static('images/painter_box.png'), keyEquivalent: 'ctrl_b', action: 'paintBox', isEnabled: NO, type: 'selector'}),
+            SC.Object.create({ icon: sc_static('images/painter_polygon.png'), keyEquivalent: 'ctrl_o', action: 'paintPolygon', isEnabled: NO, type: 'selector'}),
+            SC.Object.create({ icon: sc_static('images/identify.png'), keyEquivalent: 'ctrl_i', action: 'doFeatureIdentify', isEnabled: NO, type: 'featurer', isStatelessButton:YES}),
+            SC.Object.create({ icon: sc_static('images/query.png'), keyEquivalent: 'ctrl_q', action: 'doFeatureQuery', isEnabled: NO, type: 'selector', isStatelessButton:YES}),
+            SC.Object.create({ icon: sc_static('images/clear.png'), keyEquivalent: 'esc', action: 'doClearSelection', isEnabled: NO, type: 'deselector', isStatelessButton:YES})
         ],
-        activeLayer: null,
         activeLayerBinding: SC.Binding.oneWay('.parentView.activeLayer'),
-        activeLayerStatus: null,
-        activeLayerStatusBinding: SC.Binding.oneWay('.parentView.activeLayerStatus'),
-        /**
-         * The items that may or may not be isEnabled, based on the current activeLayer
-         * This fires whenever the active layer or its status changes, and depends on the configuration of the layer
-         * type ('selector', 'featurer', etc) and on any specific configuration for that layer.
-         */
-        items: function () {
-            return this.get('rawItems').map(function (item) {
-                return SC.Object.create($.extend({},
-                    item,
-                    // merge a dict that enables it if it's configured for the active layer, otherwise disables
-                    {isEnabled: this.parentView.isItemEnabled(item)}));
-            }, this);
-        }.property('activeLayer', 'activeLayerStatus').cacheable(),
-
-        // Don't allow stateless buttons to remain selected
-        valueObserver: function () {
-            var value = this.get('value');
-            if (value) {
-                var item = this.get('items').filter(function (item) {
-                    return item.get('title') == value;
-                })[0];
-                if (item.get('isStatelessButton'))
-                    // Set it back. This will refire the observer once
-                    this.set('value', this._statefulValue);
-                else
-                    // Update it
-                    this._statefulValue = value;
-            }
-        }.observes('.value'),
-        _statefulValue: null,
-
-        // Trigger a changes to items whenever a relevant toolController boolean changes
-        toolControllerObserver: function () {
-            this.propertyDidChange('items');
-        }.observes(
-                'Footprint.toolController.navigatorIsEnabled',
-                'Footprint.toolController.selectorIsEnabled',
-                'Footprint.toolController.featurerIsEnabled'
-        ),
-
-        value: 'Navigate'
-    }),
-
-    featurerBarView: SC.View.extend({
-        layout: { top: 44 },
-        childViews: 'param1View param2View toggleView applyView clearView bufferView'.w(),
-        classNames: ['featurer-bar'],
-
-        param1View: Footprint.SliderInfoView.extend({
-            layout: { left: 0.02, width: 0.3, height:43, top: 5},
-            classNames: ['featurer-bar-param1'],
-            valueSymbol: '%',
-            title: 'Dev Pct',
-            minimum: 0,
-            maximum: 100,
-            step: 1,
-            rawValue: null,
-            rawValueBinding: SC.Binding.from('Footprint.paintingController.developmentPercent'),
-            value: function (propKey, value) {
-                if (value !== undefined) {
-                    this.set('rawValue', value / 100);
-                    return value;
-                }
-                return this.get('rawValue') * 100;
-            }.property('rawValue').cacheable()
-        }),
-        param2View: Footprint.SliderInfoView.extend({
-            layout: { left: 0.38, width: 0.3, height:43, top: 5},
-            classNames: ['featurer-bar-param2'],
-            valueSymbol: '%',
-            title: 'Density Pct',
-            minimum: 0,
-            maximum: 100,
-            step: 1,
-            rawValue: null,
-            rawValueBinding: SC.Binding.from('Footprint.paintingController.densityPercent'),
-            value: function (propKey, value) {
-                if (value !== undefined) {
-                    this.set('rawValue', value / 100);
-                    return value;
-                }
-                return this.get('rawValue') * 100;
-            }.property('rawValue').cacheable()
-        }),
-        toggleView: Footprint.CheckboxInfoView.extend({
-            layout: { left: 0.76, width: 0.2, height:43, top:5 },
-            classNames: ['featurer-bar-toggle'],
-            title: 'Full Redev.',
-            valueBinding: 'Footprint.paintingController.isFullRedevelopment'
-        }),
-        applyView: SC.ButtonView.extend({
-            layout: { left: 0.8, bottom: 0.02, right: 10, height: 24, border: 1},
-            classNames: ['theme-button', 'theme-button-blue'],
-            classNameBindings: ['isFullRedevelopment:is-full-redevelopment'], // adds the is-editable when isEditable is YES
-            title: 'Apply',
-            action: 'doPaintApply',
-            activeLayer: null,
-            activeLayerBinding: SC.Binding.oneWay('.parentView.parentView.activeLayer'),
-            isFullRedevelopment: null,
-            isFullRedevelopmentBinding: SC.Binding.oneWay('.parentView.toggleView.value'),
-            isEnabled: function () {
-                return this.parentView.parentView.isItemEnabled(SC.Object.create({ title: 'Apply', isEnabled: NO, type: 'featurer'}))
-            }.property('activeLayer', 'toolState').cacheable(),
-            toolState: null,
-            toolStateBinding: SC.Binding.oneWay('Footprint.toolController.featurerIsEnabled')
-        }),
-        clearView: SC.ButtonView.extend({
-            layout: { left: 0.1, right:.7, bottom: 0.02, height: 24, border: 1},
-            classNames: ['theme-button', 'theme-button-gold'],
-            title: 'Clear',
-            action: 'doPaintClear',
-            activeLayer: null,
-            activeLayerBinding: SC.Binding.oneWay('.parentView.parentView.activeLayer'),
-            isEnabled: function () {
-                return this.parentView.parentView.isItemEnabled(SC.Object.create({ title: 'Clear', isEnabled: NO, type: 'featurer'}))
-            }.property('activeLayer', 'toolState').cacheable(),
-            toolState: null,
-            toolStateBinding: SC.Binding.oneWay('Footprint.toolController.featurerIsEnabled')
-        }),
-        resetButtonView: SC.ButtonView.extend({
-            action: 'paintReset',
-            name: 'Reset'
-        }),
-        applyStatusView: SC.ImageView.extend({
-            layout: { left: 0.8, right: 10, height: 16, width: 16},
-            value: sc_static('images/loader.gif')
-
-        }),
-        bufferView: SC.SegmentedView.extend({
-            layout: { bottom: 0, left:.3, height: 26, right: 0.2 },
-            selectSegmentWhenTriggeringAction: NO,
-            itemActionKey: 'action',
-            itemTitleKey: 'title',
-            itemKeyEquivalentKey: 'keyEquivalent',
-            itemValueKey: 'title',
-            itemIsEnabledKey: 'isEnabled',
-
-            items: [
-                // View and edit the selected item's attributes
-                SC.Object.create({ title: 'Undo', keyEquivalent: 'ctrl_u', action: 'doPaintUndo', isEnabledBinding: SC.Binding.oneWay('Footprint.layerSelectionActiveController*featureUndoManager.canUndo').bool(), type: 'chronicler'}),
-                SC.Object.create({ title: 'Redo', keyEquivalent: 'ctrl_r', action: 'doPaintRedo', isEnabledBinding: SC.Binding.oneWay('Footprint.layerSelectionActiveController*featureUndoManager.canRedo').bool(), type: 'chronicler'})
-            ]
-        })
+        activeLayerStatusBinding: SC.Binding.oneWay('.parentView.activeLayerStatus')
     })
 });

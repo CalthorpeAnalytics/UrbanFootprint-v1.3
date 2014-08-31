@@ -1,4 +1,4 @@
-from footprint.main.models.built_form.building_attribute_set import BuildingAttributeSet
+from footprint.main.models.built_form.urban.building_attribute_set import BuildingAttributeSet
 
 __author__ = 'calthorpe_associates'
 # UrbanFootprint-California (v1.0), Land Use Scenario Development and Modeling System.
@@ -22,13 +22,14 @@ from footprint.main.utils.test_utils import reasonably_close
 import unittest
 from itertools import chain
 from django.db.models import Sum
-from footprint.main.models.built_form.flat_built_forms import refresh_all_flat_built_forms
+from footprint.main.models.built_form.flat_built_form import refresh_all_flat_built_forms
 from footprint.main.models.keys.keys import Keys
 
 from footprint.main.models.config.global_config import global_config_singleton
-from footprint.main.models.application_initialization import application_initialization
+from footprint.main.models.application_initialization import application_initialization, \
+    update_or_create_config_entities
 
-from footprint.main.models.built_form.placetype import Placetype
+from footprint.main.models.built_form.urban.urban_placetype import Placetype
 from footprint.main.models.built_form.buildingtype import BuildingType
 from footprint.main.models.built_form.building import Building
 from footprint.main.models.built_form.infrastructure_type import InfrastructureType
@@ -124,12 +125,14 @@ class TestBuiltForm(unittest.TestCase):
         
     def test_unit_density(self):
         application_initialization()
+        update_or_create_config_entities()
         for built_form in BuildingAttributeSet.objects.all():
             built_form.calculate_combined_pop_emp_density()
             built_form.save()
 
     def test_built_form(self):
         application_initialization()
+        update_or_create_config_entities()
 
         assert self.test_building_imports() is True
 
@@ -148,8 +151,8 @@ class TestBuiltForm(unittest.TestCase):
 
         for built_form in chain(test_buildings, test_buildingtypes, test_placetypes):
             # built_form.aggregate_built_form_attributes()
-            # built_form.building_attributes.calculate_derived_fields()
-            for use in built_form.building_attributes.buildingusepercent_set.all():
+            # built_form.building_attribute_set.calculate_derived_fields()
+            for use in built_form.building_attribute_set.buildingusepercent_set.all():
                 assert use.efficiency > 0, "{0} {1}".format(built_form, use.building_use_definition.name)
                 assert use.percent > 0, "{0} {1}".format(built_form, use.building_use_definition.name)
 
@@ -164,29 +167,29 @@ class TestBuiltForm(unittest.TestCase):
             if components_percents_sum != 1:
                 print aggregate_built_form.name, 'component_error ', components_percents_sum*100
 
-        assert Building.objects.filter(building_attributes__parking_spaces__gt=0).exists() == True
-        assert BuildingType.objects.filter(building_attributes__parking_spaces__gt=0).exists() == True
-        assert Placetype.objects.filter(building_attributes__parking_spaces__gt=0).exists() == True
+        assert Building.objects.filter(building_attribute_set__parking_spaces__gt=0).exists() == True
+        assert BuildingType.objects.filter(building_attribute_set__parking_spaces__gt=0).exists() == True
+        assert Placetype.objects.filter(building_attribute_set__parking_spaces__gt=0).exists() == True
 
-        assert Building.objects.filter(building_attributes__impervious_hardscape_percent__gt=0).exists() == True
-        assert BuildingType.objects.filter(building_attributes__impervious_hardscape_percent__gt=0).exists() == True
-        assert Placetype.objects.filter(building_attributes__impervious_hardscape_percent__gt=0).exists() == True
+        assert Building.objects.filter(building_attribute_set__impervious_hardscape_percent__gt=0).exists() == True
+        assert BuildingType.objects.filter(building_attribute_set__impervious_hardscape_percent__gt=0).exists() == True
+        assert Placetype.objects.filter(building_attribute_set__impervious_hardscape_percent__gt=0).exists() == True
 
-        assert Building.objects.filter(building_attributes__impervious_roof_percent__gt=0).exists() == True
-        assert BuildingType.objects.filter(building_attributes__impervious_roof_percent__gt=0).exists() == True
-        assert Placetype.objects.filter(building_attributes__impervious_roof_percent__gt=0).exists() == True
+        assert Building.objects.filter(building_attribute_set__impervious_roof_percent__gt=0).exists() == True
+        assert BuildingType.objects.filter(building_attribute_set__impervious_roof_percent__gt=0).exists() == True
+        assert Placetype.objects.filter(building_attribute_set__impervious_roof_percent__gt=0).exists() == True
 
         # all built forms based on buildings must have building uses that sum to 100%
         for built_form in chain(test_buildings, test_buildingtypes, test_placetypes):
-            for use in built_form.building_attributes.buildingusepercent_set.all():
+            for use in built_form.building_attribute_set.buildingusepercent_set.all():
                 assert use.efficiency > 0, "{0} {1}".format(built_form, use.building_use_definition.name)
 
-            assert 1 >= built_form.building_attributes.gross_net_ratio > 0, \
-                '{0} has ratio of {1}'.format(built_form.name, built_form.building_attributes.gross_net_ratio)
+            assert 1 >= built_form.building_attribute_set.gross_net_ratio > 0, \
+                '{0} has ratio of {1}'.format(built_form.name, built_form.building_attribute_set.gross_net_ratio)
 
-            assert built_form.building_attributes.total_far > 0, '{0} has floor area ratio of {1}'.format(built_form.name, built_form.building_attributes.total_far)
+            assert built_form.building_attribute_set.total_far > 0, '{0} has floor area ratio of {1}'.format(built_form.name, built_form.building_attribute_set.total_far)
 
-            building_uses = built_form.building_attributes.buildingusepercent_set.all()
+            building_uses = built_form.building_attribute_set.buildingusepercent_set.all()
             assert building_uses.exists(), built_form
 
             building_use_categories = building_uses.filter(
@@ -210,18 +213,18 @@ class TestBuiltForm(unittest.TestCase):
                 described_uses = building_use_categories.aggregate(Sum('percent'))['percent__sum']
                 assert described_uses > 0, '{0} {1} ({2})'.format(built_form.__class__.__name__, built_form.name, category_type)
 
-                described_use_coverage = described_uses / built_form.building_attributes.gross_net_ratio
+                described_use_coverage = described_uses / built_form.building_attribute_set.gross_net_ratio
                 assert .5 < described_use_coverage < 1.5, 'Built form {0} has uses describing {1} percent (should be 100)'\
                                                                 .format(built_form.name, described_use_coverage*100)
                 if described_use_coverage != 1:
                     print 'BAD THING: uses of {0} {1} add up to {2} % \n  gross/net ratio = {3} \t use = {4} \n \
                     '.format(built_form.__class__.__name__, built_form.name, described_use_coverage*100,
-                        built_form.building_attributes.gross_net_ratio, described_uses )
+                        built_form.building_attribute_set.gross_net_ratio, described_uses )
 
                 assert .97  < described_use_coverage < 1.03, \
                     'BAD THING: uses of {0} add up to {1} % \n  gross/net ratio = {2} \n use = {3} \n \
                     '.format(built_form.name, described_use_coverage*100,
-                        built_form.building_attributes.gross_net_ratio, described_uses)
+                        built_form.building_attribute_set.gross_net_ratio, described_uses)
 
             for building_use in building_uses:
                 assert 1 >= building_use.efficiency > 0, '{0} {1} has efficiency of {2} for {3}'.format(
@@ -232,7 +235,7 @@ class TestBuiltForm(unittest.TestCase):
 
             # with the input fields correctly aggregated, we can now begin deriving the secondary fields
 
-            for use in built_form.building_attributes.buildingusepercent_set.all():
+            for use in built_form.building_attribute_set.buildingusepercent_set.all():
                 assert use.unit_density > 0, '{0} {1} has unit density of {2} for {3}'.format(
                     built_form.__class__.__name__, built_form.name, use.unit_density, use.building_use_definition.name)
                 assert use.floor_area_ratio > 0, '{0} {1} has far of {2} for {3}'.format(

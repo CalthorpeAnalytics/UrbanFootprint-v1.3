@@ -1,7 +1,4 @@
 # coding=utf-8
-from footprint.main.mixins.name import Name
-
-__author__ = 'calthorpe_associates'
 # UrbanFootprint-California (v1.0), Land Use Scenario Development and Modeling System.
 #
 # Copyright (C) 2012 Calthorpe Associates
@@ -20,14 +17,16 @@ __author__ = 'calthorpe_associates'
 # Firm contact: 2095 Rose Street Suite 201, Berkeley CA 94709.
 # Phone: (510) 548-6800. Web: www.calthorpe.com
 from django.db import models
-from django.db.models.signals import post_save
-
 from footprint.main.models.built_form.primary_component import PrimaryComponent
-#from calthorpe.main.utils.subclasses import receiver_subclasses
 from footprint.main.managers.geo_inheritance_manager import GeoInheritanceManager
-from footprint.main.mixins.building_aggregate import BuildingAttributeAggregate
+from footprint.main.models.built_form.built_form import BuiltForm
+from footprint.main.mixins.built_form_aggregate import BuiltFormAggregate
+from footprint.main.mixins.name import Name
+import logging
 
-from built_form import on_collection_modify, BuiltForm
+logger = logging.getLogger(__name__)
+
+__author__ = 'calthorpe_associates'
 
 class PlacetypeComponentCategory(Name):
     contributes_to_net = models.BooleanField()
@@ -37,7 +36,7 @@ class PlacetypeComponentCategory(Name):
         app_label = 'main'
 
 
-class PlacetypeComponent(BuildingAttributeAggregate, BuiltForm):
+class PlacetypeComponent(BuiltForm, BuiltFormAggregate):
     """
         PlacetypeComponent represents a mix of PrimaryComponents, such as a "Rural Community College" or a "Boulevard"
     """
@@ -54,15 +53,11 @@ class PlacetypeComponent(BuildingAttributeAggregate, BuiltForm):
     def calculate_gross_net_ratio(self):
         return 1
 
-    def get_parent_field(self):
+    def get_aggregate_field(self):
         return self.placetype_set
 
+    def get_aggregate_built_forms(self):
+        return self.placetype_set.all()
 
-def on_instance_modify(sender, **kwargs):
-    instance = kwargs['instance']
-    for parent_object in instance.get_parent_field().all():
-        parent_object.aggregate_built_form_attributes()
-
-
-post_save.connect(on_collection_modify, sender=PlacetypeComponent.primary_components.through)
-post_save.connect(on_instance_modify, sender=PlacetypeComponent)
+    def get_percent_set(self):
+        return self.primarycomponentpercent_set

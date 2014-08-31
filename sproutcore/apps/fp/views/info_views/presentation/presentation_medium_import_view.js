@@ -25,6 +25,7 @@ Footprint.PresentationMediumImportView = SC.PickerPane.extend({
         fileUpload: SC.View.extend(),
         // The query for the DbEntity if relevant (if the DbEntity represents a query or a database view)
         uri: Footprint.EditableModelStringView.extend({
+            classNames: ['footprint-editable-content-view'],
             valueBinding: 'Footprint.presentationMediumEditController.dbEntity.name'
         }),
         ownerSelect: Footprint.LabelSelectView.extend({

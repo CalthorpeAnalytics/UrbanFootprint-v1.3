@@ -13,15 +13,16 @@
 sc_require('models/config_entity_models');
 sc_require('models/shared_key_mixin');
 sc_require('models/name_mixin');
+sc_require('models/name_mixin');
 sc_require('models/db_entity_models');
 sc_require('models/medium_models');
 
 Footprint.Presentation = Footprint.Record.extend(
     Footprint.Key,
-    Footprint.Name, {
+    Footprint.Name,
+    Footprint.Deletable, {
 
     isPolymorphic: YES,
-    deleted: SC.Record.attr(Boolean),
     config_entity: SC.Record.toOne("Footprint.ConfigEntity", {
         isMaster: NO,
         inverse: 'presentations'

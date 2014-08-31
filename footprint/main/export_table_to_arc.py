@@ -11,7 +11,7 @@ os.environ['DJANGO_SETTINGS_MODULE'] = 'footprint.settings'
 options = dict(
     export_table='grid150m_kern_loaded_census2010_placetyped_cr',
     working_schema='sjv_scenarios',
-    conn_string='dbname=uf_restore host=10.0.0.133 user=calthorpe password=[PASSWORD]',
+    conn_string='dbname=uf_restore host=10.0.0.133 user=calthorpe password=[ your password ]',
 )
 
 

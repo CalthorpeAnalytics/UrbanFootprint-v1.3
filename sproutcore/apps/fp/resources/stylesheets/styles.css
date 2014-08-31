@@ -71,12 +71,25 @@ $theme.toolbar {
 
 $theme.overlay-view {
     background-color: #D1DAE4;
+    opacity: 0.6;
 }
 
+/* Divider view and line. */
 $theme.sc-split-divider-view {
-    .line {
-        display: none;
-    }
+
+  & > .line {
+    background-color: #B0C4DE;
+  }
+  &.sc-layout-vertical > .line {
+    height: 5px;
+    top: 50%;
+    margin-top: -3px;
+  }
+  &.sc-layout-horizontal > .line {
+    width: 5px;
+    left: 50%;
+    margin-left: -3px;
+  }
 }
 
 $theme.clear-icon {
@@ -123,3 +136,24 @@ $theme.error-progress-overlay-view {
         @include slice("../images/error_progress_view_content.png", $left: 1, $right: 1);
     }
 }
+
+$theme.footprint-map-overlay-section {
+  opacity: 0.90;
+  background-color: rgba(0, 0, 0, 0.4);
+  border-color: rgba(0, 0, 0, 0.1);
+  $theme.sc-label-view.footprint-header {
+    color: white;
+    text-shadow: 0 1px 0 rgba(0, 0, 0, 0.4);
+    font-size: 13px;
+  }
+}
+
+$theme.footprint.sctable-column-header-view .col-name {
+    font-size: 11px;
+}
+$theme.footprint.sctable-row-view {
+    $theme.text {
+        font-size: 11px;
+    }
+}
+

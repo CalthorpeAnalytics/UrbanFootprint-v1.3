@@ -1,6 +1,9 @@
 .{{ htmlClass }}
 {buffer-size: 50;}
 
+marker-opacity: .9;
+marker-fill: #88FF88;
+
 [zoom<15] {
   outline/line-width: 2;
   outline/line-color:#000000;

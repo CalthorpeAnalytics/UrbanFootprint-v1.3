@@ -10,7 +10,8 @@ Footprint.ShowingScenariosState = SC.State.extend({
         return NO;
     },
     scenariosDidChange: function(context) {
-        this.gotoState('scenariosAreReadyState', context)
+        this.gotoState('scenariosAreReadyState', context);
+        return NO;
     },
 
     /***
@@ -26,31 +27,6 @@ Footprint.ShowingScenariosState = SC.State.extend({
             }}
         return NO;
     },
-    /***
-     * Called when the server-side analytic modules complete, instructing the ResultLibrary instance
-     * and the mapController to refresh
-     * @param context
-     */
-    analysisDidComplete: function(context) {
-
-        var scenarios = Footprint.scenariosController.filter(function(scenario) {
-            return scenario.get('id')==context.get('config_entity_id');
-        });
-
-        scenarios.forEach(function(scenario) {
-            scenario.getPath('presentations.results').forEach(function(resultLibrary) {
-                resultLibrary.refresh();
-                (resultLibrary.get('results') || []).forEach(function(result) {
-                    SC.RunLoop.begin();
-                    result.refresh();
-                    SC.RunLoop.end();
-                });
-            }, this);
-        }, this);
-        // It works better to do this here than in the FeatureUpdatingState.
-        // Polymaps gets angry if we do it there
-        Footprint.mapController.refreshLayer();
-    },
 
     initialSubstate: 'readyState',
     readyState: SC.State.extend({
@@ -62,6 +38,7 @@ Footprint.ShowingScenariosState = SC.State.extend({
     }),
 
     scenariosAreReadyState: Footprint.RecordsAreReadyState.extend({
+        baseRecordType: Footprint.Scenario,
         recordsDidUpdateEvent: 'scenariosDidChange',
         recordsDidFailToUpdateEvent: 'scenariosDidFailToUpdate',
         updateAction: 'doScenarioUpdate',
@@ -98,31 +75,14 @@ Footprint.ShowingScenariosState = SC.State.extend({
             Footprint.statechart.sendAction('selectedEditRecordDidChange', context);
         },
 
-        // Saving update events
-        // Each update sends a 'proportion' value. When this proportion hits 100% the save is
-        // completed. We use proportion both to show status and because concurrent publishers
-        // on the server make it impossible to know otherwise when everything is complete.
-        postSaveConfigEntityPublisherCompleted: function(context) {
-            if (!['Scenario', 'BaseScenario', 'FutureScenario'].contains(context.get('config_entity_class_name')))
-                // We only care about Scenarios in this state
-                return NO;
-
-            var combinedContext = toArrayController(context, {
-                postProcessingDidEnd: function(context) {
-                    var parentStore = context.getPath('content.store.parentStore');
-                    [context.get('content')].forEach(function(record) {
-                        record.refresh();
-                    })
-                }});
-            Footprint.statechart.sendAction('doUpdateSaveProgress', combinedContext)
+        /***
+         * Respond to postSavePulishing finishing by refreshing the Scenario
+         * @param context
+         */
+        postSavePublishingFinished: function(context) {
+            this.commitConflictingNestedStores([context.get('record')]);
+            context.get('record').refresh();
         },
-        postSaveConfigEntityPublisherFailed: function(context) {
-            if (!['Scenario', 'BaseScenario', 'FutureScenario'].contains(context.get('config_entity_class_name')))
-            // We only care about Scenarios in this state
-                return NO;
-            Footprint.statechart.sendAction('postProcessRecordsDidFail', context)
-        },
-
 
         undoManagerProperty: 'undoManager',
 
@@ -136,15 +96,11 @@ Footprint.ShowingScenariosState = SC.State.extend({
         },
 
         enterState: function(context) {
-            // Do nothing here for now. Don't call the parent method
+            // Make the default selection
+            Footprint.scenariosController.deselectObjects(
+                Footprint.scenariosController.get('selection')
+            );
+            Footprint.scenariosController.updateSelectionAfterContentChange();
         }
     }),
-
-    /***
-     * Called by socketIO when asynchronous creation of the instance's components completes
-     */
-    scenarioCreationDidComplete: function(context) {
-        // Refresh the Scenario ArrayController to sync the new record
-        Footprint.scenariosController.get('content').refresh();
-    }
 });

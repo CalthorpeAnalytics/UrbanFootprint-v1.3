@@ -8,7 +8,7 @@
  * User controller expects a single item list or single Footprint.User record set to its content property
  * @extends {SC.ArrayController}
  */
-Footprint.userController = SC.ArrayController.create(Footprint.ArrayContentSupport, {
+Footprint.userController = SC.ArrayController.create({
     setCookie: function(duration) {
         var cookie = this.findCookie() ||
             SC.Cookie.create({

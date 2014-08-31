@@ -23,6 +23,7 @@ Footprint.ConfigEntitySelections = {
      * @param keyUpdate a dictionary of key changes from new to old, if available. This can reveal that 'foo' was updated to 'bar', thus allowing the selection for 'foo' to move to 'bar'
      */
     updateSelections: function(property, keyItemPath, keyUpdate) {
+        // TODO Not used. Selections need to be saved at a user scope, not a ConfigEntity scope.
         // Get all items
         var self = this;
         var items = this.get(property);
@@ -84,6 +85,8 @@ SC.RecordAttribute.registerTransform(Footprint.DbEntityInterestDictionary, {
         );
     },
 
+
+
     /** @private - convert an object to the raw form **/
     from: function(dbEntityDictionary) {
         return $.mapObjectToObject(
@@ -115,10 +118,8 @@ SC.RecordAttribute.registerTransform(Footprint.DbEntityInterestDictionary, {
 
 Footprint.ConfigEntitySelection = Footprint.ChildRecord.extend({
     _internal: YES,
-    // TODO, cloning completion trigger isn't working for this so pretend it already cloned
-    _status:516,
-    // A list of selected or default DbEntities for every unique Key
 
+    // A list of selected or default DbEntities for every unique Key
     db_entity_interests: SC.Record.toOne(Footprint.DbEntityInterestDictionary, {isMaster:YES}),
 
     _cloneProperties: function() { return 'db_entity_interests'.w(); },

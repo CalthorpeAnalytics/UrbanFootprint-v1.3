@@ -1,6 +1,6 @@
 # UrbanFootprint-California (v1.0), Land Use Scenario Development and Modeling System.
 #
-# Copyright (C) 2013 Calthorpe Associates
+# Copyright (C) 2014 Calthorpe Associates
 #
 # This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, version 3 of the License.
 #
@@ -10,16 +10,16 @@
 #
 # Contact: Joe DiStefano (joed@calthorpe.com), Calthorpe Associates. Firm contact: 2095 Rose Street Suite 201, Berkeley CA 94709. Phone: (510) 548-6800. Web: www.calthorpe.com
 # from memory_profiler import profile
-import os
 import logging
 import shutil
 import TileStache
 from TileStache.Config import buildConfiguration
+from django.db import transaction
+from footprint.main.models.geospatial.db_entity_keys import DbEntityKey
 from footprint.main.models.presentation.layer import Layer
 from footprint.main.models.presentation.layer_library import LayerLibrary
-from footprint.main.models.presentation.tilestache_config import TileStacheConfig
-from footprint.main.models.config.scenario import Scenario
-from footprint.main.models.config.config_entity import ConfigEntity
+from footprint.main.models.presentation.tilestache_config import TileStacheConfig, TileStacheLayer
+from footprint.main.models.config.scenario import Scenario, FutureScenario, BaseScenario
 
 import shlex
 import subprocess
@@ -43,24 +43,20 @@ def on_config_entity_post_save_tilestache(sender, **kwargs):
     """
     config_entity = kwargs['instance']
     logger.debug("\t\tHandler: on_config_entity_post_tilestache. ConfigEntity: %s" % config_entity.name)
-    if ConfigEntity._heapy:
-        ConfigEntity.dump_heapy()
     if not isinstance(config_entity, Scenario):
         return
 
     _on_post_save_tilestache(config_entity, **kwargs)
 
-#@profile
-def on_db_entity_post_save_tilestache(sender, **kwargs):
+def on_layer_post_save_tilestache(sender, **kwargs):
     """
-        Update/Create the tilestache data for the layer(s) of the given DbEntityInterest
+        Update/Create the tilestache data for the layer(s) of the given Layer
     """
 
     logger.debug("\t\tHandler: on_db_entity_post_save_tilestache")
-    if ConfigEntity._heapy:
-        ConfigEntity.dump_heapy()
 
-    db_entity_interest = kwargs['instance']
+    layer = kwargs['instance']
+    db_entity_interest = layer.db_entity_interest
     config_entity = db_entity_interest.config_entity.subclassed_config_entity
     db_entity = db_entity_interest.db_entity
     _on_post_save_tilestache(config_entity, db_entity_keys=[db_entity.key])
@@ -76,9 +72,11 @@ def _on_post_save_tilestache(config_entity, **kwargs):
         scope=config_entity.schema(),
         config_entity=config_entity
     )
-    layers = Layer.objects.filter(presentation__in=layer_libraries,
+    layers = filter(lambda layer: layer.db_entity_interest.db_entity.feature_class_configuration and \
+                                  layer.db_entity_interest.db_entity.is_valid,
+                    Layer.objects.filter(presentation__in=layer_libraries,
                                   db_entity_key__in=kwargs['db_entity_keys']) if kwargs.get('db_entity_keys') else \
-        Layer.objects.filter(presentation__in=layer_libraries)
+        Layer.objects.filter(presentation__in=layer_libraries))
     tilestache_config, created, updated = TileStacheConfig.objects.update_or_create(name='default')
     modify_config(config_entity, tilestache_config, layers)
 
@@ -112,6 +110,10 @@ def modify_config(config_entity, tilestache_config, layers):
         })
 
     for layer in layers:
+        logger.debug("Recreating cartocss & invalidating cache for layer {layer} ({config_entity})".format(
+            config_entity=config_entity.name,
+            layer=layer.full_name))
+
         # If the layer contains a style configuration
         if layer.medium_context:
 
@@ -120,12 +122,26 @@ def modify_config(config_entity, tilestache_config, layers):
 
             # Create a vector, raster, and vector select layer for each attribute listed in the medium_context
             for attribute, medium_context in layer.medium_context['attributes'].items():
-                logger.debug("\t\t\t: Creating tilestache layer for layer %s, attribute %s" % (layer.db_entity_key, attribute))
-                create_vector_layer(config_entity, layer, attribute, config)
-                create_raster_layer(config_entity, layer, attribute, config)
-                create_layer_selection(config_entity, layer, attribute, config)
+                logger.debug("\t\t\tCreating tilestache layers for layer %s, attribute %s" % (layer.full_name, attribute))
+                for tilestache_layer in \
+                        [create_raster_layer(config_entity, layer, attribute)] + \
+                        create_layer_selection(config_entity, layer, attribute):
+                #create_vector_layer(config_entity, layer, attribute),
+                    # Delete the TilestacheLayer of the same key if it exists
+                    tilestache_config.layers.filter(key=tilestache_layer.key).delete()
+                    # Add it
+                    tilestache_layer.save()
+                    tilestache_config.layers.add(tilestache_layer)
+
+            # Clear the tilestache cache for this layer if it was modified
             invalidate_cache(layer, config)
 
+    # Put all the existing layers in the config. This should avoid multi-worker concurrency problems
+    # Since all works will write to tilestache_config.layers and the last worker to save the config
+    # Should get the complete list of layers.
+    # If we could make this for statement and the save mutually exclusive that would be truly safe
+    for tilestache_layer in tilestache_config.layers.all():
+        config.layers[tilestache_layer.key] = _parseConfigfileLayer(tilestache_layer.value, config, '')
     tilestache_config.config = config
     tilestache_config.save()
 
@@ -134,7 +150,7 @@ def on_config_entity_pre_delete_tilestache(sender, **kwargs):
     pass
 
 
-def create_vector_layer(config_entity, layer, attribute, config):
+def create_vector_layer(config_entity, layer, attribute):
     # If the db_entity doesn't have an explicit query create a query from the table and schema that joins
     # in the geography column.
     db_entity = layer.db_entity_interest.db_entity
@@ -163,11 +179,11 @@ def create_vector_layer(config_entity, layer, attribute, config):
         'allowed origin': "*",
         'id_property': db_entity._meta.pk.name
     }
-    config.layers["layer_{0}_{1}_vector".format(layer.id, attribute)] = \
-        _parseConfigfileLayer(vector_layer, config, '')
+
+    return TileStacheLayer(key="layer_{0}_{1}_vector".format(layer.id, attribute), value=vector_layer)
 
 
-def create_raster_layer(config_entity, layer, attribute, config):
+def create_raster_layer(config_entity, layer, attribute):
     raster_layer = {
         "metatile": {
             "rows": 6,
@@ -179,12 +195,14 @@ def create_raster_layer(config_entity, layer, attribute, config):
             'mapfile': layer.rendered_medium[attribute]['cartocss']
         }
     }
-    config.layers["layer_{0}_{1}_raster".format(layer.id, attribute)] = _parseConfigfileLayer(raster_layer, config, '')
+    layer_key = "layer_{0}_{1}_raster".format(layer.id, attribute)
+    logger.debug("\t\t\t\tCreating raster layer with key %s for layer %s, attribute %s" % (layer_key, layer.full_name, attribute))
+    return TileStacheLayer(key=layer_key, value=raster_layer)
 
 
 def create_query(attribute, config_entity, layer):
     db_entity = layer.db_entity_interest.db_entity
-    feature_class = config_entity.feature_class_of_db_entity_key(db_entity.key)
+    feature_class = config_entity.db_entity_feature_class(db_entity.key)
     # Create a query that selects the wkb_geometry and the attribute we need
     # There's nothing to prevent styling multiple attributes in the future
     try:
@@ -202,10 +220,11 @@ def create_query(attribute, config_entity, layer):
     return updated_query
 
 
-def create_layer_selection(config_entity, layer, attribute, config):
+def create_layer_selection(config_entity, layer, attribute):
     db_entity = layer.db_entity_interest.db_entity
     connection = connection_dict(layer.presentation.config_entity.db)
 
+    tilestache_layers = []
     for user in User.objects.all():
         # Each layer has a dynamic class representing its SelectedFeature table
         get_or_create_dynamic_layer_selection_class_and_table(layer)
@@ -238,13 +257,10 @@ def create_layer_selection(config_entity, layer, attribute, config):
             'id_property': db_entity._meta.pk.name
         }
 
-        vector_selection_layer = _parseConfigfileLayer(vector_selection_layer, config, '')
-        # TODO we'll need to use raster at higher zoom levels
-        # raster_selection_layer = _parseConfigfileLayer(raster_layer, config, '')
-
-        config.layers["layer_{0}_{1}_{2}_selection".format(layer.id, attribute, user.id)] = vector_selection_layer
-        # config.layers["layer_{0}_{1}_{2}_raster".format(db_entity_id, attribute)] = raster_layer
-
+        layer_key = "layer_{0}_{1}_{2}_selection".format(layer.id, attribute, user.id)
+        logger.debug("\t\t\t\tCreating layer selection layer with key %s for layer %s, attribute %s" % (layer_key, layer.full_name, attribute))
+        tilestache_layers.append(TileStacheLayer(key=layer_key, value=vector_selection_layer))
+    return tilestache_layers
 
 def style_id(layer):
     layer_library = layer.presentation
@@ -266,11 +282,15 @@ def render_attribute_styles(layer):
 
     # Write the style to the filesystem
     for attribute, attribute_context in layer.medium_context['attributes'].items():
+        layer.rendered_medium = layer.rendered_medium or {}
         layer.rendered_medium[attribute] = {}
         layer.rendered_medium[attribute]['css'] = make_css(layer, attribute)
         layer.rendered_medium[attribute]['cartocss'] = make_carto_css(layer, attribute)
 
+    previous = layer._no_post_save_publishing
+    layer._no_post_save_publishing = True
     layer.save()
+    layer._no_post_save_publishing = previous
 
     return layer
 
@@ -353,7 +373,7 @@ def make_mml(layer, attribute):
             ],
         "Stylesheet": [carto_css_style],
         "interactivity": True,
-        "maxzoom": 15,
+        "maxzoom": 18,
         "minzoom": 7,
         "format": "png",
         "srs": Keys.SRS_GOOGLE,
@@ -395,7 +415,6 @@ def carto_css(mml, name):
     f.write(mml)
     f.close()
 
-    logger.debug("Path: %s" % os.environ['PATH'])
     carto_css_command = shlex.split("carto {0} > {1}".format(mmlFile, mapFile))
     logger.debug("Running carto: %s" % carto_css_command)
     carto_css_content = None
@@ -419,19 +438,45 @@ def on_post_analytic_run_tilestache(sender, **kwargs):
     :return:
     """
 
-    module = kwargs['module']
+    module = kwargs['analysis_module'].key
     config_entity = kwargs['config_entity']
 
     logger.debug("\t\tHandler: on_post_analytic_run_tilestache. ConfigEntity: %s. Module %s" % (config_entity.name, module))
+    layer_libraries = LayerLibrary.objects.filter(config_entity=config_entity)
+    dependent_db_entity_keys = []
 
     if module == 'core':
-        CORE_DEPENDENT_DB_ENTITY_KEYS = [Keys.DB_ABSTRACT_FUTURE_SCENARIO_FEATURE, Keys.DB_ABSTRACT_END_STATE_FEATURE,
-                                         Keys.DB_ABSTRACT_INCREMENT_FEATURE]
-        layer_libraries = LayerLibrary.objects.filter(config_entity=config_entity)
-        layers = Layer.objects.filter(presentation__in=layer_libraries, db_entity_key__in=CORE_DEPENDENT_DB_ENTITY_KEYS)
-        # Invalidate these layers
-        for layer in layers:
-            invalidate_cache(layer, TileStacheConfig.objects.get().config)
+        dependent_db_entity_keys = [DbEntityKey.END_STATE, DbEntityKey.INCREMENT]
+
+    if module == 'vmt':
+        dependent_db_entity_keys = [DbEntityKey.VMT]
+
+    if module == 'agriculture':
+        if isinstance(config_entity.subclassed_config_entity, FutureScenario):
+            dependent_db_entity_keys = [DbEntityKey.FUTURE_AGRICULTURE]
+        elif isinstance(config_entity.subclassed_config_entity, BaseScenario):
+            dependent_db_entity_keys = [DbEntityKey.BASE_AGRICULTURE]
+
+    layers = Layer.objects.filter(presentation__in=layer_libraries, db_entity_key__in=dependent_db_entity_keys)
+    # Invalidate these layers
+    for layer in layers:
+        invalidate_cache(layer, TileStacheConfig.objects.get().config)
+
+def on_post_save_built_form_tilestache(sender, **kwargs):
+    """
+        A signal handler to invalidate relevant layers of the tilestache cache after a BuiltForm instances is created or updated.
+    """
+
+    # Find all DbEntities that reference built_form.
+    # TODO these should inspect the feature class in the future for the built_form attribute or similar
+    built_form = kwargs['instance']
+    if built_form.__class__.__name__ in ['Crop', 'CropType', 'LandscapeType']:
+        built_form_dependent_db_entity_keys = [DbEntityKey.FUTURE_AGRICULTURE, DbEntityKey.BASE_AGRICULTURE]
+    else:
+        built_form_dependent_db_entity_keys = [DbEntityKey.FUTURE_SCENARIO, DbEntityKey.END_STATE]
+
+    for layer_library in LayerLibrary.objects.filter(deleted=False):
+        _on_post_save_tilestache(layer_library.config_entity, db_entity_keys=built_form_dependent_db_entity_keys)
 
 def on_layer_selection_post_save_layer(sender, layer=None, user=None):
     """
@@ -452,20 +497,20 @@ def invalidate_cache(layer, config, user=None, layer_types=None):
     if not tilestache_cache_path:
         return
 
-    visible_attr = layer.visible_attributes[0] or None
+    for visible_attribute in layer.visible_attributes or []:
 
-    tilestache_layer_name = 'layer_{id}{visible_attribute}'.format(
-        id=layer.id,
-        visible_attribute='_{0}'.format(visible_attr) if visible_attr else ''
-    )
+        tilestache_layer_name = 'layer_{id}{visible_attribute}'.format(
+            id=layer.id,
+            visible_attribute='_{0}'.format(visible_attribute) if visible_attribute else ''
+        )
 
-    for layer_type in layer_types or ['raster', 'vector', 'selection']:
-        if layer_type == 'selection' and not user:
-            continue
-        layer_cache = shlex.os.path.join(tilestache_cache_path, tilestache_layer_name + "{user_id}_{layer_type}".format(
-            user_id='_{0}'.format(user.id) if user else '',
-            layer_type=layer_type
-        ))
-        if shlex.os.path.exists(layer_cache):
-            shutil.rmtree('{cache}'.format(cache=layer_cache))
+        for layer_type in layer_types or ['raster', 'vector', 'selection']:
+            if layer_type == 'selection' and not user:
+                continue
+            layer_cache = shlex.os.path.join(tilestache_cache_path, tilestache_layer_name + "{user_id}_{layer_type}".format(
+                user_id='_{0}'.format(user.id) if user else '',
+                layer_type=layer_type
+            ))
+            if shlex.os.path.exists(layer_cache):
+                shutil.rmtree('{cache}'.format(cache=layer_cache))
 

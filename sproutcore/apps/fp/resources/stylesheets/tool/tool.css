@@ -4,6 +4,13 @@ $theme.featurer-bar {
     margin-left:10px;
     margin-right:10px;
 }
+$theme.footprint-scenario-builder-module-management-view {
+    background-color: #D0D0D0;
+    opacity: 1;
+    .footprint-map-overlay-section {
+        background-color: rgba(0, 0, 0, 1);
+    }
+}
 
 $theme.theme-button {
 
@@ -22,7 +29,7 @@ $theme.theme-button {
             background-color: #559ADA;
         }
 
-        &.is-full-redevelopment {
+        &.is-clear-base {
             @include background-image(linear-gradient(bottom, #EE0000 0%, #AA0000 100%));
             @include box-shadow(inset 0 1px 0 #FF0000 );
             background-color: #BB0000;
@@ -104,6 +111,15 @@ $theme.theme-button {
         label.sc-button-label {
             line-height: 28px;
         }
+    }
+    &.theme-button-tool-section {
+        label.sc-button-label {
+            padding-left: 7px;
+        }
+    }
+    &.theme-button-flat-bottom {
+        border-bottom-left-radius: 0;
+        border-bottom-right-radius: 0;
     }
 
     /* The inner divs should just go away.  */

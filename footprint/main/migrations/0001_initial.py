@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-import datetime
+from south.utils import datetime_utils as datetime
 from south.db import db
 from south.v2 import SchemaMigration
 from django.db import models
@@ -8,55 +8,6 @@ from django.db import models
 class Migration(SchemaMigration):
 
     def forwards(self, orm):
-        # Adding model 'BuildingUsePercent'
-        db.create_table('main_buildingusepercent', (
-            ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('percent', self.gf('django.db.models.fields.DecimalField')(default=0, max_digits=21, decimal_places=20)),
-            ('building_attributes', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['main.BuildingAttributeSet'])),
-            ('building_use_definition', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['main.BuildingUseDefinition'])),
-            ('vacancy_rate', self.gf('django.db.models.fields.DecimalField')(default=0, max_digits=4, decimal_places=3)),
-            ('household_size', self.gf('django.db.models.fields.DecimalField')(null=True, max_digits=5, decimal_places=3)),
-            ('efficiency', self.gf('django.db.models.fields.DecimalField')(default=0.85, max_digits=6, decimal_places=4)),
-            ('square_feet_per_unit', self.gf('django.db.models.fields.DecimalField')(null=True, max_digits=11, decimal_places=3)),
-            ('floor_area_ratio', self.gf('django.db.models.fields.DecimalField')(null=True, max_digits=12, decimal_places=10)),
-            ('unit_density', self.gf('django.db.models.fields.DecimalField')(null=True, max_digits=16, decimal_places=10)),
-            ('gross_built_up_area', self.gf('django.db.models.fields.DecimalField')(null=True, max_digits=13, decimal_places=3)),
-            ('net_built_up_area', self.gf('django.db.models.fields.DecimalField')(null=True, max_digits=13, decimal_places=3)),
-        ))
-        db.send_create_signal('main', ['BuildingUsePercent'])
-
-        # Adding model 'BuildingUseDefinition'
-        db.create_table('main_buildingusedefinition', (
-            ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('name', self.gf('django.db.models.fields.CharField')(max_length=100)),
-            ('description', self.gf('django.db.models.fields.TextField')(null=True, blank=True)),
-            ('category', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['main.BuildingUseDefinition'], null=True)),
-        ))
-        db.send_create_signal('main', ['BuildingUseDefinition'])
-
-        # Adding model 'BuildingAttributeSet'
-        db.create_table('main_buildingattributeset', (
-            ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('parking_spaces', self.gf('django.db.models.fields.DecimalField')(default=0, max_digits=7, decimal_places=3)),
-            ('parking_structure_square_feet', self.gf('django.db.models.fields.DecimalField')(default=0, max_digits=9, decimal_places=2)),
-            ('floors', self.gf('django.db.models.fields.DecimalField')(null=True, max_digits=7, decimal_places=3)),
-            ('total_far', self.gf('django.db.models.fields.DecimalField')(null=True, max_digits=10, decimal_places=7)),
-            ('gross_population_density', self.gf('django.db.models.fields.DecimalField')(default=0, max_digits=14, decimal_places=10)),
-            ('household_density', self.gf('django.db.models.fields.DecimalField')(default=0, max_digits=14, decimal_places=10)),
-            ('impervious_roof_percent', self.gf('django.db.models.fields.DecimalField')(null=True, max_digits=5, decimal_places=3)),
-            ('impervious_hardscape_percent', self.gf('django.db.models.fields.DecimalField')(null=True, max_digits=5, decimal_places=3)),
-            ('pervious_hardscape_percent', self.gf('django.db.models.fields.DecimalField')(null=True, max_digits=5, decimal_places=3)),
-            ('softscape_and_landscape_percent', self.gf('django.db.models.fields.DecimalField')(null=True, max_digits=5, decimal_places=3)),
-            ('irrigated_percent', self.gf('django.db.models.fields.DecimalField')(null=True, max_digits=5, decimal_places=3)),
-            ('hardscape_percent', self.gf('django.db.models.fields.DecimalField')(null=True, max_digits=5, decimal_places=3)),
-            ('residential_irrigated_square_feet', self.gf('django.db.models.fields.DecimalField')(null=True, max_digits=9, decimal_places=2)),
-            ('commercial_irrigated_square_feet', self.gf('django.db.models.fields.DecimalField')(null=True, max_digits=9, decimal_places=2)),
-            ('residential_average_lot_size', self.gf('django.db.models.fields.DecimalField')(null=True, max_digits=9, decimal_places=2)),
-            ('gross_net_ratio', self.gf('django.db.models.fields.DecimalField')(default=1, max_digits=8, decimal_places=7)),
-            ('combined_pop_emp_density', self.gf('django.db.models.fields.DecimalField')(default=0, max_digits=9, decimal_places=4)),
-        ))
-        db.send_create_signal('main', ['BuildingAttributeSet'])
-
         # Adding model 'Tag'
         db.create_table('main_tag', (
             ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
@@ -64,97 +15,55 @@ class Migration(SchemaMigration):
         ))
         db.send_create_signal('main', ['Tag'])
 
-        # Adding model 'Medium'
-        db.create_table('main_medium', (
+        # Adding model 'Intersection'
+        db.create_table('main_intersection', (
             ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('name', self.gf('django.db.models.fields.CharField')(max_length=100)),
-            ('description', self.gf('django.db.models.fields.TextField')(null=True, blank=True)),
+            ('join_type', self.gf('django.db.models.fields.CharField')(max_length=50)),
+            ('from_type', self.gf('django.db.models.fields.CharField')(max_length=50, null=True)),
+            ('to_type', self.gf('django.db.models.fields.CharField')(max_length=50, null=True)),
+        ))
+        db.send_create_signal('main', ['Intersection'])
+
+        # Adding model 'Behavior'
+        db.create_table('main_behavior', (
+            ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
             ('deleted', self.gf('django.db.models.fields.BooleanField')(default=False)),
             ('key', self.gf('django.db.models.fields.CharField')(unique=True, max_length=120)),
-            ('url', self.gf('django.db.models.fields.CharField')(max_length=200, null=True, blank=True)),
-            ('content_type', self.gf('django.db.models.fields.CharField')(max_length=20, null=True, blank=True)),
-            ('content', self.gf('picklefield.fields.PickledObjectField')(null=True)),
-        ))
-        db.send_create_signal('main', ['Medium'])
-
-        # Adding model 'BuiltFormExample'
-        db.create_table('main_builtformexample', (
-            ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
             ('name', self.gf('django.db.models.fields.CharField')(max_length=100)),
             ('description', self.gf('django.db.models.fields.TextField')(null=True, blank=True)),
-            ('key', self.gf('django.db.models.fields.CharField')(unique=True, max_length=120)),
-            ('url_aerial', self.gf('django.db.models.fields.CharField')(max_length=200, null=True, blank=True)),
-            ('url_street', self.gf('django.db.models.fields.CharField')(max_length=200, null=True, blank=True)),
-            ('content', self.gf('picklefield.fields.PickledObjectField')(null=True)),
+            ('abstract', self.gf('django.db.models.fields.BooleanField')(default=False)),
+            ('intersection', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['main.Intersection'], null=True)),
+            ('template_feature_behavior', self.gf('django.db.models.fields.related.ForeignKey')(related_name='owning_behavior', null=True, to=orm['main.FeatureBehavior'])),
+            ('readonly', self.gf('django.db.models.fields.BooleanField')(default=False)),
         ))
-        db.send_create_signal('main', ['BuiltFormExample'])
+        db.send_create_signal('main', ['Behavior'])
 
-        # Adding model 'BuiltForm'
-        db.create_table('main_builtform', (
-            ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('name', self.gf('django.db.models.fields.CharField')(max_length=100)),
-            ('description', self.gf('django.db.models.fields.TextField')(null=True, blank=True)),
-            ('building_attributes', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['main.BuildingAttributeSet'], null=True)),
-            ('deleted', self.gf('django.db.models.fields.BooleanField')(default=False)),
-            ('key', self.gf('django.db.models.fields.CharField')(unique=True, max_length=120)),
-            ('origin_built_form', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['main.BuiltForm'], null=True)),
-            ('medium', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['main.Medium'], null=True)),
-        ))
-        db.send_create_signal('main', ['BuiltForm'])
-
-        # Adding M2M table for field tags on 'BuiltForm'
-        db.create_table('main_builtform_tags', (
+        # Adding M2M table for field tags on 'Behavior'
+        m2m_table_name = db.shorten_name('main_behavior_tags')
+        db.create_table(m2m_table_name, (
             ('id', models.AutoField(verbose_name='ID', primary_key=True, auto_created=True)),
-            ('builtform', models.ForeignKey(orm['main.builtform'], null=False)),
+            ('behavior', models.ForeignKey(orm['main.behavior'], null=False)),
             ('tag', models.ForeignKey(orm['main.tag'], null=False))
         ))
-        db.create_unique('main_builtform_tags', ['builtform_id', 'tag_id'])
+        db.create_unique(m2m_table_name, ['behavior_id', 'tag_id'])
 
-        # Adding M2M table for field media on 'BuiltForm'
-        db.create_table('main_builtform_media', (
+        # Adding M2M table for field parents on 'Behavior'
+        m2m_table_name = db.shorten_name('main_behavior_parents')
+        db.create_table(m2m_table_name, (
             ('id', models.AutoField(verbose_name='ID', primary_key=True, auto_created=True)),
-            ('builtform', models.ForeignKey(orm['main.builtform'], null=False)),
-            ('medium', models.ForeignKey(orm['main.medium'], null=False))
+            ('from_behavior', models.ForeignKey(orm['main.behavior'], null=False)),
+            ('to_behavior', models.ForeignKey(orm['main.behavior'], null=False))
         ))
-        db.create_unique('main_builtform_media', ['builtform_id', 'medium_id'])
+        db.create_unique(m2m_table_name, ['from_behavior_id', 'to_behavior_id'])
 
-        # Adding M2M table for field examples on 'BuiltForm'
-        db.create_table('main_builtform_examples', (
-            ('id', models.AutoField(verbose_name='ID', primary_key=True, auto_created=True)),
-            ('builtform', models.ForeignKey(orm['main.builtform'], null=False)),
-            ('builtformexample', models.ForeignKey(orm['main.builtformexample'], null=False))
-        ))
-        db.create_unique('main_builtform_examples', ['builtform_id', 'builtformexample_id'])
-
-        # Adding model 'DbEntity'
-        db.create_table('main_dbentity', (
+        # Adding model 'AnalysisTool'
+        db.create_table('main_analysistool', (
             ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('name', self.gf('django.db.models.fields.CharField')(max_length=100)),
-            ('description', self.gf('django.db.models.fields.TextField')(null=True, blank=True)),
-            ('deleted', self.gf('django.db.models.fields.BooleanField')(default=False)),
-            ('key', self.gf('django.db.models.fields.CharField')(max_length=50)),
-            ('schema', self.gf('django.db.models.fields.CharField')(max_length=100, null=True)),
-            ('table', self.gf('django.db.models.fields.CharField')(max_length=100, null=True)),
-            ('srid', self.gf('django.db.models.fields.CharField')(max_length=100, null=True)),
-            ('creator', self.gf('django.db.models.fields.related.ForeignKey')(related_name='db_entity_creator', null=True, to=orm['auth.User'])),
-            ('updater', self.gf('django.db.models.fields.related.ForeignKey')(related_name='db_entity_updater', null=True, to=orm['auth.User'])),
-            ('feature_class_configuration', self.gf('picklefield.fields.PickledObjectField')(null=True)),
-            ('extent_authority', self.gf('django.db.models.fields.BooleanField')(default=False)),
-            ('url', self.gf('django.db.models.fields.CharField')(max_length=1000, null=True)),
-            ('hosts', self.gf('picklefield.fields.PickledObjectField')(null=True)),
-            ('query', self.gf('picklefield.fields.PickledObjectField')(null=True)),
-            ('class_key', self.gf('django.db.models.fields.CharField')(max_length=50, null=True)),
-            ('group_by', self.gf('picklefield.fields.PickledObjectField')(null=True)),
+            ('key', self.gf('django.db.models.fields.CharField')(max_length=100)),
+            ('config_entity', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['main.ConfigEntity'])),
+            ('behavior', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['main.Behavior'], null=True)),
         ))
-        db.send_create_signal('main', ['DbEntity'])
-
-        # Adding M2M table for field tags on 'DbEntity'
-        db.create_table('main_dbentity_tags', (
-            ('id', models.AutoField(verbose_name='ID', primary_key=True, auto_created=True)),
-            ('dbentity', models.ForeignKey(orm['main.dbentity'], null=False)),
-            ('tag', models.ForeignKey(orm['main.tag'], null=False))
-        ))
-        db.create_unique('main_dbentity_tags', ['dbentity_id', 'tag_id'])
+        db.send_create_signal('main', ['AnalysisTool'])
 
         # Adding model 'Category'
         db.create_table('main_category', (
@@ -164,117 +73,191 @@ class Migration(SchemaMigration):
         ))
         db.send_create_signal('main', ['Category'])
 
+        # Adding model 'Medium'
+        db.create_table('main_medium', (
+            ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
+            ('deleted', self.gf('django.db.models.fields.BooleanField')(default=False)),
+            ('key', self.gf('django.db.models.fields.CharField')(unique=True, max_length=120)),
+            ('name', self.gf('django.db.models.fields.CharField')(max_length=100)),
+            ('description', self.gf('django.db.models.fields.TextField')(null=True, blank=True)),
+            ('url', self.gf('django.db.models.fields.CharField')(max_length=200, null=True, blank=True)),
+            ('content_type', self.gf('django.db.models.fields.CharField')(max_length=20, null=True, blank=True)),
+            ('content', self.gf('picklefield.fields.PickledObjectField')(null=True)),
+        ))
+        db.send_create_signal('main', ['Medium'])
+
+        # Adding model 'BuiltFormExample'
+        db.create_table('main_builtformexample', (
+            ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
+            ('key', self.gf('django.db.models.fields.CharField')(unique=True, max_length=120)),
+            ('name', self.gf('django.db.models.fields.CharField')(max_length=100)),
+            ('description', self.gf('django.db.models.fields.TextField')(null=True, blank=True)),
+            ('url_aerial', self.gf('django.db.models.fields.CharField')(max_length=200, null=True, blank=True)),
+            ('url_street', self.gf('django.db.models.fields.CharField')(max_length=200, null=True, blank=True)),
+            ('content', self.gf('picklefield.fields.PickledObjectField')(null=True)),
+        ))
+        db.send_create_signal('main', ['BuiltFormExample'])
+
+        # Adding model 'BuiltForm'
+        db.create_table('main_builtform', (
+            ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
+            ('deleted', self.gf('django.db.models.fields.BooleanField')(default=False)),
+            ('key', self.gf('django.db.models.fields.CharField')(unique=True, max_length=120)),
+            ('name', self.gf('django.db.models.fields.CharField')(max_length=100)),
+            ('description', self.gf('django.db.models.fields.TextField')(null=True, blank=True)),
+            ('origin_instance', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['main.BuiltForm'], null=True)),
+            ('medium', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['main.Medium'], null=True)),
+            ('creator', self.gf('django.db.models.fields.related.ForeignKey')(related_name='built_form_creator', to=orm['auth.User'])),
+            ('updater', self.gf('django.db.models.fields.related.ForeignKey')(related_name='built_form_updater', to=orm['auth.User'])),
+        ))
+        db.send_create_signal('main', ['BuiltForm'])
+
+        # Adding M2M table for field tags on 'BuiltForm'
+        m2m_table_name = db.shorten_name('main_builtform_tags')
+        db.create_table(m2m_table_name, (
+            ('id', models.AutoField(verbose_name='ID', primary_key=True, auto_created=True)),
+            ('builtform', models.ForeignKey(orm['main.builtform'], null=False)),
+            ('tag', models.ForeignKey(orm['main.tag'], null=False))
+        ))
+        db.create_unique(m2m_table_name, ['builtform_id', 'tag_id'])
+
+        # Adding M2M table for field media on 'BuiltForm'
+        m2m_table_name = db.shorten_name('main_builtform_media')
+        db.create_table(m2m_table_name, (
+            ('id', models.AutoField(verbose_name='ID', primary_key=True, auto_created=True)),
+            ('builtform', models.ForeignKey(orm['main.builtform'], null=False)),
+            ('medium', models.ForeignKey(orm['main.medium'], null=False))
+        ))
+        db.create_unique(m2m_table_name, ['builtform_id', 'medium_id'])
+
+        # Adding M2M table for field examples on 'BuiltForm'
+        m2m_table_name = db.shorten_name('main_builtform_examples')
+        db.create_table(m2m_table_name, (
+            ('id', models.AutoField(verbose_name='ID', primary_key=True, auto_created=True)),
+            ('builtform', models.ForeignKey(orm['main.builtform'], null=False)),
+            ('builtformexample', models.ForeignKey(orm['main.builtformexample'], null=False))
+        ))
+        db.create_unique(m2m_table_name, ['builtform_id', 'builtformexample_id'])
+
         # Adding model 'BuiltFormSet'
         db.create_table('main_builtformset', (
             ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('name', self.gf('django.db.models.fields.CharField')(max_length=100)),
-            ('description', self.gf('django.db.models.fields.TextField')(null=True, blank=True)),
             ('deleted', self.gf('django.db.models.fields.BooleanField')(default=False)),
             ('key', self.gf('django.db.models.fields.CharField')(unique=True, max_length=120)),
+            ('name', self.gf('django.db.models.fields.CharField')(max_length=100)),
+            ('description', self.gf('django.db.models.fields.TextField')(null=True, blank=True)),
         ))
         db.send_create_signal('main', ['BuiltFormSet'])
 
         # Adding M2M table for field built_forms on 'BuiltFormSet'
-        db.create_table('main_builtformset_built_forms', (
+        m2m_table_name = db.shorten_name('main_builtformset_built_forms')
+        db.create_table(m2m_table_name, (
             ('id', models.AutoField(verbose_name='ID', primary_key=True, auto_created=True)),
             ('builtformset', models.ForeignKey(orm['main.builtformset'], null=False)),
             ('builtform', models.ForeignKey(orm['main.builtform'], null=False))
         ))
-        db.create_unique('main_builtformset_built_forms', ['builtformset_id', 'builtform_id'])
+        db.create_unique(m2m_table_name, ['builtformset_id', 'builtform_id'])
 
         # Adding model 'Policy'
         db.create_table('main_policy', (
             ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
             ('name', self.gf('django.db.models.fields.CharField')(max_length=100)),
             ('description', self.gf('django.db.models.fields.TextField')(null=True, blank=True)),
-            ('key', self.gf('django.db.models.fields.CharField')(max_length=50)),
+            ('key', self.gf('django.db.models.fields.CharField')(max_length=100)),
             ('schema', self.gf('django.db.models.fields.CharField')(max_length=100, null=True)),
             ('values', self.gf('picklefield.fields.PickledObjectField')()),
         ))
         db.send_create_signal('main', ['Policy'])
 
         # Adding M2M table for field tags on 'Policy'
-        db.create_table('main_policy_tags', (
+        m2m_table_name = db.shorten_name('main_policy_tags')
+        db.create_table(m2m_table_name, (
             ('id', models.AutoField(verbose_name='ID', primary_key=True, auto_created=True)),
             ('policy', models.ForeignKey(orm['main.policy'], null=False)),
             ('tag', models.ForeignKey(orm['main.tag'], null=False))
         ))
-        db.create_unique('main_policy_tags', ['policy_id', 'tag_id'])
+        db.create_unique(m2m_table_name, ['policy_id', 'tag_id'])
 
         # Adding M2M table for field policies on 'Policy'
-        db.create_table('main_policy_policies', (
+        m2m_table_name = db.shorten_name('main_policy_policies')
+        db.create_table(m2m_table_name, (
             ('id', models.AutoField(verbose_name='ID', primary_key=True, auto_created=True)),
             ('from_policy', models.ForeignKey(orm['main.policy'], null=False)),
             ('to_policy', models.ForeignKey(orm['main.policy'], null=False))
         ))
-        db.create_unique('main_policy_policies', ['from_policy_id', 'to_policy_id'])
+        db.create_unique(m2m_table_name, ['from_policy_id', 'to_policy_id'])
 
         # Adding model 'PolicySet'
         db.create_table('main_policyset', (
             ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('name', self.gf('django.db.models.fields.CharField')(max_length=100)),
-            ('description', self.gf('django.db.models.fields.TextField')(null=True, blank=True)),
             ('deleted', self.gf('django.db.models.fields.BooleanField')(default=False)),
             ('key', self.gf('django.db.models.fields.CharField')(unique=True, max_length=120)),
+            ('name', self.gf('django.db.models.fields.CharField')(max_length=100)),
+            ('description', self.gf('django.db.models.fields.TextField')(null=True, blank=True)),
         ))
         db.send_create_signal('main', ['PolicySet'])
 
         # Adding M2M table for field policies on 'PolicySet'
-        db.create_table('main_policyset_policies', (
+        m2m_table_name = db.shorten_name('main_policyset_policies')
+        db.create_table(m2m_table_name, (
             ('id', models.AutoField(verbose_name='ID', primary_key=True, auto_created=True)),
             ('policyset', models.ForeignKey(orm['main.policyset'], null=False)),
             ('policy', models.ForeignKey(orm['main.policy'], null=False))
         ))
-        db.create_unique('main_policyset_policies', ['policyset_id', 'policy_id'])
+        db.create_unique(m2m_table_name, ['policyset_id', 'policy_id'])
 
         # Adding model 'ConfigEntity'
         db.create_table('main_configentity', (
             ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
+            ('deleted', self.gf('django.db.models.fields.BooleanField')(default=False)),
             ('name', self.gf('django.db.models.fields.CharField')(max_length=100)),
             ('description', self.gf('django.db.models.fields.TextField')(null=True, blank=True)),
-            ('deleted', self.gf('django.db.models.fields.BooleanField')(default=False)),
+            ('origin_instance', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['main.ConfigEntity'], null=True)),
             ('key', self.gf('django.db.models.fields.CharField')(max_length=120)),
             ('scope', self.gf('django.db.models.fields.CharField')(max_length=120)),
             ('bounds', self.gf('django.contrib.gis.db.models.fields.MultiPolygonField')()),
             ('creator', self.gf('django.db.models.fields.related.ForeignKey')(related_name='config_entity_creator', null=True, to=orm['auth.User'])),
             ('updater', self.gf('django.db.models.fields.related.ForeignKey')(related_name='config_entity_updater', null=True, to=orm['auth.User'])),
             ('parent_config_entity', self.gf('django.db.models.fields.related.ForeignKey')(related_name='parent_set', null=True, to=orm['main.ConfigEntity'])),
-            ('origin_config_entity', self.gf('django.db.models.fields.related.ForeignKey')(related_name='clone_set', null=True, to=orm['main.ConfigEntity'])),
             ('selections', self.gf('footprint.main.models.config.model_pickled_object_field.SelectionModelsPickledObjectField')(default={'db_entities': {}, 'sets': {}})),
         ))
         db.send_create_signal('main', ['ConfigEntity'])
 
         # Adding M2M table for field categories on 'ConfigEntity'
-        db.create_table('main_configentity_categories', (
+        m2m_table_name = db.shorten_name('main_configentity_categories')
+        db.create_table(m2m_table_name, (
             ('id', models.AutoField(verbose_name='ID', primary_key=True, auto_created=True)),
             ('configentity', models.ForeignKey(orm['main.configentity'], null=False)),
             ('category', models.ForeignKey(orm['main.category'], null=False))
         ))
-        db.create_unique('main_configentity_categories', ['configentity_id', 'category_id'])
+        db.create_unique(m2m_table_name, ['configentity_id', 'category_id'])
 
         # Adding M2M table for field built_form_sets on 'ConfigEntity'
-        db.create_table('main_configentity_built_form_sets', (
+        m2m_table_name = db.shorten_name('main_configentity_built_form_sets')
+        db.create_table(m2m_table_name, (
             ('id', models.AutoField(verbose_name='ID', primary_key=True, auto_created=True)),
             ('configentity', models.ForeignKey(orm['main.configentity'], null=False)),
             ('builtformset', models.ForeignKey(orm['main.builtformset'], null=False))
         ))
-        db.create_unique('main_configentity_built_form_sets', ['configentity_id', 'builtformset_id'])
+        db.create_unique(m2m_table_name, ['configentity_id', 'builtformset_id'])
 
         # Adding M2M table for field policy_sets on 'ConfigEntity'
-        db.create_table('main_configentity_policy_sets', (
+        m2m_table_name = db.shorten_name('main_configentity_policy_sets')
+        db.create_table(m2m_table_name, (
             ('id', models.AutoField(verbose_name='ID', primary_key=True, auto_created=True)),
             ('configentity', models.ForeignKey(orm['main.configentity'], null=False)),
             ('policyset', models.ForeignKey(orm['main.policyset'], null=False))
         ))
-        db.create_unique('main_configentity_policy_sets', ['configentity_id', 'policyset_id'])
+        db.create_unique(m2m_table_name, ['configentity_id', 'policyset_id'])
 
         # Adding M2M table for field media on 'ConfigEntity'
-        db.create_table('main_configentity_media', (
+        m2m_table_name = db.shorten_name('main_configentity_media')
+        db.create_table(m2m_table_name, (
             ('id', models.AutoField(verbose_name='ID', primary_key=True, auto_created=True)),
             ('configentity', models.ForeignKey(orm['main.configentity'], null=False)),
             ('medium', models.ForeignKey(orm['main.medium'], null=False))
         ))
-        db.create_unique('main_configentity_media', ['configentity_id', 'medium_id'])
+        db.create_unique(m2m_table_name, ['configentity_id', 'medium_id'])
 
         # Adding model 'Job'
         db.create_table('main_job', (
@@ -290,36 +273,80 @@ class Migration(SchemaMigration):
         ))
         db.send_create_signal('main', ['Job'])
 
-        # Adding model 'PresentationMedium'
-        db.create_table('main_presentationmedium', (
+        # Adding model 'AnalysisModule'
+        db.create_table('main_analysismodule', (
             ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
             ('deleted', self.gf('django.db.models.fields.BooleanField')(default=False)),
-            ('presentation', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['main.Presentation'])),
-            ('medium', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['main.Medium'])),
-            ('visible', self.gf('django.db.models.fields.BooleanField')(default=True)),
-            ('visible_attributes', self.gf('picklefield.fields.PickledObjectField')(null=True)),
-            ('db_entity_key', self.gf('django.db.models.fields.CharField')(max_length=50)),
-            ('medium_context', self.gf('picklefield.fields.PickledObjectField')(null=True)),
-            ('configuration', self.gf('picklefield.fields.PickledObjectField')(null=True)),
-            ('rendered_medium', self.gf('picklefield.fields.PickledObjectField')(null=True)),
+            ('name', self.gf('django.db.models.fields.CharField')(max_length=100)),
+            ('description', self.gf('django.db.models.fields.TextField')(null=True, blank=True)),
+            ('key', self.gf('django.db.models.fields.CharField')(max_length=100)),
+            ('started', self.gf('django.db.models.fields.DateField')(null=True)),
+            ('completed', self.gf('django.db.models.fields.DateField')(null=True)),
+            ('failed', self.gf('django.db.models.fields.DateField')(null=True)),
+            ('creator', self.gf('django.db.models.fields.related.ForeignKey')(related_name='analysis_module_creator', null=True, to=orm['auth.User'])),
+            ('updater', self.gf('django.db.models.fields.related.ForeignKey')(related_name='analysis_module_updater', null=True, to=orm['auth.User'])),
+            ('config_entity', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['main.ConfigEntity'])),
+            ('configuration', self.gf('picklefield.fields.PickledObjectField')(default={}, null=True)),
         ))
-        db.send_create_signal('main', ['PresentationMedium'])
+        db.send_create_signal('main', ['AnalysisModule'])
 
-        # Adding M2M table for field tags on 'PresentationMedium'
-        db.create_table('main_presentationmedium_tags', (
+        # Adding M2M table for field analysis_tools on 'AnalysisModule'
+        m2m_table_name = db.shorten_name('main_analysismodule_analysis_tools')
+        db.create_table(m2m_table_name, (
             ('id', models.AutoField(verbose_name='ID', primary_key=True, auto_created=True)),
-            ('presentationmedium', models.ForeignKey(orm['main.presentationmedium'], null=False)),
-            ('tag', models.ForeignKey(orm['main.tag'], null=False))
+            ('analysismodule', models.ForeignKey(orm['main.analysismodule'], null=False)),
+            ('analysistool', models.ForeignKey(orm['main.analysistool'], null=False))
         ))
-        db.create_unique('main_presentationmedium_tags', ['presentationmedium_id', 'tag_id'])
+        db.create_unique(m2m_table_name, ['analysismodule_id', 'analysistool_id'])
 
-        # Adding model 'Layer'
-        db.create_table('main_layer', (
-            ('presentationmedium_ptr', self.gf('django.db.models.fields.related.OneToOneField')(to=orm['main.PresentationMedium'], unique=True, primary_key=True)),
+        # Adding model 'BuildingUsePercent'
+        db.create_table('main_buildingusepercent', (
+            ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
+            ('percent', self.gf('django.db.models.fields.DecimalField')(default=0, max_digits=21, decimal_places=20)),
+            ('building_attribute_set', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['main.BuildingAttributeSet'])),
+            ('building_use_definition', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['main.BuildingUseDefinition'])),
+            ('efficiency', self.gf('django.db.models.fields.DecimalField')(default=0.85, max_digits=6, decimal_places=4)),
+            ('square_feet_per_unit', self.gf('django.db.models.fields.DecimalField')(null=True, max_digits=11, decimal_places=3)),
+            ('floor_area_ratio', self.gf('django.db.models.fields.DecimalField')(null=True, max_digits=12, decimal_places=10)),
+            ('unit_density', self.gf('django.db.models.fields.DecimalField')(null=True, max_digits=16, decimal_places=10)),
+            ('gross_built_up_area', self.gf('django.db.models.fields.DecimalField')(null=True, max_digits=13, decimal_places=3)),
+            ('net_built_up_area', self.gf('django.db.models.fields.DecimalField')(null=True, max_digits=13, decimal_places=3)),
+        ))
+        db.send_create_signal('main', ['BuildingUsePercent'])
+
+        # Adding model 'BuildingUseDefinition'
+        db.create_table('main_buildingusedefinition', (
+            ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
             ('name', self.gf('django.db.models.fields.CharField')(max_length=100)),
             ('description', self.gf('django.db.models.fields.TextField')(null=True, blank=True)),
         ))
-        db.send_create_signal('main', ['Layer'])
+        db.send_create_signal('main', ['BuildingUseDefinition'])
+
+        # Adding model 'BuildingAttributeSet'
+        db.create_table('main_buildingattributeset', (
+            ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
+            ('address', self.gf('django.db.models.fields.CharField')(default=None, max_length=200, null=True, blank=True)),
+            ('website', self.gf('django.db.models.fields.CharField')(default=None, max_length=300, null=True, blank=True)),
+            ('vacancy_rate', self.gf('django.db.models.fields.DecimalField')(default=0, max_digits=4, decimal_places=3)),
+            ('household_size', self.gf('django.db.models.fields.DecimalField')(default=0, max_digits=5, decimal_places=3)),
+            ('lot_size_square_feet', self.gf('django.db.models.fields.DecimalField')(default=0, max_digits=14, decimal_places=7)),
+            ('floors', self.gf('django.db.models.fields.DecimalField')(default=0, max_digits=7, decimal_places=4)),
+            ('total_far', self.gf('django.db.models.fields.DecimalField')(default=0, max_digits=10, decimal_places=7)),
+            ('surface_parking_spaces', self.gf('django.db.models.fields.DecimalField')(default=0, max_digits=14, decimal_places=4)),
+            ('above_ground_structured_parking_spaces', self.gf('django.db.models.fields.DecimalField')(default=0, max_digits=14, decimal_places=4)),
+            ('below_ground_structured_parking_spaces', self.gf('django.db.models.fields.DecimalField')(default=0, max_digits=14, decimal_places=4)),
+            ('average_parking_space_square_feet', self.gf('django.db.models.fields.DecimalField')(default=0, null=True, max_digits=14, decimal_places=4)),
+            ('surface_parking_square_feet', self.gf('django.db.models.fields.DecimalField')(default=0, null=True, max_digits=14, decimal_places=4)),
+            ('building_footprint_square_feet', self.gf('django.db.models.fields.DecimalField')(default=0, null=True, max_digits=14, decimal_places=4)),
+            ('hardscape_other_square_feet', self.gf('django.db.models.fields.DecimalField')(default=0, null=True, max_digits=14, decimal_places=4)),
+            ('irrigated_softscape_square_feet', self.gf('django.db.models.fields.DecimalField')(default=0, null=True, max_digits=14, decimal_places=3)),
+            ('nonirrigated_softscape_square_feet', self.gf('django.db.models.fields.DecimalField')(default=0, max_digits=14, decimal_places=3)),
+            ('irrigated_percent', self.gf('django.db.models.fields.DecimalField')(default=0, max_digits=14, decimal_places=10)),
+            ('residential_irrigated_square_feet', self.gf('django.db.models.fields.DecimalField')(default=0, null=True, max_digits=9, decimal_places=2)),
+            ('commercial_irrigated_square_feet', self.gf('django.db.models.fields.DecimalField')(default=0, null=True, max_digits=9, decimal_places=2)),
+            ('gross_net_ratio', self.gf('django.db.models.fields.DecimalField')(default=1, max_digits=14, decimal_places=7)),
+        ))
+        db.send_create_signal('main', ['BuildingAttributeSet'])
 
         # Adding model 'PrimaryComponent'
         db.create_table('main_primarycomponent', (
@@ -343,6 +370,20 @@ class Migration(SchemaMigration):
         ))
         db.send_create_signal('main', ['PlacetypeComponent'])
 
+        # Adding model 'BuildingType'
+        db.create_table('main_buildingtype', (
+            ('placetypecomponent_ptr', self.gf('django.db.models.fields.related.OneToOneField')(to=orm['main.PlacetypeComponent'], unique=True, primary_key=True)),
+            ('building_attribute_set', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['main.BuildingAttributeSet'], null=True)),
+        ))
+        db.send_create_signal('main', ['BuildingType'])
+
+        # Adding model 'Building'
+        db.create_table('main_building', (
+            ('primarycomponent_ptr', self.gf('django.db.models.fields.related.OneToOneField')(to=orm['main.PrimaryComponent'], unique=True, primary_key=True)),
+            ('building_attribute_set', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['main.BuildingAttributeSet'], null=True)),
+        ))
+        db.send_create_signal('main', ['Building'])
+
         # Adding model 'StreetAttributeSet'
         db.create_table('main_streetattributeset', (
             ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
@@ -355,10 +396,17 @@ class Migration(SchemaMigration):
         # Adding model 'Placetype'
         db.create_table('main_placetype', (
             ('builtform_ptr', self.gf('django.db.models.fields.related.OneToOneField')(to=orm['main.BuiltForm'], unique=True, primary_key=True)),
+        ))
+        db.send_create_signal('main', ['Placetype'])
+
+        # Adding model 'UrbanPlacetype'
+        db.create_table('main_urbanplacetype', (
+            ('placetype_ptr', self.gf('django.db.models.fields.related.OneToOneField')(to=orm['main.Placetype'], unique=True, primary_key=True)),
+            ('building_attribute_set', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['main.BuildingAttributeSet'], null=True)),
             ('street_attributes', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['main.StreetAttributeSet'], null=True)),
             ('intersection_density', self.gf('django.db.models.fields.DecimalField')(default=0, max_digits=8, decimal_places=4)),
         ))
-        db.send_create_signal('main', ['Placetype'])
+        db.send_create_signal('main', ['UrbanPlacetype'])
 
         # Adding model 'FlatBuiltForm'
         db.create_table('main_flatbuiltform', (
@@ -451,82 +499,21 @@ class Migration(SchemaMigration):
             ('building_avg_number_of_floors', self.gf('django.db.models.fields.IntegerField')(null=True)),
             ('block_avg_size_acres', self.gf('django.db.models.fields.IntegerField')(null=True)),
             ('street_pattern', self.gf('django.db.models.fields.CharField')(max_length=100, null=True)),
+            ('combined_pop_emp_density', self.gf('django.db.models.fields.DecimalField')(default=0, null=True, max_digits=14, decimal_places=4)),
         ))
         db.send_create_signal('main', ['FlatBuiltForm'])
 
-        # Adding model 'Core'
-        db.create_table('main_core', (
-            ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('config_entity', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['main.ConfigEntity'])),
-            ('celery_task', self.gf('picklefield.fields.PickledObjectField')(null=True)),
-            ('previous_celery_task', self.gf('picklefield.fields.PickledObjectField')(null=True)),
-            ('started', self.gf('django.db.models.fields.DateField')(null=True)),
-            ('completed', self.gf('django.db.models.fields.DateField')(null=True)),
-            ('failed', self.gf('django.db.models.fields.DateField')(null=True)),
-            ('user', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['auth.User'], null=True)),
+        # Adding model 'ScenarioUpdaterTool'
+        db.create_table('main_scenarioupdatertool', (
+            ('analysistool_ptr', self.gf('django.db.models.fields.related.OneToOneField')(to=orm['main.AnalysisTool'], unique=True, primary_key=True)),
         ))
-        db.send_create_signal('main', ['Core'])
+        db.send_create_signal('main', ['ScenarioUpdaterTool'])
 
-        # Adding model 'Fiscal'
-        db.create_table('main_fiscal', (
-            ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('config_entity', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['main.ConfigEntity'])),
-            ('celery_task', self.gf('picklefield.fields.PickledObjectField')(null=True)),
-            ('previous_celery_task', self.gf('picklefield.fields.PickledObjectField')(null=True)),
-            ('started', self.gf('django.db.models.fields.DateField')(null=True)),
-            ('completed', self.gf('django.db.models.fields.DateField')(null=True)),
-            ('failed', self.gf('django.db.models.fields.DateField')(null=True)),
-            ('user', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['auth.User'], null=True)),
+        # Adding model 'FiscalUpdaterTool'
+        db.create_table('main_fiscalupdatertool', (
+            ('analysistool_ptr', self.gf('django.db.models.fields.related.OneToOneField')(to=orm['main.AnalysisTool'], unique=True, primary_key=True)),
         ))
-        db.send_create_signal('main', ['Fiscal'])
-
-        # Adding model 'Vmt'
-        db.create_table('main_vmt', (
-            ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('config_entity', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['main.ConfigEntity'])),
-            ('celery_task', self.gf('picklefield.fields.PickledObjectField')(null=True)),
-            ('previous_celery_task', self.gf('picklefield.fields.PickledObjectField')(null=True)),
-            ('started', self.gf('django.db.models.fields.DateField')(null=True)),
-            ('completed', self.gf('django.db.models.fields.DateField')(null=True)),
-            ('failed', self.gf('django.db.models.fields.DateField')(null=True)),
-            ('user', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['auth.User'], null=True)),
-        ))
-        db.send_create_signal('main', ['Vmt'])
-
-        # Adding model 'PrimaryComponentPercent'
-        db.create_table('main_primarycomponentpercent', (
-            ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('percent', self.gf('django.db.models.fields.DecimalField')(default=0, max_digits=21, decimal_places=20)),
-            ('primary_component', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['main.PrimaryComponent'])),
-            ('placetype_component', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['main.PlacetypeComponent'])),
-        ))
-        db.send_create_signal('main', ['PrimaryComponentPercent'])
-
-        # Adding model 'PlacetypeComponentPercent'
-        db.create_table('main_placetypecomponentpercent', (
-            ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('percent', self.gf('django.db.models.fields.DecimalField')(default=0, max_digits=21, decimal_places=20)),
-            ('placetype_component', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['main.PlacetypeComponent'], null=True)),
-            ('placetype', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['main.Placetype'])),
-        ))
-        db.send_create_signal('main', ['PlacetypeComponentPercent'])
-
-        # Adding model 'Interest'
-        db.create_table('main_interest', (
-            ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('key', self.gf('django.db.models.fields.CharField')(unique=True, max_length=120)),
-        ))
-        db.send_create_signal('main', ['Interest'])
-
-        # Adding model 'DbEntityInterest'
-        db.create_table('main_dbentityinterest', (
-            ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('deleted', self.gf('django.db.models.fields.BooleanField')(default=False)),
-            ('config_entity', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['main.ConfigEntity'])),
-            ('db_entity', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['main.DbEntity'])),
-            ('interest', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['main.Interest'])),
-        ))
-        db.send_create_signal('main', ['DbEntityInterest'])
+        db.send_create_signal('main', ['FiscalUpdaterTool'])
 
         # Adding model 'GlobalConfig'
         db.create_table('main_globalconfig', (
@@ -565,6 +552,284 @@ class Migration(SchemaMigration):
             ('scenario_ptr', self.gf('django.db.models.fields.related.OneToOneField')(to=orm['main.Scenario'], unique=True, primary_key=True)),
         ))
         db.send_create_signal('main', ['FutureScenario'])
+
+        # Adding model 'VmtUpdaterTool'
+        db.create_table('main_vmtupdatertool', (
+            ('analysistool_ptr', self.gf('django.db.models.fields.related.OneToOneField')(to=orm['main.AnalysisTool'], unique=True, primary_key=True)),
+        ))
+        db.send_create_signal('main', ['VmtUpdaterTool'])
+
+        # Adding model 'WaterUpdaterTool'
+        db.create_table('main_waterupdatertool', (
+            ('analysistool_ptr', self.gf('django.db.models.fields.related.OneToOneField')(to=orm['main.AnalysisTool'], unique=True, primary_key=True)),
+        ))
+        db.send_create_signal('main', ['WaterUpdaterTool'])
+
+        # Adding model 'EnergyUpdaterTool'
+        db.create_table('main_energyupdatertool', (
+            ('analysistool_ptr', self.gf('django.db.models.fields.related.OneToOneField')(to=orm['main.AnalysisTool'], unique=True, primary_key=True)),
+        ))
+        db.send_create_signal('main', ['EnergyUpdaterTool'])
+
+        # Adding model 'AgricultureUpdaterTool'
+        db.create_table('main_agricultureupdatertool', (
+            ('analysistool_ptr', self.gf('django.db.models.fields.related.OneToOneField')(to=orm['main.AnalysisTool'], unique=True, primary_key=True)),
+        ))
+        db.send_create_signal('main', ['AgricultureUpdaterTool'])
+
+        # Adding model 'PresentationMedium'
+        db.create_table('main_presentationmedium', (
+            ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
+            ('deleted', self.gf('django.db.models.fields.BooleanField')(default=False)),
+            ('presentation', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['main.Presentation'])),
+            ('medium', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['main.Medium'])),
+            ('visible', self.gf('django.db.models.fields.BooleanField')(default=True)),
+            ('visible_attributes', self.gf('picklefield.fields.PickledObjectField')(null=True)),
+            ('db_entity_key', self.gf('django.db.models.fields.CharField')(max_length=50)),
+            ('medium_context', self.gf('picklefield.fields.PickledObjectField')(null=True)),
+            ('configuration', self.gf('picklefield.fields.PickledObjectField')(null=True)),
+            ('rendered_medium', self.gf('picklefield.fields.PickledObjectField')(null=True)),
+        ))
+        db.send_create_signal('main', ['PresentationMedium'])
+
+        # Adding M2M table for field tags on 'PresentationMedium'
+        m2m_table_name = db.shorten_name('main_presentationmedium_tags')
+        db.create_table(m2m_table_name, (
+            ('id', models.AutoField(verbose_name='ID', primary_key=True, auto_created=True)),
+            ('presentationmedium', models.ForeignKey(orm['main.presentationmedium'], null=False)),
+            ('tag', models.ForeignKey(orm['main.tag'], null=False))
+        ))
+        db.create_unique(m2m_table_name, ['presentationmedium_id', 'tag_id'])
+
+        # Adding model 'Layer'
+        db.create_table('main_layer', (
+            ('presentationmedium_ptr', self.gf('django.db.models.fields.related.OneToOneField')(to=orm['main.PresentationMedium'], unique=True, primary_key=True)),
+            ('name', self.gf('django.db.models.fields.CharField')(max_length=100)),
+            ('description', self.gf('django.db.models.fields.TextField')(null=True, blank=True)),
+            ('origin_instance', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['main.Layer'], null=True)),
+            ('create_from_selection', self.gf('django.db.models.fields.BooleanField')(default=False)),
+        ))
+        db.send_create_signal('main', ['Layer'])
+
+        # Adding model 'Presentation'
+        db.create_table('main_presentation', (
+            ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
+            ('deleted', self.gf('django.db.models.fields.BooleanField')(default=False)),
+            ('name', self.gf('django.db.models.fields.CharField')(max_length=100)),
+            ('description', self.gf('django.db.models.fields.TextField')(null=True, blank=True)),
+            ('key', self.gf('django.db.models.fields.CharField')(max_length=120)),
+            ('scope', self.gf('django.db.models.fields.CharField')(max_length=120)),
+            ('configuration', self.gf('picklefield.fields.PickledObjectField')(null=True)),
+            ('config_entity', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['main.ConfigEntity'])),
+        ))
+        db.send_create_signal('main', ['Presentation'])
+
+        # Adding model 'LayerLibrary'
+        db.create_table('main_layerlibrary', (
+            ('presentation_ptr', self.gf('django.db.models.fields.related.OneToOneField')(to=orm['main.Presentation'], unique=True, primary_key=True)),
+        ))
+        db.send_create_signal('main', ['LayerLibrary'])
+
+        # Adding model 'TileStacheConfig'
+        db.create_table('main_tilestacheconfig', (
+            ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
+            ('name', self.gf('django.db.models.fields.CharField')(default='default', max_length=50)),
+            ('config', self.gf('picklefield.fields.PickledObjectField')()),
+            ('enable_caching', self.gf('django.db.models.fields.NullBooleanField')(default=True, null=True, blank=True)),
+        ))
+        db.send_create_signal('main', ['TileStacheConfig'])
+
+        # Adding model 'DbEntity'
+        db.create_table('main_dbentity', (
+            ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
+            ('deleted', self.gf('django.db.models.fields.BooleanField')(default=False)),
+            ('name', self.gf('django.db.models.fields.CharField')(max_length=100)),
+            ('description', self.gf('django.db.models.fields.TextField')(null=True, blank=True)),
+            ('key', self.gf('django.db.models.fields.CharField')(max_length=100)),
+            ('origin_instance', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['main.DbEntity'], null=True)),
+            ('created', self.gf('django.db.models.fields.DateTimeField')(auto_now_add=True, blank=True)),
+            ('updated', self.gf('django.db.models.fields.DateTimeField')(auto_now=True, blank=True)),
+            ('schema', self.gf('django.db.models.fields.CharField')(max_length=100, null=True)),
+            ('table', self.gf('django.db.models.fields.CharField')(max_length=100, null=True)),
+            ('srid', self.gf('django.db.models.fields.CharField')(max_length=100, null=True)),
+            ('source_db_entity_key', self.gf('django.db.models.fields.CharField')(max_length=50, null=True)),
+            ('creator', self.gf('django.db.models.fields.related.ForeignKey')(related_name='db_entity_creator', to=orm['auth.User'])),
+            ('updater', self.gf('django.db.models.fields.related.ForeignKey')(related_name='db_entity_updater', to=orm['auth.User'])),
+            ('feature_class_configuration', self.gf('picklefield.fields.PickledObjectField')(null=True)),
+            ('no_feature_class_configuration', self.gf('django.db.models.fields.BooleanField')(default=False)),
+            ('extent_authority', self.gf('django.db.models.fields.BooleanField')(default=False)),
+            ('url', self.gf('django.db.models.fields.CharField')(max_length=1000, null=True)),
+            ('hosts', self.gf('picklefield.fields.PickledObjectField')(null=True)),
+            ('behavior_locked', self.gf('django.db.models.fields.BooleanField')(default=False)),
+            ('query', self.gf('picklefield.fields.PickledObjectField')(null=True)),
+            ('group_by', self.gf('picklefield.fields.PickledObjectField')(null=True)),
+        ))
+        db.send_create_signal('main', ['DbEntity'])
+
+        # Adding M2M table for field tags on 'DbEntity'
+        m2m_table_name = db.shorten_name('main_dbentity_tags')
+        db.create_table(m2m_table_name, (
+            ('id', models.AutoField(verbose_name='ID', primary_key=True, auto_created=True)),
+            ('dbentity', models.ForeignKey(orm['main.dbentity'], null=False)),
+            ('tag', models.ForeignKey(orm['main.tag'], null=False))
+        ))
+        db.create_unique(m2m_table_name, ['dbentity_id', 'tag_id'])
+
+        # Adding model 'EnvironmentalConstraintPercent'
+        db.create_table('main_environmentalconstraintpercent', (
+            ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
+            ('db_entity', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['main.DbEntity'])),
+            ('analysis_tool', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['main.EnvironmentalConstraintUpdaterTool'])),
+            ('percent', self.gf('django.db.models.fields.DecimalField')(default=1, null=True, max_digits=14, decimal_places=8)),
+            ('priority', self.gf('django.db.models.fields.IntegerField')(default=1, null=True)),
+        ))
+        db.send_create_signal('main', ['EnvironmentalConstraintPercent'])
+
+        # Adding model 'EnvironmentalConstraintUpdaterTool'
+        db.create_table('main_environmentalconstraintupdatertool', (
+            ('analysistool_ptr', self.gf('django.db.models.fields.related.OneToOneField')(to=orm['main.AnalysisTool'], unique=True, primary_key=True)),
+        ))
+        db.send_create_signal('main', ['EnvironmentalConstraintUpdaterTool'])
+
+        # Adding model 'FeatureBehavior'
+        db.create_table('main_featurebehavior', (
+            ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
+            ('behavior', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['main.Behavior'])),
+            ('db_entity', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['main.DbEntity'], null=True)),
+            ('is_template', self.gf('django.db.models.fields.BooleanField')(default=False)),
+            ('readonly', self.gf('django.db.models.fields.BooleanField')(default=False)),
+            ('intersection', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['main.Intersection'], null=True)),
+        ))
+        db.send_create_signal('main', ['FeatureBehavior'])
+
+        # Adding M2M table for field tags on 'FeatureBehavior'
+        m2m_table_name = db.shorten_name('main_featurebehavior_tags')
+        db.create_table(m2m_table_name, (
+            ('id', models.AutoField(verbose_name='ID', primary_key=True, auto_created=True)),
+            ('featurebehavior', models.ForeignKey(orm['main.featurebehavior'], null=False)),
+            ('tag', models.ForeignKey(orm['main.tag'], null=False))
+        ))
+        db.create_unique(m2m_table_name, ['featurebehavior_id', 'tag_id'])
+
+        # Adding model 'CommercialEnergyBaseline'
+        db.create_table('main_commercialenergybaseline', (
+            ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
+            ('zone', self.gf('django.db.models.fields.IntegerField')()),
+            ('retail_services_electricity', self.gf('django.db.models.fields.DecimalField')(default=0, max_digits=14, decimal_places=4)),
+            ('restaurant_electricity', self.gf('django.db.models.fields.DecimalField')(default=0, max_digits=14, decimal_places=4)),
+            ('accommodation_electricity', self.gf('django.db.models.fields.DecimalField')(default=0, max_digits=14, decimal_places=4)),
+            ('arts_entertainment_electricity', self.gf('django.db.models.fields.DecimalField')(default=0, max_digits=14, decimal_places=4)),
+            ('other_services_electricity', self.gf('django.db.models.fields.DecimalField')(default=0, max_digits=14, decimal_places=4)),
+            ('office_services_electricity', self.gf('django.db.models.fields.DecimalField')(default=0, max_digits=14, decimal_places=4)),
+            ('public_admin_electricity', self.gf('django.db.models.fields.DecimalField')(default=0, max_digits=14, decimal_places=4)),
+            ('education_electricity', self.gf('django.db.models.fields.DecimalField')(default=0, max_digits=14, decimal_places=4)),
+            ('medical_services_electricity', self.gf('django.db.models.fields.DecimalField')(default=0, max_digits=14, decimal_places=4)),
+            ('transport_warehousing_electricity', self.gf('django.db.models.fields.DecimalField')(default=0, max_digits=14, decimal_places=4)),
+            ('wholesale_electricity', self.gf('django.db.models.fields.DecimalField')(default=0, max_digits=14, decimal_places=4)),
+            ('retail_services_gas', self.gf('django.db.models.fields.DecimalField')(default=0, max_digits=14, decimal_places=4)),
+            ('restaurant_gas', self.gf('django.db.models.fields.DecimalField')(default=0, max_digits=14, decimal_places=4)),
+            ('accommodation_gas', self.gf('django.db.models.fields.DecimalField')(default=0, max_digits=14, decimal_places=4)),
+            ('arts_entertainment_gas', self.gf('django.db.models.fields.DecimalField')(default=0, max_digits=14, decimal_places=4)),
+            ('other_services_gas', self.gf('django.db.models.fields.DecimalField')(default=0, max_digits=14, decimal_places=4)),
+            ('office_services_gas', self.gf('django.db.models.fields.DecimalField')(default=0, max_digits=14, decimal_places=4)),
+            ('public_admin_gas', self.gf('django.db.models.fields.DecimalField')(default=0, max_digits=14, decimal_places=4)),
+            ('education_gas', self.gf('django.db.models.fields.DecimalField')(default=0, max_digits=14, decimal_places=4)),
+            ('medical_services_gas', self.gf('django.db.models.fields.DecimalField')(default=0, max_digits=14, decimal_places=4)),
+            ('transport_warehousing_gas', self.gf('django.db.models.fields.DecimalField')(default=0, max_digits=14, decimal_places=4)),
+            ('wholesale_gas', self.gf('django.db.models.fields.DecimalField')(default=0, max_digits=14, decimal_places=4)),
+        ))
+        db.send_create_signal('main', ['CommercialEnergyBaseline'])
+
+        # Adding model 'ResidentialEnergyBaseline'
+        db.create_table('main_residentialenergybaseline', (
+            ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
+            ('zone', self.gf('django.db.models.fields.IntegerField')()),
+            ('du_detsf_ll_electricity', self.gf('django.db.models.fields.DecimalField')(default=0, max_digits=14, decimal_places=4)),
+            ('du_detsf_sl_electricity', self.gf('django.db.models.fields.DecimalField')(default=0, max_digits=14, decimal_places=4)),
+            ('du_attsf_electricity', self.gf('django.db.models.fields.DecimalField')(default=0, max_digits=14, decimal_places=4)),
+            ('du_mf_electricity', self.gf('django.db.models.fields.DecimalField')(default=0, max_digits=14, decimal_places=4)),
+            ('du_detsf_ll_gas', self.gf('django.db.models.fields.DecimalField')(default=0, max_digits=14, decimal_places=4)),
+            ('du_detsf_sl_gas', self.gf('django.db.models.fields.DecimalField')(default=0, max_digits=14, decimal_places=4)),
+            ('du_attsf_gas', self.gf('django.db.models.fields.DecimalField')(default=0, max_digits=14, decimal_places=4)),
+            ('du_mf_gas', self.gf('django.db.models.fields.DecimalField')(default=0, max_digits=14, decimal_places=4)),
+        ))
+        db.send_create_signal('main', ['ResidentialEnergyBaseline'])
+
+        # Adding model 'EvapotranspirationBaseline'
+        db.create_table('main_evapotranspirationbaseline', (
+            ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
+            ('zone', self.gf('django.db.models.fields.IntegerField')()),
+            ('annual_evapotranspiration', self.gf('django.db.models.fields.DecimalField')(default=0, max_digits=14, decimal_places=4)),
+        ))
+        db.send_create_signal('main', ['EvapotranspirationBaseline'])
+
+        # Adding model 'PrimaryComponentPercent'
+        db.create_table('main_primarycomponentpercent', (
+            ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
+            ('percent', self.gf('django.db.models.fields.DecimalField')(default=0, max_digits=21, decimal_places=20)),
+            ('primary_component', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['main.PrimaryComponent'])),
+            ('placetype_component', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['main.PlacetypeComponent'])),
+        ))
+        db.send_create_signal('main', ['PrimaryComponentPercent'])
+
+        # Adding model 'PlacetypeComponentPercent'
+        db.create_table('main_placetypecomponentpercent', (
+            ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
+            ('percent', self.gf('django.db.models.fields.DecimalField')(default=0, max_digits=21, decimal_places=20)),
+            ('placetype_component', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['main.PlacetypeComponent'], null=True)),
+            ('placetype', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['main.Placetype'])),
+        ))
+        db.send_create_signal('main', ['PlacetypeComponentPercent'])
+
+        # Adding model 'AgricultureAttributeSet'
+        db.create_table('main_agricultureattributeset', (
+            ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
+            ('crop_yield', self.gf('django.db.models.fields.FloatField')(default=0)),
+            ('unit_price', self.gf('django.db.models.fields.FloatField')(default=0)),
+            ('cost', self.gf('django.db.models.fields.FloatField')(default=0)),
+            ('water_consumption', self.gf('django.db.models.fields.FloatField')(default=0)),
+            ('labor_input', self.gf('django.db.models.fields.FloatField')(default=0)),
+            ('truck_trips', self.gf('django.db.models.fields.FloatField')(default=0)),
+        ))
+        db.send_create_signal('main', ['AgricultureAttributeSet'])
+
+        # Adding model 'Crop'
+        db.create_table('main_crop', (
+            ('primarycomponent_ptr', self.gf('django.db.models.fields.related.OneToOneField')(to=orm['main.PrimaryComponent'], unique=True, primary_key=True)),
+            ('agriculture_attribute_set', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['main.AgricultureAttributeSet'], null=True)),
+        ))
+        db.send_create_signal('main', ['Crop'])
+
+        # Adding model 'CropType'
+        db.create_table('main_croptype', (
+            ('placetypecomponent_ptr', self.gf('django.db.models.fields.related.OneToOneField')(to=orm['main.PlacetypeComponent'], unique=True, primary_key=True)),
+            ('agriculture_attribute_set', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['main.AgricultureAttributeSet'], null=True)),
+        ))
+        db.send_create_signal('main', ['CropType'])
+
+        # Adding model 'LandscapeType'
+        db.create_table('main_landscapetype', (
+            ('agricultureattributeset_ptr', self.gf('django.db.models.fields.related.OneToOneField')(to=orm['main.AgricultureAttributeSet'], unique=True)),
+            ('placetype_ptr', self.gf('django.db.models.fields.related.OneToOneField')(to=orm['main.Placetype'], unique=True, primary_key=True)),
+        ))
+        db.send_create_signal('main', ['LandscapeType'])
+
+        # Adding model 'Interest'
+        db.create_table('main_interest', (
+            ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
+            ('key', self.gf('django.db.models.fields.CharField')(unique=True, max_length=120)),
+        ))
+        db.send_create_signal('main', ['Interest'])
+
+        # Adding model 'DbEntityInterest'
+        db.create_table('main_dbentityinterest', (
+            ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
+            ('deleted', self.gf('django.db.models.fields.BooleanField')(default=False)),
+            ('config_entity', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['main.ConfigEntity'])),
+            ('db_entity', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['main.DbEntity'])),
+            ('interest', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['main.Interest'])),
+        ))
+        db.send_create_signal('main', ['DbEntityInterest'])
 
         # Adding model 'Parcel'
         db.create_table('main_parcel', (
@@ -631,36 +896,11 @@ class Migration(SchemaMigration):
         ))
         db.send_create_signal('main', ['LayerChart'])
 
-        # Adding model 'Presentation'
-        db.create_table('main_presentation', (
-            ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('name', self.gf('django.db.models.fields.CharField')(max_length=100)),
-            ('description', self.gf('django.db.models.fields.TextField')(null=True, blank=True)),
-            ('deleted', self.gf('django.db.models.fields.BooleanField')(default=False)),
-            ('key', self.gf('django.db.models.fields.CharField')(max_length=120)),
-            ('scope', self.gf('django.db.models.fields.CharField')(max_length=120)),
-            ('configuration', self.gf('picklefield.fields.PickledObjectField')(null=True)),
-            ('config_entity', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['main.ConfigEntity'])),
-        ))
-        db.send_create_signal('main', ['Presentation'])
-
-        # Adding model 'LayerLibrary'
-        db.create_table('main_layerlibrary', (
-            ('presentation_ptr', self.gf('django.db.models.fields.related.OneToOneField')(to=orm['main.Presentation'], unique=True, primary_key=True)),
-        ))
-        db.send_create_signal('main', ['LayerLibrary'])
-
         # Adding model 'Map'
         db.create_table('main_map', (
             ('presentation_ptr', self.gf('django.db.models.fields.related.OneToOneField')(to=orm['main.Presentation'], unique=True, primary_key=True)),
         ))
         db.send_create_signal('main', ['Map'])
-
-        # Adding model 'Painting'
-        db.create_table('main_painting', (
-            ('map_ptr', self.gf('django.db.models.fields.related.OneToOneField')(to=orm['main.Map'], unique=True, primary_key=True)),
-        ))
-        db.send_create_signal('main', ['Painting'])
 
         # Adding model 'Report'
         db.create_table('main_report', (
@@ -677,9 +917,9 @@ class Migration(SchemaMigration):
         # Adding model 'Style'
         db.create_table('main_style', (
             ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
+            ('key', self.gf('django.db.models.fields.CharField')(unique=True, max_length=120)),
             ('name', self.gf('django.db.models.fields.CharField')(max_length=100)),
             ('description', self.gf('django.db.models.fields.TextField')(null=True, blank=True)),
-            ('key', self.gf('django.db.models.fields.CharField')(unique=True, max_length=120)),
             ('identifier', self.gf('django.db.models.fields.TextField')()),
             ('target', self.gf('django.db.models.fields.TextField')()),
             ('style_property', self.gf('django.db.models.fields.TextField')()),
@@ -707,21 +947,18 @@ class Migration(SchemaMigration):
         # Adding model 'SortType'
         db.create_table('main_sorttype', (
             ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
+            ('key', self.gf('django.db.models.fields.CharField')(unique=True, max_length=120)),
             ('name', self.gf('django.db.models.fields.CharField')(max_length=100)),
             ('description', self.gf('django.db.models.fields.TextField')(null=True, blank=True)),
-            ('key', self.gf('django.db.models.fields.CharField')(unique=True, max_length=120)),
             ('order_by', self.gf('django.db.models.fields.CharField')(default=None, max_length=100, unique=True, null=True)),
         ))
         db.send_create_signal('main', ['SortType'])
 
-        # Adding model 'TileStacheConfig'
-        db.create_table('main_tilestacheconfig', (
-            ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('name', self.gf('django.db.models.fields.CharField')(default='default', max_length=50)),
-            ('config', self.gf('picklefield.fields.PickledObjectField')()),
-            ('enable_caching', self.gf('django.db.models.fields.NullBooleanField')(default=True, null=True, blank=True)),
+        # Adding model 'EnvironmentalConstraintUnionTool'
+        db.create_table('main_environmentalconstraintuniontool', (
+            ('analysistool_ptr', self.gf('django.db.models.fields.related.OneToOneField')(to=orm['main.AnalysisTool'], unique=True, primary_key=True)),
         ))
-        db.send_create_signal('main', ['TileStacheConfig'])
+        db.send_create_signal('main', ['EnvironmentalConstraintUnionTool'])
 
         # Adding model 'SacogLandUseDefinition'
         db.create_table('main_sacoglandusedefinition', (
@@ -773,17 +1010,26 @@ class Migration(SchemaMigration):
 
 
     def backwards(self, orm):
-        # Deleting model 'BuildingUsePercent'
-        db.delete_table('main_buildingusepercent')
-
-        # Deleting model 'BuildingUseDefinition'
-        db.delete_table('main_buildingusedefinition')
-
-        # Deleting model 'BuildingAttributeSet'
-        db.delete_table('main_buildingattributeset')
-
         # Deleting model 'Tag'
         db.delete_table('main_tag')
+
+        # Deleting model 'Intersection'
+        db.delete_table('main_intersection')
+
+        # Deleting model 'Behavior'
+        db.delete_table('main_behavior')
+
+        # Removing M2M table for field tags on 'Behavior'
+        db.delete_table(db.shorten_name('main_behavior_tags'))
+
+        # Removing M2M table for field parents on 'Behavior'
+        db.delete_table(db.shorten_name('main_behavior_parents'))
+
+        # Deleting model 'AnalysisTool'
+        db.delete_table('main_analysistool')
+
+        # Deleting model 'Category'
+        db.delete_table('main_category')
 
         # Deleting model 'Medium'
         db.delete_table('main_medium')
@@ -795,70 +1041,67 @@ class Migration(SchemaMigration):
         db.delete_table('main_builtform')
 
         # Removing M2M table for field tags on 'BuiltForm'
-        db.delete_table('main_builtform_tags')
+        db.delete_table(db.shorten_name('main_builtform_tags'))
 
         # Removing M2M table for field media on 'BuiltForm'
-        db.delete_table('main_builtform_media')
+        db.delete_table(db.shorten_name('main_builtform_media'))
 
         # Removing M2M table for field examples on 'BuiltForm'
-        db.delete_table('main_builtform_examples')
-
-        # Deleting model 'DbEntity'
-        db.delete_table('main_dbentity')
-
-        # Removing M2M table for field tags on 'DbEntity'
-        db.delete_table('main_dbentity_tags')
-
-        # Deleting model 'Category'
-        db.delete_table('main_category')
+        db.delete_table(db.shorten_name('main_builtform_examples'))
 
         # Deleting model 'BuiltFormSet'
         db.delete_table('main_builtformset')
 
         # Removing M2M table for field built_forms on 'BuiltFormSet'
-        db.delete_table('main_builtformset_built_forms')
+        db.delete_table(db.shorten_name('main_builtformset_built_forms'))
 
         # Deleting model 'Policy'
         db.delete_table('main_policy')
 
         # Removing M2M table for field tags on 'Policy'
-        db.delete_table('main_policy_tags')
+        db.delete_table(db.shorten_name('main_policy_tags'))
 
         # Removing M2M table for field policies on 'Policy'
-        db.delete_table('main_policy_policies')
+        db.delete_table(db.shorten_name('main_policy_policies'))
 
         # Deleting model 'PolicySet'
         db.delete_table('main_policyset')
 
         # Removing M2M table for field policies on 'PolicySet'
-        db.delete_table('main_policyset_policies')
+        db.delete_table(db.shorten_name('main_policyset_policies'))
 
         # Deleting model 'ConfigEntity'
         db.delete_table('main_configentity')
 
         # Removing M2M table for field categories on 'ConfigEntity'
-        db.delete_table('main_configentity_categories')
+        db.delete_table(db.shorten_name('main_configentity_categories'))
 
         # Removing M2M table for field built_form_sets on 'ConfigEntity'
-        db.delete_table('main_configentity_built_form_sets')
+        db.delete_table(db.shorten_name('main_configentity_built_form_sets'))
 
         # Removing M2M table for field policy_sets on 'ConfigEntity'
-        db.delete_table('main_configentity_policy_sets')
+        db.delete_table(db.shorten_name('main_configentity_policy_sets'))
 
         # Removing M2M table for field media on 'ConfigEntity'
-        db.delete_table('main_configentity_media')
+        db.delete_table(db.shorten_name('main_configentity_media'))
 
         # Deleting model 'Job'
         db.delete_table('main_job')
 
-        # Deleting model 'PresentationMedium'
-        db.delete_table('main_presentationmedium')
+        # Deleting model 'AnalysisModule'
+        db.delete_table('main_analysismodule')
 
-        # Removing M2M table for field tags on 'PresentationMedium'
-        db.delete_table('main_presentationmedium_tags')
+        # Removing M2M table for field analysis_tools on 'AnalysisModule'
+        db.delete_table(db.shorten_name('main_analysismodule_analysis_tools'))
 
-        # Deleting model 'Layer'
-        db.delete_table('main_layer')
+        # Deleting model 'BuildingUsePercent'
+        db.delete_table('main_buildingusepercent')
+
+        # Deleting model 'BuildingUseDefinition'
+        db.delete_table('main_buildingusedefinition')
+
+        # Deleting model 'BuildingAttributeSet'
+        db.delete_table('main_buildingattributeset')
 
         # Deleting model 'PrimaryComponent'
         db.delete_table('main_primarycomponent')
@@ -869,35 +1112,29 @@ class Migration(SchemaMigration):
         # Deleting model 'PlacetypeComponent'
         db.delete_table('main_placetypecomponent')
 
+        # Deleting model 'BuildingType'
+        db.delete_table('main_buildingtype')
+
+        # Deleting model 'Building'
+        db.delete_table('main_building')
+
         # Deleting model 'StreetAttributeSet'
         db.delete_table('main_streetattributeset')
 
         # Deleting model 'Placetype'
         db.delete_table('main_placetype')
 
+        # Deleting model 'UrbanPlacetype'
+        db.delete_table('main_urbanplacetype')
+
         # Deleting model 'FlatBuiltForm'
         db.delete_table('main_flatbuiltform')
 
-        # Deleting model 'Core'
-        db.delete_table('main_core')
+        # Deleting model 'ScenarioUpdaterTool'
+        db.delete_table('main_scenarioupdatertool')
 
-        # Deleting model 'Fiscal'
-        db.delete_table('main_fiscal')
-
-        # Deleting model 'Vmt'
-        db.delete_table('main_vmt')
-
-        # Deleting model 'PrimaryComponentPercent'
-        db.delete_table('main_primarycomponentpercent')
-
-        # Deleting model 'PlacetypeComponentPercent'
-        db.delete_table('main_placetypecomponentpercent')
-
-        # Deleting model 'Interest'
-        db.delete_table('main_interest')
-
-        # Deleting model 'DbEntityInterest'
-        db.delete_table('main_dbentityinterest')
+        # Deleting model 'FiscalUpdaterTool'
+        db.delete_table('main_fiscalupdatertool')
 
         # Deleting model 'GlobalConfig'
         db.delete_table('main_globalconfig')
@@ -916,6 +1153,87 @@ class Migration(SchemaMigration):
 
         # Deleting model 'FutureScenario'
         db.delete_table('main_futurescenario')
+
+        # Deleting model 'VmtUpdaterTool'
+        db.delete_table('main_vmtupdatertool')
+
+        # Deleting model 'WaterUpdaterTool'
+        db.delete_table('main_waterupdatertool')
+
+        # Deleting model 'EnergyUpdaterTool'
+        db.delete_table('main_energyupdatertool')
+
+        # Deleting model 'AgricultureUpdaterTool'
+        db.delete_table('main_agricultureupdatertool')
+
+        # Deleting model 'PresentationMedium'
+        db.delete_table('main_presentationmedium')
+
+        # Removing M2M table for field tags on 'PresentationMedium'
+        db.delete_table(db.shorten_name('main_presentationmedium_tags'))
+
+        # Deleting model 'Layer'
+        db.delete_table('main_layer')
+
+        # Deleting model 'Presentation'
+        db.delete_table('main_presentation')
+
+        # Deleting model 'LayerLibrary'
+        db.delete_table('main_layerlibrary')
+
+        # Deleting model 'TileStacheConfig'
+        db.delete_table('main_tilestacheconfig')
+
+        # Deleting model 'DbEntity'
+        db.delete_table('main_dbentity')
+
+        # Removing M2M table for field tags on 'DbEntity'
+        db.delete_table(db.shorten_name('main_dbentity_tags'))
+
+        # Deleting model 'EnvironmentalConstraintPercent'
+        db.delete_table('main_environmentalconstraintpercent')
+
+        # Deleting model 'EnvironmentalConstraintUpdaterTool'
+        db.delete_table('main_environmentalconstraintupdatertool')
+
+        # Deleting model 'FeatureBehavior'
+        db.delete_table('main_featurebehavior')
+
+        # Removing M2M table for field tags on 'FeatureBehavior'
+        db.delete_table(db.shorten_name('main_featurebehavior_tags'))
+
+        # Deleting model 'CommercialEnergyBaseline'
+        db.delete_table('main_commercialenergybaseline')
+
+        # Deleting model 'ResidentialEnergyBaseline'
+        db.delete_table('main_residentialenergybaseline')
+
+        # Deleting model 'EvapotranspirationBaseline'
+        db.delete_table('main_evapotranspirationbaseline')
+
+        # Deleting model 'PrimaryComponentPercent'
+        db.delete_table('main_primarycomponentpercent')
+
+        # Deleting model 'PlacetypeComponentPercent'
+        db.delete_table('main_placetypecomponentpercent')
+
+        # Deleting model 'AgricultureAttributeSet'
+        db.delete_table('main_agricultureattributeset')
+
+        # Deleting model 'Crop'
+        db.delete_table('main_crop')
+
+        # Deleting model 'CropType'
+        db.delete_table('main_croptype')
+
+        # Deleting model 'LandscapeType'
+        db.delete_table('main_landscapetype')
+
+        # Deleting model 'Interest'
+        db.delete_table('main_interest')
+
+        # Deleting model 'DbEntityInterest'
+        db.delete_table('main_dbentityinterest')
 
         # Deleting model 'Parcel'
         db.delete_table('main_parcel')
@@ -944,17 +1262,8 @@ class Migration(SchemaMigration):
         # Deleting model 'LayerChart'
         db.delete_table('main_layerchart')
 
-        # Deleting model 'Presentation'
-        db.delete_table('main_presentation')
-
-        # Deleting model 'LayerLibrary'
-        db.delete_table('main_layerlibrary')
-
         # Deleting model 'Map'
         db.delete_table('main_map')
-
-        # Deleting model 'Painting'
-        db.delete_table('main_painting')
 
         # Deleting model 'Report'
         db.delete_table('main_report')
@@ -974,8 +1283,8 @@ class Migration(SchemaMigration):
         # Deleting model 'SortType'
         db.delete_table('main_sorttype')
 
-        # Deleting model 'TileStacheConfig'
-        db.delete_table('main_tilestacheconfig')
+        # Deleting model 'EnvironmentalConstraintUnionTool'
+        db.delete_table('main_environmentalconstraintuniontool')
 
         # Deleting model 'SacogLandUseDefinition'
         db.delete_table('main_sacoglandusedefinition')
@@ -1027,57 +1336,118 @@ class Migration(SchemaMigration):
             'model': ('django.db.models.fields.CharField', [], {'max_length': '100'}),
             'name': ('django.db.models.fields.CharField', [], {'max_length': '100'})
         },
+        'main.agricultureattributeset': {
+            'Meta': {'object_name': 'AgricultureAttributeSet'},
+            'cost': ('django.db.models.fields.FloatField', [], {'default': '0'}),
+            'crop_yield': ('django.db.models.fields.FloatField', [], {'default': '0'}),
+            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
+            'labor_input': ('django.db.models.fields.FloatField', [], {'default': '0'}),
+            'truck_trips': ('django.db.models.fields.FloatField', [], {'default': '0'}),
+            'unit_price': ('django.db.models.fields.FloatField', [], {'default': '0'}),
+            'water_consumption': ('django.db.models.fields.FloatField', [], {'default': '0'})
+        },
+        'main.agricultureupdatertool': {
+            'Meta': {'object_name': 'AgricultureUpdaterTool', '_ormbases': ['main.AnalysisTool']},
+            'analysistool_ptr': ('django.db.models.fields.related.OneToOneField', [], {'to': "orm['main.AnalysisTool']", 'unique': 'True', 'primary_key': 'True'})
+        },
+        'main.analysismodule': {
+            'Meta': {'object_name': 'AnalysisModule'},
+            'analysis_tools': ('django.db.models.fields.related.ManyToManyField', [], {'to': "orm['main.AnalysisTool']", 'symmetrical': 'False'}),
+            'completed': ('django.db.models.fields.DateField', [], {'null': 'True'}),
+            'config_entity': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['main.ConfigEntity']"}),
+            'configuration': ('picklefield.fields.PickledObjectField', [], {'default': '{}', 'null': 'True'}),
+            'creator': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'analysis_module_creator'", 'null': 'True', 'to': "orm['auth.User']"}),
+            'deleted': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
+            'description': ('django.db.models.fields.TextField', [], {'null': 'True', 'blank': 'True'}),
+            'failed': ('django.db.models.fields.DateField', [], {'null': 'True'}),
+            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
+            'key': ('django.db.models.fields.CharField', [], {'max_length': '100'}),
+            'name': ('django.db.models.fields.CharField', [], {'max_length': '100'}),
+            'started': ('django.db.models.fields.DateField', [], {'null': 'True'}),
+            'updater': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'analysis_module_updater'", 'null': 'True', 'to': "orm['auth.User']"})
+        },
+        'main.analysistool': {
+            'Meta': {'object_name': 'AnalysisTool'},
+            'behavior': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['main.Behavior']", 'null': 'True'}),
+            'config_entity': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['main.ConfigEntity']"}),
+            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
+            'key': ('django.db.models.fields.CharField', [], {'max_length': '100'})
+        },
         'main.basescenario': {
             'Meta': {'object_name': 'BaseScenario', '_ormbases': ['main.Scenario']},
             'scenario_ptr': ('django.db.models.fields.related.OneToOneField', [], {'to': "orm['main.Scenario']", 'unique': 'True', 'primary_key': 'True'})
         },
+        'main.behavior': {
+            'Meta': {'object_name': 'Behavior'},
+            'abstract': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
+            'deleted': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
+            'description': ('django.db.models.fields.TextField', [], {'null': 'True', 'blank': 'True'}),
+            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
+            'intersection': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['main.Intersection']", 'null': 'True'}),
+            'key': ('django.db.models.fields.CharField', [], {'unique': 'True', 'max_length': '120'}),
+            'name': ('django.db.models.fields.CharField', [], {'max_length': '100'}),
+            'parents': ('django.db.models.fields.related.ManyToManyField', [], {'to': "orm['main.Behavior']", 'symmetrical': 'False'}),
+            'readonly': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
+            'tags': ('django.db.models.fields.related.ManyToManyField', [], {'to': "orm['main.Tag']", 'symmetrical': 'False'}),
+            'template_feature_behavior': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'owning_behavior'", 'null': 'True', 'to': "orm['main.FeatureBehavior']"})
+        },
+        'main.building': {
+            'Meta': {'object_name': 'Building', '_ormbases': ['main.PrimaryComponent']},
+            'building_attribute_set': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['main.BuildingAttributeSet']", 'null': 'True'}),
+            'primarycomponent_ptr': ('django.db.models.fields.related.OneToOneField', [], {'to': "orm['main.PrimaryComponent']", 'unique': 'True', 'primary_key': 'True'})
+        },
         'main.buildingattributeset': {
             'Meta': {'object_name': 'BuildingAttributeSet'},
+            'above_ground_structured_parking_spaces': ('django.db.models.fields.DecimalField', [], {'default': '0', 'max_digits': '14', 'decimal_places': '4'}),
+            'address': ('django.db.models.fields.CharField', [], {'default': 'None', 'max_length': '200', 'null': 'True', 'blank': 'True'}),
+            'average_parking_space_square_feet': ('django.db.models.fields.DecimalField', [], {'default': '0', 'null': 'True', 'max_digits': '14', 'decimal_places': '4'}),
+            'below_ground_structured_parking_spaces': ('django.db.models.fields.DecimalField', [], {'default': '0', 'max_digits': '14', 'decimal_places': '4'}),
+            'building_footprint_square_feet': ('django.db.models.fields.DecimalField', [], {'default': '0', 'null': 'True', 'max_digits': '14', 'decimal_places': '4'}),
             'building_uses': ('django.db.models.fields.related.ManyToManyField', [], {'to': "orm['main.BuildingUseDefinition']", 'through': "orm['main.BuildingUsePercent']", 'symmetrical': 'False'}),
-            'combined_pop_emp_density': ('django.db.models.fields.DecimalField', [], {'default': '0', 'max_digits': '9', 'decimal_places': '4'}),
-            'commercial_irrigated_square_feet': ('django.db.models.fields.DecimalField', [], {'null': 'True', 'max_digits': '9', 'decimal_places': '2'}),
-            'floors': ('django.db.models.fields.DecimalField', [], {'null': 'True', 'max_digits': '7', 'decimal_places': '3'}),
-            'gross_net_ratio': ('django.db.models.fields.DecimalField', [], {'default': '1', 'max_digits': '8', 'decimal_places': '7'}),
-            'gross_population_density': ('django.db.models.fields.DecimalField', [], {'default': '0', 'max_digits': '14', 'decimal_places': '10'}),
-            'hardscape_percent': ('django.db.models.fields.DecimalField', [], {'null': 'True', 'max_digits': '5', 'decimal_places': '3'}),
-            'household_density': ('django.db.models.fields.DecimalField', [], {'default': '0', 'max_digits': '14', 'decimal_places': '10'}),
+            'commercial_irrigated_square_feet': ('django.db.models.fields.DecimalField', [], {'default': '0', 'null': 'True', 'max_digits': '9', 'decimal_places': '2'}),
+            'floors': ('django.db.models.fields.DecimalField', [], {'default': '0', 'max_digits': '7', 'decimal_places': '4'}),
+            'gross_net_ratio': ('django.db.models.fields.DecimalField', [], {'default': '1', 'max_digits': '14', 'decimal_places': '7'}),
+            'hardscape_other_square_feet': ('django.db.models.fields.DecimalField', [], {'default': '0', 'null': 'True', 'max_digits': '14', 'decimal_places': '4'}),
+            'household_size': ('django.db.models.fields.DecimalField', [], {'default': '0', 'max_digits': '5', 'decimal_places': '3'}),
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'impervious_hardscape_percent': ('django.db.models.fields.DecimalField', [], {'null': 'True', 'max_digits': '5', 'decimal_places': '3'}),
-            'impervious_roof_percent': ('django.db.models.fields.DecimalField', [], {'null': 'True', 'max_digits': '5', 'decimal_places': '3'}),
-            'irrigated_percent': ('django.db.models.fields.DecimalField', [], {'null': 'True', 'max_digits': '5', 'decimal_places': '3'}),
-            'parking_spaces': ('django.db.models.fields.DecimalField', [], {'default': '0', 'max_digits': '7', 'decimal_places': '3'}),
-            'parking_structure_square_feet': ('django.db.models.fields.DecimalField', [], {'default': '0', 'max_digits': '9', 'decimal_places': '2'}),
-            'pervious_hardscape_percent': ('django.db.models.fields.DecimalField', [], {'null': 'True', 'max_digits': '5', 'decimal_places': '3'}),
-            'residential_average_lot_size': ('django.db.models.fields.DecimalField', [], {'null': 'True', 'max_digits': '9', 'decimal_places': '2'}),
-            'residential_irrigated_square_feet': ('django.db.models.fields.DecimalField', [], {'null': 'True', 'max_digits': '9', 'decimal_places': '2'}),
-            'softscape_and_landscape_percent': ('django.db.models.fields.DecimalField', [], {'null': 'True', 'max_digits': '5', 'decimal_places': '3'}),
-            'total_far': ('django.db.models.fields.DecimalField', [], {'null': 'True', 'max_digits': '10', 'decimal_places': '7'})
+            'irrigated_percent': ('django.db.models.fields.DecimalField', [], {'default': '0', 'max_digits': '14', 'decimal_places': '10'}),
+            'irrigated_softscape_square_feet': ('django.db.models.fields.DecimalField', [], {'default': '0', 'null': 'True', 'max_digits': '14', 'decimal_places': '3'}),
+            'lot_size_square_feet': ('django.db.models.fields.DecimalField', [], {'default': '0', 'max_digits': '14', 'decimal_places': '7'}),
+            'nonirrigated_softscape_square_feet': ('django.db.models.fields.DecimalField', [], {'default': '0', 'max_digits': '14', 'decimal_places': '3'}),
+            'residential_irrigated_square_feet': ('django.db.models.fields.DecimalField', [], {'default': '0', 'null': 'True', 'max_digits': '9', 'decimal_places': '2'}),
+            'surface_parking_spaces': ('django.db.models.fields.DecimalField', [], {'default': '0', 'max_digits': '14', 'decimal_places': '4'}),
+            'surface_parking_square_feet': ('django.db.models.fields.DecimalField', [], {'default': '0', 'null': 'True', 'max_digits': '14', 'decimal_places': '4'}),
+            'total_far': ('django.db.models.fields.DecimalField', [], {'default': '0', 'max_digits': '10', 'decimal_places': '7'}),
+            'vacancy_rate': ('django.db.models.fields.DecimalField', [], {'default': '0', 'max_digits': '4', 'decimal_places': '3'}),
+            'website': ('django.db.models.fields.CharField', [], {'default': 'None', 'max_length': '300', 'null': 'True', 'blank': 'True'})
+        },
+        'main.buildingtype': {
+            'Meta': {'object_name': 'BuildingType', '_ormbases': ['main.PlacetypeComponent']},
+            'building_attribute_set': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['main.BuildingAttributeSet']", 'null': 'True'}),
+            'placetypecomponent_ptr': ('django.db.models.fields.related.OneToOneField', [], {'to': "orm['main.PlacetypeComponent']", 'unique': 'True', 'primary_key': 'True'})
         },
         'main.buildingusedefinition': {
             'Meta': {'object_name': 'BuildingUseDefinition'},
-            'category': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['main.BuildingUseDefinition']", 'null': 'True'}),
             'description': ('django.db.models.fields.TextField', [], {'null': 'True', 'blank': 'True'}),
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'name': ('django.db.models.fields.CharField', [], {'max_length': '100'})
         },
         'main.buildingusepercent': {
             'Meta': {'object_name': 'BuildingUsePercent'},
-            'building_attributes': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['main.BuildingAttributeSet']"}),
+            'building_attribute_set': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['main.BuildingAttributeSet']"}),
             'building_use_definition': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['main.BuildingUseDefinition']"}),
             'efficiency': ('django.db.models.fields.DecimalField', [], {'default': '0.85', 'max_digits': '6', 'decimal_places': '4'}),
             'floor_area_ratio': ('django.db.models.fields.DecimalField', [], {'null': 'True', 'max_digits': '12', 'decimal_places': '10'}),
             'gross_built_up_area': ('django.db.models.fields.DecimalField', [], {'null': 'True', 'max_digits': '13', 'decimal_places': '3'}),
-            'household_size': ('django.db.models.fields.DecimalField', [], {'null': 'True', 'max_digits': '5', 'decimal_places': '3'}),
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'net_built_up_area': ('django.db.models.fields.DecimalField', [], {'null': 'True', 'max_digits': '13', 'decimal_places': '3'}),
             'percent': ('django.db.models.fields.DecimalField', [], {'default': '0', 'max_digits': '21', 'decimal_places': '20'}),
             'square_feet_per_unit': ('django.db.models.fields.DecimalField', [], {'null': 'True', 'max_digits': '11', 'decimal_places': '3'}),
-            'unit_density': ('django.db.models.fields.DecimalField', [], {'null': 'True', 'max_digits': '16', 'decimal_places': '10'}),
-            'vacancy_rate': ('django.db.models.fields.DecimalField', [], {'default': '0', 'max_digits': '4', 'decimal_places': '3'})
+            'unit_density': ('django.db.models.fields.DecimalField', [], {'null': 'True', 'max_digits': '16', 'decimal_places': '10'})
         },
         'main.builtform': {
             'Meta': {'object_name': 'BuiltForm'},
-            'building_attributes': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['main.BuildingAttributeSet']", 'null': 'True'}),
+            'creator': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'built_form_creator'", 'to': "orm['auth.User']"}),
             'deleted': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
             'description': ('django.db.models.fields.TextField', [], {'null': 'True', 'blank': 'True'}),
             'examples': ('django.db.models.fields.related.ManyToManyField', [], {'to': "orm['main.BuiltFormExample']", 'null': 'True', 'symmetrical': 'False'}),
@@ -1086,8 +1456,9 @@ class Migration(SchemaMigration):
             'media': ('django.db.models.fields.related.ManyToManyField', [], {'related_name': "'built_form_media'", 'symmetrical': 'False', 'to': "orm['main.Medium']"}),
             'medium': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['main.Medium']", 'null': 'True'}),
             'name': ('django.db.models.fields.CharField', [], {'max_length': '100'}),
-            'origin_built_form': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['main.BuiltForm']", 'null': 'True'}),
-            'tags': ('django.db.models.fields.related.ManyToManyField', [], {'to': "orm['main.Tag']", 'symmetrical': 'False'})
+            'origin_instance': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['main.BuiltForm']", 'null': 'True'}),
+            'tags': ('django.db.models.fields.related.ManyToManyField', [], {'to': "orm['main.Tag']", 'symmetrical': 'False'}),
+            'updater': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'built_form_updater'", 'to': "orm['auth.User']"})
         },
         'main.builtformexample': {
             'Meta': {'object_name': 'BuiltFormExample'},
@@ -1118,6 +1489,33 @@ class Migration(SchemaMigration):
             'Meta': {'object_name': 'Chart', '_ormbases': ['main.Result']},
             'result_ptr': ('django.db.models.fields.related.OneToOneField', [], {'to': "orm['main.Result']", 'unique': 'True', 'primary_key': 'True'})
         },
+        'main.commercialenergybaseline': {
+            'Meta': {'object_name': 'CommercialEnergyBaseline'},
+            'accommodation_electricity': ('django.db.models.fields.DecimalField', [], {'default': '0', 'max_digits': '14', 'decimal_places': '4'}),
+            'accommodation_gas': ('django.db.models.fields.DecimalField', [], {'default': '0', 'max_digits': '14', 'decimal_places': '4'}),
+            'arts_entertainment_electricity': ('django.db.models.fields.DecimalField', [], {'default': '0', 'max_digits': '14', 'decimal_places': '4'}),
+            'arts_entertainment_gas': ('django.db.models.fields.DecimalField', [], {'default': '0', 'max_digits': '14', 'decimal_places': '4'}),
+            'education_electricity': ('django.db.models.fields.DecimalField', [], {'default': '0', 'max_digits': '14', 'decimal_places': '4'}),
+            'education_gas': ('django.db.models.fields.DecimalField', [], {'default': '0', 'max_digits': '14', 'decimal_places': '4'}),
+            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
+            'medical_services_electricity': ('django.db.models.fields.DecimalField', [], {'default': '0', 'max_digits': '14', 'decimal_places': '4'}),
+            'medical_services_gas': ('django.db.models.fields.DecimalField', [], {'default': '0', 'max_digits': '14', 'decimal_places': '4'}),
+            'office_services_electricity': ('django.db.models.fields.DecimalField', [], {'default': '0', 'max_digits': '14', 'decimal_places': '4'}),
+            'office_services_gas': ('django.db.models.fields.DecimalField', [], {'default': '0', 'max_digits': '14', 'decimal_places': '4'}),
+            'other_services_electricity': ('django.db.models.fields.DecimalField', [], {'default': '0', 'max_digits': '14', 'decimal_places': '4'}),
+            'other_services_gas': ('django.db.models.fields.DecimalField', [], {'default': '0', 'max_digits': '14', 'decimal_places': '4'}),
+            'public_admin_electricity': ('django.db.models.fields.DecimalField', [], {'default': '0', 'max_digits': '14', 'decimal_places': '4'}),
+            'public_admin_gas': ('django.db.models.fields.DecimalField', [], {'default': '0', 'max_digits': '14', 'decimal_places': '4'}),
+            'restaurant_electricity': ('django.db.models.fields.DecimalField', [], {'default': '0', 'max_digits': '14', 'decimal_places': '4'}),
+            'restaurant_gas': ('django.db.models.fields.DecimalField', [], {'default': '0', 'max_digits': '14', 'decimal_places': '4'}),
+            'retail_services_electricity': ('django.db.models.fields.DecimalField', [], {'default': '0', 'max_digits': '14', 'decimal_places': '4'}),
+            'retail_services_gas': ('django.db.models.fields.DecimalField', [], {'default': '0', 'max_digits': '14', 'decimal_places': '4'}),
+            'transport_warehousing_electricity': ('django.db.models.fields.DecimalField', [], {'default': '0', 'max_digits': '14', 'decimal_places': '4'}),
+            'transport_warehousing_gas': ('django.db.models.fields.DecimalField', [], {'default': '0', 'max_digits': '14', 'decimal_places': '4'}),
+            'wholesale_electricity': ('django.db.models.fields.DecimalField', [], {'default': '0', 'max_digits': '14', 'decimal_places': '4'}),
+            'wholesale_gas': ('django.db.models.fields.DecimalField', [], {'default': '0', 'max_digits': '14', 'decimal_places': '4'}),
+            'zone': ('django.db.models.fields.IntegerField', [], {})
+        },
         'main.configentity': {
             'Meta': {'object_name': 'ConfigEntity'},
             'bounds': ('django.contrib.gis.db.models.fields.MultiPolygonField', [], {}),
@@ -1131,28 +1529,28 @@ class Migration(SchemaMigration):
             'key': ('django.db.models.fields.CharField', [], {'max_length': '120'}),
             'media': ('django.db.models.fields.related.ManyToManyField', [], {'to': "orm['main.Medium']", 'null': 'True', 'symmetrical': 'False'}),
             'name': ('django.db.models.fields.CharField', [], {'max_length': '100'}),
-            'origin_config_entity': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'clone_set'", 'null': 'True', 'to': "orm['main.ConfigEntity']"}),
+            'origin_instance': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['main.ConfigEntity']", 'null': 'True'}),
             'parent_config_entity': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'parent_set'", 'null': 'True', 'to': "orm['main.ConfigEntity']"}),
             'policy_sets': ('django.db.models.fields.related.ManyToManyField', [], {'to': "orm['main.PolicySet']", 'symmetrical': 'False'}),
             'scope': ('django.db.models.fields.CharField', [], {'max_length': '120'}),
             'selections': ('footprint.main.models.config.model_pickled_object_field.SelectionModelsPickledObjectField', [], {'default': "{'db_entities': {}, 'sets': {}}"}),
             'updater': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'config_entity_updater'", 'null': 'True', 'to': "orm['auth.User']"})
         },
-        'main.core': {
-            'Meta': {'object_name': 'Core'},
-            'celery_task': ('picklefield.fields.PickledObjectField', [], {'null': 'True'}),
-            'completed': ('django.db.models.fields.DateField', [], {'null': 'True'}),
-            'config_entity': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['main.ConfigEntity']"}),
-            'failed': ('django.db.models.fields.DateField', [], {'null': 'True'}),
-            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'previous_celery_task': ('picklefield.fields.PickledObjectField', [], {'null': 'True'}),
-            'started': ('django.db.models.fields.DateField', [], {'null': 'True'}),
-            'user': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['auth.User']", 'null': 'True'})
+        'main.crop': {
+            'Meta': {'object_name': 'Crop', '_ormbases': ['main.PrimaryComponent']},
+            'agriculture_attribute_set': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['main.AgricultureAttributeSet']", 'null': 'True'}),
+            'primarycomponent_ptr': ('django.db.models.fields.related.OneToOneField', [], {'to': "orm['main.PrimaryComponent']", 'unique': 'True', 'primary_key': 'True'})
+        },
+        'main.croptype': {
+            'Meta': {'object_name': 'CropType', '_ormbases': ['main.PlacetypeComponent']},
+            'agriculture_attribute_set': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['main.AgricultureAttributeSet']", 'null': 'True'}),
+            'placetypecomponent_ptr': ('django.db.models.fields.related.OneToOneField', [], {'to': "orm['main.PlacetypeComponent']", 'unique': 'True', 'primary_key': 'True'})
         },
         'main.dbentity': {
             'Meta': {'object_name': 'DbEntity'},
-            'class_key': ('django.db.models.fields.CharField', [], {'max_length': '50', 'null': 'True'}),
-            'creator': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'db_entity_creator'", 'null': 'True', 'to': "orm['auth.User']"}),
+            'behavior_locked': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
+            'created': ('django.db.models.fields.DateTimeField', [], {'auto_now_add': 'True', 'blank': 'True'}),
+            'creator': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'db_entity_creator'", 'to': "orm['auth.User']"}),
             'deleted': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
             'description': ('django.db.models.fields.TextField', [], {'null': 'True', 'blank': 'True'}),
             'extent_authority': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
@@ -1160,14 +1558,18 @@ class Migration(SchemaMigration):
             'group_by': ('picklefield.fields.PickledObjectField', [], {'null': 'True'}),
             'hosts': ('picklefield.fields.PickledObjectField', [], {'null': 'True'}),
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'key': ('django.db.models.fields.CharField', [], {'max_length': '50'}),
+            'key': ('django.db.models.fields.CharField', [], {'max_length': '100'}),
             'name': ('django.db.models.fields.CharField', [], {'max_length': '100'}),
+            'no_feature_class_configuration': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
+            'origin_instance': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['main.DbEntity']", 'null': 'True'}),
             'query': ('picklefield.fields.PickledObjectField', [], {'null': 'True'}),
             'schema': ('django.db.models.fields.CharField', [], {'max_length': '100', 'null': 'True'}),
+            'source_db_entity_key': ('django.db.models.fields.CharField', [], {'max_length': '50', 'null': 'True'}),
             'srid': ('django.db.models.fields.CharField', [], {'max_length': '100', 'null': 'True'}),
             'table': ('django.db.models.fields.CharField', [], {'max_length': '100', 'null': 'True'}),
             'tags': ('django.db.models.fields.related.ManyToManyField', [], {'to': "orm['main.Tag']", 'symmetrical': 'False'}),
-            'updater': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'db_entity_updater'", 'null': 'True', 'to': "orm['auth.User']"}),
+            'updated': ('django.db.models.fields.DateTimeField', [], {'auto_now': 'True', 'blank': 'True'}),
+            'updater': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'db_entity_updater'", 'to': "orm['auth.User']"}),
             'url': ('django.db.models.fields.CharField', [], {'max_length': '1000', 'null': 'True'})
         },
         'main.dbentityinterest': {
@@ -1178,16 +1580,46 @@ class Migration(SchemaMigration):
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'interest': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['main.Interest']"})
         },
-        'main.fiscal': {
-            'Meta': {'object_name': 'Fiscal'},
-            'celery_task': ('picklefield.fields.PickledObjectField', [], {'null': 'True'}),
-            'completed': ('django.db.models.fields.DateField', [], {'null': 'True'}),
-            'config_entity': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['main.ConfigEntity']"}),
-            'failed': ('django.db.models.fields.DateField', [], {'null': 'True'}),
+        'main.energyupdatertool': {
+            'Meta': {'object_name': 'EnergyUpdaterTool', '_ormbases': ['main.AnalysisTool']},
+            'analysistool_ptr': ('django.db.models.fields.related.OneToOneField', [], {'to': "orm['main.AnalysisTool']", 'unique': 'True', 'primary_key': 'True'})
+        },
+        'main.environmentalconstraintpercent': {
+            'Meta': {'object_name': 'EnvironmentalConstraintPercent'},
+            'analysis_tool': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['main.EnvironmentalConstraintUpdaterTool']"}),
+            'db_entity': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['main.DbEntity']"}),
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'previous_celery_task': ('picklefield.fields.PickledObjectField', [], {'null': 'True'}),
-            'started': ('django.db.models.fields.DateField', [], {'null': 'True'}),
-            'user': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['auth.User']", 'null': 'True'})
+            'percent': ('django.db.models.fields.DecimalField', [], {'default': '1', 'null': 'True', 'max_digits': '14', 'decimal_places': '8'}),
+            'priority': ('django.db.models.fields.IntegerField', [], {'default': '1', 'null': 'True'})
+        },
+        'main.environmentalconstraintuniontool': {
+            'Meta': {'object_name': 'EnvironmentalConstraintUnionTool', '_ormbases': ['main.AnalysisTool']},
+            'analysistool_ptr': ('django.db.models.fields.related.OneToOneField', [], {'to': "orm['main.AnalysisTool']", 'unique': 'True', 'primary_key': 'True'})
+        },
+        'main.environmentalconstraintupdatertool': {
+            'Meta': {'object_name': 'EnvironmentalConstraintUpdaterTool', '_ormbases': ['main.AnalysisTool']},
+            'analysistool_ptr': ('django.db.models.fields.related.OneToOneField', [], {'to': "orm['main.AnalysisTool']", 'unique': 'True', 'primary_key': 'True'}),
+            'db_entities': ('django.db.models.fields.related.ManyToManyField', [], {'to': "orm['main.DbEntity']", 'through': "orm['main.EnvironmentalConstraintPercent']", 'symmetrical': 'False'})
+        },
+        'main.evapotranspirationbaseline': {
+            'Meta': {'object_name': 'EvapotranspirationBaseline'},
+            'annual_evapotranspiration': ('django.db.models.fields.DecimalField', [], {'default': '0', 'max_digits': '14', 'decimal_places': '4'}),
+            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
+            'zone': ('django.db.models.fields.IntegerField', [], {})
+        },
+        'main.featurebehavior': {
+            'Meta': {'object_name': 'FeatureBehavior'},
+            'behavior': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['main.Behavior']"}),
+            'db_entity': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['main.DbEntity']", 'null': 'True'}),
+            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
+            'intersection': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['main.Intersection']", 'null': 'True'}),
+            'is_template': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
+            'readonly': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
+            'tags': ('django.db.models.fields.related.ManyToManyField', [], {'to': "orm['main.Tag']", 'symmetrical': 'False'})
+        },
+        'main.fiscalupdatertool': {
+            'Meta': {'object_name': 'FiscalUpdaterTool', '_ormbases': ['main.AnalysisTool']},
+            'analysistool_ptr': ('django.db.models.fields.related.OneToOneField', [], {'to': "orm['main.AnalysisTool']", 'unique': 'True', 'primary_key': 'True'})
         },
         'main.flatbuiltform': {
             'Meta': {'object_name': 'FlatBuiltForm'},
@@ -1235,6 +1667,7 @@ class Migration(SchemaMigration):
             'building_sqft_wholesale': ('django.db.models.fields.DecimalField', [], {'default': '0', 'max_digits': '15', 'decimal_places': '7'}),
             'built_form_id': ('django.db.models.fields.IntegerField', [], {'primary_key': 'True'}),
             'built_form_type': ('django.db.models.fields.CharField', [], {'max_length': '50'}),
+            'combined_pop_emp_density': ('django.db.models.fields.DecimalField', [], {'default': '0', 'null': 'True', 'max_digits': '14', 'decimal_places': '4'}),
             'commercial_irrigated_square_feet': ('django.db.models.fields.DecimalField', [], {'default': '0', 'max_digits': '15', 'decimal_places': '7'}),
             'construction_utilities_density': ('django.db.models.fields.DecimalField', [], {'default': '0', 'max_digits': '15', 'decimal_places': '10'}),
             'description': ('django.db.models.fields.TextField', [], {'null': 'True', 'blank': 'True'}),
@@ -1317,6 +1750,13 @@ class Migration(SchemaMigration):
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'key': ('django.db.models.fields.CharField', [], {'unique': 'True', 'max_length': '120'})
         },
+        'main.intersection': {
+            'Meta': {'object_name': 'Intersection'},
+            'from_type': ('django.db.models.fields.CharField', [], {'max_length': '50', 'null': 'True'}),
+            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
+            'join_type': ('django.db.models.fields.CharField', [], {'max_length': '50'}),
+            'to_type': ('django.db.models.fields.CharField', [], {'max_length': '50', 'null': 'True'})
+        },
         'main.job': {
             'Meta': {'ordering': "['-created_on']", 'object_name': 'Job'},
             'created_on': ('django.db.models.fields.DateTimeField', [], {'auto_now_add': 'True', 'blank': 'True'}),
@@ -1329,10 +1769,17 @@ class Migration(SchemaMigration):
             'type': ('django.db.models.fields.CharField', [], {'max_length': '32'}),
             'user': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'jobs'", 'to': "orm['auth.User']"})
         },
+        'main.landscapetype': {
+            'Meta': {'object_name': 'LandscapeType', '_ormbases': ['main.Placetype', 'main.AgricultureAttributeSet']},
+            'agricultureattributeset_ptr': ('django.db.models.fields.related.OneToOneField', [], {'to': "orm['main.AgricultureAttributeSet']", 'unique': 'True'}),
+            'placetype_ptr': ('django.db.models.fields.related.OneToOneField', [], {'to': "orm['main.Placetype']", 'unique': 'True', 'primary_key': 'True'})
+        },
         'main.layer': {
             'Meta': {'object_name': 'Layer', '_ormbases': ['main.PresentationMedium']},
+            'create_from_selection': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
             'description': ('django.db.models.fields.TextField', [], {'null': 'True', 'blank': 'True'}),
             'name': ('django.db.models.fields.CharField', [], {'max_length': '100'}),
+            'origin_instance': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['main.Layer']", 'null': 'True'}),
             'presentationmedium_ptr': ('django.db.models.fields.related.OneToOneField', [], {'to': "orm['main.PresentationMedium']", 'unique': 'True', 'primary_key': 'True'})
         },
         'main.layerchart': {
@@ -1359,10 +1806,6 @@ class Migration(SchemaMigration):
             'name': ('django.db.models.fields.CharField', [], {'max_length': '100'}),
             'url': ('django.db.models.fields.CharField', [], {'max_length': '200', 'null': 'True', 'blank': 'True'})
         },
-        'main.painting': {
-            'Meta': {'object_name': 'Painting', '_ormbases': ['main.Map']},
-            'map_ptr': ('django.db.models.fields.related.OneToOneField', [], {'to': "orm['main.Map']", 'unique': 'True', 'primary_key': 'True'})
-        },
         'main.parcel': {
             'Meta': {'object_name': 'Parcel'},
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
@@ -1371,9 +1814,7 @@ class Migration(SchemaMigration):
         'main.placetype': {
             'Meta': {'object_name': 'Placetype', '_ormbases': ['main.BuiltForm']},
             'builtform_ptr': ('django.db.models.fields.related.OneToOneField', [], {'to': "orm['main.BuiltForm']", 'unique': 'True', 'primary_key': 'True'}),
-            'intersection_density': ('django.db.models.fields.DecimalField', [], {'default': '0', 'max_digits': '8', 'decimal_places': '4'}),
-            'placetype_components': ('django.db.models.fields.related.ManyToManyField', [], {'to': "orm['main.PlacetypeComponent']", 'through': "orm['main.PlacetypeComponentPercent']", 'symmetrical': 'False'}),
-            'street_attributes': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['main.StreetAttributeSet']", 'null': 'True'})
+            'placetype_components': ('django.db.models.fields.related.ManyToManyField', [], {'to': "orm['main.PlacetypeComponent']", 'through': "orm['main.PlacetypeComponentPercent']", 'symmetrical': 'False'})
         },
         'main.placetypecomponent': {
             'Meta': {'object_name': 'PlacetypeComponent', '_ormbases': ['main.BuiltForm']},
@@ -1399,7 +1840,7 @@ class Migration(SchemaMigration):
             'Meta': {'object_name': 'Policy'},
             'description': ('django.db.models.fields.TextField', [], {'null': 'True', 'blank': 'True'}),
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'key': ('django.db.models.fields.CharField', [], {'max_length': '50'}),
+            'key': ('django.db.models.fields.CharField', [], {'max_length': '100'}),
             'name': ('django.db.models.fields.CharField', [], {'max_length': '100'}),
             'policies': ('django.db.models.fields.related.ManyToManyField', [], {'default': '[]', 'to': "orm['main.Policy']", 'symmetrical': 'False'}),
             'schema': ('django.db.models.fields.CharField', [], {'max_length': '100', 'null': 'True'}),
@@ -1473,6 +1914,19 @@ class Migration(SchemaMigration):
             'Meta': {'object_name': 'Report', '_ormbases': ['main.Presentation']},
             'presentation_ptr': ('django.db.models.fields.related.OneToOneField', [], {'to': "orm['main.Presentation']", 'unique': 'True', 'primary_key': 'True'})
         },
+        'main.residentialenergybaseline': {
+            'Meta': {'object_name': 'ResidentialEnergyBaseline'},
+            'du_attsf_electricity': ('django.db.models.fields.DecimalField', [], {'default': '0', 'max_digits': '14', 'decimal_places': '4'}),
+            'du_attsf_gas': ('django.db.models.fields.DecimalField', [], {'default': '0', 'max_digits': '14', 'decimal_places': '4'}),
+            'du_detsf_ll_electricity': ('django.db.models.fields.DecimalField', [], {'default': '0', 'max_digits': '14', 'decimal_places': '4'}),
+            'du_detsf_ll_gas': ('django.db.models.fields.DecimalField', [], {'default': '0', 'max_digits': '14', 'decimal_places': '4'}),
+            'du_detsf_sl_electricity': ('django.db.models.fields.DecimalField', [], {'default': '0', 'max_digits': '14', 'decimal_places': '4'}),
+            'du_detsf_sl_gas': ('django.db.models.fields.DecimalField', [], {'default': '0', 'max_digits': '14', 'decimal_places': '4'}),
+            'du_mf_electricity': ('django.db.models.fields.DecimalField', [], {'default': '0', 'max_digits': '14', 'decimal_places': '4'}),
+            'du_mf_gas': ('django.db.models.fields.DecimalField', [], {'default': '0', 'max_digits': '14', 'decimal_places': '4'}),
+            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
+            'zone': ('django.db.models.fields.IntegerField', [], {})
+        },
         'main.result': {
             'Meta': {'object_name': 'Result', '_ormbases': ['main.PresentationMedium']},
             'presentationmedium_ptr': ('django.db.models.fields.related.OneToOneField', [], {'to': "orm['main.PresentationMedium']", 'unique': 'True', 'primary_key': 'True'})
@@ -1526,6 +1980,10 @@ class Migration(SchemaMigration):
             'configentity_ptr': ('django.db.models.fields.related.OneToOneField', [], {'to': "orm['main.ConfigEntity']", 'unique': 'True', 'primary_key': 'True'}),
             'year': ('django.db.models.fields.IntegerField', [], {})
         },
+        'main.scenarioupdatertool': {
+            'Meta': {'object_name': 'ScenarioUpdaterTool', '_ormbases': ['main.AnalysisTool']},
+            'analysistool_ptr': ('django.db.models.fields.related.OneToOneField', [], {'to': "orm['main.AnalysisTool']", 'unique': 'True', 'primary_key': 'True'})
+        },
         'main.sorttype': {
             'Meta': {'object_name': 'SortType'},
             'description': ('django.db.models.fields.TextField', [], {'null': 'True', 'blank': 'True'}),
@@ -1575,16 +2033,20 @@ class Migration(SchemaMigration):
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'name': ('django.db.models.fields.CharField', [], {'default': "'default'", 'max_length': '50'})
         },
-        'main.vmt': {
-            'Meta': {'object_name': 'Vmt'},
-            'celery_task': ('picklefield.fields.PickledObjectField', [], {'null': 'True'}),
-            'completed': ('django.db.models.fields.DateField', [], {'null': 'True'}),
-            'config_entity': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['main.ConfigEntity']"}),
-            'failed': ('django.db.models.fields.DateField', [], {'null': 'True'}),
-            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'previous_celery_task': ('picklefield.fields.PickledObjectField', [], {'null': 'True'}),
-            'started': ('django.db.models.fields.DateField', [], {'null': 'True'}),
-            'user': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['auth.User']", 'null': 'True'})
+        'main.urbanplacetype': {
+            'Meta': {'object_name': 'UrbanPlacetype', '_ormbases': ['main.Placetype']},
+            'building_attribute_set': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['main.BuildingAttributeSet']", 'null': 'True'}),
+            'intersection_density': ('django.db.models.fields.DecimalField', [], {'default': '0', 'max_digits': '8', 'decimal_places': '4'}),
+            'placetype_ptr': ('django.db.models.fields.related.OneToOneField', [], {'to': "orm['main.Placetype']", 'unique': 'True', 'primary_key': 'True'}),
+            'street_attributes': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['main.StreetAttributeSet']", 'null': 'True'})
+        },
+        'main.vmtupdatertool': {
+            'Meta': {'object_name': 'VmtUpdaterTool', '_ormbases': ['main.AnalysisTool']},
+            'analysistool_ptr': ('django.db.models.fields.related.OneToOneField', [], {'to': "orm['main.AnalysisTool']", 'unique': 'True', 'primary_key': 'True'})
+        },
+        'main.waterupdatertool': {
+            'Meta': {'object_name': 'WaterUpdaterTool', '_ormbases': ['main.AnalysisTool']},
+            'analysistool_ptr': ('django.db.models.fields.related.OneToOneField', [], {'to': "orm['main.AnalysisTool']", 'unique': 'True', 'primary_key': 'True'})
         }
     }
 

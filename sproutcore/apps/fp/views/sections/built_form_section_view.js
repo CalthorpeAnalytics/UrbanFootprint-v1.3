@@ -33,7 +33,9 @@ Footprint.BuiltFormSectionView = SC.View.extend({
 
         menuItems: [
             // View and edit the selected item's attributes
-            { title: 'Manage Built Forms', action: 'doManageBuiltForms'},
+            { title: 'Manage Urban Built Forms', action: 'doManageBuiltForms'},
+            { title: 'Manage Agriculture Types', action: 'doManageAgricultureTypes'},
+
             { title: 'Visualize', keyEquivalent: 'ctrl_v', action: 'doVisualize'}
             //{ title: 'Export Selected', keyEquivalent: 'ctrl_e', action: 'doExportRecord', isEnabled:NO},
             //{ title: 'Remove Selected', keyEquivalent: ['ctrl_delete', 'ctrl_backspace'], action: 'doRemove', isEnabled:NO},
@@ -84,9 +86,13 @@ Footprint.BuiltFormSectionView = SC.View.extend({
                 classNames: ['footprint-built-form-item'],
                 contentDisplayProperties: ['name'],
 
+                mediumContent: null,
+                mediumContentBinding: SC.Binding.oneWay('*content.medium.content'),
+                displayProperties: ['mediumContent'],
+
                 render: function(context) {
                     // Color swab
-                    var color = this.getPath('content.medium.content.fill.color');
+                    var color = this.getPath('content.medium.content.fill.color') || '';
                     context.begin()
                         .addClass(this.getPath('theme.classNames'))
                         .addClass(['sc-view', 'footprint-medium-color'])
@@ -100,7 +106,7 @@ Footprint.BuiltFormSectionView = SC.View.extend({
                         .end();
                 },
                 update: function ($context) {
-                    $context.find('.footprint-medium-color').css('background-color', this.getPath('content.medium.content.fill.color'));
+                    $context.find('.footprint-medium-color').css('background-color', this.getPath('content.medium.content.fill.color') || '');
                     $context.find('.footprint-built-form-item-label-view').text(this.getPath('content.name'));
                 }
             })

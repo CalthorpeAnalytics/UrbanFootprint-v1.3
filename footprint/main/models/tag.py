@@ -24,7 +24,7 @@ class Tag(models.Model):
     objects = GeoInheritanceManager()
     tag = models.CharField(max_length=100, null=False)
     class Meta:
-        app_label='main'
+        app_label = 'main'
 
 
 

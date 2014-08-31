@@ -14,19 +14,19 @@
 # You should have received a copy of the GNU General Public License along with this program.
 # If not, see <http://www.gnu.org/licenses/>.
 import itertools
+from footprint.main.mixins.built_form_aggregate import BuiltFormAggregate
 
 __author__ = 'calthorpe_associates'
 
-from django.contrib.gis.db import models
-from footprint.main.models.built_form.building_use_percent import BuildingUsePercent
+from footprint.main.models.built_form.urban.building_use_percent import BuildingUsePercent
 from django.db.models import Sum
 from collections import defaultdict
 
 
-class BuildingAttributeAggregate(models.Model):
+class BuildingAttributeAggregate(BuiltFormAggregate):
     """
     An abstract class that describes a high-level built form that has a
-    :model:`built_forms.building_attributes.BuildingAttributeSet`, defines methods to aggregate attributes
+    :model:`built_forms.building_attribute_set.BuildingAttributeSet`, defines methods to aggregate attributes
     the classes :model:`built_forms.buildingtype.BuildingType` and :model:`built_forms.placetype.Placetype`
     according to the mix of their components.
     """
@@ -34,34 +34,23 @@ class BuildingAttributeAggregate(models.Model):
         abstract = True
         app_label = 'main'
 
-    def building_attributes_list(self):
-        """
-        Defines the basic required attributes of
-        core attributes
-        +++++++++++++++
-        - floors
-        - residential_average_lot_size
-        - softscape_and_landscape_percent
-        - pervious_hardscape_percent
-        - impervious_hardscape_percent
-        - total_far
-        - impervious_roof_percent
-        - parking_structure_square_feet
-        - parking_spaces
-        - irrigated_percent
-        """
-
-        return ['floors',
-                'residential_average_lot_size',
-                'softscape_and_landscape_percent',
-                'pervious_hardscape_percent',
-                'impervious_hardscape_percent',
-                'total_far',
-                'impervious_roof_percent',
-                'parking_structure_square_feet',
-                'parking_spaces',
-                'irrigated_percent',
-                ]
+    AGGREGATE_ATTRIBUTES = [
+        'lot_size_square_feet',
+        'floors',
+        'total_far',
+        'vacancy_rate',
+        'household_size',
+        'surface_parking_spaces',
+        'above_ground_structured_parking_spaces',
+        'below_ground_structured_parking_spaces',
+        'average_parking_space_square_feet',
+        'surface_parking_square_feet',
+        'building_footprint_square_feet',
+        'hardscape_other_square_feet',
+        'irrigated_softscape_square_feet',
+        'nonirrigated_softscape_square_feet',
+        'irrigated_percent'
+        ]
 
     def complete_aggregate_definition(self):
         """
@@ -69,12 +58,12 @@ class BuildingAttributeAggregate(models.Model):
         :return: True or False
         """
 
-        if self.get_all_components().aggregate(Sum('percent'))['percent__sum'] < .98:
+        if self.get_all_component_percents().aggregate(Sum('percent'))['percent__sum'] < .98:
             return False
         else:
             return True
 
-    def get_all_components(self):
+    def get_all_component_percents(self):
         """
         Identifies the component class and returns the component_percent objects representing the relationship
         between the components and the BuildingAggregate
@@ -84,30 +73,45 @@ class BuildingAttributeAggregate(models.Model):
         component_percents = getattr(self, "{0}_set".format(component_percent_field.lower())).all()
         return component_percents
 
-    def aggregate_built_form_attributes(self):
+    def aggregate_building_attribute_set(self):
         """
         Grabs the component buildings of the BuildingAggregate and does a weighted average of their core attributes,
-        before passing the building_attributes to the calculate_derived_fields() method.
+        before passing the building_attribute_set to the calculate_derived_fields() method.
         """
-        if not self.complete_aggregate_definition():
+        if not hasattr(self, 'building_attribute_set'):
             return
 
-        self.building_attributes.gross_net_ratio = self.calculate_gross_net_ratio()
+        self.building_attribute_set.gross_net_ratio = self.calculate_gross_net_ratio()
 
-        for attribute in self.building_attributes_list():
-            attribute_value = sum([
-                (getattr(component_percent.component().building_attributes, attribute) or 0) *
-                component_percent.percent for component_percent in self.get_all_components()
-            ])
+        for attribute in self.AGGREGATE_ATTRIBUTES:  
+            if attribute in ['vacancy_rate', 'household_size']:
+                component_percents = sum(map(lambda component_percent: component_percent.percent,
+                    filter(lambda component_percent: (getattr(component_percent.component().building_attribute_set, attribute) or 0) > 0,
+                           self.get_all_component_percents())))
+    
+                attribute_value = sum(map(lambda component_percent:
+                 getattr(component_percent.component().building_attribute_set, attribute) * (component_percent.percent / component_percents),
+                    filter(lambda component_percent: (getattr(component_percent.component().building_attribute_set, attribute) or 0) > 0,
+                           self.get_all_component_percents())))
 
-            setattr(self.building_attributes, attribute, attribute_value)
 
-        self.building_attributes.save()
-        self.aggregate_built_form_uses()
-        self.building_attributes.calculate_derived_fields()
+            else:
+                attribute_value = sum([
+                    (getattr(component_percent.component().building_attribute_set, attribute) or 0) *
+                    component_percent.percent for component_percent in self.get_all_component_percents()
+                ])
+
+            setattr(self.building_attribute_set, attribute, attribute_value)
+
+        self.building_attribute_set.save()
+        self.aggregate_building_uses()
+        self.building_attribute_set.calculate_derived_fields()
+
+        self.no_post_save_publishing = True
         self.save()
+        self.no_post_save_publishing = False
 
-    def aggregate_built_form_uses(self):
+    def aggregate_building_uses(self):
         """
         Aggregates the attributes of the :model:`main.BuildingUsePercent` objects associated with the components
         of the aggregate built form, and creates new :model:`main.BuildingUsePercent` objects associated with the
@@ -136,15 +140,32 @@ class BuildingAttributeAggregate(models.Model):
             :param use_percent:
             :return:
             """
-            building_attributes = use_percent.building_attributes
+            building_attribute_set = use_percent.building_attribute_set
             components = [component_percent for component_percent in component_percents
-                          if component_percent.component().building_attributes == building_attributes]
+                          if component_percent.component().building_attribute_set == building_attribute_set]
             return components[0].percent
 
-        component_percents = self.get_all_components()
+        #first collect all component percents, component use percents, and component use definition and remove any from previous saves.
+        component_percents = self.get_all_component_percents()
 
         component_use_percents = list(itertools.chain.from_iterable([
-            list(component_percent.component().building_attributes.buildingusepercent_set.all())
+            list(component_percent.component().building_attribute_set.buildingusepercent_set.all())
+            for component_percent in component_percents
+        ]))
+
+        component_use_definitions = set([
+            component_use_percent.building_use_definition for component_use_percent in component_use_percents
+        ])
+
+        BuildingUsePercent.objects.filter(
+                building_attribute_set=self.building_attribute_set).exclude(
+                building_use_definition__in=component_use_definitions
+        ).delete()
+
+        component_percents = self.get_all_component_percents()
+
+        component_use_percents = list(itertools.chain.from_iterable([
+            list(component_percent.component().building_attribute_set.buildingusepercent_set.all())
             for component_percent in component_percents
         ]))
 
@@ -153,6 +174,7 @@ class BuildingAttributeAggregate(models.Model):
         ])
 
         for use_definition in component_use_definitions:
+
             aggregate_use_attributes = defaultdict(lambda: 0.0000000000000000000000000)
 
             # makes a list of BuildingUsePercent objects of the use currently being aggregated
@@ -168,8 +190,7 @@ class BuildingAttributeAggregate(models.Model):
             attributes = use_definition.get_attributes()
            
             for attr in attributes:
-
-                if attr in ['household_size', 'vacancy_rate', 'efficiency']:
+                if attr in ['efficiency', 'square_feet_per_unit']:
                     aggregate_use_attributes[attr] = sum([
 
                         getattr(component_use_percent, attr) *
@@ -187,9 +208,8 @@ class BuildingAttributeAggregate(models.Model):
                         for component_use_percent in use_percent_components
                     ])
 
-
             BuildingUsePercent.objects.update_or_create(
-                building_attributes=self.building_attributes,
+                building_attribute_set=self.building_attribute_set,
                 building_use_definition=use_definition,
                 defaults=aggregate_use_attributes
             )

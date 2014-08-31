@@ -19,17 +19,44 @@ sc_require('views/section_toolbars/layer_toolbar_view');
 Footprint.LayerSectionView = Footprint.SectionView.extend({
     classNames: ['footprint-layer-section-view'],
 
-    isEnabled: SC.Binding.oneWay('Footprint.layerCategoriesTreeController.status').matchesStatus(SC.Record.READY_CLEAN),
-
     overlayView: Footprint.OverlayView.extend({
-        contentBinding: SC.Binding.from('Footprint.layerCategoriesTreeController'),
-        statusBinding:SC.Binding.oneWay('Footprint.layerCategoriesTreeController.status')
+        contentBinding:SC.Binding.oneWay('Footprint.dbEntityInterestsAndLayersController.content'),
+        statusBinding:SC.Binding.oneWay('Footprint.dbEntityInterestsAndLayersController.status')
     }),
 
-    toolbarView: Footprint.LayerToolbarView,
+    toolbarView: SC.ToolbarView.extend({
+        layout: { height: 20 },
+        childViews: ['titleView', 'menuButtonView', 'expandButtonView'],
+        titleView: SC.LabelView.extend({
+            layout: { height: 16, centerY: 0, right: 35 },
+            valueBinding: SC.Binding.transform(function(name) {
+                if (!name) return 'Layers';
+                else return 'Layers for %@'.fmt(name);
+            }).oneWay('Footprint.scenarioActiveController.name')
+        }),
+        menuButtonView: Footprint.EditButtonView.extend({
+            layout: { right: 38, width: 26 },
+            icon: sc_static('fp:images/section_toolbars/pulldown.png'),
+            activeRecordBinding: SC.Binding.oneWay('Footprint.layerCategoriesTreeController*selection.firstObject'),
+            menuItems: [
+                SC.Object.create({ title: 'Manage Layers', action: 'doViewLayer' }),
+                SC.Object.create({ title: 'Export Selected', action: 'doExportRecord' })
+            ]
+        }),
+        expandButtonView: SC.ButtonView.extend({
+            layout: { right: 6, width: 26 },
+            classNames: ['theme-button-gray', 'theme-button', 'theme-button-shorter'],
+            icon: function() {
+                if (this.get('value')) return sc_static('fp:images/section_toolbars/pullleft.png');
+                else return sc_static('fp:images/section_toolbars/pullright.png')
+            }.property('value').cacheable(),
+            buttonBehavior: SC.TOGGLE_BEHAVIOR,
+            valueBinding: 'F.layersVisibleController.layersMenuSectionIsVisible'
+        })
+    }),
 
     listView: SC.ScrollView.extend({
-        layout: {top: 16, bottom: 0},
+        layout: {top: 20, bottom: 0},
 
         contentView: SC.SourceListView.extend({
             layout: { top: 0 },
@@ -52,19 +79,23 @@ Footprint.LayerSectionView = Footprint.SectionView.extend({
                 editControllerContent: null,
                 editControllerContentBinding: SC.Binding.from('.parentView.editControllerContent'),
 
-                visibilityView: Footprint.VisibilityPickerView.extend({
-                    layout: { left: 8, width: 18, height: 18 },
-                    contentBinding: SC.Binding.oneWay('.parentView*content'),
-                    valueBinding: '.parentView*content.visibility'
+                // TODO: This is failing to map changes back to the record.
+                // visibilityView: Footprint.VisibilityPickerView.extend({
+                //     layout: { left: 8, width: 18, height: 18 },
+                //     contentBinding: SC.Binding.oneWay('.parentView*content'),
+                //     valueBinding: '.parentView*content.visibility'
+                // }),
+                visibilityView: SC.CheckboxView.extend({
+                    layout: { left: 8, width: 16, height: 16, centerY: 0 },
+                    valueBinding: '.parentView*content.applicationVisible'
                 }),
                 titleView: SC.LabelView.extend({
                     layout: { left: 34 },
                     valueBinding: SC.Binding.oneWay('.parentView*content.name')
                 }),
-                progressOverlayView: Footprint.ProgressOverlayForMainStoreView.extend({
-                    layout: { right: 0, width:100, centerY: 0, height: 16},
-                    mainStoreContentBinding: SC.Binding.oneWay('.parentView.content'),
-                    nestedStoreContentArrayBinding: SC.Binding.oneWay('.parentView.editControllerContent')
+                progressOverlayView: Footprint.ProgressOverlayView.extend({
+                    layout: { left: 34, width:100, centerY: 0, height: 16},
+                    contentBinding: SC.Binding.oneWay('.parentView*content.db_entity_interest')
                 })
             }),
             groupExampleView: SC.View.extend(SC.ContentDisplay, {

@@ -1,6 +1,6 @@
 # UrbanFootprint-California (v1.0), Land Use Scenario Development and Modeling System.
 #
-# Copyright (C) 2013 Calthorpe Associates
+# Copyright (C) 2014 Calthorpe Associates
 #
 # This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, version 3 of the License.
 #
@@ -12,10 +12,11 @@
 
 # Hand-crafted basic fixture classes
 # This stuff might be replaced by Django's json style fixtures in the future.
-from footprint.client.configuration.utils import resolve_parent_fixture, resolve_fixture
+from footprint.client.configuration.utils import resolve_fixture, resolve_parent_fixture
 from footprint.main.lib.functions import all_existing_keys_match, all_existing_classes_subclass, unique
 from footprint.main.utils.utils import expect
 from footprint import settings
+
 
 class Fixture(object):
     def __init__(self, schema, *args, **kwargs):
@@ -86,7 +87,7 @@ class Fixture(object):
         """
             Filters fixtures by given matching_dict. All keys specified in the matching_dict that are present
             in the fixture must match using isSubclass, where the matching_dict value must be a subclass of the
-            fixtrue's value
+            fixture's value.
         :param fixtures: A list of dictionaries or objects.
         :param kwargs key/values whose values are classes.
         :return:
@@ -105,6 +106,8 @@ class Fixture(object):
 
 
 class InitFixture(Fixture):
+    module = None
+    module_fragment = 'init'
 
     @property
     def base_class(self):
@@ -134,6 +137,9 @@ class InitFixture(Fixture):
 
     def populate_models(self):
         pass
+
+    def users(self):
+        return []
 
 
 class FootprintFixture(Fixture):
@@ -168,12 +174,13 @@ class ConfigEntitiesFixture(Fixture):
         """
         return []
 
-    def import_scenarios(self, origin_config_entity):
-        return self.parent_fixture.import_scenarios(origin_config_entity)
+    def import_scenarios(self, origin_instance):
+        return self.parent_fixture.import_scenarios(origin_instance)
 
 class BuiltFormFixture(Fixture):
     module = 'built_form'
     module_fragment = 'built_form'
+    config_entity = None
 
     def expect_kwargs(self):
         return ['config_entity']
@@ -221,7 +228,7 @@ class ConfigEntityFixture(Fixture):
         Base Class to configure DbEntities at a certain ConfigEntity scope (e.g. Project)
     """
 
-    # The config_entity is required for default_db_entity_configurations, but not for feature_class_lookup
+    # The config_entity is required for default_db_entities, but not for feature_class_lookup
     config_entity = None
 
     def default_remote_db_entity_configurations(self):
@@ -229,7 +236,7 @@ class ConfigEntityFixture(Fixture):
         # configure a remote db_entity.
         return []
 
-    def default_db_entity_configurations(self, **kwargs):
+    def default_db_entities(self, **kwargs):
         """
             Creates client-specific db_entity_and_class configurations
             kwargs - overrides is a dict used to override values in the config. For instance:
@@ -237,15 +244,24 @@ class ConfigEntityFixture(Fixture):
             The usage of the overrides is up to the receiving method
         :return:
         """
-        return self.parent_fixture.default_db_entity_configurations(**kwargs)
+        return self.parent_fixture.default_db_entities(**kwargs)
 
     def import_db_entity_configurations(self, **kwargs):
         return self.parent_fixture.import_db_entity_configurations(**kwargs)
 
+    def default_behaviors(self, **kwargs):
+        """
+            The Behavior instances configured for use by DbEntities.
+        """
+        return self.parent_fixture.default_behaviors(**kwargs)
+
+    def default_analysis_module_configurations(self, **kwargs):
+        return self.parent_fixture.default_analysis_module_configurations(**kwargs)
+
     def feature_class_lookup(self):
         """
             A ConfigEntity-independent lookup of DbEntity keys to Feature classes. The same information is
-            provided by default_db_entity_configurations but the latter is ConfigEntity instance-specific
+            provided by default_db_entities but the latter is ConfigEntity instance-specific
         :return:
         """
         return dict()
@@ -255,8 +271,8 @@ class ConfigEntityFixture(Fixture):
             Return all DbEntities that are owned by this config_entity but not from this fixture, meaning they were created by the user
             or some kind of import process.
         """
-        default_db_entity_configurations = self.default_db_entity_configurations()
-        default_db_entity_keys = map(lambda db_entity_configuration: db_entity_configuration['key'], default_db_entity_configurations)
+        default_db_entities = self.default_db_entities()
+        default_db_entity_keys = map(lambda db_entity: db_entity.key, default_db_entities)
         additional_db_entity_keys = set(map(lambda db_entity: db_entity.key, self.config_entity.owned_db_entities())) - set(default_db_entity_keys)
         return self.config_entity.computed_db_entities(key__in=additional_db_entity_keys)
 
@@ -318,11 +334,11 @@ class PresentationConfigurationFixture(Fixture):
     # Some calls will require putting a config_entity in scope via init, but not all
     config_entity = None
 
-    def update_or_create_media(self):
+    def update_or_create_media(self, db_entity_keys=None):
         """
             Initializes the Presentation specific Media instances. Override this for client-specific media
         """
-        self.parent_fixture.update_or_create_media()
+        self.parent_fixture.update_or_create_media(db_entity_keys)
 
 class LayerConfigurationFixture(PresentationConfigurationFixture):
     module = 'publishing'
@@ -421,10 +437,18 @@ class MediumFixture(Fixture):
     def expect_kwargs(self):
         return ['key', 'name']
 
+def region_fixtures(**kwargs):
+    """
+        Convenience method to fetch all region features of a client. Normally there is only one
+    """
+    return unique(map(
+        lambda schema: resolve_fixture("config_entity", "region", RegionFixture, schema, **kwargs),
+        region_schemas_of_client()), lambda fixture: fixture.__class__)
+
 def project_specific_project_fixtures(**kwargs):
     """
         Convenience method to find ProjectFixture instances for all projects of the client.
-        :kwargs: Optional arguments for result_fixture, such as the config_entity
+        :kwargs: Optional arguments for resolve_fixture, such as the config_entity
     :return:
     """
     return unique(map(
@@ -440,6 +464,13 @@ def project_specific_scenario_fixtures(**kwargs):
     return unique(map(
         lambda schema: resolve_fixture("config_entity", "scenario", ScenarioFixture, schema, **kwargs),
         project_schemas_of_client()), lambda fixture: fixture.__class__)
+
+def region_schemas_of_client(**kwargs):
+    """
+        All region schemas of the client. Normally there is only one
+    """
+    client_config_entities = resolve_fixture("config_entity", "config_entities", ConfigEntitiesFixture, settings.CLIENT, **kwargs)
+    return map(lambda region_config: '%s__%s' % (client_config_entities.schema, region_config['key']), client_config_entities.regions())
 
 def project_schemas_of_client(**kwargs):
     """

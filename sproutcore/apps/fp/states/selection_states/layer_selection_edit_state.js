@@ -1,7 +1,7 @@
 /*
  * UrbanFootprint-California (v1.0), Land Use Scenario Development and Modeling System.
  *
- * Copyright (C) 2013 Calthorpe Associates
+ * Copyright (C) 2014 Calthorpe Associates
  *
  * This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, version 3 of the License.
  *
@@ -20,20 +20,23 @@ Footprint.LayerSelectionEditState = SC.State.extend({
      */
     choicepointState: SC.State.extend({
         enterState: function(layerContext) {
-            if (!(Footprint.layerLibraryActiveController.getPath('layers.status') & SC.Record.READY) ||
+            if (!layerContext) {
+                // We're in tight spot. It seems the Layer lacks a LayerSelection in the database
+                // This should never happen
+                logWarning("No LayerSelection exists for the current layer");
+                Footprint.statechart.gotoState('layerNotReadyState', layerContext);
+            }
+            else if (!(Footprint.layerLibraryActiveController.getPath('layers.status') & SC.Record.READY) ||
                 // Hack to keep background layers from trying to load layer selection
                 // When we have a better definition of DbEntity functional types, we'll use that to prevent loading
-                Footprint.layerActiveController.get('tags').mapProperty('tag').contains('background_imagery')) {
+                Footprint.layerActiveController.get('isBackgroundLayer')
+            ) {
                 Footprint.statechart.gotoState('layerNotReadyState', layerContext);
             }
             else if (!(Footprint.layerSelectionActiveController.get('status') & SC.Record.READY)) {
-                // TODO temp fix for weird binding problem--this assignment isn't binding reliably
-                Footprint.mapLayerGroupsController.set('activeLayer', Footprint.layerActiveController.get('content'));
                 Footprint.statechart.gotoState('loadingLayerSelectionsState', layerContext);
             }
             else {
-                // TODO temp fix for weird binding problem--this assignment isn't binding reliably
-                Footprint.mapLayerGroupsController.set('activeLayer', Footprint.layerActiveController.get('content'));
                 Footprint.statechart.gotoState('layerSelectionIsReadyState', SC.ObjectController.create({content:layerContext}));
             }            
         }
@@ -83,7 +86,7 @@ Footprint.LayerSelectionEditState = SC.State.extend({
             // Start over now that we have a layerSelection
             // invokeLast to allow the active controller to bind
             this.invokeNext(function() {
-                this.gotoState(this.getPath('parentState.parentState.fullPath'), Footprint.layerSelectionsController.getPath('selection.firstObject'));
+                this.gotoState(this.getPath('parentState.fullPath'), Footprint.layerSelectionsController.getPath('selection.firstObject'));
             });
         }
     }),

@@ -3,16 +3,16 @@ import os
 # Fixtures for the given client will be loaded
 CLIENT = 'sacog'
 
-USE_LOCAL_SAMPLE_DATA_SETS = True
+USE_LOCAL_SAMPLE_DATA_SETS = False
 USE_SAMPLE_DATA_SETS = True
 
 # Run celery as the main process
-CELERY_ALWAYS_EAGER = False
+CELERY_ALWAYS_EAGER = True
 
 # Indicates that the system should use test data for default data sets
 import warnings
 warnings.filterwarnings(
-        'error', r"DateTimeField received a naive datetime",
+        'error', r"DateTimeField received a naive datetime",\
         RuntimeWarning, r'django\.db\.models\.fields')
 
 DEBUG = True
@@ -37,7 +37,7 @@ DATABASES = {'default': {
         },
         'NAME': 'urbanfootprint',
         'USER': 'calthorpe',
-        'PASSWORD': '[PASSWORD]',
+        'PASSWORD': '[ your password ]',
         'HOST': 'localhost',
         'PORT': '5432'
     },
@@ -46,7 +46,7 @@ DATABASES = {'default': {
         HOST='localhost',
         NAME='sample_data',
         USER='calthorpe',
-        PASSWORD='[PASSWORD]',
+        PASSWORD='[ your password ]',
         PORT='5432'
     )
     }
@@ -75,8 +75,8 @@ LOGGING = {
         },
         'console': {
             'level': 'DEBUG',
-            #'class': 'logging.StreamHandler',
-            'class': 'footprint.main.color_logger.ColorHandler',
+            'class': 'logging.StreamHandler',
+            #'class': 'footprint.main.color_logger.ColorHandler',
             'formatter': 'simple'
         }
     },
@@ -97,7 +97,7 @@ LOGGING = {
         },
         'django.db.backends': {
             'handlers': ['null'],  # Quiet by default!
-            'propagate': False,
+            'propagate': True,
             'level': 'DEBUG',
         },
     }

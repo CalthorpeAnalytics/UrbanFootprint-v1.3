@@ -19,7 +19,7 @@ from optparse import make_option
 from django.core.management.base import BaseCommand
 from footprint.main.initialization.data_provider import DataProvider
 from footprint.main.models import Layer
-from footprint.main.models.application_initialization import application_initialization, create_data_provider_data
+from footprint.main.models.application_initialization import application_initialization, update_or_create_config_entities
 from footprint.main.models.base.primary_parcel_feature import PrimaryParcelFeature
 from footprint.main.models.keys.keys import Keys
 from footprint.main.models.presentation.layer_selection import get_or_create_dynamic_layer_selection_class_and_table
@@ -33,7 +33,7 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         if not options['skip']:
             application_initialization()
-            create_data_provider_data()
+            update_or_create_config_entities()
 
         user = DataProvider().user()['user']
         scenarios = DataProvider().scenarios()

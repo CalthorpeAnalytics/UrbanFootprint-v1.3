@@ -1,6 +1,6 @@
 [program:celery_worker]
 environment=PATH="/srv/calthorpe_env/bin:/usr/bin",IS_CELERY="True"
-command=/srv/calthorpe_env/bin/celery -A footprint worker -l debug -n footprint
+command=/srv/calthorpe_env/bin/celery -A footprint worker --concurrency=4 -l debug -n footprint
 directory=/srv/calthorpe/urbanfootprint/
 user=www-data
 stdout_logfile=/var/log/supervisor/celery.log
@@ -11,14 +11,12 @@ autorestart=true
 startsecs=10
 stopwaitsecs=600
 killasgroup=true
-numprocs=1
 
 [program:celerybeat]
-environment=PATH="/srv/calthorpe_env/bin:/usr/bin",IS_CELERY=True
-command=/srv/calthorpe_env/bin/celery beat -A footprint --loglevel=info
+environment=PATH="/srv/calthorpe_env/bin:/usr/bin",IS_CELERY="True"
+command=/srv/calthorpe_env/bin/celery beat -A footpint --loglevel=info
 directory=/srv/calthorpe/urbanfootprint/
 user=www-data
-numprocs=1
 stdout_logfile=/var/log/supervisor/celery.log
 stderr_logfile=/var/log/supervisor/celery.log
 autostart=true

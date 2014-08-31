@@ -16,8 +16,6 @@
 # Firm contact: 2095 Rose Street Suite 201, Berkeley CA 94709.
 # Phone: (510) 548-6800. Web: www.calthorpe.com
 from django.dispatch import receiver
-from footprint.client.configuration.fixture import LayerConfigurationFixture
-from footprint.client.configuration.utils import resolve_fixture
 from footprint.main.models.tag import Tag
 from footprint.main.models.keys.keys import Keys
 from footprint.main.models.signals import initialize_media
@@ -36,6 +34,8 @@ def initialize_layer_media(sender, **kwargs):
     :return:
     """
 
+    from footprint.client.configuration.fixture import LayerConfigurationFixture
+    from footprint.client.configuration.utils import resolve_fixture
     # TODO can we write media to the DB without/instead of the filesystem??
     create_media_subdir('styles')
     create_media_subdir('cartocss')

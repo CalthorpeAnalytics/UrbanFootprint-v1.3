@@ -19,7 +19,7 @@ from optparse import make_option
 from random import randrange
 from django.core.management.base import BaseCommand
 from footprint.main.models import Project, Placetype
-from footprint.main.models.application_initialization import application_initialization, create_data_provider_data
+from footprint.main.models.application_initialization import application_initialization, update_or_create_config_entities
 from footprint.main.models.keys.keys import Keys
 
 class Command(BaseCommand):
@@ -35,12 +35,12 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         if not options['skip']:
             application_initialization()
-            create_data_provider_data()
+            update_or_create_config_entities()
 
         projects = Project.objects.filter()
         placetypes = Placetype.objects.all()
         for project in projects:
-            base_feature_class = project.feature_class_of_db_entity_key(Keys.DB_ABSTRACT_BASE_FEATURE)
+            base_feature_class = project.db_entity_feature_class(DbEntityKey.BASE)
             base_features = base_feature_class.objects.all()
             for base_feature in base_features:
                 base_feature.built_form = placetypes[randrange(0, len(placetypes)-1)]

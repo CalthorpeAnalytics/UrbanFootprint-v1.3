@@ -219,6 +219,17 @@ def map_dict(lambda_call, dict):
     """
     return map(lambda tup: lambda_call(tup[0], tup[1]), dict.iteritems())
 
+def compact(list):
+    """
+        Removes null items from a list
+    """
+    results = []
+    for item in list:
+        if item:
+            results.append(item)
+    return results
+
+
 def compact_dict(dictionary):
     """
         Removes any key values of the dict that are null, returning a new dict
@@ -236,11 +247,13 @@ def map_to_dict(lambda_call, list):
         Maps the list to key values.
 
         lambda_call takes each item and must returns a key and value as a tuple or list
+        If the returned value is null the item is omitted from the result dictionary
     """
     results = {}
     for item in list:
         result_pair = lambda_call(item)
-        results[result_pair[0]] = result_pair[1]
+        if result_pair:
+            results[result_pair[0]] = result_pair[1]
     return results
 
 
@@ -379,6 +392,11 @@ def first(f, seq):
     for item in seq:
         if f(item):
             return item
+def any_true(f, seq):
+    """Return True if any item in the seq evaluaties True when passed to f"""
+    for item in seq:
+        if f(item):
+            return True
 
 
 def flatten(list_of_lists):
@@ -469,14 +487,14 @@ def deep_copy_dict_structure(dct, convert_objects=False):
     :param convert_objects: Default False. Object instances are normally copied without altercation. If this is set to True then the __dict__ property will be used for the copy. This is removes the evidence of the class but is useful for converting to a simple dict/list/primitive structure
     :return:
     """
-    return map_dict_to_dict(lambda key, value: [key, deep_copy(value, convert_objects)], dct)
+    return map_dict_to_dict(lambda key, value: [key, my_deep_copy(value, convert_objects)], dct)
 
 
 def deep_copy_array_structure(array, convert_objects=False):
-    return map(lambda value: deep_copy(value, convert_objects), array)
+    return map(lambda value: my_deep_copy(value, convert_objects), array)
 
 
-def deep_copy(value, convert_objects=False):
+def my_deep_copy(value, convert_objects=False):
     if isinstance(value, dict):
         return deep_copy_dict_structure(value, convert_objects)
     elif is_list_or_tuple(value):
@@ -550,15 +568,14 @@ def map_property(dicts_or_objs, property):
     :return: The values of the property for each list or dict
     """
     return map(lambda dict_or_obj:
-               dict_or_obj[property] if isinstance(dict_or_obj, dict) else resolve_property(dict_or_obj, property),
+               dict_or_obj.get(property) if isinstance(dict_or_obj, dict) else resolve_property(dict_or_obj, property),
                dicts_or_objs)
 
-
-def get_first(list, default):
+def get_first(list, default=None):
     """
         Return the first result of the list or the default if the list is empty
     :param list:  non-null list
-    :param default:
+    :param default: Optional, defaults to None
     :return:
     """
     return (list[:1] or [default])[0]
@@ -584,16 +601,14 @@ def if_not_none(obj, do_lambda):
     """
     return do_lambda(obj) if obj else None
 
-
 def accumulate(accumulate_lambda, target, list):
     """
         TODO this exists in python 3
         A type of aggregate function that begins with a target and a list of items that are mapped to chainable functions
         of the target. The first mapped item of list is called on target and then subsequent mapped items are called on the
         result of the previous call,
-    :param map_lambda: Takes the current mapped item of the list as arguments. Returns the next target
-    :param target: The target object of the first mapped item of list. The result of called the mapped item on the target is the target used
-     for the next item of the list
+    :param accumulate_lambda: Takes the target from the last call and the current item. The value returned is the first value of the next call
+    :param target: The first argument of the first call of accumulate_lambda
     :param list:
     :return:
     """
@@ -601,6 +616,21 @@ def accumulate(accumulate_lambda, target, list):
         return accumulate(accumulate_lambda, accumulate_lambda(target, list[0]), list[1:])
     else:
         return target
+
+def unfold_until(x, f, until):
+    """
+        Opposite of accumulate. http://www.reddit.com/r/programming/comments/65bpf/unfold_in_python
+        Returns a list from a single accumulated variable x
+        :param x: The starting value
+        :param f: The function to extract the from x. Ends when the function returns None
+        :param until: The function to test for x and each f(x) whether or not to end. The result that returns true
+        is included as the last result
+    """
+
+    if until(x):
+        return [x]
+    result = f(x)
+    return [x] + unfold_until(result, f, until)
 
 def all_existing_classes_subclass(dct_or_obj, **kwargs):
     """

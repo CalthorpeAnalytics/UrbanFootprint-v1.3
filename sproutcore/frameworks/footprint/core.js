@@ -11,6 +11,7 @@ sc_require('system/child_array_extensions');
 sc_require('system/store_extensions');
 sc_require('system/binding_extensions');
 sc_require('system/controller_extensions');
+//sc_require('system/record_extensions');
 //sc_require('resources/ZeroClipboard');
 
 /** @namespace
@@ -27,7 +28,7 @@ F = Footprint = SC.Application.create(
         VERSION: '0.1.0',
 
         // We do this primitive check to flag the development mode. There might be a built-in flag.
-        isDevelopment:window.location.port==4020,
+        isDevelopment:window.location.pathname=='/fp',
 
         // This is your application store.  You will use this store to access all
         // of your model data.  You can also set a data source on this store to

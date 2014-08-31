@@ -36,7 +36,7 @@ class TestConfigEntity(unittest.TestCase):
         key = strftime(now(), '%Y_%m_%d_%H_%M_%S')
         future_scenario = FutureScenario(
             parent_config_entity=scenario.project,
-            origin_config_entity=scenario,
+            origin_instance=scenario,
             year=scenario.year,
             name=key,
             description='Clone of %s' % scenario.name,

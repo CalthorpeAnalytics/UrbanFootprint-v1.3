@@ -59,7 +59,7 @@ Footprint.layersEditController = Footprint.EditArrayController.create({
     recordType: Footprint.Layer,
     parentEntityKey: 'presentation',
     parentRecordBinding: 'Footprint.layerLibraryActiveController.content',
-    nestedStore: null
+    nestedStore: null,
 });
 
 Footprint.layerEditController = SC.ObjectController.create({
@@ -68,9 +68,13 @@ Footprint.layerEditController = SC.ObjectController.create({
 
 Footprint.layerCategoriesTreeController = Footprint.TreeController.create({
 
+    layersVisibleForegroundContent: null,
+    layersVisibleForegroundContentBinding: SC.Binding.oneWay('Footprint.layersVisibleForegroundController.firstObject'),
+    firstSelectableObject: function() {
+        return Footprint.layersVisibleForegroundController.get('firstObject');
+    }.property('layersVisibleForegroundContent'),
+
     content: Footprint.TreeContent.create({
-        // Respond to configEntity changes
-        configEntityBinding: SC.Binding.oneWay('Footprint.scenarioActiveController.content'),
         // The container object holding nodes
         nodeSetBinding: SC.Binding.oneWay('Footprint.layerLibraryActiveController.content'),
         // The nodes of the tree
@@ -95,20 +99,22 @@ Footprint.layerCategoriesTreeController = Footprint.TreeController.create({
     }),
 
     allowsEmptySelection: NO,
+    /***
+     * Override the default to select the first non-background layer.
+     */
+    firstSelectableObject: function() {
+        return this.get('nodes').filter(function(layer) {
+            return layer.get('applicationVisible') && layer.get('status') & SC.Record.READY &&
+                layer.get('isForegroundLayer');
+        })[0] || this.getPath('nodes.firstObject');
+    }.property(),
 
     nodesStatus: null,
     nodesStatusBinding: SC.Binding.oneWay('*nodes.status'),
     contentDidChange: function() {
-        if (this.get('nodes') && (this.getPath('nodesStatus') & SC.Record.READY) &&
-            this.didChangeFor('layerCategoriesTreeControllerContent', 'nodes', 'nodesStatus')) {
-            // Tell the selection that the content has changed
-            this.updateSelectionAfterContentChange();
-            // Select the first visible layer that isn't a background layer
-            var selectLayer = this.get('nodes').filter(function(layer) {
-                return layer.get('applictionVisible') && layer.get('status') & SC.Record.READY &&
-                    !layer.get('tags').mapProperty('tag').contains('background_imagery');
-            })[0] || this.getPath('nodes.firstObject');
-            this.selectObject(selectLayer);
+        // Clear the selection when the nodes change. firstSelectableObject will set it to something after.
+        if (this.didChangeFor('layerCategoriesTreeControllerContent', 'nodes', 'nodesStatus')) {
+            this.deselectObjects(this.getPath('selection'));
         }
     }.observes('.nodes', '.nodesStatus'),
 
@@ -123,6 +129,101 @@ Footprint.layerCategoriesTreeController = Footprint.TreeController.create({
             })[0]);
         }
     }.observes('Footprint.layerLibraryActiveController*layers.status', '.nodes').cacheable()
+});
+
+/****
+ * Foreground layers.
+ */
+
+Footprint.layersBackgroundController = SC.ArrayController.create({
+    layers: null,
+    layersBinding: SC.Binding.oneWay('F.layersController.arrangedObjects'),
+    layersDidChange: function() { this.invokeOnce('doUpdateContent'); }.observes('*layers.@each.isBackgroundLayer'),
+    doUpdateContent: function() { this.notifyPropertyChange('content'); },
+    content: function() {
+        return (this.get('layers') || SC.EMPTY_ARRAY).filterProperty('isBackgroundLayer');
+    }.property().cacheable()
+});
+Footprint.layersForegroundController = SC.ArrayController.create({
+    layers: null,
+    layersBinding: SC.Binding.oneWay('F.layersController.arrangedObjects'),
+    layersDidChange: function() { this.invokeOnce('doUpdateContent'); }.observes('*layers.@each.isForegroundLayer'),
+    doUpdateContent: function() { this.notifyPropertyChange('content'); },
+    content: function() {
+        return (this.get('layers') || SC.EMPTY_ARRAY).filterProperty('isForegroundLayer');
+    }.property().cacheable()
+});
+
+/****
+ * Layers that have been selected to be on the map.
+ */
+Footprint.layersVisibleController = SC.ArrayController.create({
+    // Convenience flag for the menu panel.
+    layersMenuSectionIsVisible: NO,
+    layers: null,
+    layersBinding: SC.Binding.oneWay('F.layersController.arrangedObjects'),
+    // Manually observe membership and invalidate content to work around annoyances.
+    layersDidChange: function() {
+        this.notifyPropertyChange('content');
+    }.observes('*layers.@each.applicationVisible'),
+    content: function() {
+        var layers = this.get('layers');
+        if (!layers) return null;
+        else return layers.filterProperty('applicationVisible', YES);
+    }.property().cacheable()
+});
+
+/****
+ * The class for the foreground and background list controllers.
+ */
+Footprint.LayersVisibleListController = SC.ArrayController.extend({
+    layers: null,
+    layersBinding: SC.Binding.oneWay('F.layersVisibleController.content'),
+    layersDidChange: function() {
+        this.set('content', (this.get('layers') || SC.EMPTY_ARRAY).filter(this._matches).sortProperty('sortPriority'))
+    }.observes('*layers.[]'),
+
+    // Override this to filter layers into content.
+    _matches: function(item) { return NO; },
+
+    // This updates the content's sort property, then alerts the authorities.
+    contentDidUpdate: function() {
+        var content = this.get('content');
+        if (!content) return;
+        // Scan ourselves and update sortPriority appropriately.
+        var i, len = content.get('length'),
+            obj, objPriority,
+            nextObj, nextPriority,
+            currentPriority = 0;
+        for (i = 0; i < len; i++) {
+            obj = content.objectAt(i);
+            objPriority = obj.get('sortPriority');
+            currentPriority += 10;
+            obj.setIfChanged('sortPriority', currentPriority);
+        }
+        this.invokeOnce('_doUpdateMap');
+    }.observes('*content.[]'),
+    _doUpdateMap: function() {
+        F.statechart.sendAction('visibleLayersDidChange');
+    }
+});
+
+/****
+ * Background layers that have been made visible on the map.
+ */
+Footprint.layersVisibleBackgroundController = Footprint.LayersVisibleListController.create({
+    _matches: function(item) {
+        return item.getPath('tags.firstObject.tag') === 'background_imagery'
+    }
+});
+
+/****
+ * Foreground layers that have been made visible on the map.
+ */
+Footprint.layersVisibleForegroundController = Footprint.LayersVisibleListController.create({
+    _matches: function(item) {
+        return item.getPath('tags.firstObject.tag') !== 'background_imagery'
+    }
 });
 
 /***
@@ -148,7 +249,7 @@ Footprint.layerSelectionsController = SC.ArrayController.create(SC.SelectionSupp
                 }
             }, this)
         }
-    }.observes('.content', '.status').cacheable(),
+    }.observes('.content', '.status').cacheable()
 });
 
 /***
@@ -163,5 +264,72 @@ Footprint.layerSelectionActiveController = SC.ObjectController.create({
 
 Footprint.layerSelectionEditController = SC.ObjectController.create({
     layerId: null,
-    layerIdBinding: SC.Binding.oneWay('*content.layer.id'),
+    layerIdBinding: SC.Binding.oneWay('*content.layer.id')
+});
+
+/***
+ * Creates an ArrayController from the DbEntityInterests of each layer and tracks overall status
+ * @type {SC.ArrayStatus}
+ */
+Footprint.dbEntityInterestsAndLayersController = SC.ArrayController.create(SC.ArrayStatus, {
+    layers: null,
+    layersBinding: SC.Binding.oneWay('F.layerCategoriesTreeController.nodes'),
+    layersObserver: function() {
+        this.notifyPropertyChange('content');
+    }.observes('*layers.@each.db_entity_interest'),
+    content: function() {
+        var layers = this.get('layers');
+        return layers ? layers.mapProperty('db_entity_interest').compact().concat(layers.toArray()) : null;
+    }.property('layers').cacheable()
+});
+
+/***
+ * Offers a list of ConfigEntity scopes for a DbEntity to belong to. It is bound two-way to the DbEntity currently being edited
+ * @type {Footprint.SingleSelectionSupport}
+ */
+Footprint.dbEntityInterestScopesController = SC.ArrayController.create(Footprint.SingleSelectionSupport, {
+    allowsEmptySelection: NO,
+    scenario: null,
+    scenarioBinding: SC.Binding.oneWay('Footprint.scenarioActiveController.content'),
+    dbEntityInterest: null,
+    dbEntityInterestBinding: 'Footprint.layerEditController*db_entity_interest',
+    dbEntityInterestStatus: null,
+    dbEntityInterestStatusBinding: SC.Binding.oneWay('*dbEntityInterest.status'),
+    // New Layers can create a DbEntityIntereset scoped to the Scenario or Project
+    // This property serves as a liaison between scope and singleSelection to convert between
+    // ConfigEntity and subclassed ConfigEntity, respectively
+    // For non-new layers this is readonly--we use the schema to show the scope
+    scopeConfigEntity: function(propKey, value) {
+        if (this.getPath('dbEntityInterest.status') === SC.Record.READY_NEW) {
+            if (typeof(value) !== 'undefined' && (this.getPath('dbEntityInterest.status') & SC.Record.READY)) {
+                // No conversion needed here. scope can accept a subclass instance
+                this.setPath('dbEntityInterest.config_entity', value);
+            }
+            // Return the content matching the scope's id
+            return this.get('content').find(function(configEntity) {
+                    return configEntity.get('id')==this.getPath('dbEntityInterest.config_entity.id')
+            }, this);
+        }
+        else {
+            // Find the ConfigEntity matching the schema
+            if (this.getPath('dbEntityInterest.status') & SC.Record.READY) {
+                return this.get('content').filterProperty('schema', this.getPath('dbEntityInterest.db_entity.schema'))[0];
+            }
+        }
+    }.property('dbEntityInterest', 'dbEntityInterestStatus').cacheable(),
+
+    singleSelectionBinding: '.scopeConfigEntity',
+    // Sets up scopeConfigEntity when the DbEntityInterest becomes ready
+    dbEntityInterestObserver: function() {
+        if ((this.getPath('dbEntityInterest.status') & SC.Record.READY) &&
+            !this.getPath('dbEntityInterest.config_entity')) {
+                this.set('scopeConfigEntity', this.get('singleSelection'))
+        }
+    }.observes('.dbEntityInterest', '*dbEntityInterest.status'), // don't use dbEntityStatusProperty--it lags
+
+    project: null,
+    projectBinding: SC.Binding.oneWay('*scenario.project'),
+    content: function() {
+        return [this.get('scenario'), this.get('project')].compact();
+    }.property('scenario', 'project').cacheable()
 });

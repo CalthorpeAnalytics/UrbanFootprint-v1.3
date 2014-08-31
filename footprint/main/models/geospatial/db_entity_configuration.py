@@ -1,106 +1,108 @@
-
+from django.contrib.auth.models import User
 from inflection import titleize
-from footprint.main.lib.functions import merge, remove_keys
+from footprint.client.configuration.fixture import InitFixture
+from footprint.main.lib.functions import merge
+from footprint.main.models import FeatureBehavior
 from footprint.main.models.geospatial.db_entity import DbEntity
 from footprint.main.models.geospatial.feature_class_creator import FeatureClassCreator
-from footprint.main.utils.utils import resolvable_model_name, full_module_path
-from footprint.client.configuration import resolve_fixture, InitFixture
-
+from footprint.client.configuration.utils import resolve_fixture
 
 __author__ = 'calthorpe_associates'
 
-def create_db_entity_configuration(config_entity, **kwargs):
+
+def db_entity_defaults(db_entity, config_entity=None):
+
+    # Instantiate a FeatureClassCreator to make the FeatureClassConfiguration
+    feature_class_creator = FeatureClassCreator(config_entity, db_entity, no_ensure=True)
+    if config_entity:
+        # Find the database of the configured client
+        connection = resolve_fixture(None, "init", InitFixture, config_entity.schema()).import_database()
+    else:
+        # No config_entity abstract DbEntity case
+        connection = None
+
+    return dict(
+        # The name is passed in or the titleized version of key
+        name=db_entity.name or titleize(db_entity.key),
+        # Postgres URL for local sources, or possibly a remote url (e.g. for background layer sources)
+        # Unless overridden, create the url according to this postgres url scheme
+        url=db_entity.url or \
+            ('postgres://{user}:{password}/{host}:{port}/{database}'.format(
+                **merge(dict(port=5432), connection)) if connection else None),
+        # Normally Equals the key, except for views of the table, like a Result DbEntity
+        # Views leave this null and rely on query
+        table=db_entity.table or (db_entity.key if not db_entity.query else None),
+        # Query to create a "view" of the underlying data. Used by Result DbEntity instances
+        query=db_entity.query,
+        # How to group the features or query results. Not yet well hashed out
+        group_by=db_entity.group_by,
+        # The source DbEntity key if this DbEntity resulted from cloning a peer DbEntity
+        source_db_entity_key=db_entity.source_db_entity_key,
+        # Array used by remote data sources whose URLs have different host names
+        # If so then the url will have a string variable for the host
+        hosts=db_entity.hosts,
+        # Indicates that this DbEntity's geography extent is an authority extent used to
+        # calculate the ConfigEntity's extent
+        extent_authority=db_entity.extent_authority or False,
+        # The User who created the DbEntity. TODO. Default should be an admin
+        creator=db_entity.creator if hasattr(db_entity, 'creator') else User.objects.filter()[0],
+        # The User who updated the DbEntity. TODO. Default should be an admin
+        updater=db_entity.creator if hasattr(db_entity, 'creator') else User.objects.filter()[0],
+
+        # The SRID of the Feature table
+        srid=db_entity.srid,
+        # This is a non-model object. So it is saved as a PickledObjectField
+        # Whether the same instance is returned or not does not matter
+        # If db_entity.feature_class_configuration is None, it will return None
+        feature_class_configuration=feature_class_creator.complete_or_create_feature_class_configuration(
+            db_entity.feature_class_configuration
+        ),
+        no_feature_class_configuration=db_entity.no_feature_class_configuration,
+        # feature_behavior is handled internally by DbEntity
+    )
+
+
+def update_or_create_db_entity(config_entity, db_entity):
     """
-        Returns a dictionary containing a DbEntity instance and a dynamic feature subclass based on the the class
-        referenced by kwargs['base_class'] and optionally extra fields referenced by kwargs['fields'].
-        The dynamic subclass instances represent features of the layer represented by the DbEntity instance.
-    :param config_entity: Scopes the configuration. If null this will return an "abstract" configuration
-    :param kwargs:
-     'key':Used for the DBEntity key and table name, and also used to name the dynamic subclass of
-        kwargs['base_class'] TODO: It might be better to use a separate name so that the feature class table
-        can have the word 'feature' in it instead of 'layer;
-     'name':Optional name for the DBEntity. By default the key value is used
-     'db_entity_class' is optional and indicates the subclass to construct rather than DbEntity
-     'base_class': the class to subclass whose instances represent features of the DbEntity.
-     'fields': array of additional model fields for the subclass
-    :return: a dict with a 'db_entity' key pointing to the DbEntity instance and a 'feature_class' key pointing to
-        the dynamic feature subclass that was created based on the base_class and config_entity
+        Returns an updated version of the DbEntity or a clone. The DbEntity may come from the following sources:
+            1. Client Configuration. Whether preconfigured on the server or received from the API,
+            this is an unsaved DbEntity used to create a complete DbEntity associated with the ConfigEntity.
+            1.5. Same as 1 but no config_entity is given. Return a minimum version of the DbEntity, unsaved.
+            This happens upon system initialization when we just need basic attributes of the preconfigured DbEntities.
+            2. ConfigEntity Clone. Clone the DbEntity, changing nothing but ConfigEntity specifics
+            3. Update existing DbEntity. For case 1, if the DbEntity matching the Key and ConfigEntity already
+            exists, call update or create passing the dict of this db_entity to that function.
+            4. If we receive a saved db_entity (has an id) then apply defaults and save it. This would be a
+            post_save process invoked by the API or the system saving the DbEntity
     """
 
     if not config_entity:
-        return abstract_db_entity_configuration(**kwargs)
-    name = '{0}'.format(
-        # The name is passed in named or the titlized version of key
-        kwargs.get('name', None) or titleize(kwargs['key']))
-    db_entity_class = kwargs.get('db_entity_class', DbEntity)
-    db_entity_class_name = resolvable_model_name(db_entity_class)
+        # Just give back the unsaved, incomplete version
+        db_entity.__dict__.update(db_entity_defaults(db_entity))
+        return db_entity
 
-    schema = config_entity.schema()
-    init_fixture = resolve_fixture(None, "init", InitFixture, schema)
-    connection = init_fixture.import_database()
-    # Unless overridden, create the url according to this postgres url scheme
-    url = kwargs.get('url',
-                     'postgres://{user}:{password}/{host}:{port}/{database}'.format(
-                         **merge(dict(port=5432),
-                                 connection)) if connection else None)
+    try:
+        # feature_behavior is saved after DbEntity. It references DbEntity
+        feature_behavior = db_entity.feature_behavior
+    except:
+        feature_behavior = None
 
-    # We distinguish the DbEntity by key, name, and schema. Multiple DbEntities with the same key is a schema
-    # may exist, but they must have different names to distinguish them
-    feature_class_creator = FeatureClassCreator(config_entity)
-    return dict(
-        # This is used to determine what DbEntity subclass to create, if any
-        db_entity_class_name=db_entity_class_name,
-        key=kwargs['key'],
-        schema=schema,
-        name=name,
-        url=url,
-        table=kwargs.get('table', kwargs['key'] if not kwargs.get('query', None) else None),
-        query=kwargs.get('query', None),
-        group_by=kwargs.get('group_by', None),
-        class_key=kwargs.get('class_key', None),
-        hosts=kwargs.get('hosts', None), # TODO used?
-        extent_authority=kwargs.get('extent_authority', False),
-        creator=kwargs.get('creator', None),
-        srid=kwargs.get('srid', None),
-        feature_class_configuration=
-            # If a feature_class_configuration is specified explicitly, that means we are cloning the db_entity from another config_entity
-            # So just copy it and update for this config_entity
-            feature_class_creator.feature_class_configuration_for_config_entity(kwargs['feature_class_configuration']) if \
-                kwargs.get('feature_class_configuration') else \
-                # Formulate the feature_class_configuration from the db_entity_configuratoin
-                feature_class_creator.get_feature_class_configuration(
-                    **remove_keys(kwargs, ['query', 'group_by', 'class_key', 'hosts', 'extent_authority', 'creator', 'srid'])
-                ) if not 'no_feature_class_configuration' in kwargs else None
-    )
+    # Return a persisted DbEntity, either updated or created
+    updated_db_entity = DbEntity.objects.update_or_create(
+        # Uniqueness is based on key and schema
+        key=db_entity.key,
+        # The schema of the owning config_entity, used for uniqueness
+        # This is always the same as db_entity.configentity_set[0].schema()
+        schema=config_entity.schema(),
+        defaults=db_entity_defaults(db_entity, config_entity)
+    )[0]
 
-def abstract_db_entity_configuration(**kwargs):
-    """
-        Returns a minimized db_entity_configuration when no config_entity is in scope. This is primarily to lookup the abstract
-        Feature class by db_entity_key
-    :param kwargs:
-    :return:
-    """
-    return dict(
-        key=kwargs['key'],
-        feature_class_configuration=dict(
-            abstract_class=full_module_path(kwargs['base_class'])
-        )
-    )
+    # Now persist the feature_behavior
+    FeatureBehavior._no_post_save_publishing = True
+    updated_db_entity.update_or_create_feature_behavior(feature_behavior)
+    FeatureBehavior._no_post_save_publishing = False
 
-def db_entity_configuration_keys():
-    # The keys of the DbEntity and DbEntity configuration, used for cloning
-    return [
-        'db_entity_class_name',
-        'key',
-        'schema',
-        'name',
-        'url',
-        'table',
-        'query',
-        'group_by',
-        'class_key',
-        'url',
-        'hosts',
-        'extent_authority',
-        'feature_class_configuration',
-    ]
+    return updated_db_entity
+
+
+

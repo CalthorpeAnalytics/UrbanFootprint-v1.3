@@ -1,7 +1,7 @@
 /*
 * UrbanFootprint-California (v1.0), Land Use Scenario Development and Modeling System.
 * 
-* Copyright (C) 2013 Calthorpe Associates
+* Copyright (C) 2014 Calthorpe Associates
 * 
 * This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, version 3 of the License.
 * 
@@ -16,6 +16,7 @@
 
 sc_require('controllers/layer_controllers');
 sc_require('controllers/property_controllers');
+sc_require('system/array_status');
 
 /***
  * Controls the active features of the configEntity that are selected based on the LayerSelection
@@ -67,23 +68,25 @@ Footprint.featuresActivePropertiesController = Footprint.PropertiesController.cr
     recordTypeBinding: SC.Binding.oneWay('Footprint.featuresActiveController.recordType')
 });
 
-Footprint.joinLayersController = SC.ArrayController.create(SC.SelectionSupport, {
+Footprint.joinLayersController = SC.ArrayController.create(SC.SelectionSupport, SC.ArrayStatus, {
     allowsMultipleSelection:NO,
     layerLibrary:null,
     layerLibraryBinding: SC.Binding.oneWay('Footprint.layerLibraryActiveController.content'),
-    contentBinding: SC.Binding.oneWay('Footprint.mapLayerGroupsController.foregroundLayers'),
-    sortProperties: ['name'],
+    contentBinding: SC.Binding.oneWay('Footprint.layersForegroundController.arrangedObjects'),
+    sortProperties: ['db_entity_key'],
 
     /*
      * When the selection is updated, update the active layerSelection
      */
     selectionObserver: function() {
-        if (this.getPath('selection.length') && this.didChangeFor('selectionObserver', 'selection')) {
-            // This soils the record. Don't do so until an actual selection is made
+        if (this.getPath('selection') && this.didChangeFor('selectionObserver', 'selection')) {
             var db_entity_keys = this.getPath('selection').mapProperty('db_entity_key').filter(function(db_entity_key) {
                 return db_entity_key != 'None';
             });
-            Footprint.layerSelectionEditController.set('joins', db_entity_keys);
+            // This soils the record, so don't set to empty if already empty
+            if (Footprint.layerSelectionEditController.getPath('joins.length') > 0 ||
+                db_entity_keys.get('length') > 0)
+                Footprint.layerSelectionEditController.set('joins', db_entity_keys);
         }
     }.observes('.selection'),
 
@@ -113,20 +116,26 @@ Footprint.availableFieldsController = Footprint.PropertiesController.create({
     layerBinding: SC.Binding.oneWay('Footprint.layerActiveController.content'),
     joinLayer:null,
     joinLayerBinding: SC.Binding.oneWay('Footprint.joinLayersController*selection.firstObject'),
+    dbEntityInterestStatus: null,
+    dbEntityInterestStatusBinding: SC.Binding.oneWay('*layer.db_entity_interest.status'),
+
     fields: function() {
+        if (!(this.getPath('dbEntityInterestStatus') & SC.Record.READY))
+            return;
         var dbEntityKey = this.getPath('layer.db_entity_key');
         var joinDbEntityKey = this.getPath('joinLayer.db_entity_key');
+        var featureFields = this.getPath('layer.db_entity_interest.feature_fields');
         return (joinDbEntityKey ?
                 this.getPath('joinLayer.db_entity_interest.feature_fields').map(function(field) {
                     return '%@.%@'.fmt(joinDbEntityKey, field);
                 }) : []
             ).concat(
             dbEntityKey ?
-                this.getPath('layer.db_entity_interest.feature_fields').map(function(field) {
+                featureFields && featureFields.map(function(field) {
                         return '%@.%@'.fmt(dbEntityKey, field);
                 }) : []
             );
-    }.property('layer', 'joinLayer').cacheable()
+    }.property('layer', 'joinLayer', 'dbEntityInterestStatus').cacheable()
 });
 
 /***

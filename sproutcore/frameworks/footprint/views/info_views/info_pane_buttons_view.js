@@ -12,6 +12,10 @@
  * Contact: Joe DiStefano (joed@calthorpe.com), Calthorpe Associates. Firm contact: 2095 Rose Street Suite 201, Berkeley CA 94709. Phone: (510) 548-6800. Web: www.calthorpe.com
  */
 
+/***
+ * TODO remove this in favor of info_pane_crud_buttons_view
+ * @type {*|RangeObserver|Class|void}
+ */
 Footprint.InfoPaneButtonsView = SC.View.extend({
     layout: {left: .04, top: .9, width: 0.2},
     classNames: "footprint-info-pane-buttons-view".w(),

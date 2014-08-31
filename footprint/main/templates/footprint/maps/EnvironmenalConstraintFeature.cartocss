@@ -1,0 +1,32 @@
+.{{ htmlClass }}
+{buffer-size: 50;}
+
+[ proportion_constrained > 0.8] {
+    polygon-fill:#009966;
+    line-color: #909090;
+    line-width:.5;
+}
+
+[ proportion_constrained <= 0.8] {
+    polygon-fill:#00FF66;
+    line-color: #909090;
+    line-width:.5;
+}
+
+[ proportion_constrained <= 0.6] {
+    polygon-fill:#FFFF00;
+    line-color: #909090;
+    line-width:.5;
+}
+
+[ proportion_constrained <= 0.4] {
+    polygon-fill:#FF9933;
+    line-color: #909090;
+    line-width:.5;
+}
+
+[ proportion_constrained <= 0.2] {
+    polygon-fill:#CC0033;
+    line-color: #909090;
+    line-width:.5;
+}

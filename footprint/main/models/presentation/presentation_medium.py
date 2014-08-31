@@ -20,7 +20,7 @@ from django.db import models
 from model_utils.managers import InheritanceManager
 from picklefield import PickledObjectField
 from footprint.main.mixins.deletable import Deletable
-from medium import Medium
+from footprint.main.models.presentation.medium import Medium
 from footprint.main.mixins.tags import Tags
 
 __author__ = 'calthorpe_associates'
@@ -77,7 +77,7 @@ class PresentationMedium(Tags, Deletable):
         :return:
         """
         return self._db_entity_interest or \
-            self.presentation.subclassed_config_entity.computed_db_entity_interests(db_entity__key=self.db_entity_key)[0]
+            self.presentation.subclassed_config_entity.computed_db_entity_interests(db_entity__key=self.db_entity_key, with_deleted=True)[0]
 
     # We accept a db_entity_interest to allow the PresentationMediumResource to save new
     # DbEntityInterests. After saving this field is set back to None
@@ -85,13 +85,14 @@ class PresentationMedium(Tags, Deletable):
     @db_entity_interest.setter
     def db_entity_interest(self, value):
         self._db_entity_interest = value
+
     def save(self, force_insert=False, force_update=False, using=None):
         # Clear this. We'll access it from the config_entity after initial save
         self._db_entity_interest = None
         super(PresentationMedium, self).save(force_insert, force_update, using)
 
     def __unicode__(self):
-        return "presentation: {0}, medium: {1}".format(unicode(self.presentation), unicode(self.medium))
+        return "db_entity_key:{0}, presentation: {1}, medium: {2}".format(self.db_entity_key, unicode(self.presentation), unicode(self.medium))
 
     def query(self):
         return self.get_data()
@@ -118,6 +119,9 @@ class PresentationMedium(Tags, Deletable):
             Optionally updates an instance's tags. Overridden by the subclass
         """
         pass
+
+    # Disable publishing on the instance
+    _no_post_save_publishing = False
 
     class Meta(object):
         app_label = 'main'

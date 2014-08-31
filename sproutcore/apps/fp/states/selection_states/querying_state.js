@@ -1,7 +1,7 @@
 /*
  * UrbanFootprint-California (v1.0), Land Use Scenario Development and Modeling System.
  *
- * Copyright (C) 2013 Calthorpe Associates
+ * Copyright (C) 2014 Calthorpe Associates
  *
  * This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, version 3 of the License.
  *
@@ -18,10 +18,10 @@ Footprint.QueryingState = SC.State.extend({
     readyState: SC.State.extend({
         enterState: function(context) {
             if (this.parseQuery(Footprint.layerSelectionEditController)) {
-                Footprint.statechart.sendAction('queryDidValidate', Footprint.layerSelectionEditController);
+                Footprint.statechart.sendEvent('queryDidValidate', Footprint.layerSelectionEditController);
             }
             else {
-                Footprint.statechart.sendAction('queryDidFail', Footprint.layerSelectionEditController);
+                Footprint.statechart.sendEvent('queryDidFail', Footprint.layerSelectionEditController);
             }
         },
 
@@ -40,7 +40,6 @@ Footprint.QueryingState = SC.State.extend({
                         message: "Could not parse query",
                         description: "Only basic operators are currently available: '>, <, ='. You can refer to properties by name. Example: built_form.name = 'Agriculture'"
                     });
-                    Footprint.statechart.gotoState(this.get('fullPath'), context);
                     return NO;
                 }
             }

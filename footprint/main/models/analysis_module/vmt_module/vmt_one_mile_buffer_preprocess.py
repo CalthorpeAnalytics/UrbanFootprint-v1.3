@@ -1,7 +1,10 @@
+from footprint.common.utils.websockets import send_message_to_client
 from footprint.main.models.config.scenario import FutureScenario
+from footprint.main.models.geospatial.db_entity_keys import DbEntityKey
 from footprint.main.models.keys.keys import Keys
+from footprint.main.publishing.data_import_publishing import create_and_populate_relations
 from footprint.main.utils.uf_toolbox import queue_process, report_sql_values, execute_sql, drop_table, \
-    add_primary_key, count_cores, add_geom_idx, MultithreadProcess, reproject_table, add_constraint_SRID
+    add_primary_key, count_cores, add_geom_idx, MultithreadProcess, reproject_table, add_constraint_SRID, truncate_table
 from footprint.main.utils.utils import parse_schema_and_table
 
 __author__ = 'calthorpe'
@@ -13,26 +16,25 @@ def run_one_mile_buffers(config_entity):
 
     thread_count = count_cores()
 
-    vmt_one_mile_class = config_entity.feature_class_of_db_entity_key(Keys.DB_ABSTRACT_VMT_ONE_MILE_BUFFER_FEATURE)
+    vmt_one_mile_class = config_entity.db_entity_feature_class(DbEntityKey.VMT_ONE_MILE_BUFFER)
 
     if isinstance(config_entity.subclassed_config_entity, FutureScenario):
-        scenario_class = config_entity.feature_class_of_db_entity_key(Keys.DB_ABSTRACT_END_STATE_FEATURE)
+        scenario_class = config_entity.db_entity_feature_class(DbEntityKey.END_STATE)
 
     else:
-        scenario_class = config_entity.feature_class_of_db_entity_key(Keys.DB_ABSTRACT_BASE_FEATURE)
-
+        scenario_class = config_entity.db_entity_feature_class(DbEntityKey.BASE)
 
     input_table = scenario_class.db_entity_key
     input_schema = parse_schema_and_table(scenario_class._meta.db_table)[0]
 
     vmt_table = vmt_one_mile_class.db_entity_key
     vmt_schema = parse_schema_and_table(vmt_one_mile_class._meta.db_table)[0]
-
-
+    vmt_rel_table = parse_schema_and_table(vmt_one_mile_class._meta.db_table)[1]
+    vmt_rel_column = vmt_one_mile_class._meta.parents.values()[0].column
 
     queue = queue_process()
 
-    gQry = '''select pg_typeof(id) from {0}.{1} limit 2;'''.format(input_schema, input_table)
+    gQry = '''select pg_typeof(id) from {0}.{1} limit 1;'''.format(input_schema, input_table)
     geometry_id_type = report_sql_values(gQry, 'fetchone')[0]
 
     pSql = '''drop function if exists one_mile_buffer(
@@ -59,8 +61,9 @@ def run_one_mile_buffers(config_entity):
     $$
       select $1 as id,
         sum(round(cast(r.emp as numeric(14,4)), 4)) as emp,
-        $2 as wkb_geometry
-      FROM {0}.{1} r WHERE st_dwithin( $2, ST_TRANSFORM(r.wkb_geometry, 3310), 1608)
+        st_transform($2, 4326) as wkb_geometry
+      FROM {0}.{1}_geom_tmp a
+       inner join {0}.{1} r on a.id = r.id WHERE st_dwithin( $2, a.wkb_geometry, 1608)
     $$ 
     COST 10000
     language SQL STABLE strict;
@@ -68,19 +71,7 @@ def run_one_mile_buffers(config_entity):
 
     execute_sql(gQry1)
 
-    drop_table('''{0}.{1}'''.format(vmt_schema, vmt_table))
-
-    pSql = '''
-    create table {0}.{1}
-        (
-            id serial NOT NULL,
-            emp numeric(14,4) NOT NULL,
-            wkb_geometry geometry
-        );'''.format(vmt_schema, vmt_table)
-
-    execute_sql(pSql)
-
-    #=======================================================================================
+    truncate_table(vmt_schema + '.'+ vmt_table)
 
     #pass a flat list of the input table ids for the multithread process to use to split the process into tasks
     id_list = scenario_class.objects.values_list('id', flat=True).order_by('id')
@@ -89,9 +80,10 @@ def run_one_mile_buffers(config_entity):
 
     insert_sql = '''
     insert into {0}.{1}
-      select (f).* from (select one_mile_buffer(id, ST_TRANSFORM(wkb_geometry, 3310)) as f
-            from {2}.{3}
-        where id >= {4} and id <= {5} offset 0) s;
+      select (f).* from (select one_mile_buffer(a.id, b.wkb_geometry) as f
+            from {2}.{3} a
+            inner join {2}.{3}_geom_tmp b on a.id = b.id
+        where a.id >= {4} and a.id <= {5} and du + emp > 0 offset 0) s;
     '''.format(vmt_schema, vmt_table, input_schema, input_table, "{0}", "{1}")
 
     for i in range(thread_count):
@@ -121,7 +113,32 @@ def run_one_mile_buffers(config_entity):
     #wait on the queue until everything has been processed
     queue.join()
 
-    reproject_table(vmt_schema, vmt_table, '4326')
-    add_primary_key(vmt_schema, vmt_table, 'id')
-    add_geom_idx(vmt_schema, vmt_table)
-    add_constraint_SRID(vmt_schema, vmt_table, '4326')
+    truncate_table(vmt_schema + '.'+ vmt_rel_table)
+
+    pSql = '''
+    DO $$
+    BEGIN
+        BEGIN
+            ALTER TABLE {vmt_schema}.{vmt_rel_table} ADD COLUMN {vmt_rel_column} int;
+        EXCEPTION
+            WHEN duplicate_column
+                THEN -- do nothing;
+        END;
+    END;
+    $$'''.format(
+        vmt_schema=vmt_schema,
+        vmt_rel_table=vmt_rel_table,
+        vmt_rel_column=vmt_rel_column
+    )
+    execute_sql(pSql)
+
+    pSql = '''
+    insert into {vmt_schema}.{vmt_rel_table} ({vmt_rel_column}) select id from {vmt_schema}.{vmt_table};'''.format(
+        vmt_schema=vmt_schema,
+        vmt_table=vmt_table,
+        vmt_rel_table=vmt_rel_table,
+        vmt_rel_column=vmt_rel_column)
+
+    execute_sql(pSql)
+
+    create_and_populate_relations(config_entity, config_entity.computed_db_entities(key=DbEntityKey.VMT_ONE_MILE_BUFFER)[0])

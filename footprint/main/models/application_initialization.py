@@ -20,8 +20,9 @@ import logging
 from django.contrib.gis.geos import MultiPolygon, Polygon
 from django.conf import settings
 from footprint.main.initialization.data_provider import DataProvider
-from footprint.client.configuration.fixture import ConfigEntitiesFixture, InitFixture
+from footprint.client.configuration.fixture import ConfigEntitiesFixture, InitFixture, region_fixtures
 from footprint.client.configuration.utils import resolve_fixture
+from footprint.main.lib.functions import flat_map
 from footprint.main.models import Project
 from footprint.main.models.built_form.placetype_component import PlacetypeComponentCategory
 from footprint.main.models.keys.keys import Keys
@@ -31,7 +32,7 @@ import footprint.main.models as models
 from footprint.main.models.signals import initialize_media, initialize_presentations
 from footprint.main.models.config.global_config import GlobalConfig
 from footprint.main.models.config.interest import Interest
-from footprint.main.models.built_form.building_use_definition import BuildingUseDefinition
+from footprint.main.models.built_form.urban.building_use_definition import BuildingUseDefinition
 
 from footprint.main.models.database.information_schema import SouthMigrationHistory
 from footprint.main.publishing.config_entity_publishing import post_save_config_entity_initial
@@ -42,10 +43,17 @@ __author__ = 'calthorpe_associates'
 logger = logging.getLogger(__name__)
 
 
+def update_or_create_config_entities(**kwargs):
+    # Creating the precooked scenarios will cause everything else to be created.
+    DataProvider().scenarios(**kwargs)
+    recalculate_project_bounds()
+
 def application_initialization(**kwargs):
     """
         Initialize or sync the application
-        :param kwargs: 'limit_to_classes' as an array of ConfigEntity classes to limit processing to those
+        :param kwargs:
+            'limit_to_classes' as an array of ConfigEntity classes to limit processing to those
+            'no_post_save_publishing' set True to preven the GlobalConfig save from starting publishers
     """
 
     # Initialize lookup table data
@@ -53,13 +61,20 @@ def application_initialization(**kwargs):
         initialize_table_definitions()
         initialize_client_data()
 
+        data_provider = DataProvider()
+        # Create the users configured for this client
+        data_provider.users()
+        # Create the Behavior instances. These can be defined by the client in the region_fixtures, but most
+        # are simply defined at default_global_config.py
+        for region_fixture in region_fixtures():
+            region_fixture.default_behaviors()
+
         # Sync the DBEntities to tables in the global schema
         initialize_global_config(**kwargs)
 
         # Send a message telling Publishers to save their default media
         initialize_default_media()
         initialize_presentations.send(sender=models)
-        create_data_provider_data(**kwargs)
 
 
 def minimum_initialization(**kwargs):
@@ -100,7 +115,7 @@ def minimum_initialization(**kwargs):
         DataProvider().scenarios([scenario_fixture], [project_fixture])
         # Create the test user
         DataProvider().user()
-        create_data_provider_data()
+        update_or_create_config_entities()
 
 
 def initialize_client_data():
@@ -111,11 +126,6 @@ def initialize_client_data():
     print("using fixture:" + str(client_init))
     client_init.populate_models()
 
-
-def create_data_provider_data(**kwargs):
-    # Creating the precooked scenarios will cause everything else to be created.
-    DataProvider().scenarios(**kwargs)
-    recalculate_project_bounds()
 
 
 def recalculate_project_bounds():
@@ -133,7 +143,6 @@ def initialize_table_definitions():
 
     for building_use_subcategory, building_use in Keys.BUILDING_USE_DEFINITION_CATEGORIES.items():
         BuildingUseDefinition.objects.update_or_create(name=building_use_subcategory)
-        BuildingUseDefinition.objects.update_or_create(name=building_use)
 
     for component in Keys.COMPONENT_CATEGORIES:
         PlacetypeComponentCategory.objects.update_or_create(
@@ -175,15 +184,20 @@ def initialize_global_config(**kwargs):
     # Consume default data hardcoded in the system, either from the defaults.data or tests.data package
     data_provider = DataProvider()
 
-    data_provider.user()
+    data_provider.policy()
 
     limit_to_classes = kwargs.get('limit_to_classes', [GlobalConfig]) \
         if kwargs.get('limit_to_classes', [GlobalConfig]) else [GlobalConfig]
+    # Optionally disable post-save publishing
+    if kwargs.get('no_post_save_publishing'):
+        GlobalConfig._no_post_save_publishing = True
     # Create and persist the singleton GlobalConfig
     global_config, created, updated = GlobalConfig.objects.update_or_create(
         key=Keys.GLOBAL_CONFIG_KEY,
         defaults={'name': Keys.GLOBAL_CONFIG_NAME, 'bounds': global_bounds}
     ) if GlobalConfig in limit_to_classes else (GlobalConfig.objects.get(), False, False)
+    if kwargs.get('no_post_save_publishing'):
+        GlobalConfig._no_post_save_publishing = False
 
     return global_config
 
